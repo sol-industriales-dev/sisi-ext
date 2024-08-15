@@ -1,0 +1,299 @@
+﻿@model Core.Entity.Principal.Usuarios.tblP_Usuario
+
+@{
+    ViewBag.Title = "PerfilUsuario";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseData = new SIGOPLAN.Controllers.BaseController();
+    var nombre = "";
+}
+
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/wizardjs.js"></script>
+<link href="~/Content/style/PanelSwitch.css" rel="stylesheet" />
+<link href="~/Content/style/css/skin-lion/ui.fancytree.min.css" rel="stylesheet" />
+<script src="~/Scripts/js/Principal/Administracion/UsuariosJS.js"></script>
+<script src="~/Scripts/Utilities/jquery.fancytree-all.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h2 style="margin-top: 0;">
+                Perfil de Usuarios
+            </h2>
+        </div>
+    </div>
+
+    <div class="stepwizard">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step">
+                <a href="#step-1" id="btnstep1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                <p>Paso 1</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-2" id="btnstep2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p>Paso 2</p>                
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-3" id="btnstep3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                <p>Paso 3</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="setup-content" id="step-1">
+        <div class="row" id="divListaUsuarios">
+            <div class="row">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label id="lblTitulotblUsuarios">Listado de Usuarios:</label></legend>
+                    <div class="row text-right">
+                        <div class="col-lg-12">
+                            <a id="btnAccesos" class="btn btn-primary">Enviar accesos</a>
+                            <a id="btnNuevo" class="btn btn-success nextBtn">Nuevo</a>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                            <table id="tblUsuarios" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="id" data-width="50px">ID</th>
+                                        <th data-column-id="verPerfil" data-formatter="verPerfil" data-sortable="false" data-searchable="false" data-width="25px">Perfil</th>
+                                        <th data-column-id="Nombre" data-width="25%">Nombre</th>
+                                        <th data-column-id="Correo" data-width="15%">Correo</th>
+                                        <th data-column-id="Clave" data-width="10%">Clave Empleado</th>
+                                        <th data-column-id="idEnkontrol" data-width="10px">Enkontrol</th>
+                                        <th data-column-id="Usuario" data-width="15%">Usuario</th>
+                                        <th data-column-id="Estatus" data-searchable="false" data-width="30px">Estatus</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary nextBtn pull-right hide" type="button" id="btnSiguienteStep1">
+                        Siguiente
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div class="setup-content" id="step-2">
+        <div class="row">
+            <div class="col-lg-6">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label id="lblTituloUsuarios">Datos Empleado:</label></legend>
+                    <label class="hidden" id="lblIdUsuario"></label>
+                    <div class="col-lg-6 form-group">
+                        <label>Clave Empleado:</label>
+                        <input id="txtClave" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>ID Enkontrol:</label>
+                        <input id="txtIDEnkontrol" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Nombre:</label>
+                        <input id="txtNombre" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Apellido Paterno:</label>
+                        <input id="txtApPaterno" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Apellido Materno:</label>
+                        <input id="txtApMaterno" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Correo:</label>
+                        <input id="txtCorreo" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Centro Costos:</label>
+                        <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Departamento:</label>
+                        <select class="form-control no-padding" id="cboDepartamento"></select>
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Puesto:</label>
+                        <select class="form-control no-padding" id="cboPuesto"></select>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-6">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label id="lblTituloUsuarios">Configuracion SIGOPLAN:</label></legend>
+                    <label class="hidden" id="lblIdUsuario"></label>
+                    
+                    <div class="col-lg-2 form-group">
+                        <label style="text-align:center;">Activo:</label>
+                        <input id="checkActivo" class="form-control" type="checkbox" min="0" />
+                    </div>
+                    <div class="col-lg-2 form-group">
+                        <label style="text-align:center;">Enviar:</label>
+                        <input id="checkEnviar" class="form-control" type="checkbox" min="0" />
+                    </div>
+                    <div class="col-lg-2 form-group">
+                        <label style="text-align:center;">Auditor:</label>
+                        <input id="checkAuditor" class="form-control" type="checkbox" min="0" />
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label style="text-align:center;">Gestor Seg:</label>
+                        <input id="checkGestorSeguridad" class="form-control" type="checkbox" min="0" />
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label style="text-align:center;">PATOOS:</label>
+                        <input id="checkPatoos" class="form-control" type="checkbox" min="0" />
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Nombre de Usuario:</label>
+                        <input id="txtUsuario" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Nueva Contraseña:</label>
+                        <input id="txtContrasena" class="form-control" type="text" min="0" />
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label>Confirmar Contraseña:</label>
+                        <input id="txtConfirContrasena" class="form-control" type="password" min="0" />
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Empresa:</label>
+                        <select class="form-control no-padding" multiple="multiple" id="cboEmpresa"></select>
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Tipo perfil:</label>
+                        <select class="form-control no-padding" id="cboPerfil"></select>
+                    </div>
+                    <div class="row text-right">
+                        <div class="col-lg-12">
+                            <button id="btnSiguienteStep2Validar" class="btn btn-primary pull-right" type="button">
+                                Siguiente
+                            </button>
+                            <button class="btn btn-primary nextBtn pull-right hide" type="button" id="btnSiguienteStep2">
+                                Siguiente
+                            </button>
+                        </div>
+                    </div>
+
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div class="setup-content" id="step-3">
+
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><label id="lblTituloPermisos">Permisos:</label></legend>
+
+            <div class="row">
+                <div class="col-lg-4 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><label id="lblTituloPermisos">Sistemas:</label></legend>
+                        <div class="row" style="max-height: 400px;overflow-y: auto;height:400px;">
+                            <div id="divarbol1" class="col-lg-12">
+                                <div class="panel panel-default">
+                                    <!-- Default panel contents -->
+                                    <div class="panel-heading">Sistemas</div>
+
+                                    <!-- List group -->
+                                    <ul class="list-group" id="ulRadioBtn">
+                                        @foreach (var i in baseData.getSistemas())
+                                        {
+                                            
+                                            <li class="list-group-item">
+                                                @i.nombre
+
+                                                <div class="material-switch pull-right">
+                                                    <input id="@i.id" name="SistemasSelect" type="radio" data-seleccionado="0" value="@i.id" />
+                                                    <label for="@i.id" class="label-success"></label>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-lg-4 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><label id="lblTituloPermisos">Vistas:</label></legend>
+                        <div class="row" style="max-height: 400px;overflow-y: auto; height:400px;">
+                            <div id="divarbol2" class="col-lg-12">
+
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-lg-4 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><label id="lblTituloPermisos">Acciones:</label></legend>
+                        <div class="row" style="max-height: 400px;overflow-y: auto; height:400px;">
+                            <div id="divarbol3" class="col-lg-12">
+
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="row text-right">
+                <div class="col-lg-12">
+                    <button class="btn btn-primary pull-right margin-top" type="button" id="btnGuardar">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+
+        
+        
+    </div>
+
+</div>
+
+<div id="modalEliminar" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-fix modal-md">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Cambiar de sistema</h4>        
+            </div>
+            <div class="modal-body ajustar-texto"><h5 id="pMessage"></h5>
+                <div class="row">
+                    <div id="icon" class="col-md-2">
+                        <span class="glyphicon glyphicon-warning-sign alert-warning-span" style="font-size:40px;" aria-hidden="true"></span>
+                    </div>
+                    <div class="col-md-10">
+                        <h3>  Se perderan los cambios no guardados en este sistema</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnModalEliminar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> Aceptar</a>
+                <a data-dismiss="modal" id="btnCancelar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span> Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogGuardadoPerfilUsuario" class="content_dialog">
+    <center>
+        <p id="txtComentarioPerfilUsuario"> </p>
+        <button class="btn btn-primary pull-right hide" type="button" id="btnOK">
+            Aceptar
+        </button>
+    </center>
+</div>
+
+

@@ -1,0 +1,601 @@
+﻿@{
+    ViewBag.Title = "ControlServicios";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    .dot {
+        height: 35px;
+        width: 35px;
+        background-color: #bbb;
+        border-radius: 50%;
+        display: inline-block;
+        padding-top: 15px;
+        color: white;
+        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+        box-shadow: 2px 4px 3px rgba(0,0,0,0.5);
+        text-align: center;
+        line-height: 0.01em;
+    }
+    
+    .bootgrid-table th:active, .bootgrid-table td {
+        white-space: normal;
+    }
+
+    .column-header-anchor {
+        white-space: normal !important;
+    }
+
+    .tabla {
+        max-height: 300px; 
+        overflow: auto;
+    }
+
+    .tabla thead th { 
+        position: sticky; 
+        top: 0; 
+        z-index: 1; 
+        background-color: rgb(44, 105, 204) !important;
+        color:white;
+        text-align:center !important;
+        border-left:0 !important;
+    }
+
+    .tabla thead td { 
+        border-left:0 !important;
+    }
+
+    td {
+        vertical-align: middle !important;
+    }
+
+    .tabla .infoBar {
+        position: sticky;
+        top: 0;
+    }
+
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .ui-autocomplete {
+        z-index: 2147483647;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .form-group .ckaplica {
+        display: none;
+    }
+
+        .form-group .ckaplica + .btn-group > label span:first-child {
+            display: none;
+        }
+
+        .form-group .ckaplica + .btn-group > label span:last-child {
+            display: inline-block;
+        }
+
+        .form-group .ckaplica:checked + .btn-group > label span:first-child {
+            display: inline-block;
+        }
+
+        .form-group .ckaplica:checked + .btn-group > label span:last-child {
+            display: none;
+        }
+
+    .form-group input[type="checkbox"] {
+        display: none;
+    }
+
+        .form-group input[type="checkbox"] + .btn-group > label span:first-child {
+            display: none;
+        }
+
+        .form-group input[type="checkbox"] + .btn-group > label span:last-child {
+            display: inline-block;
+        }
+
+        .form-group input[type="checkbox"]:checked + .btn-group > label span:first-child {
+            display: inline-block;
+        }
+
+        .form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
+            display: none;
+        }
+
+    .bootgrid-footer {
+        position: sticky;
+        bottom: 0;
+        border-color: red;
+        background-color: #81bd72 !important;
+    }
+</style>
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+
+<h2 class="text-center">Control de servicios</h2>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Datos Locación - Servicio</legend>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs" id="ulNuevo">
+            <li><a id="tabCatServicios" data-toggle="tab" href="#catServicios">Catalogo de servicio</a></li>
+            <li class="active"><a id="tabServiciosActivos" data-toggle="tab" href="#serviciosActivos">Servicios Activos</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="catServicios" class="tab-pane">
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group">
+                                <label>Servicio:</label>
+                                <input class="form-control" id="txtFiltroServicio" type="text" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group">
+                                <label>Grupo Maquina:</label>
+                                <select class="form-control" id="cboGrupoMaquinaServicio"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group">
+                                <label>Modelo:</label>
+                                <select class="form-control" id="cboModeloMaquinaServicio" disabled></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group">
+                                <label>Estatus:</label>
+                                <select class="form-control" id="cboFiltroEstatusServicio">
+                                    <option value="1">ACTIVO</option>
+                                    <option value="0">INACTIVO</option>
+                                </select>
+                            </div>
+                            <div class=" col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                <button type="button" class="btn btn-success margin-top " id="btnNuevoServicio">
+                                    <span class="glyphicon glyphicon-plus"></span> Nuevo
+                                </button>
+                                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarServicios">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row form-group">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Servicios:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                <table id="gridServicios" class="table table-condensed table-hover table-striped text-center">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th data-column-id="nombre" data-formatter="nombre" data-align="center" data-header-align="center" data-sortable="false">Servicio</th>
+                                            <th data-column-id="modeloMaquina" data-formatter="modeloMaquina" data-align="center" data-header-align="center" data-sortable="false">Modelo máquina</th>
+                                            <th data-column-id="descripcion" data-formatter="descripcion" data-align="center" data-header-align="center">Descripción</th>
+                                            <th data-column-id="estatus" data-formatter="estatus" data-align="center" data-header-align="center">Estatus</th>
+                                            <th data-column-id="asignar" data-formatter="asignar" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Asignar</th>
+                                            <th data-column-id="modificar" data-formatter="modificar" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                                            <th data-column-id="deshabilitar" data-formatter="deshabilitar" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Deshabilitar</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                </div>
+
+                <div class="modal fade" id="modalServicios" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header modal-bg">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <div class="text-center">
+                                    <h3><label id="titlemodalServicios"></label></h3>
+                                </div>
+                            </div>
+                            <div class="modal-body text-center modal-content-tamaño">
+                                <div class="container-fluid">
+                                    <form id="frmServicios">
+
+                                        <div class="row">
+                                            <fieldset class="fieldset-custm">
+                                                <legend class="legend-custm">Datos Servicio:</legend>
+                                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-4">
+                                                    <label>Nombre:</label>
+                                                    <input class="form-control" id="txtModalNombreServicio" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-4 form-group">
+                                                    <label>Grupo Maquina:</label>
+                                                    <select class="form-control" id="cboModalGrupoMaquinaServicio"></select>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-4 form-group">
+                                                    <label>Modelo:</label>
+                                                    <select class="form-control" id="cboModalModeloMaquinaServicio" disabled></select>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-12 form-group">
+                                                    <label>Descripción:</label>
+                                                    <textarea class="form-control" id="txtModalDescripcionServicio" title="Introducir descripción" style="height:100px; width:97%;" placeholder="Escribe la descripción del servicio"></textarea>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 form-group">
+                                                    <input type="checkbox" name="fancy-checkbox-danger-custom-icons" id="ckPlaneacion" autocomplete="off" />
+                                                    <div class="btn-group">
+                                                        <label for="ckPlaneacion" class="btn btn-primary">
+                                                            <span class="glyphicon glyphicon-ok"> | PLANIFICACIÓN</span>
+                                                            <span class="glyphicon glyphicon-remove"> | PLANIFICACIÓN</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                                <div>
+                                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarServicio">
+                                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarServicio" data-dismiss="modal">
+                                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modalAsignacionServ" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                    <div class="modal-dialog modal-md" style="" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header modal-bg">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <div class="text-center">
+                                    <h3><label id="title-modal-AsignacionServ">Asignación de servicio</label></h3>
+                                </div>
+                            </div>
+                            <div class="modal-body text-center modal-content-tamaño">
+                                <div class="container-fluid">
+                                    <form id="frmModalAsignacionServ" novalidate="novalidate">
+                                        <div class="row" style="width:100%; text-align:center;">
+                                            <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                <legend id="lgModalAsignacionServ" class="legend-custm">Datos requeridos:</legend>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-12 form-group">
+                                                    <label>Servicio:</label>
+                                                    <input class="form-control" id="txtModalAsignacionServNombre" disabled />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-6 form-group">
+                                                    <label>Modelo máquina:</label>
+                                                    <input class="form-control" id="txtModalAsignacionServModelo" disabled />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-6 form-group">
+                                                    <label>Económico:</label>
+                                                    <select class="form-control" id="cboModalAsignacionServ"></select>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-6 form-group">
+                                                    <label>Horas de ciclo:</label>
+                                                    <input type="number" min="0" value="0" class="form-control" id="txtModalAsignacionServHorasCiclo" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-6 form-group">
+                                                    <label>Horas de ciclo actual:</label>
+                                                    <input type="number" min="0" value="0" class="form-control" id="txtModalAsignacionServCicloActual" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-12" style="text-align:center">
+                                                    <button type="button" class="btn btn-primary margin-top pull-right" id="btnGuardarModalAsignacionServ">
+                                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                    </button>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Servicios Activos*@
+            <div id="serviciosActivos" class="tab-pane fade in active">
+                <div class="row form-group">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                <label>Económico:</label>
+                                <input class="form-control" id="txtFiltroEconomicoServAct" type="text" maxlength="100">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label>Servicio:</label>
+                                <input class="form-control" id="txtFiltroNombreServAct" type="text" maxlength="100">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                <label>Obra:</label>
+                                <select class="form-control" id="cboCCServAct"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                <label>Grupo Máquina:</label>
+                                <select class="form-control" id="cboFiltroGrupoMaquinaServAct"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                <label>Modelo Máquina:</label>
+                                <select class="form-control" id="cboFiltroModeloMaquinaServAct" disabled></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                <label>Estatus:</label>
+                                <select class="form-control" id="cboFiltroEstatusMaquinaServAct">
+                                    <option value="1">ACTIVO</option>
+                                    <option value="0">INACTIVO</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarServAct">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                                <button type="button" class="btn btn-warning margin-top btn-alta-comp pull-right" style="margin-right:5px;" id="btnModificarServicio" disabled>
+                                    <span class="glyphicon glyphicon-edit"></span> Modificar
+                                </button>
+                            </div>
+
+                        </fieldset>
+                </div>
+                <div class="row form-group">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Servicios:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                <table id="gridServAct" class="tabla table display compact" style="width:100%">
+                                    
+                                </table>
+                            </div>
+                        </fieldset>
+                        <div class="modal fade" id="modalDetallesServAct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                            <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header modal-bg">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                        <div class="text-center">
+                                            <h3><label id="titlemodalServAct"></label></h3>
+                                        </div>
+                                    </div>
+                                    <div class="modal-body text-center modal-content-tamaño">
+                                        <div class="container-fluid">
+                                            <fieldset class="fieldset-custm fielset-Filtros">
+                                                <legend class="legend-custm">Filtros:</legend>
+                                                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-2">
+                                                    <label>Servicio:</label>
+                                                    <input class="form-control" id="txtFiltroModalServAct" type="text" maxlength="100">
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                                    <button type="button" class="btn btn-info margin-top" id="btnBuscarModalServAct">
+                                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                                    </button>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div class="modal-body text-center modal-content-tamaño">
+                                        <div class="container-fluid">
+                                            <form id="frmServAct" novalidate="novalidate">
+                                                <div class="row">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend class="legend-custm">Detalles componentes equipo:</legend>
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                            <table id="gridDetallesServAct" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                <thead class="bg-table-header" style="color:white">
+                                                                    <tr>
+                                                                        <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">Estatus</th>
+                                                                        <th data-column-id="economico" class="text-center" style="" data-formatter="economico">Económico</th>
+                                                                        <th data-column-id="nombreServicio" class="text-center" style="">Servicio</th>
+                                                                        <th data-column-id="fecha" class="text-center" style="" data-formatter="">Fecha asignación</th>
+                                                                        <th data-column-id="cicloVidaHoras" class="text-center" style="" data-formatter="">Ciclo vida en hrs</th>
+                                                                        <th data-column-id="horasCicloActual" class="text-center" style="" data-formatter="">Horas ciclo actual</th>
+                                                                        <th data-column-id="fechaUltimoServicio" class="text-center" style="" data-formatter="fechaUltimoServicio">Último servicio</th>
+                                                                        <th data-column-id="detalle" class="text-center" style="" data-formatter="detalle">Detalles</th>
+                                                                        <th data-column-id="aplicar" class="text-center" style="" data-formatter="aplicar">Aplicar</th>
+                                                                        <th data-column-id="eliminar" class="text-center" style="" data-formatter="eliminar">Desasignar</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody></tbody>
+                                                            </table>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="modalHistorialServAct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                            <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header modal-bg">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                        <div class="text-center">
+                                            <h3><label id="titlemodalhistorialServAct"></label></h3>
+                                        </div>
+                                    </div>
+                                    <div class="modal-body text-center modal-content-tamaño">
+                                        <div class="container-fluid">
+                                        </div>
+                                    </div>
+                                    <div class="modal-body text-center modal-content-tamaño">
+                                        <div class="container-fluid">
+                                            <form id="frmDetallesHistorialServAct" novalidate="novalidate">
+
+                                                <div class="row">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend id="lgHistorialServAct" class="legend-custm">Detalles historial componente:</legend>
+
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                            <table id="gridDetallesHistorialServAct" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                <thead class="bg-table-header" style="color:white">
+                                                                    <tr>
+                                                                        <th data-column-id="id" class="text-center" style="" data-formatter="fecha" data-visible="false" data-identifier="true">ID</th>
+                                                                        <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">Fecha</th>
+                                                                        <th data-column-id="horasCiclo" class="text-center" style="">Horas Ciclo</th>
+                                                                        <th data-column-id="target" class="text-center" style="" data-formatter="">Target</th>
+                                                                        <th data-column-id="evidencia" class="text-center" style="" data-formatter="evidencia">Evidencia</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody></tbody>
+                                                            </table>
+                                                        </div>
+
+                                                    </fieldset>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalArchivosServicio" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-aplicar"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <fieldset class="fieldset-custm">
+
+                        <legend class="legend-custm">Información Aplicación</legend>
+                        <div class="col-xs-12 col-xs12 col-md-12 col-lg-12">
+                            <label>Fecha Aplicación:</label>
+                            <input class="form-control" id="txtFechaAplicaServicio" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-xs12 col-md-12 col-lg-12">
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12" style="text-align: center">
+                                    <button id="btncargarArchivo" class="btn btn-primary" style="margin-bottom: 5px;"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                    <input type="file" class="form-control btn btn-info pull-left" id="inCargarArchivo" accept="application/pdf">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="gridArchivos" class="table display compact" style="width:100%">
+                                <thead class="bg-table-header"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnAplicarServicio">
+                                <span class="glyphicon glyphicon-wrench"></span> Aplicar
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalArchivosEvidencia" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-evidencia"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Seleccionar Evidencia</legend>
+                        <div class="col-xs-12 col-xs123 col-md-12 col-lg-12">
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12" style="text-align: center">
+                                    <button id="btnArchivoEvidencia" class="btn btn-primary" style="margin-bottom: 5px;"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                    <input type="file" class="form-control btn btn-info pull-left" id="inArchivoEvidencia" accept="application/pdf">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="gridArchivosEvidencia" class="table display compact" style="width:100%">
+                                <thead class="bg-table-header"></thead>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalModificar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modalModificar"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmModificarComponentes">
+
+                        <div class="row">
+                            <fieldset class="fieldset-custm" style="text-align:left !important">
+                                <legend class="legend-custm">Modificar:</legend>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <input id="cbCicloVidaHoras" type="checkbox" name="cicloVidaHoras" value=""> <b>TARGET:</b><br>
+                                    <input type="number" min="0" value="0" class="form-control" id="txtModalModificarHoraCiclo" disabled />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <input id="cbEstatus" type="checkbox" name="estatus" value=""> <b>ESTATUS:</b><br>
+                                    <select class="form-control" id="cboModalModificarEstatus" disabled>
+                                        <option value="1">ACTIVO</option>
+                                        <option value="0">INACTIVO</option>
+                                    </select>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalModificarGuardar">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalModificarCancelar" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/AdministracionServiciosJS.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>

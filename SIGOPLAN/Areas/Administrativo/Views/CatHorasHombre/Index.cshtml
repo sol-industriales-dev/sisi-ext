@@ -1,0 +1,250 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+    table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+    .btn-primary:hover {
+        background-color: #624de2 !important;
+        border-color: #624de2 !important;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+
+        background-color: white;
+        
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    /*.rcorners {
+        border-radius: 100px;
+        padding: 20px;
+        width: 5px;
+        height: 5px;
+        color: white;
+        background: linear-gradient(40deg, #fff, #fff);
+        border: none;
+        text-align: center;
+        color: #000;
+    }
+
+    .rcorners:hover {
+        color: #000;
+    }*/
+
+    .cardHrsDia {
+        border-radius: 100px; 
+        color: #000;
+        margin: 0;
+        position: absolute;
+        top: 0%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        border-radius: 25px;
+        border: 2px solid #000;
+        pointer-events: none;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        padding-right: 6px;
+        padding-left: 6px;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+
+<div class="col-sm-12">
+    <div class="center">
+        <h3>Catálogo de Horas hombre</h3><br>
+    </div>
+
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"></legend>
+
+        <!-- CONTROLES DE FILTRO -->
+        <div class="row">
+            <br />
+            <div class="col-lg-6">
+                <label class="text-color" for="cboCC">CC: </label>
+                <select id="cboCC" class="form-control"></select>
+            </div>
+            <div class="col-lg-6">
+                <label class="text-color" for="cboClaveDepto">Área operativa: </label>
+                <select id="cboClaveDepto" class="form-control"></select>
+            </div>
+            <!--<div class="col-lg-4">
+                <label class="text-color" for="cboGrupo">Rol: </label>
+                <select id="cboGrupo" class="form-control"></select>
+            </div>-->
+        </div><br />
+        <div class="row">
+            <div class="col-lg-9"></div>
+            <div class="col-lg-3">
+                <button type='button' class="btn btn-primary" id="btnLimpiar"><i class="fa fa-brush"></i> Limpiar</button>
+                <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
+                <button type="button" data-toggle="modal" data-target="#mdlNuevoHorasHombre" class="btn btn-primary" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
+            </div>
+        </div><br>
+        <!-- END: CONTROLES DE FILTRO -->
+
+    </fieldset>
+    <br />
+
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'></legend>
+        <!-- LISTADO DE HORAS HOMBRE POR ROL -->
+        <div class="row">
+            <div class="col-lg-12 table-responsive ">
+                <table id="tblS_CatHorasHombre" class="hover stripe order-column"></table>
+            </div>
+        </div>
+        <!-- END: LISTADO DE HORAS HOMBRE POR ROL -->
+    </fieldset>
+</div> 
+
+<!-- MODAL PARA REGISTRAR HORAS HOMBRE -->
+<div id="mdlNuevoHorasHombre" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Nuevo</h1>
+            </div>
+            <div class="modal-body">
+                <!-- SECCION DE CONTROLES -->
+                <div class="seccion">
+                    <div class="row" id="ocultarEditar">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboCCNuevo">CC: </label>
+                                <select id="cboCCNuevo" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboClaveDeptoNuevo">Área operativa: </label>
+                                <select id="cboClaveDeptoNuevo" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div><br>
+                    
+                        <div class="row" id="showEditar">
+                        <div class="col-lg-12">
+                      
+                           <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoClaveDepto">cc: </label>
+                                <input id="txtcboNuevoCC" class="form-control" disabled="true">   
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoCC">Área operativa: </label>
+                                <input id="txtNuevoClaveDepto" class="form-control" disabled="true">   
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-4">
+                                <label class="text-color" for="cboGrupoNuevo">Grupo: </label>
+                                <select id="cboGrupoNuevo" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="text-color" for="txtFechaInicio">Fecha inicio: </label>
+                                <input type="text" id="txtFechaInicio" class="form-control">
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="text-color" for="txtHoras">Horas: </label>
+                                <input type="text" id="txtHoras" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SECCION DE CONTROLES -->
+
+                <div id="divDiasSeccion">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Regresar</button>
+                <button type="button" id="btnCrearEditarHorasHombre" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA REGISTRAR HORAS HOMBRE -->
+
+<script src="~/Scripts/js/Administrativo/Seguridad/CatHorasHombre/CatHorasHombreJS.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>

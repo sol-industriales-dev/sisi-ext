@@ -1,0 +1,293 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/General.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <!-- TITULO -->
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>CLIENTES</h2>
+        </div>
+    </div>
+    <!-- END: TITULO -->
+
+    <!-- PANEL FILTROS -->
+    <div class='row'>
+        <div class='col-sm-12'>
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTROS DE BÚSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class="row">
+                        <div class='col-lg-2'>
+                            <label for='cboFiltro_Division'>División</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboFiltro_Cliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Cliente' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for='cboFiltro_Historial'>Estatus</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Historial' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 pull-right">
+                            <label>&nbsp;</label>
+                            <div class='input-group'>
+                                <button class="btn btn-primary" id="btnFiltro_BuscarContacto"><i class="fas fa-search"></i>&nbsp;Buscar</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_Clientes"><i class="fas fa-fax"></i>&nbsp;Clientes</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_NuevoContacto"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: PANEL FILTROS -->
+
+    <div class='row'>
+        <!-- MENU -->
+        @Html.Partial("_Menu")
+        <!-- END: MENU -->
+
+        <!-- TABLA CONTACTOS -->
+        <div class="col-lg-10">
+            <fieldset class='fieldset-custm'>
+                <legend class="legend-custm"><span class="badge">Contactos</span></legend>
+                <div class='row'>
+                    <div class='col-sm-12'>
+                        <div id='panelFiltro' class='panel-principal'>
+                            <div class='panel-heading'></div>
+                            <div class='panel-body'>
+                                <div class="row">
+                                    <table class="table" id="tblContactos"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <!-- END: TABLA CONTACTOS -->
+    </div>
+</div>
+<!-- CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR CLIENTES -->
+<div id='mdlCE_Cliente' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-4'>
+                            <label for='txtCE_Cliente_NombreCliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Cliente_NombreCliente' placeholder="Ingresar nombre del cliente." class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Cliente_Division'>División</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cliente_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Cliente_TipoCliente'>Tipo cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cliente_TipoCliente' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Cliente_Pais'>País</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cliente_Pais' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Cliente_Estado'>Estado</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cliente_Estado' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Cliente_Municipio'>Municipio</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cliente_Municipio' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Cliente_PaginaWeb'>Página web</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Cliente_PaginaWeb' placeholder="Ingresar página web del cliente. (opcional)" class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Cliente"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CLIENTES -->
+
+<!-- MODAL LISTADO CLIENTES -->
+<div id='mdlClientes_Listado' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row">
+                        <div class='col-lg-9'>
+                            <label for='cboFiltro_Clientes_Historial'>Estatus</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Clientes_Historial' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>&nbsp;</label>
+                            <div class='input-group'>
+                                <button class="btn btn-primary" id="btnFiltro_BuscarCliente"><i class="fas fa-search"></i>&nbsp;Buscar</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_NuevoCliente"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <table class="table" id="tblClientes"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO CLIENTES -->
+
+<!-- MODAL CREAR/EDITAR CONTACTO -->
+<div id='mdlCE_Contacto' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for='cboCE_Contacto_Clientes'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Contacto_Clientes' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for='txtCE_Contacto_NombreContacto'>Contacto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_NombreContacto' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Contacto_Puesto'>Puesto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_Puesto' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Contacto_Telefono'>Teléfono</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_Telefono' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Contacto_Extension'>Extensión</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_Extension' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Contacto_Celular'>Celular</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_Celular' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Contacto_Correo'>Correo</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Contacto_Correo' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Contacto"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CONTACTO -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/_Menu.js"></script>
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/Clientes.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<!-- END: JS -->

@@ -1,0 +1,419 @@
+﻿@{
+ViewBag.Title = "Dashboard";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var esVisor = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().esDashboard();
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="~/Scripts/Utilities/chart/chartjs-plugin-labels.js"></script>
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/Dashboard.css" rel="stylesheet" />
+
+
+<div class="row text-center">
+    <h2>Dashboard <i id="icoCirculo" class="fas fa-circle-notch"></i></h2>
+</div>
+
+
+@if (esVisor)
+{
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="panel-group">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#filtrosBusqueda">
+                            <i class="glyphicon glyphicon-filter"></i>
+                            Filtros
+                        </a>
+                    </h4>
+                </div>
+                <div id="filtrosBusqueda" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">CC Construplan</span>
+                                    <select name="" id="comboCplan" class="form-control comboChange" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">CC Arrendadora</span>
+                                    <select name="" id="comboArr" class="form-control comboChange" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Área Operativa</span>
+                                    <select name="" id="comboArea" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio:</span>
+                                    <input autocomplete="off" class="text-center form-control" type="text" id="inputFechaInicio">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Fin:</span>
+                                    <input autocomplete="off" class="text-center form-control" type="text" id="inputFechaFin">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Clasificación</span>
+                                    <select id="comboClasificacion" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                <button id="botonBuscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+                                <button id="botonExcelExpirados" class="btn btn-warning" disabled><i class="fas fa-file"></i> Prox. Vencer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="divTabs">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tabGeneral" aria-controls="tabGeneral" role="tab" data-toggle="tab">General</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tabDetalle" aria-controls="tabDetalle" role="tab" data-toggle="tab">Detalle</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" id="tabGeneral">
+                    <div class="row margin-top">
+                        <div class="col-md-6">
+                            <div class="col-sm-12 noPadLeft noPadRight">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary oculto" id="div-totalHHC">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelTotalHHC">
+                                                    <i class="glyphicon glyphicon-time"></i>
+                                                    Total Horas Hombre Capacitación
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="panelTotalHHC" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <h3 style="margin-top: 3px; margin-bottom: 3px;">
+                                                            Total HHC:
+                                                            <span id="totalHHC">0</span>
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 noPadLeft noPadRight">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary oculto" id="div-totalPersonalCapacitado">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelTotalPersonalCapacitado">
+                                                    <i class="glyphicon glyphicon-user"></i>
+                                                    Total Personal Capacitado
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="panelTotalPersonalCapacitado" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <h3 style="margin-top: 3px; margin-bottom: 3px;">
+                                                            Total de personal capacitado:
+                                                            <span id="totalPersonalCapacitado">0</span>
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 noPadLeft noPadRight">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary oculto" id="div-totalCursos">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelTotalCursos">
+                                                    <i class="glyphicon glyphicon-pencil"></i>
+                                                    Total Cursos Impartidos
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="panelTotalCursos" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <h3 style="margin-top: 3px; margin-bottom: 3px;">
+                                                            Total de cursos impartidos:
+                                                            <span id="totalCursos">0</span>
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-graficavigentes">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelGraficaEmpleadosVigentes">
+                                                <i class="glyphicon glyphicon-thumbs-up"></i>
+                                                Porcentaje de capacitación por curso
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelGraficaEmpleadosVigentes" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div id="divChart3" class="row">
+                                                <div id="graficaPorcentajeCursos"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-expirados">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelEmpleadosPorExpirar">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                                Vigencias de cursos (Protocolos Fatalidad)
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelEmpleadosPorExpirar" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                                    <div id="divTablaEmpleadosPorExpirar">
+                                                        <span class="dotAcotacion" style="background-color:#ff3333;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Vencidos:
+                                                        <span id="spanProtocoloVencidos" class="spanContador"></span>&nbsp;&nbsp;&nbsp;
+                                                        <span class="dotAcotacion" style="background-color:cornflowerblue;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Próximos a vencer:
+                                                        <span id="spanProtocoloProximosVencer" class="spanContador"></span>
+                                                    </div>
+                                                    <table id="tablaEmpleadosPorExpirar" class="table table-condensed table-hover table-striped text-center" width="100%">
+                                                        <thead class="bg-table-header">
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="divVigenciaNormativos">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelVigenciaNormativos">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                                Vigencias de cursos (Normativos)
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelVigenciaNormativos" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                                    <div id="divTablaVigenciaNormativos">
+                                                        <span class="dotAcotacion" style="background-color:#ff3333;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Vencidos:
+                                                        <span id="spanNormativoVencidos" class="spanContador"></span>&nbsp;&nbsp;&nbsp;
+                                                        <span class="dotAcotacion" style="background-color:cornflowerblue;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Próximos a vencer:
+                                                        <span id="spanNormativoProximosVencer" class="spanContador"></span>
+                                                    </div>
+                                                    <table id="tablaVigenciaNormativos" class="table table-condensed table-hover table-striped text-center" width="100%">
+                                                        <thead class="bg-table-header">
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-expiradosInstOper">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelExpInstOper">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                                Vigencias de cursos (Instructivo Operativo)
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelExpInstOper" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                                    <div id="divTablaExpInstOper">
+                                                        <span class="dotAcotacion" style="background-color:#ff3333;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Vencidos:
+                                                        <span id="spanInstructivoVencidos" class="spanContador"></span>&nbsp;&nbsp;&nbsp;
+                                                        <span class="dotAcotacion" style="background-color:cornflowerblue;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Próximos a vencer:
+                                                        <span id="spanInstructivoProximosVencer" class="spanContador"></span>
+                                                    </div>
+                                                    <table id="tablaExpInstOper" class="table table-condensed table-hover table-striped text-center" width="100%">
+                                                        <thead class="bg-table-header">
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-expiradosProcOper">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelExpProcOper">
+                                                <i class="glyphicon glyphicon-calendar"></i>
+                                                Vigencias de cursos (Técnico Operativo)
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelExpProcOper" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                                    <div id="divTablaExpProcOper">
+                                                        <span class="dotAcotacion" style="background-color:#ff3333;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Vencidos:
+                                                        <span id="spanTecnicoVencidos" class="spanContador"></span>&nbsp;&nbsp;&nbsp;
+                                                        <span class="dotAcotacion" style="background-color:cornflowerblue;vertical-align: middle;margin-bottom: 5px;"></span>
+                                                        &nbsp;Próximos a vencer:
+                                                        <span id="spanTecnicoProximosVencer" class="spanContador"></span>
+                                                    </div>
+                                                    <table id="tablaExpProcOper" class="table table-condensed table-hover table-striped text-center" width="100%">
+                                                        <thead class="bg-table-header">
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tabDetalle">
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelTotalHHCPorClasificacion">
+                                                <i class="glyphicon glyphicon-time"></i>
+                                                HHC por clasificación
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelTotalHHCPorClasificacion" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="myChart2"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelTotalCursosPorClasificacion">
+                                                <i class="glyphicon glyphicon-list"></i>
+                                                Cursos impartidos por clasificación
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelTotalCursosPorClasificacion" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="myChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js" type="text/javascript"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/Dashboard.js"></script>
+}
+else
+{
+<h1 class="text-center">No tienes acceso al módulo. Solicitalo a tu administrador.</h1>
+}

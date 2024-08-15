@@ -1,0 +1,177 @@
+﻿@{
+ViewBag.Title = "ConsultaArchivos";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/Estilo.css" rel="stylesheet" />
+
+<div class="row text-center margin-top">
+    <h2>Archivos de Subcontratistas</h2>
+</div>
+
+<fieldset class="fieldset-custm margin-top">
+    <div class="row">
+        <div class="col-xs-3 mrgTop">
+            <label>Filtrar Resultados</label>
+            <select id="selectFiltroCarga" class="form-control">
+                <option value="0">Todos</option>
+                <option value="1">Carga Parcial</option>
+                <option value="2">Carga Completa</option>
+                <option value="3">Completamente Validados</option>
+            </select>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top" style="margin-bottom: 100px;">
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaSubcontratistas" class="table table-hover compact table-bordered" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalSubcontratista">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3>Información del Subcontratista</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label for="inputNumeroProveedor" class="form-label">Número Prov:</label>
+                        <input id="inputNumeroProveedor" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-10">
+                        <label for="inputNombre" class="form-label">Nombre:</label>
+                        <input id="inputNombre" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-8">
+                        <label for="inputDireccion" class="form-label">Dirección:</label>
+                        <input id="inputDireccion" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputNombreCorto" class="form-label">Nombre Corto:</label>
+                        <input id="inputNombreCorto" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="inputCodigoPostal" class="form-label">Código Postal:</label>
+                        <input id="inputCodigoPostal" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="inputCorreo" class="form-label">Correo:</label>
+                        <input id="inputCorreo" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="inputRFC" class="form-label">RFC:</label>
+                        <input id="inputRFC" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-3">
+                        <div style="display: block; margin-top: 15px;">
+                            <input id="radioMoral" type="radio" name="personaFisicaMoral" value="0">
+                            <label for="radioMoral" class="form-label">Persona Moral</label>
+                        </div>
+                        <div style="display: block;">
+                            <input id="radioFisica" type="radio" name="personaFisicaMoral" value="1">
+                            <label for="radioFisica" class="form-label">Persona Física</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalValidacion">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3>Validación de archivos</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaValidacion" class="table table-hover compact table-bordered" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarValidacion">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHistorial">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3>Historial de archivos rechazados</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaHistorial" class="table table-hover compact table-bordered" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalJustificacion" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:1000px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3></h3>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 400px;">
+                <div class="col-lg-12">
+                    <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                        <legend class="legend-custm">Comentario No Aplica</legend>
+                        <textarea id="txtComentarioJustificacion" style="width:100%;height:320px;" disabled></textarea>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_menuClick")
+@Html.Action("_visorGrid")
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/SubContratistas/ConsultaArchivos.js"></script>

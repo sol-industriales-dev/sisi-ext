@@ -1,0 +1,180 @@
+﻿@{
+ViewBag.Title = "Administrar Permisos";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/skin-lion/ui.fancytree.min.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/jquery.fancytree-all.min.js"></script>
+<script src="~/Scripts/js/GestorArchivos/Permisos/Permisos.js"></script>
+<link href="~/Content/style/css/GestorArchivos/Permisos.css" rel="stylesheet" />
+
+
+<div class="row text-center titulo">
+    <h2>Administrar permisos para el gestor de archivos</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Permisos:</label></legend>
+
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"><label>Usuario:</label></legend>
+                <div class="row cuadroInfo">
+
+                    <div class="comboEmpleado margin-top">
+                        <label>Usuario:</label>
+                        <select class="form-control no-padding" id="cboEmpleado"></select>
+                    </div>
+                    <button class="btn btn-primary margin-top" type="button" id="btnSeleccionarUsuarioExterno">
+                        <span class="glyphicon glyphicon-plus"></span> Seleccionar usuario de otro departamento
+                    </button>
+                    <div hidden class="comboDepartamento margin-top">
+                        <label>Departamento:</label>
+                        <select class="form-control no-padding" id="cboDepartamento"></select>
+                    </div>
+                    <div hidden class="comboUsuarioExterno margin-top">
+                        <label>Usuario externo:</label>
+                        <select class="form-control no-padding" id="cboEmpleadoExterno"></select>
+                    </div>
+                    <div class="botonReset pull-bottom">
+                        <button class="btn btn-primary margin-top" type="button" id="reset">
+                            <span class="glyphicon glyphicon-ban-circle"></span> Limpiar campos
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-3 form-group">
+            <div hidden class="carpetas">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label><span id="numeroCarpetas"></span> carpetas:</label></legend>
+                    <div class="row cuadroInfo">
+                        <div id="divarbol2" class="col-lg-12">
+                        </div>
+                    </div>
+                    <div class="row text-left">
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+        <div class="col-md-6 form-group">
+            <div hidden class="acciones">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm tituloAcciones"><label>Acciones permitidas<span id="carpetaActual"></span></label></legend>
+                    <div class="info">
+                        <div class="row ">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-primary" id="botonPermisoSubir">
+                                    <input type="checkbox" autocomplete="off">Puede Subir
+                                </label>
+                                <label class="btn btn-primary" id="botonPermisoEliminar">
+                                    <input type="checkbox" autocomplete="off">Puede Eliminar
+                                </label>
+                                <label class="btn btn-primary" id="botonPermisoDescargarArchivos">
+                                    <input type="checkbox" autocomplete="off">Puede Descargar Archivos
+                                </label>
+                                <label class="btn btn-primary" id="botonPermisoActualizar">
+                                    <input type="checkbox" autocomplete="off">Puede Actualizar
+                                </label>
+                                <label class="btn btn-primary" id="botonPermisoCrear">
+                                    <input type="checkbox" autocomplete="off">Puede Crear
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row margin-top">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-primary" id="botonPermisoDescargarCarpetas">
+                                    <input type="checkbox" autocomplete="off">Puede Descargar Carpetas
+                                </label>
+                            </div>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-primary" id="botonPermisoTodo">
+                                    <input type="checkbox" autocomplete="off">Todos las acciones
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="infoCheckbox">
+
+                                <label class="container">Puede Subir
+                                    <input disabled type="checkbox" id="checkboxPermisoSubir"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                                <label class="container">Puede Eliminar
+                                    <input disabled type="checkbox" id="checkboxPermisoEliminar"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                                <label class="container">Puede Descargar Archivos
+                                    <input disabled type="checkbox" id="checkboxPermisoDescargarArchivos"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                                <label class="container">Puede Actualizar
+                                    <input disabled type="checkbox" id="checkboxPermisoActualizar"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                                <label class="container">Puede Crear
+                                    <input disabled type="checkbox" id="checkboxPermisoCrear"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                                <label class="container">Puede Descargar Carpetas
+                                    <input disabled type="checkbox" id="checkboxPermisoDescargarCarpetas"><br>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row text-right">
+        <div hidden id="btn" class="col-lg-12">
+            <button class="btn btn-primary pull-right margin-top" type="button" id="btnGuardar">
+                <span class="glyphicon glyphicon-floppy-disk"></span> Guardar cambios
+            </button>
+        </div>
+    </div>
+</fieldset>
+<div class="modal fade" id="modalAviso">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3 id="modalAvisoTitutlo"></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <p id="modalAvisoCuerpo"><strong></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="botonModalAviso" class="btn btn-default" data-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalGuardado">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3 id="modalGuardadoTitutlo"></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <p id="modalGuardadoCuerpo"><strong></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="botonModalGuardado" class="btn btn-default" data-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,406 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- OCULTO -->
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+<!-- END: OCULTO -->
+
+<!-- CSS -->
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/style/css/BackLogs/OBRA/General.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">INFORME DE REHABILITACIÓN</h2>
+</fieldset>
+<!-- END: TITULO MODULO -->
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <!-- LISTADO DE PROYECTOS -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+        <div class="row">
+            <div class='col-lg-5'>
+                <label for='cboProyecto'>Área cuenta</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select class="form-control" id="cboProyecto"></select>
+                </div>
+            </div>
+            <div class='col-lg-2'>
+                <label for='cboFiltroAnio'>Año</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select id='cboFiltroAnio' class='form-control select2'>
+                        <option value="">--Seleccione--</option>
+                        <option value="2023" selected>2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4" style="margin-top: 24px;">
+                <button type='button' class='btn btn-primary' id='btnFiltroBuscarBL'><i class='fas fa-search'></i>&nbsp;Buscar</button>
+            </div>
+        </div>
+
+        <div id="divReporteGeneral" style="display:none;">
+            <div class="col-lg-2 pull-right">
+                <br />
+                <button class="btn btn-success" id="rptGeneral"><i class="fas fa-table"></i><!--&nbsp;Reporte general--></button>
+            </div>
+            <div class="col-lg-2 pull-right">
+                <br />
+                <div class="input-group">
+                    <span class="input-group-addon">Fecha fin</span>
+                    <input type="text" class="form-control" id="rptGeneralFechaFin" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-lg-2 pull-right">
+                <br />
+                <div class="input-group">
+                    <span class="input-group-addon">Fecha inicio</span>
+                    <input type="text" class="form-control" id="rptGeneralFechaInicio" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END: LISTADO DE PROYECTOS -->
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top: 15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class='legend-custm'><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioObra">
+                        <i class="fa fa-clipboard-check icono-menu"></i> Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i> Programa de inspección
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnRegistroBackLogs">
+                        <i class="fa fa-clipboard icono-menu"></i> Registro de BackLogs
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i> Informe de rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnReporteIndicadores">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i> Reportes e indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class='legend-custm'><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Inspección (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Elaboración de Requisición (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Rehabilitacion Programada (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalacion (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        Backlogs instalado (100%)
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <!-- END: MENU Y LISTADO DE ESTATUS -->
+
+    <!-- FORMULARIO REGISTRO DE BACKLOGS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top: 30px;">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"></legend>
+            <div class="row">
+                <br />
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboCC">CC: </label>
+                    <select id="cboCC" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="txtModelo">Modelo: </label>
+                    <select id="cboModelo" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-4">
+                    <label class="text-color" for="txtGrupo">Grupo: </label>
+                    <select id="cboGrupo" class="form-control"></select>
+                </div>
+            </div><br />
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboConjunto">Conjunto: </label><br>
+                    <select id="cboConjunto" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboSubconjunto">Subconjunto: </label><br>
+                    <select id="cboSubconjunto" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboMes">Mes: </label>
+                    <select type="text" id="cboMes" class="form-control js-example-data-array"></select>
+                </div><br>
+            </div><br />
+
+            <div class="row">
+
+                <div class="form-inline">
+                    <div class="col-lg-1"></div>
+
+                    <div class="col-lg-1">
+                        <label class="text-color">Estatus: </label>
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-20">
+                        <label class="text-color">20%: </label>
+                        <input id="chk20" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-40">
+                        <label class="text-color">40%: </label>
+                        <input id="chk40" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-50">
+                        <label class="text-color">50%: </label>
+                        <input id="chk50" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-60">
+                        <label class="text-color">60%: </label>
+                        <input id="chk60" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-80">
+                        <label class="text-color">80%: </label>
+                        <input id="chk80" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-90">
+                        <label class="text-color">90%: </label>
+                        <input id="chk90" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-100">
+                        <label class="text-color">100%: </label>
+                        <input id="chk100" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-3 pull-right">
+                        <button id="btnLimpiarFiltro" class="btn btn-primary">&nbsp;Limpiar</button>
+                        <button class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                        <button id="btnExportar" class="btn btn-success"><i class="fas fa-table"></i>&nbsp;Exportar</button>
+
+                    </div>
+
+                </div>
+            </div><br />
+
+            <div class="col-lg-12 table-responsive ">
+                <table id="tblBL_CatBackLogs" class="hover stripe order-column compact"></table>
+            </div>
+
+        </fieldset>
+        <br />
+    </div>
+    <!-- END: FORMULARIO REGISTRO DE BACKLOGS -->
+</fieldset>
+<!-- END: BODY -->
+
+<!-- MODAL VER NUMERO DE OC -->
+<div class="modal fade-in disenioModal" id="modalVerOC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center">Número OC</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_OrdenesCompra" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" id="btnCerrarMdlOC" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL VER NUMERO DE OC -->
+
+<!-- MODAL VER NUMERO DE REQUISICION -->
+<div class="modal fade-in disenioModal" id="modalVerRequisicion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center">Requisiciones</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_Requisiciones" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCerrarMdlRequisiciones" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL VER NUMERO DE REQUISICION -->
+
+<!-- MODAL DETALLE REQUISICIONES EN BASE AL CC -->
+<div class="modal fade-in disenioModal" id="mdlLstDetReqCC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle de la requisición</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstDetReqCC" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE REQUISICIONES EN BASE AL CC -->
+
+<!-- MODAL DETALLE ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+<div class="modal fade-in disenioModal" id="mdlLstDetOcReq">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalle de la orden de compra</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstDetOcReq" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+
+<!-- MODAL EVIDENCIAS -->
+<div class="modal fade-in disenioModal" id="mdlEvidencias">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center">Evidencias</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblEvidencias" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL EVIDENCIAS -->
+
+<!-- MODAL TOTAL MX -->
+<div class="modal fade-in disenioModal" id="mdlTotalMX">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center lblPERU_totalMX">Total MX</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon lblPERU_totalMX">Total MX</span>
+                            <input type="text" id="txtTotalMX" autocomplete="off" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL TOTAL MX -->
+
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/BackLogs/BackLogsInformeRehabilitacion.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>

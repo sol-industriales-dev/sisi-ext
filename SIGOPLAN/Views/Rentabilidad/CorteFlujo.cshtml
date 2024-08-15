@@ -1,0 +1,838 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+@{
+    ViewBag.Title = "Corte";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+    var EmpresaID = Base.getEmpresaID();
+}
+
+<!--CSS-->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Corte.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/MonthPicker.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.css" rel="stylesheet" />
+<!-- -->
+@if (EmpresaID == 1)
+{
+    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-11 text-center"><h2 class="text-center">Reporte Kubrix Construplan Corte    <i class='fas fa-hand-holding-usd'></i></h2></div>
+    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center">
+        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12" style="text-align: center">
+            <button id="btncargarArchivo" class="btn btn-primary margin-top pull-right"> <i class="fa fa-upload"></i>   Archivo Estimados</button>
+        </div>
+        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+            <input type="file" class="form-control btn btn-info pull-left" id="inCargarArchivo" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        </div>
+    </div>
+}
+else
+{
+    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-11 text-center"><h2 class="text-center">Reporte Kubrix Flujo    <i class='fas fa-hand-holding-usd'></i></h2></div>
+}
+
+<div id="mensajeCostosEst" style="top: 20px; right: 0; position: fixed; z-index: 1029; display:none;">
+    <h2><span class="label label-danger">Costos Estimados sin cerrar</span></h2>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Filtros</legend>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center no-padding">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-center" style="padding-left:0;">
+                            <label>Tipo Ejercicio:</label>
+                            <select id="cbConfiguracion" class="text-center form-control" name="cbConfiguracion">
+                                <option value="1">Actual</option>
+                                <option value="0">Acumulado</option>
+                                @*<option value="2">Personalizado</option>*@
+                            </select>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-center no-padding-right">
+                            <label>Tipo Corte:</label>
+                            <select id="cbTipoCorte" class="text-center form-control" name="cbTipoCorte">
+                                <option value="10" selected>Flujo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                        <label>Fecha Corte:</label>
+                        <input class="text-center form-control btn btn-primary" type="text" id="inputCorte" autocomplete="off" readonly="readonly" style="color: #fff;background-color: #286090;border-color: #204d74;" placeholder="Fecha">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center hidden">
+                        <label>Fecha Guardado:</label>
+                        <select id="cboHoraCorte" class="form-control" name="cboHoraCorte"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 text-center">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-center" style="padding-left:0;">
+                            <label>División:</label>
+                            <select id="comboDivision" class="form-control" name="comboDivision"></select>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-center no-padding-right">
+                            <label>Responsable:</label>
+                            <select id="comboResponsable" class="form-control" name="comboResponsable"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center no-padding">
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 text-center no-padding">
+                            @if (EmpresaID == 1)
+                            {
+                                <label>Centro Costos:</label><br />
+                            }
+                            else
+                            {
+                                <label>Area Cuenta:</label><br />
+                            }
+                            <span id="spanComboAC" class="form-control" style="position:absolute;overflow-x:hidden;">TODOS</span>
+                            <select id="comboAC" class="form-control" name="comboAC" multiple="multiple" style=""></select>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center no-padding">
+                            <button id="botonCatalogoCC" class="btn btn-primary margin-top" style="display:inline-block;"><i class="fas fa-ellipsis-h"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                        <label>Grupo Máquina:</label>
+                        <select id="comboGrupoK" class="form-control" name="comboGrupo"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                        <label>Modelo Máquina:</label>
+                        <span id="spanComboModeloK" class="form-control" style="position:absolute;max-width:91%;overflow-x:hidden;">TODOS</span>
+                        <select id="comboModeloK" class="form-control" name="comboAC" multiple="multiple" style=""></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center">
+                        <label>Económico:</label>
+                        <select id="cboMaquina" class="form-control" name="cboMaquina"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center" hidden>
+                        <label style="display:block;">Filtro Fechas:</label>
+                        <input class="text-center form-control" type="text" id="inputDiaInicio" autocomplete="off" placeholder="Inicio" style="width:49%; display:inline-block;">
+                        <input class="text-center form-control" type="text" id="inputDiaFinal" autocomplete="off" placeholder="Fin" style="width:100%; display:inline-block;">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-center">
+                        <button id="botonBuscar" class="btn btn-primary margin-top pull-right"><i class="fas fa-search"></i> Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding">
+        <div id="divTablaKubrixDivision">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-right:2px !important;">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegendDivision">División</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 text-center" id="divLblFiltrosDivision"></div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center" id="divTablaCuentasDiv" style="display:none">
+                            <table class="display compact">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <td>CXC</td>
+                                        <td>CXP</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><p class="cuentasPendientes pCXC"></p></td>
+                                        <td><p class="cuentasPendientes pCXP"></p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <table id="tablaKubrixDivision" class="table hover row-border order-column w3-large tablaKubrix">
+                        <thead class="bg-table-header"></thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        <div id="divTablaKubrixAreaCuenta" hidden>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-right:2px !important;">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegendAreaCuenta">Area Cuenta</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-center">
+                            <button class="btn btn-primary" id="botonAtrasAC"> <i class="fas fa-level-up-alt"></i></button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 text-center" id="divLblFiltrosAC"></div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center">
+                            <table class="display compact">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <td>CXC</td>
+                                        <td>CXP</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><p class="cuentasPendientes pCXC"></p></td>
+                                        <td><p class="cuentasPendientes pCXP"></p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <table id="tablaKubrixAreaCuenta" class="table hover row-border order-column w3-large tablaKubrix">
+                        <thead class="bg-table-header"></thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        <div id="contenedorDetalles" hidden>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-4 text-center">
+                    <button class="btn btn-primary" id="botonAtrasDetalle"> <i class="fas fa-level-up-alt"></i></button>
+                    <input type="checkbox" checked data-toggle="toggle" data-on="Económico" data-off="Periodo" data-onstyle="success" data-offstyle="info" id="chbAgrupacionDetalle" class="chbAgrupacionDetalle">
+                    <input type="checkbox" checked data-toggle="toggle" data-on="Tipo Equipo" data-off="Periodo" data-onstyle="success" data-offstyle="info" id="chbTipoReporteDetalle">
+                    <input type="checkbox" checked data-toggle="toggle" data-on="Detalle" data-off="Resumen" data-onstyle="success" data-offstyle="info" id="chbDespliegueDetEco">
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 text-center" id="divLblFiltrosDetalle"></div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center">
+                    <table class="display compact">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <td>CXC</td>
+                                <td>CXP</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><p class="cuentasPendientes pCXC"></p></td>
+                                <td><p class="cuentasPendientes pCXP"></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="divTablaKubrixDetalle" hidden>
+
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8" style="padding-right:2px !important;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm" id="lblLegendDetalle">Detalles</legend>
+                        <table id="tablaKubrixDetalle" class="table hover row-border order-column w3-large tablaKubrix">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center" style="padding-left:2px !important;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm" id="lblLegendDetalle">Gráfica</legend>
+                        <label id="lbGraficaKubrix"></label>
+                        <div id="graficaKubrix"></div>
+                    </fieldset>
+                </div>
+            </div>
+            <div id="divTablaKubrixDetalleEco" hidden>
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-10" style="padding-right:2px !important;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm" id="lblLegendDetalle">Detalles</legend>
+                        <table id="tablaKubrixDetalleEco" class="table hover row-border order-column w3-large tablaKubrix" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm text-center">Estado Equipo</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#009900;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Activo en AC</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#808080;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Fuera de AC</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#ff6600;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Inactivo</b>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade2 fade" id="modalAnalisis" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:1430px" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3 id="tituloModal" style="color:white"></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm" style="display:none">
+                    <legend class="legend-custm">Filtros</legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Area Cuenta</span>
+                                <select id="comboACAnalisis" class="form-control" disabled></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo</span>
+                                <select id="comboTipoAnalisis" class="form-control" disabled></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Grupo</span>
+                                <select multiple id="comboGrupo" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Modelo</span>
+                                <select multiple id="comboModelo" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select multiple id="comboCC" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class='col-xs-4 col-md-4 col-lg-4'>
+                            <div class='input-group' id="padreFechas">
+                                <span class='input-group-addon'>Periodo</span>
+                                <input class="text-center form-control weekPicker" type="text" id="inputDiaInicialAnalisis" disabled>
+                                <span class='input-group-addon' style='padding:0px;'></span>
+                                <input class="text-center form-control weekPicker" type="text" id="inputDiaFinalAnalisis" disabled>
+                            </div>
+                        </div>
+                        <div class='col-xs-12 col-sm-12 col-md-3 col-lg-3' style="display:none">
+                            <div class='input-group'>
+                                <span class="input-group-addon">Rentabilidad</span>
+                                <select id='comboTipoReporte' class='form-control'></select>
+                            </div>
+                        </div>
+                        <div class='col-xs-12 col-sm-12 col-md-5 col-lg-5'>
+
+                            <button id='botonReporte' type='button' class='btn btn-primary' style="visibility:hidden">
+                                <i class='fa fa-print'></i>
+                                Reporte
+                            </button>
+                            <button id="botonBuscarAnalisis" class="btn btn-primary pull-right"><i class="fas fa-search"></i> Buscar</button>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" id="divTablaAnalisis">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm" id="lblLegend" style="text-align:center">Resultado</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tablaAnalisis" class="text-center display compact">
+                                    <thead class="bg-table-header"></thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="divTablasDetalle">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm" id="lblLegend" style="text-align:center">Detalles</legend>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <i class="fas fa-folder-tree"></i>
+                                    <button id="botonNombreNivelCero" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                                    <button id="botonNombreNivelUno" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                                    <button id="botonNombreNivelTres" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                                    <button id="botonNombreNivelDos" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+
+                                </div>
+                            </div>
+                            <div class="row margin-top" id="divTablaNivelCero">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tablaSctaDetalles" class="text-center display compact" style="width:100%">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row margin-top" id="divTablaNivelUno">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tablaDetallesA" class="table table-condensed table-hover table-striped text-center" style="width:100%">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row margin-top" id="divTablaNivelDos">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                    <table id="tablaSubdetalles"
+                                           class="text-center display compact">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row margin-top" id="divTablaNivelTres">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tablaSubdetallesIngresos" class="table hover row-border order-column compact" style="width: 100%">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                        <tfoot><tr><td></td><td></td><td></td></tr></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="divGrafica">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm" id="lblLegend" style="text-align:center">Gráfica</legend>
+                            <div id="graficaLineas"></div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="modalDetalles" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header modal-bg">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <div class="text-center">
+                                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetallesK" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <i class="fas fa-folder-tree"></i>
+                        <button id="botonTablaSubCuenta" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaSubSubCuenta" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaDivision" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaAreaCuenta" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaConciliacion" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaEconomico" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                        <button id="botonTablaDetalle" class="btn btn-sm btn-primary" disabled><strong></strong></button>
+                    </div>
+                </div>
+
+                <div class="row margin-top" id="divTablaSubCuenta">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaSubCuenta" class="table hover row-border order-column compact" style="width:100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaSubSubCuenta">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaSubSubCuenta" class="table hover row-border order-column compact" style="width:100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaDivision">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaDivision" class="table hover row-border order-column compact" style="width: 100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaAreaCuenta">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaAreaCuenta" class="table hover row-border order-column compact" style="width: 100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaConciliacion">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaConciliacion" class="table hover row-border order-column compact" style="width: 100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaEconomico">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaEconomico" class="table hover row-border order-column compact" style="width: 100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row margin-top" id="divTablaDetalles">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaDetalles" class="table hover row-border order-column compact" style="width: 100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCatalogoCC" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Catálogo de Centros de Costo <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend">Centros de Costo</legend>
+                    <div class="tablaCC">
+                        <table id="tablaCC" class="table hover row-border order-column w3-large">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnGuardarCC" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-save"></span> Guardar Cambios</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modalGrafica" id="modalGrafica" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarGrafica" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend" style="text-align:center">Gráfica</legend>
+                    <div id="graficaLineasDetalle"></div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCostosEstimados" role="dialog" style="z-index: 1050;">
+    <div class="modal-dialog modal-lg" style="width:97%" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="btnCerrarCostosEstimados" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3 id="tituloGuardadoLinea"><i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend" style="text-align:center">Datos Requeridos</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-bottom:10px;">
+                        <button type="button" class="btn btn-warning pull-left" id="agregarCostoEst">
+                            <span class="glyphicon glyphicon-plus"></span> Agregar
+                        </button>
+                        <button type="button" class="btn btn-warning pull-right" id="botonCerrarCostoEst">
+                            <span class="glyphicon glyphicon-save"></span> Cerrar Estimados
+                        </button>
+                    </div>
+                    <div class="tablaCostosEstimados">
+                        <table id="tablaCostosEstimados" class="table hover row-border order-column w3-large">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </div>
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGuardarLinea" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarGuardarLinea" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Guardar Costo Estimado <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend" style="text-align:center">Datos Requeridos</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="conceptoGuardarLinea">Concepto:</label>
+                        <input class="form-control formGuardarLinea" id="conceptoGuardarLinea">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="montoGuardarLinea">Monto:</label>
+                        <input class="form-control formGuardarLinea" id="montoGuardarLinea" type="number">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="ccGuardarLinea">CC:</label>
+                        <input class="form-control formGuardarLinea" id="ccGuardarLinea">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="acGuardarLinea">Area Cuenta:</label>
+                        <select class="form-control formGuardarLinea" id="acGuardarLinea"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="fechaGuardarLinea">Fecha:</label>
+                        <input class="form-control formGuardarLinea" id="fechaGuardarLinea" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="conciliacionGuardarLinea">Conciliación:</label>
+                        <input class="form-control formGuardarLinea" id="conciliacionGuardarLinea">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label for="empresaGuardarLinea">Empresa:</label>
+                        <select class="form-control formGuardarLinea" id="empresaGuardarLinea">
+                            <option value="2" selected>Arrendadora</option>
+                            <option value="1">Construplan</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <button type="button" class="btn btn-success margin-top" id="botonGuardarLinea">
+                            <span class="glyphicon glyphicon-save"></span> Guardar
+                        </button>
+                    </div>
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXP" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:1500px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend"></legend>
+                    <div class="">
+                        <table id="tablaCXP" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXPFacturas" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" style="width:1430px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarCXPFacturas" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar - Facturas <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend">Facturas</legend>
+                    <div class="">
+                        <table id="tablaCXPFacturas" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXPAC" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" style="width:1430px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarCXPAC" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar - Area Cuenta <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend">Area Cuenta</legend>
+                    <div class="">
+                        <table id="tablaCXPAC" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXC" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:1500px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend"></legend>
+                    <div class="">
+                        <table id="tablaCXC" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXCFacturas" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" style="width:1430px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarCXCFacturas" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar - Facturas <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend">Facturas</legend>
+                    <div class="">
+                        <table id="tablaCXCFacturas" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCXCAC" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" style="width:1430px" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarCXCAC" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Cuentas por Pagar - Area Cuenta <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend">Area Cuenta</legend>
+                    <div class="">
+                        <table id="tablaCXCAC" class="table display compact" style="width:100%">
+                            <thead class="bg-table-header"></thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/CorteJS.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/highcharts-regression.js"></script>
+<script src="~/Scripts/MonthPicker.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/rowGroup.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/dataTables.rowGroup.min.js"></script>
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/buttons.dataTables.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/dataTables.buttons.js"></script>

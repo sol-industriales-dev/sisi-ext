@@ -1,0 +1,181 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    ViewBag.Title = "Autorizaciones presupuestos";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/Autorizaciones.css" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Acuerdo.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Dashboard.css")" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/dhtmlxgantt.css")">
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>GESTIÓN</h2>
+        </div>
+    </div>
+
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>Año</label>
+                            <select id="comboBoxYear" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>CC</label>
+                            <select id="comboBoxCC" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>Estatus</label>
+                            <select id="comboBoxEstatus" class="form-control select2">
+                                <option value="">-- Todos --</option>
+                                <option value="true">AUTORIZADO</option>
+                                <option value="false">PENDIENTE</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <button id="botonBuscar" class="btn btn-primary" style="margin-top: 26px;"><i class="fas fa-search"></i> Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tablaPresupuestos" class="table hover stripe compact table-bordered nowrap" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalSeguimientoFirmas" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="documento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3 id="modalSeguimientoFirmasTitulo"></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tablaSeguimientoFirmas" class="table hover stripe compact nowrap"></table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DETALLE CAPTURA -->
+<div id='mdlCaptura' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>GESTIÓN</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblCapturas" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA -->
+
+<!-- MODAL RECHAZAR PPTO -->
+<div id='mdlRechazarPpto' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>RECHAZAR PPTO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>¿Desea rechazar el presupuesto seleccionado?</legend>
+                            <textarea id="txtRechazarPpto" placeholder="Ingresar comentario sobre rechazo. (opcional)" class="inputTextArea" cols="30" rows="3"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-primary' id="btnRechazarPpto"><i class="fas fa-times"></i>&nbsp;Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL RECHAZAR PPTO -->
+
+<!-- COMENTARIOS -->
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios"></ul>
+                            <!-- timeline time label -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="display: none; height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnCrearComentario" class="btn btn-primary" style="display: none; font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: COMENTARIOS -->
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/Autorizaciones.js"></script>

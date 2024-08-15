@@ -1,0 +1,241 @@
+﻿@{
+    ViewBag.Title = "Catálogo de fases";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Fases.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- FASES -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>FASES</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="pull-right">
+                        <button type="button" style="display:none;" class="btn btn-success" id="btnFiltroBuscar">Buscar</button>
+                        <button type="button" class="btn btn-primary" id="btnFiltroNuevaFase" style="display:none;">Nuevo</button>
+                    </div>
+                </div>
+                <!-- LISTADO DE CATÁLOGO DE FASES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblRH_REC_Fases" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE CATÁLOGO DE FASES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: FASES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- CREAR/EDITAR FASE -->
+<div id='mdlCrearEditarFase' class='modal fade' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTitleCrearEditarFase"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre fase</span>
+                            <input type="text" id="txtCrearEditarNombreFase" autocomplete="off" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCrearEditarFase"><span id="spanCrearEditarFase"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR FASE -->
+
+<!-- LISTADO DE ACTIVIDADES -->
+<div id='mdlLstActividad' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTitleLstActividad"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <!-- BOTONES SUPERIORES -->
+                <div class="pull-right" id="divBtnsActividades">
+                    <button type="button" class="btn btn-success" id="btnFiltroBuscarActividades">Buscar</button>
+                    <button type="button" class="btn btn-primary" id="btnFiltroNuevaActividad" style="display:none;">Nuevo</button>
+                    <button type="button" class="btn btn-primary" id="btnFiltroAsignarEncargadoFase" style="display:none;">Asignar fase</button>
+                </div><br>
+                <!-- END: BOTONES SUPERIORES -->
+                <!-- LISTADO DE CATÁLOGO DE ACTIVIDADES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblRH_REC_Actividades" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE CATÁLOGO DE ACTIVIDADES -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: LISTADO DE ACTIVIDADES -->
+
+<!-- CREAR/EDITAR ACTIVIDADES -->
+<div id='mdlCrearEditarActividad' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTitleCrearEditarActividad"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Actividad</span>
+                            <input type="text" id="txtCrearEditarActividad" autocomplete="off" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Archivo</span>
+                            <select id="cboCrearEditarActividadTipoArchivo" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-1">
+                        <input type="checkbox" id="chkCrearEditarActividadArchivos" data-toggle="toggle" data-on="Archivos" data-off="Archivos" data-onstyle="success" data-offstyle="danger" data-width="100" checked="checked">
+                    </div>
+                    <div class="col-sm-1">
+                        <input type="checkbox" id="chkCrearEditarActividadObligatoria" data-toggle="toggle" data-on="Obligatoria" data-off="Obligatoria" data-onstyle="success" data-offstyle="danger" data-width="100" checked="checked">
+                    </div>
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCrearEditarActividadGeneral" data-toggle="toggle" data-on="General" data-off="General" data-onstyle="success" data-offstyle="danger" data-width="100" checked="checked">
+                    </div>
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCrearEditarActividadCalificacion" data-toggle="toggle" data-on="Calificación" data-off="Calificación" data-onstyle="success" data-offstyle="danger" data-width="100" checked="checked">
+                    </div>
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCrearEditarActividadNecesarioAprobar" data-toggle="toggle" data-on="Necesario aprobar" data-off="Necesario aprobar" data-onstyle="success" data-offstyle="danger" data-width="150" checked="checked">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Descripción</legend>
+                            <textarea id="txtCrearEditarDescActividad" class="inputTextArea" cols="30" rows="10"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCrearEditarActividad"><span id="spanCrearEditarActividad"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR ACTIVIDADES -->
+
+<!-- LISTADO DE PUESTOS -->
+<div id='mdlLstPuestosRelFase' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Puestos</h1>
+            </div>
+            <div class='modal-body'>
+
+                <!-- CTRLS CREAR/EDITAR -->
+                <div class="form-inline">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success" id="btnFiltroBuscarPuestosRelFase">Buscar</button>
+                        <button class="btn btn-primary form-control" id="divCrearPuestoRelFaseCancelar" data-toggle="collapse" data-target="#divCrearPuestoRelFase" aria-expanded="false" aria-controls="divCrearPuestoRelFase">
+                            <i class="fas fa-plus"></i>&nbsp;Nuevo
+                        </button>
+                    </div>
+                </div><br><br>
+                <div id="divCrearPuestoRelFase" class="collapse">
+                    <div class='row'>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon">Puestos</span>
+                                <select id="cboCrearEditarPuestoRelFase" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-success" id="btnCrearEditarPuestoRelFase">Guardar</button>
+                            <button type="button" class="btn btn-default" id="btnCrearEditarPuestoRelFaseCancelar">Cancelar</button>
+                        </div>
+                    </div>
+                </div><br>
+                <!-- END: CTRLS CREAR/EDITAR -->
+
+                <!-- LISTADO DE PUESTOS RELACIONADOS A LA FASE -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblRH_REC_PuestosRelFases" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE PUESTOS RELACIONADOS A LA FASE -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: LISTADO DE PUESTOS -->
+
+<!-- ENCARGADOS DE LAS FASES/ACTIVIDADES -->
+<div id='mdlLstEncargadosFasesActividades' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Encargados Fases/Actividades</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+
+                        <span id="acordionFasesActividades"></span>
+
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: ENCARGADOS DE LAS FASES/ACTIVIDADES -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/Fases.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>

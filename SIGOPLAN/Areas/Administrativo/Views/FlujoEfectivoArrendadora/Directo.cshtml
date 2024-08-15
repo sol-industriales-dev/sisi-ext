@@ -1,0 +1,212 @@
+﻿@{
+    ViewBag.Title = "Directo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+<link rel='stylesheet' href='~/Content/style/datatables/datatables.min.css' />
+<link rel='stylesheet' href="~/Content/style/css/Contabilidad/FlujoEfectivoArrendadora/Directo.css" />
+<h2 class="text-center">Flujo Efectivo Proyectado</h2>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Búscar</legend>
+    <div class='col-xs-offset-4 col-md-offset-4 col-lg-offset-4 col-xs-8 col-md-8 col-lg-8'>
+        <label><input type='checkbox' id='chbFlujo'> Acumulado</label>
+        <label><input type='checkbox' id='chbVisto'> Revisado</label>
+    </div>
+    <div class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Inicio</span>
+            <input type='text' id='txtDirInicioObra' class='form-control' readonly>
+        </div>
+    </div>
+    <div id='divDirCC' class='col-md-5 col-lg-5'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button type='button' class='btn btn-default chbAcCc'> Area Cuenta</button>
+            </span>
+            <select id='selDirCC' class='form-control'></select>
+        </div>
+    </div>
+    <div id='divDirAC' class='col-md-5 col-lg-5 hidden'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button type='button' class='btn btn-default chbAcCc'></button>
+            </span>
+            <select id='selDirAC' class='form-control select2' multiple></select>
+        </div>
+    </div>
+    <div class='col-xs-3 col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Periodo</span>
+            <select id='selDirSemana' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-xs-2 col-md-2 col-lg-2'>
+        <button id='btnDirBuscar' type='button' class='btn btn-default'><i class='fa fa-search'></i> Búscar</button>
+        <button id='btnGraDirecto' type='button' class='btn btn-success hidden' data-toggle='modal'
+                data-target='#mdlChartDirect'>
+            <i class="fas fa-chart-bar"></i>
+        </button>
+        <button id='btnPrintReport' type='button' class='btn btn-success'><i class="far fa-file-alt"></i></button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Proyección</legend>
+    <div id="divTblDirecto">
+        <table id='tblDirecto' class='table table-fixed' style="width: 100%;">
+            <thead>
+                <tr>
+                    <th rowspan="2">SEMANA</th>
+                    <th>FLUJO TOTAL</th>
+                    <th>CONSULTA</th>
+                    <th colspan="2">SEMANA MÁS RECIENTE</th>
+                    <th rowspan="2">PLANEACIÓN</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<div id="divProyCierre" class="row col-xs-12 col-md-12 col-lg-12 hidden">
+    <fieldset class='fieldset-custm'>
+        <div class='col-xs-12 col-md-12 col-lg-12'>
+            <label class="pull-right"><input type='checkbox' id='chbSemanaAnterior' checked> Semana Anterior</label>
+        </div>
+        <div class='col-xs-12 col-md-12 col-lg-12 table-responsive'>
+            <table id='tblProyCierre' class='table table-fixed'
+                   style="max-width: 82vw !important;left: 2em !important;">
+                <thead>
+                <th>Concepto</th>
+                <th style="min-width: 7em !important;">Monto Anterior</th>
+                <th style="min-width: 7em !important;">Monto</th>
+                </thead>
+            </table>
+        </div>
+    </fieldset>
+    <fieldset id="divTendencias" class='fieldset-custm'>
+        <legend class='legend-custm'>Tendencias</legend>
+        <div id="chartProyCierre"></div>
+    </fieldset>
+</div>
+<div id='mdlChartDirect' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Flujo Efectivo</h1>
+            </div>
+            <div class='modal-body'>
+                <div id="chartDirecto"></div>
+                <div id="chartDirectoPerdidaGanancia"></div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'>
+                    <i class='fa fa-arrow-left'></i>
+                    regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='mdlDirDetale' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' role="document">
+        <div class='modal-content'>
+            <div class='modal-header modal-bg text-center'>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h1 id="lblDirDetalle" class='modal-title'></h1>
+            </div>
+            <div class='modal-body'>
+                <div id="divNiveles" class="btn-group"></div>
+                <table id='tblDirDetalle' class='table table-fixed table-responsive' width="100%">
+                    <thead class="bg-table-header text-center"></thead>
+                </table>
+            </div>
+            <div class='modal-footer'>
+                <div class="row">
+                    <div class='col-xs-offset-6 col-xs-6'>
+                        <div class='input-group pull-right'>
+                            <span class='input-group-addon'>Total</span>
+                            <input type="text" id='txtDirDetTotal' class='form-control text-right' readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Visualizar Planeacion -->
+<div class="modal fade" id="modalPlaneacion" role="dialog">
+    <div id="divTam" class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3><label>Planeación Detalle</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="divPpalPlaneacion">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Conceptos Concentrados:</legend>
+                            <table id="tablaPlaneacionPpal"
+                                   class=" table table-fixed table-hover table-responsive table-striped">
+                                <thead class="bg-table-header">
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row hide" id="divDetallePlaneacion">
+                    <div class="col-lg-5">
+                        <button id="bntBackPpal" class="btn btn-primary form-control">
+                            <i class="fa fa-backward" aria-hidden="true"></i>
+                            Regresar Principal
+                        </button>
+                    </div>
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Conceptos Detalles:</legend>
+                            <table id="tablaPlaneacionDetalle"
+                                   class=" table table-fixed table-hover table-responsive table-striped">
+                                <thead class="bg-table-header">
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row hide" id="divSubDetallePlaneacion">
+                    <div class="col-lg-5">
+                        <button id="bntBackDetalle" class="btn btn-primary form-control">
+                            <i class="fa fa-backward" aria-hidden="true"></i>
+                            Regresar Anterior
+                        </button>
+                    </div>
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Conceptos Desglose:</legend>
+                            <table id="tablaPlaneacionDetalleN1"
+                                   class=" table table-fixed table-hover table-responsive table-striped">
+                                <thead class="bg-table-header">
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+<script src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/FlujoEfectivoArrendadora/Directo.js"></script>

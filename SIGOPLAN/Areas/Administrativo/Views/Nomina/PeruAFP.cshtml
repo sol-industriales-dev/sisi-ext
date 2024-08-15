@@ -1,0 +1,142 @@
+@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/PeruAFP.css" rel="stylesheet">
+<link href="~/Content/select2.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">CATALOGO AFP</h2>
+</fieldset>
+<!-- END: TITULO MODULO -->
+
+<!-- FILTROS -->
+<fieldset class="fieldset-custm seccion">
+    <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+    <div class="row">
+        <div class="col-lg-2 pull-right">
+            <button class="btn btn-primary" id="btnFiltro_Buscar"><i class='fas fa-search'></i>&nbsp;Buscar</button>
+            <button class="btn btn-primary" id="btnFiltro_CE"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+        </div>
+    </div>
+</fieldset>
+<!-- END: FILTROS -->
+
+<!-- REGISTROS AFP -->
+<fieldset class="fieldset-custm seccion">
+    <legend class='legend-custm'><span class="badge">Registros</span></legend>
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="tblAFP" class="table table-hover table-fixed table-bordered compact table-responsive"></table>
+        </div>
+    </div>
+</fieldset>
+<!-- END: REGISTROS AFP -->
+
+<!-- MODAL CREAR/EDITAR REGISTRO AFP -->
+<div class="modal fade-in disenioModal" id="mdlCrearEditarRegistroAFP">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center"></h4>
+            </div>
+            <div class="modal-body seccion">
+                <div class="row">
+                    <div class="col-lg-2">
+                        <label for='cboCE_Anio'>Año</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <select id='cboCE_Anio' class='form-control select2'>
+                                <option value="0">--Seleccionar--</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='col-lg-2'>
+                        <label for='cboCE_NumMes'>Mes</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <select id='cboCE_NumMes' class='form-control select2'>
+                                <option value="0">--Seleccionar--</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='col-lg-4'>
+                        <label for='cboCE_AFP'>AFP</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <select id='cboCE_AFP' class='form-control select2'></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-lg-4'>
+                        <label for='txtCE_ComisionSobreFlujo'>Comisión sobre flujo (% Renumeración Bruta Mensual)</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <input type='text' id='txtCE_ComisionSobreFlujo' class='form-control'>
+                        </div>
+                    </div>
+                    <div class='col-lg-4'>
+                        <label for='txtCE_ComisionAnualSobreSaldo'>Comisión anual sobre saldo</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <input type='text' id='txtCE_ComisionAnualSobreSaldo' class='form-control'>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-lg-4'>
+                        <label for='txtCE_PrimaDeSeguros'>Prima de seguros (%) (% Renumeración Bruta Mensual)</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <input type='text' id='txtCE_PrimaDeSeguros' class='form-control'>
+                        </div>
+                    </div>
+                    <div class='col-lg-4'>
+                        <label for='txtCE_AporteObligatorioFondoPensiones'>Aporte obligatorio al fondo de pensiones</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <input type='text' id='txtCE_AporteObligatorioFondoPensiones' class='form-control'>
+                        </div>
+                    </div>
+                    <div class='col-lg-4'>
+                        <label for='txtCE_RenumeracionMaximaAsegurable'>Renumeración máxima asegurable</label>
+                        <div class='input-group'>
+                            <span class='input-group-addon'></span>
+                            <input type='text' id='txtCE_RenumeracionMaximaAsegurable' class='form-control'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnCE_RegistroAFP"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR REGISTRO AFP -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/PeruAFP.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>

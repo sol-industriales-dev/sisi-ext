@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/ActivoFijo/Peru/RelacionPolizaPeru.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h3>Relación Póliza - Activo</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">Año</div>
+                                <select id="cboFiltroAnio" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">CC</div>
+                                <select id="cboFiltroCC" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">Cuenta</div>
+                                <select id="cboFiltroCuenta" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <button id="btnFiltrar" class="btn btn-primary pull-left">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+
+                            <button id="btnNuevo" class="btn btn-primary pull-right">
+                                <i class="far fa-plus-circle"></i> Nuevo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblRelacionActivos" class="hover stripe order-column compact" style="width: 100%;"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalRelacionActivo" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modalRelacionActivoTitulo">Nuevo Registro</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="cboTipoActivo" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Tipo Activo:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" id="cboTipoActivo" autocomplete="off">
+                                <option value="true">MAQUINARIA</option>
+                                <option value="false">OFICINA</option>
+                            </select>
+                        </div>
+
+                        <div id="divEconomico">
+                            <label for="cboNumEconomico" class="col-sm-2 control-label"><span class="puntoRojo">*</span> # económico:</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="cboNumEconomico" autocomplete="off"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtConcepto" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Concepto:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="txtConcepto" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtFechaMovimiento" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Fecha Alta:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtFechaMovimiento" autocomplete="off">
+                        </div>
+
+                        <label for="txtPorcentajeDep" class="col-sm-2 control-label"><span class="puntoRojo">*</span> % Dep:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtPorcentajeDep" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtMesesDep" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Meses Dep:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtMesesDep" autocomplete="off">
+                        </div>
+
+                        <label for="cboCC" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Centro de costos:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" id="cboCC" autocomplete="off"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboTipoPoliza" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Tipo Póliza:</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" id="cboTipoPoliza">
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+
+                        <label for="txtPoliza" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Póliza:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtPoliza" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtLinea" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Línea:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtLinea" autocomplete="off">
+                        </div>
+
+                        <label for="txtCuenta" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Cuenta:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtCuenta" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtMonto" class="col-sm-2 control-label"><span class="puntoRojo">*</span> Monto:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtMonto" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 pull-right control-label"><span class="puntoRojo">* CAMPOS OBLIGATORIOS</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/ActivoFijo/ActivoFijoRelacionPolizaActivo.js"></script>

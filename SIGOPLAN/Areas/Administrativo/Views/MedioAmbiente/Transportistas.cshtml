@@ -1,0 +1,158 @@
+﻿@{
+ViewBag.Title = "Transportistas";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Seguridad/MedioAmbiente/Estilo.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h2>TRANSPORTISTAS</h2></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary marginBottom" id="btnCETransportistaModal" title="Registrar nuevo transportista.">
+                                <i class="fas fa-plus"></i>
+                                &nbsp;Nuevo
+                            </button>
+                            <button type="button" class="btn btn-primary marginBottom marginRight" id="btnCETransportistaClasificacionesModal" title="Catálogo de clasificaciones.">
+                                <i class="fas fa-list"></i>
+                                &nbsp;Clasificaciones
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblS_MedioAmbienteTransportistas" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR/EDITAR TRANSPORTISTA -->
+<div class="modal fade" id="mdlCETransportista">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center"><h3><span id="lblTitleCETransportista"></span></h3></div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Razón social</span>
+                            <input type="text" id="txtRazonSocial" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Núm. autorización</span>
+                            <input type="text" id="txtNumAutorizacion" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Clasificación</span>
+                            <select id="cboClasificacion" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnCETransportista"><span id="titleBtnCETransportista"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR ASPECTO AMBIENTAL -->
+
+<!-- MODAL LISTADO CLASIFICACIONES -->
+<div class="modal fade" id="mdlListadoCEClasificaciones">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center"><h3>CLASIFICACIONES</h3></div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-primary marginBottom marginRight" id="btnCEClasificacionesModal" title="Catálogo de clasificaciones.">
+                            <i class="fas fa-plus"></i>
+                            &nbsp;Nuevo
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="tblS_MedioAmbienteClasificacionesTransportistas" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO CLASIFICACIONES -->
+
+<!-- MODAL CREAR/EDITAR CLASIFICACIONES -->
+<div class="modal fade" id="mdlCEClasificacion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center"><h3><span id="lblTitleCEClasificacion"></span></h3></div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Clasificación</span>
+                            <input type="text" id="txtClasificacion" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Descripción</legend>
+                            <textarea id="txtDescripcion" class="inputTextArea" cols="30" rows="5"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnCEClasificacion"><span id="titleBtnCEClasificacion"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR ASPECTO AMBIENTAL -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/MedioAmbiente/Transportistas.js"></script>

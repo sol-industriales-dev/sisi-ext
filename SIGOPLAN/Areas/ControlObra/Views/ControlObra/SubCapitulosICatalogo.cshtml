@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "SubCapitulosICatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/controlObra.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/ControlObra/SubCapitulosICatalogo.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Catálogo Subcapitulos Nivel I</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                 <div class="container-fluid">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                <legend class="legend-custm">Filtros:</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-3">
+                                        <label>Capitulos:</label>
+                                        <select class="form-control" id="multiSelectCapitulos" multiple="multiple"></select>
+                                    </div>
+
+                                    <div class="col-lg-4" style="padding-left: 0px;">
+                                        <button type="button" class="btn btn-primary" id="btnBuscarSubcapitulos" style="margin-top: 24px; margin-right: 5px;">
+                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                        </button>
+                                        <button id="btnNuevoSubCapitulo" class="btn btn-primary" style="margin-top: 24px; margin-right: 5px;"><span class="glyphicon glyphicon-plus"></span> Nuevo Subcapitulo</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                      </div>
+                     
+                      <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm"></legend>
+                                <table id="tblSubcapitulos" class="table table-striped table-hover table-bordered" style="width:100%"></table>
+                            </fieldset>
+                        </div>
+                      </div>
+                 </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSubcapitulo" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Nuevo Subcapitulo nivel I</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Capitulo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectCapitulo" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcapitulo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtSubcapitulo" class="form-control" placeholder="subcapitulo" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                             <input class="form-control" id="dpFechaInicio" style="border-radius: 0px; border-left: 0px;" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Fin:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input class="form-control" id="dpFechaFin" style="border-radius: 0px; border-left: 0px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">                 
+                    <a id="btnGuardarSubcapitulo" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogEliminarSubcapitulo" title="Eliminar Fase" style="display: none;">
+        <text id="txtEliminarSubcapitulo">¿Está seguro que desea eliminar este subcapitulo?</text>
+    </div>
+</div>

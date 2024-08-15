@@ -1,0 +1,192 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+
+    var display = baseController.getEmpresaID() == 1 ? "block" : "none";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/DocumentosPorPagar/CedulaMensual.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">CÉDULA MENSUAL DE DOCUMENTOS POR PAGAR A <span id="fechaTitulo"></span></h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3></h3></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha corte</span>
+                                <input type="text" class="form-control" id="txtFechaCorte" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-success" id="btnFiltro">Buscar</button>
+                            <button type="button" class="btn btn-primary" id="btnDetalle" disabled>Detalles</button>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblCedula" class="display" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Cuenta</th>
+                                            <th colspan="5" class="text-center">DEUDA CORTO PLAZO</th>
+                                            <th colspan="5" class="text-center">DEUDA LARGO PLAZO</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row" style="display:@display">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3>PQs</h3></div>
+                <div class="panel-body">
+                    <div class="row" style="display:none">
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-primary" id="btnDetallePQ" disabled>Detalles</button>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblCedulaPQ" class="display" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Cuenta</th>
+                                            <th colspan="5" class="text-center">DEUDA CORTO PLAZO</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modaldetalle" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title" id="modalDetalleTitulo"></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-default" id="cambiarTablaDetalle" value="1">Largo plazo</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblDetalle" class="hover stripe order-column compact" style="width:100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4"></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Contratos/CedulaMensual.js"></script>

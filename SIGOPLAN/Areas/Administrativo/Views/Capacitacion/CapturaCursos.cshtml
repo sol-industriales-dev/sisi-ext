@@ -1,0 +1,304 @@
+﻿@{
+    ViewBag.Title = "CapturaCursos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var controller = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController();
+    var esCreadorCurso = controller.esCreadorCurso();
+    var PuedeEliminarCursos = controller.PuedeEliminarCursos();
+    var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().privilegioCapacitacion();
+    <!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+}
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CapturaCursos.css" rel="stylesheet" />
+
+<input type="hidden" id="inputEsCreador" value=@esCreadorCurso.ToString()>
+<input type="hidden" id="inputPuedeEliminarCursos" value=@PuedeEliminarCursos.ToString()>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Captura Cursos</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+            <fieldset class="fieldset-custm">
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="input-group col-md-12">
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectClasificacion" class="form-label">Clasificación:</label>
+                                    <select id="selectClasificacion" name="selectClasificacion" class="form-control" multiple></select>
+                                </div>
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectPuesto" class="form-label">Puestos:</label>
+                                    <select id="selectPuesto" name="selectPuesto" class="form-control" multiple></select>
+                                </div>
+
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectEstatus" class="form-label">Estatus:</label>
+                                    <select id="selectEstatus" name="selectEstatus" class="form-control"></select>
+                                </div>
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <button type="button" class="btn btn-primary" id="btnBuscar" style="margin-top: 24px; margin-right: 5px;">
+                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                    </button>
+                                    <button type="button" class="btn btn-default" id="botonModalCargaMasiva" style="margin-top: 24px; margin-right: 5px; display: none;">
+                                        Carga Masiva
+                                    </button>
+                                    <button id="btnImprimir" class="btn btn-default" style="display: none; margin-top: 24px; margin-right: 5px;"><i class="fa fa-print"></i> Imprimir</button>
+                                    @if (esCreadorCurso)
+                                    {
+                                        if (privilegioCapacitacion != 3)
+                                        {
+                                            <button type="button" class="btn btn-primary" id="btnRegistrarCurso" style="margin-top: 24px; margin-right: 5px;">
+                                                <span class="glyphicon glyphicon-plus"></span> Registrar Nuevo
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm">Información</legend>
+
+                                <div class="row">
+                                    <div class="col-md-2 col-md-offset-10">
+                                        <div class="searchbar">
+                                            <input type="text" class="searchbar__input" name="q" id="searchbtn">
+                                            <button class="searchbar__button">
+                                                <i class="fa fa-search" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table id="tblCursos" class="content-table compact" style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalRegistroCurso" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Alta de Cursos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-4">
+                        <label for="claveCurso" class="form-label">Clave:</label>
+                        <input type="text" name="claveCurso" id="claveCurso" placeholder="Clave" class="form-control validar" />
+                    </div>
+
+                    <div class="col-sm-12 col-md-8">
+                        <label for="nombreCurso" class="form-label">Nombre:</label>
+                        <input type="text" name="nombreCurso" id="nombreCurso" placeholder="Nombre" class="form-control validar" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <label for="duracionCurso" class="form-label">Duración (Horas):</label>
+                        <input type="number" name="duracionCurso" id="duracionCurso" placeholder="" class="form-control validar" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <label for="selectClasificacionCurso" class="form-label">Clasificación:</label>
+                        <select name="selectClasificacionCurso" id="selectClasificacionCurso" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <div class="checkbox" id="divTodosPuestos">
+                            <label>
+                                <input type="checkbox" id="checkboxTodosPuestos">
+                                Todos los puestos
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <div class="checkbox" id="divCapacitacionUnica">
+                            <label>
+                                <input type="checkbox" id="checkboxCapacitacionUnica">
+                                Capacitación Única
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="selectMando" class="form-label">Mando:</label>
+                        <select name="selectMando" name="selectMando[]" id="selectMando" class="form-control validar" style="width: 100%" multiple></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="selectPuestoCurso" class="form-label">Puestos:&nbsp;<input type="checkbox" id="checkboxTodosPuestosMandos"></label>
+                        <select name="selectPuestoCurso" name="selectPuestoCurso[]" id="selectPuestoCurso" class="form-control validar select2" style="width: 100%" multiple></select>
+                    </div>
+                </div>
+
+                <div class="row" style="display: none;">
+                    <div class="col-sm-12 col-md-12">
+                        <label class="form-label">Puestos Autorización:</label>
+                        <select id="selectPuestoAutorizacionCurso" class="form-control validar" style="width: 100%" multiple></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="selectCentroCosto" class="form-label">CC:</label>
+                        <select name="selectCentroCosto" name="selectCentroCosto[]" id="selectCentroCosto" class="form-control validar" style="width: 100%" multiple></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="objetivoCurso" class="form-label">Objetivo:</label>
+                        <textarea class="form-control validar" name="objetivoCurso" id="objetivoCurso" cols="12" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="temaCurso" class="form-label">Tema Principal:</label>
+                        <textarea class="form-control validar" name="temaCurso" id="temaCurso" cols="12" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="referenciasNormativas" class="form-label">Referencias Normativas:</label>
+                        <textarea class="form-control validar" name="referenciasNormativas" id="referenciasNormativas" cols="12" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="notaCurso" class="form-label">Notas:</label>
+                        <textarea class="form-control validar" name="notaCurso" id="notaCurso" cols="12" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                @if (esCreadorCurso)
+                {
+                    <button type="button" class="btn btn-success" id="btnGuardarCurso">Guardar</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAltaExamen" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleCurso"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary" id="btnAgregarExamen">Agregar Examen</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <table class="content-table" style="width: 100%" id="tblExamenes">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Nombre Examen</th>
+                                    <th>Tipo examen</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyExamenes">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                @if (esCreadorCurso)
+                {
+                    <button type="button" class="btn btn-success" id="btnGuardarExamenes">Guardar</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCargaMasiva">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Carga Masiva Curso-Puesto Autorización</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFile" type="file">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button id="botonGuardarCargaMasiva" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CapturaCursos.js"></script>

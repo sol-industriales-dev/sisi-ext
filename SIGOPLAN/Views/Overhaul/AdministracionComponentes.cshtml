@@ -1,0 +1,1620 @@
+﻿
+@{
+    ViewBag.Title = "AdministracionComponentes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+
+<!--CSS-->
+<link href="~/Content/style/css/Maquinaria/Overhaul/AdministracionComponentes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.jqueryui.min.css" rel="stylesheet" />
+<!---->
+<h2 class="text-center">CONTROL DE COMPONENTES</h2>
+<div class="container-fluid">
+    <ul class="nav nav-tabs" id="ulNuevo">
+        <li><a id="tabInventario" data-toggle="tab" href="#inventario">Inventario</a></li>
+        <li class="active"><a id="tabOperando" data-toggle="tab" href="#operando">Operando</a></li>
+        <li><a id="tabRemociones" data-toggle="tab" href="#remociones">Remociones</a></li>
+        <li><a id="tabCRC" data-toggle="tab" href="#crc">CRC</a></li>
+        <li><a id="tabAlmacen" data-toggle="tab" href="#almacen">Almacén</a></li>
+        <li><a id="tabInactivos" data-toggle="tab" href="#inactivos">Inactivos</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="inventario" class="tab-pane">
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Serie Componente:</label>
+                            <input class="form-control" id="txtFiltroNoComponente" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Conjunto:</label>
+                            <select class="form-control" id="cboConjunto" style="width: 100%;"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <select class="form-control" id="cboSubconjunto" style="width: 100%;"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>CC:</label>
+                            <select class="form-control" id="cboCC" multiple="multiple"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Locación:</label>
+                            <input class="form-control" id="txtLocacion" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Modelo Máquina:</label>
+                            <select class="form-control" id="cboModeloInventario" style="width: 100%;"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Estatus:</label>
+                            <select class="form-control" id="cboFiltroEstatus" style="width: 100%">
+                                <option value="1">ACTIVO</option>
+                                <option value="0">INACTIVO</option>
+                            </select>
+                        </div>    
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">                                
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar_Componente">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>     
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Alta</legend>
+                        <button type="button" class="btn btn-success btn-alta-comp" id="btnNuevo_Componente" disabled>
+                            <span class="glyphicon glyphicon-plus"></span> Nuevo
+                        </button>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Actualizar</legend>
+                        <button type="button" class="btn btn-warning btn-alta-comp" id="btnModificar_Componente" disabled>
+                            <span class="glyphicon glyphicon-edit"></span> Modificar
+                        </button>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Inventario de componentes</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="grid_Componente" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="update" data-formatter="update" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">MODIFICAR</th>
+                                        <th data-column-id="noComponente" data-formatter="noComponente" data-align="center" data-header-align="center">SERIE&lt;br&gt;COMPONENTE</th>
+                                        <th data-column-id="subConjunto" data-align="center" data-header-align="center">SUBCONJUNTO</th>
+                                        <th data-column-id="cicloVidaHoras" data-align="center" data-header-align="center">TARGET</th>
+                                        <th data-column-id="garantia" data-align="center" data-header-align="center">GARANTÍA</th>
+                                        <th data-column-id="locacion" data-align="center" data-header-align="center">LOCACIÓN</th>
+                                        <th data-column-id="intercambio" data-formatter="intercambio" data-align="center" data-header-align="center">ENTRADA POR&lt;br&gt;INTERCAMBIO</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal fade" id="modalComponente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header modal-bg">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <div class="text-center">
+                                <h3><label id="title-modal"></label></h3>
+                            </div>
+                        </div>
+                        <div class="modal-body text-center modal-content-tamaño">
+                            <div class="container-fluid">
+                                <form id="frmComponentes">
+                                    <div class="row">
+                                        <fieldset class="fieldset-custm">
+                                            <legend class="legend-custm">DATOS COMPONENTE:</legend>
+                                            <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" id="divEncabezado">
+                                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 pull-right">
+                                                    <label>Serie Componente:</label>
+                                                    <input class="form-control" id="txtModalnoComponente" />
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 pull-left">
+                                                <label>Estatus:</label>
+                                                <select class="form-control" id="cboModalEstatus">
+                                                    <option value="1">ACTIVO</option>
+                                                    <option value="0">INACTIVO</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Grupo Máquina:</label>
+                                                <select class="form-control" id="cboModalGrupoMaquina"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Modelo Máquina:</label>
+                                                <select class="form-control" id="cboModalModeloMaquina"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Prefijo de Modelo:</label>
+                                                <select class="form-control" id="cboModalModalModeloPrefijo"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>CC:</label>
+                                                <select id="cboModalCentroCostos" class="form-control"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Conjunto:</label>
+                                                <select id="cboModalConjunto" class="form-control"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Subconjunto:</label>
+                                                <select id="cboModalSubConjunto" class="form-control"></select>
+                                            </div>
+
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Posición:</label>
+                                                <select id="cboModalPosicion" class="form-control"></select>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Número de parte:</label>
+                                                <select class="form-control" id="cboModaldNumParte"></select>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Marca:</label>
+                                                <select class="form-control" id="cboModalMarcaComponente"></select>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Proveedor:</label>
+                                                <select class="form-control" id="cboModalProveedor"></select>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Orden de Compra:</label>
+                                                <input type="text" class="form-control" id="txtOrdenCompra" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Costo:</label>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtCosto" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Target:</label>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalHoraCiclo" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Horas Ciclo:</label>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalHoraCicloActual" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Horas Acumuladas:</label>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalHoraAcumuladas" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label># Vidas Iniciales:</label>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalVidas" />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <label>Fecha de Alta:</label>
+                                                <input type="text" id="txtModalFecha" class="form-control">
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                                <input type="checkbox" class="ckaplica" name="fancy-checkbox-danger-custom-icons" id="ckIntercambioAlta" autocomplete="off">
+                                                <div class="btn-group margin-top">
+                                                    <label for="ckIntercambioAlta" class="btn btn-primary">
+                                                        <span class="glyphicon glyphicon-ok"></span>
+                                                        <span class="glyphicon glyphicon-remove"></span>
+
+                                                    </label>
+                                                    <label for="ckIntercambioAlta" class="btn btn-default active">
+                                                        INTERCAMBIO
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                                <label>Locación:</label>
+                                                <select id="cboModalLocacion" class="form-control"></select>
+                                            </div>
+                                            <div id="divFechaInstalacion" class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group" style="display: none">
+                                                <label>Fecha Instalación:</label>
+                                                <input type="text" id="txtModalFechaInstalacion" class="form-control">
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <label>*El número consecutivo mostrado no es el número consecutivo final.</label>
+                                        </div>
+                                        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                            <div>
+                                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar_Componente">
+                                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar_Componente" data-dismiss="modal">
+                                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalComponenteModificar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header modal-bg">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <div class="text-center">
+                                <h3><label id="title-modalModificar"></label></h3>
+                            </div>
+                        </div>
+                        <div class="modal-body text-center modal-content-tamaño">
+                            <div class="container-fluid">
+                                <form id="frmModificarComponentes">
+
+                                    <div class="row">
+                                        <fieldset class="fieldset-custm" style="text-align:left !important">
+                                            <legend class="legend-custm">Modificar:</legend>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                                <input id="cbCicloVidaHoras" type="checkbox" name="cicloVidaHoras" value=""> <b>TARGET:</b><br>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalModificarHoraCiclo" disabled />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                                <input id="cbGarantia" type="checkbox" name="garantia" value=""> <b>GARANTÍA:</b><br>
+                                                <input type="number" min="0" value="0" class="form-control" id="txtModalModificarGarantia" disabled />
+                                            </div>
+                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                                <input id="cbEstatus" type="checkbox" name="estatus" value=""> <b>ESTATUS:</b><br>
+                                                <select class="form-control" id="cboModalModificarEstatus" disabled>
+                                                    <option value="1">ACTIVO</option>
+                                                    <option value="0">INACTIVO</option>
+                                                </select>
+                                            </div>
+
+                                        </fieldset>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                            <div>
+                                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalModificarGuardar">
+                                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalModificarCancelar" data-dismiss="modal">
+                                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="operando" class="tab-pane fade in active">
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-10 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Económico:</label>
+                            <input class="form-control" id="txtFiltroDescripcionEconomico" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtFiltroDescripcionComponentePpal" type="text" maxlength="100">
+                            @*<input class="form-control ui-autocomplete-input" id="txtFiltroDescripcionComponente" type="text" maxlength="100" autocomplete="off">*@
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Serie Componente:</label>
+                            <input class="form-control" id="txtFiltroNoComponenteOperando" type="text" maxlength="100">
+                            @*<input class="form-control ui-autocomplete-input" id="txtFiltroDescripcionComponente" type="text" maxlength="100" autocomplete="off">*@
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Obra:</label>
+                            <select class="form-control" id="cboObraMaquina"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Grupo:</label>
+                            <select class="form-control" id="cboFiltroGrupoMaquina"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Modelo:</label>
+                            <select class="form-control" id="cboFiltroModeloMaquina" disabled></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Acotaciones</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                            <span class="dotAcotacion" style="background-color:#009900;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;> 1000 target</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                            <span class="dotAcotacion" style="background-color:#ffcc00;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;< 1000 target</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                            <span class="dotAcotacion" style="background-color:#ff6600;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;> target</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                            <span class="dotAcotacion" style="background-color:#ff0000;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Falla</b>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Componentes en máquina</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="grid_Componentes" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="CCName" class="text-center" style="" data-formatter="CCName">CC</th>
+                                        <th data-column-id="economico" class="text-center" style="">ECONÓMICO</th>
+                                        <th data-column-id="estatusComponentes" class="text-center" style="" data-formatter="estatus">ESTATUS COMPONENTES</th>
+                                        <th data-column-id="detalle" class="text-center" style="" data-formatter="detalle">DETALLE</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                    <div class="modal fade" id="modalDetalles" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <fieldset class="fieldset-custm fielset-Filtros">
+                                            <legend class="legend-custm">FILTROS:</legend>
+                                            @*<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                    <label>NO. ECONOMICO:</label>
+                                    <select class="form-control" id="cboFiltroModalEconomico"></select>
+                                </div>*@
+                                            <div class="col-md-3 col-lg-4 noPadLeft">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Serie:</span>
+                                                    <input class="form-control" id="txtFiltroModalComponente" type="text" maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-lg-4 noPadLeft">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Subconjunto:</span>
+                                                    <input class="form-control" id="txtFiltroModalSub" type="text" maxlength="100">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-lg-4 noPadLeft">
+                                                <div class="input-group pull-right">
+                                                    <button type="button" class="btn btn-info" id="btnBuscarModal">
+                                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form novalidate="novalidate">
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend class="legend-custm">DETALLES COMPONENTES EQUIPO:</legend>
+
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="grid_Detalles" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">ESTATUS</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="locacion">LOCACIÓN</th>
+                                                                    <th data-column-id="noComponente" class="text-center" style="">SERIE</th>
+                                                                    <th data-column-id="subconjunto" class="text-center" style="">SUBCONJUNTO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="numVidasAcumuladas" class="text-center" style="" data-formatter=""># VIDAS</th>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="">FECHA&lt;br&gt;INSTALACIÓN</th>
+                                                                    <th data-column-id="horasCicloActual" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="cicloVidaHoras" class="text-center" style="" data-formatter="">TARGET</th>
+                                                                    <th data-column-id="fechaProxRemocion" class="text-center" style="" data-formatter="">PRÓXIMO&lt;br&gt;PCR</th>
+                                                                    <th data-column-id="detalles" class="text-center" style="" data-formatter="detalles">DETALLES</th>
+                                                                    <th data-column-id="remocion" class="text-center" style="" data-formatter="remocion">REMOCIÓN</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="modalDetallesComponente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-historial"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmDetallesHistorial" novalidate="novalidate">
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend id="lgHistorial" class="legend-custm"></legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="gridDetallesHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                    <th data-column-id="horasCiclo" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                    <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">PROVEEDOR   <i class="fa fa-hand-holding"></i><i class="fas fa-cogs"></i></legend>
+                                                                <span id="spProveedorHistorial" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">ORDEN DE COMPRA <i class="fas fa-shopping-cart"></i></legend>
+                                                                <span id="spOrdenCompraHistorial" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>            
+        <div id="remociones" class="tab-pane">
+            @{Html.RenderPartial("ReportesRemocion", "Overhaul");}
+        </div>
+        <div id="crc" class="tab-pane">
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-7 col-lg-9 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Locación:</label>
+                            <select class="form-control" style="text-align-last: center;" multiple="multiple" id="cboFiltroLocacionCRC"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Componente:</label>
+                            <input class="form-control" id="txtFiltroNoComponenteCRC" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtFiltroDescripcionComponenteCRC" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <button type="button" class="btn btn-info margin-top pull-right" style="margin-bottom:30px;" id="btnBuscarCRC">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-5 col-lg-3">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm text-center">Acotaciones</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#009900;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;< 20 dias</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#ffcc00;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;÷ 20 y 29 dias</b>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <span class="dotAcotacion" style="background-color:#ff0000;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;≥ 30 dias</b>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Componentes en reparación</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="grid_ComponentesCRC" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="locacion" class="text-center" style="">CRC</th>
+                                        <th data-column-id="estatusComponentes" class="text-center" style="" data-formatter="estatus">ESTATUS COMPONENTES</th>
+                                        <th data-column-id="detalle" class="text-center" style="width:3%;" data-formatter="detalle">DETALLE</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </fieldset>
+
+                    <div class="modal fade" id="modalDetallesCRC" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modalCRC"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño text-center">
+                                    <div class="container-fluid no-padding">
+                                        <fieldset class="fieldset-custm fielset-Filtros">
+                                            <legend class="legend-custm">Filtros:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>Estatus:</label>
+                                                <select class="form-control" id="cboFiltroModalEstatusCRC"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>CRC:</label>
+                                                <select class="form-control" id="cboFiltroModalEconomicoCRC"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                <label>Subconjunto:</label>
+                                                <input class="form-control" id="txtFiltroModalComponenteCRC" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>Serie Componente:</label>
+                                                <input class="form-control" id="txtFiltroModalSerieCRC" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                <label>Grupo Máquina:</label>
+                                                <select class="form-control" id="cboFiltroModalGrupoMaquinaCRC"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>Modelo Máquina:</label>
+                                                <select class="form-control" id="cboFiltroModalModeloMaquinaCRC"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>Económico:</label>
+                                                <input class="form-control" id="txtFiltroModalMaquinaCRC" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                                                <label>Clave Cotización:</label>
+                                                <input class="form-control" id="txtFiltroCotiCRC" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+                                                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarModalCRC">
+                                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                                </button>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño" style="font-size:12px !important">
+                                    <div class="container-fluid">
+                                        <form id="frmComponentesCRC" novalidate="novalidate">
+
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm text-center">
+                                                    <legend class="legend-custm">Detalles componentes equipo:</legend>
+
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla tablaCRC">
+                                                        <table id="grid_DetallesCRC" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white;">
+                                                            </thead>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="modalDetallesComponenteCRC" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-historialCRC"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmDetallesHistorialCRC" novalidate="novalidate">
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend id="lgHistorialCRC" class="legend-custm"></legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="gridDetallesHistorialCRC" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                    <th data-column-id="horasCiclo" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                    <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">PROVEEDOR   <i class="fa fa-hand-holding"></i><i class="fas fa-cogs"></i></legend>
+                                                                <span id="spProveedorHistorialCRC" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">ORDEN DE COMPRA   <i class="fas fa-shopping-cart"></i></legend>
+                                                                <span id="spOrdenCompraHistorialCRC" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalFechasCRC" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-md" style="" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-fechasCRC"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmFechasCRC" novalidate="novalidate">
+                                            <div class="row" style="width:100%; text-align:center;">
+                                                <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                    <legend id="lgModalFechasCRC" class="legend-custm">DATOS REQUERIDOS:</legend>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline-table;">
+                                                        <div class="" style="display:inline-table;width:50%;">
+                                                            <label>FECHA:</label>
+                                                            <input class="form-control" id="txtModalFechasCRC" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                                                        <label>CLAVE COTIZACIÓN:</label>
+                                                        <input class="form-control" id="txtModalClaveCotizacionCRC" />
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                                                        <label>COSTO:</label>
+                                                        <input type="number" class="form-control" id="txtModalCostoCRC" />
+                                                    </div>
+                                                    @*<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                                                        <label>ORDEN DE COMPRA:</label>
+                                                        <input class="form-control" id="txtModalOrdenCompraCRC" />
+                                                    </div>*@
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline-table;">
+                                                        <div class="" style="display:inline-table;width:50%;">
+                                                            <label>ORDEN DE COMPRA:</label>
+                                                            <input class="form-control" id="txtModalOrdenCompraCRC" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline-table;">
+                                                        <div class="" style="display:inline-table;width:50%;">
+                                                            <label>COMPRADOR:</label>
+                                                            <input class="form-control" id="txtModalCompradorCRC" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                                                        <label>ALMACÉN:</label>
+                                                        <select class="form-control" id="cboModalAlmacenCRC"></select>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 form-group margin-top" style="text-align:center;">
+                                                        <input type="checkbox" class="ckaplica" name="fancy-checkbox-danger-custom-icons" id="ckIntercambioCRC" autocomplete="off">
+                                                        <div class="btn-group">
+                                                            <label for="ckIntercambioCRC" class="btn btn-primary">
+                                                                <span class="glyphicon glyphicon-ok"></span>
+                                                                <span class="glyphicon glyphicon-remove"></span>
+
+                                                            </label>
+                                                            <label for="ckIntercambioCRC" class="btn btn-default active">
+                                                                INTERCAMBIO
+                                                            </label>
+                                                        </div>
+                                                    </div>                                                 
+                                                    @*<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 form-group margin-top" style="text-align: center">
+                                                        <button id="btnAdminCorreos" class="btn btn-primary" style="width:100%;white-space: normal;">
+                                                            ADMINISTRAR CORREOS
+                                                        </button>
+                                                    </div>*@
+                                                    <div class="" style="display:none; width:100%;">
+                                                        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                                                            <label>FOLIO FACTURA:</label>
+                                                            <input class="form-control" id="txtModalFolioFacturaCRC" />
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                                            <label>UNIDAD:</label>
+                                                            <input class="form-control" id="txtUnidadCRC" data-index="" type="text" maxlength="100" />
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                                            <label>PLACAS:</label>
+                                                            <input class="form-control" id="txtPlacasUnidadCRC" data-index="" type="text" maxlength="100" />
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                            <label>CHOFER:</label>
+                                                            <input class="form-control" id="txtChoferCRC" type="text" maxlength="100" />
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                            <label>FACTURA:</label>
+                                                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group" style="text-align: center">
+                                                                <button id="btncargarFactura" class="btn btn-primary" style="width:100%;white-space: normal;">
+                                                                    SELECCIONAR ARCHIVO
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                                                <input type="file" class="form-control btn btn-info pull-left" id="inCargarFactura" accept="application/pdf">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline-table;">
+                                                        <div class="" style="display:inline-table;width:50%;">
+                                                            <label>FOLIO RQ:</label>
+                                                            <input class="form-control" id="txtModalFolioRqCRC" />
+                                                        </div>
+                                                    </div>
+                                                    @*<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="display:none;">
+                                                        <label>FOLIO RQ:</label>
+                                                        <input class="form-control" id="txtModalFolioRqCRC" />
+                                                    </div>*@
+                                                    <div class="ol-xs-6 col-xs-6 col-md-6 col-lg-6 margin-top">
+                                                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 form-group margin-top" style="text-align: center">
+                                                            <input type="checkbox" class="ckaplica" name="fancy-checkbox-danger-custom-icons" id="ckAplicaNC" autocomplete="off">
+                                                            <div class="btn-group">
+                                                                <label for="ckAplicaNC" class="btn btn-primary">
+                                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                                    <span class="glyphicon glyphicon-remove"></span>
+
+                                                                </label>
+                                                                <label for="ckAplicaNC" class="btn btn-default active">
+                                                                    NOTA DE CRÉDITO
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group pull-left">
+                                                        <label>Parcial/General:</label>
+                                                        <select class="form-control" id="cboModalParcialCRC">
+                                                            <option value="0">General</option>
+                                                            <option value="1">Parcial</option>                                                            
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="display:none; text-align:center">
+                                                        <label>OBSERVACIONES:</label>
+                                                        <textarea class="form-control" id="txtaObsOCModalFechas" title="Introducir observaciones" placeholder="Escribe las observaciones"></textarea>
+                                                    </div>
+                                                    <div class="" style="display:none; width:100%;">
+                                                        <fieldset class="fieldset-custm">
+                                                            <legend class="legend-custm">ARCHIVOS:</legend>
+                                                            <div class="col-xs-12 col-xs12 col-md-12 col-lg-12">
+                                                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                                                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12" style="text-align: center">
+                                                                        <button id="btncargarArchivo" class="btn btn-primary"  style="margin-bottom: 5px;"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                                                    </div>
+                                                                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarArchivo" accept="application/pdf">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <table id="gridArchivos" class="table table-condensed table-hover table-striped text-center bootgrid-table" style="table-layout: fixed !important;" aria-busy="false">
+                                                                    <thead class="bg-table-header">
+                                                                        <tr>
+                                                                            <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                            <th data-column-id="FechaCreacion" class="text-left" style="" data-formatter="fecha">FECHA</th>
+                                                                            <th data-column-id="nombre" class="text-left" style="" data-formatter="nombre">NOMBRE</th>
+                                                                            <th id="eliminarArchivoCRC" data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                                            <th data-column-id="descargar" class="text-left" style="" data-formatter="descargar">DESCARGAR</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                                                                </table>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="display:none">
+                                                        <fieldset class="fieldset-custm tablaChica">
+                                                            <legend class="legend-custm">ARCHIVOS:</legend>
+                                                            <table id="gridArchivosVer" class="table table-condensed table-hover table-striped text-center bootgrid-table" style="table-layout: fixed !important;" aria-busy="false">
+                                                                <thead class="bg-table-header">
+                                                                    <tr>
+                                                                        <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                        <th data-column-id="FechaCreacion" class="text-left" style="" data-formatter="fecha">FECHA</th>
+                                                                        <th data-column-id="nombre" class="text-left" style="">NOMBRE</th>
+                                                                        <th data-column-id="descargar" class="text-left" style="" data-formatter="descargar">DESCARGAR</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                                                            </table>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <label>CORREOS:</label>
+                                                        <select id="cboCorreoCRC" class="form-control select2Multi" name="cboCorreoCRC[]" style="width: 100%" multiple></select>
+                                                    </div>   
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center">
+                                                        <button type="button" class="btn btn-danger margin-top pull-left" style="display:none;" id="btnRechazarOCModalFechas">
+                                                            <span class="glyphicon glyphicon-ok"></span> Rechazar
+                                                        </button>
+                                                        <button type="button" class="btn btn-primary margin-top" style="display:none;" id="btnObservacionesOCModalFechas">
+                                                            <span class="glyphicon glyphicon-envelope"></span> Enviar Observaciones
+                                                        </button>
+                                                        <button type="button" class="btn btn-primary margin-top pull-right" id="btnGuardarModalFechas">
+                                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                        </button>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="almacen" class="tab-pane">
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-10 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Filtros</legend>
+                   
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Almacén:</label>
+                            <select class="form-control" style="text-align-last: center;" multiple="multiple" id="cboFiltroLocacionAlmacen"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Componente:</label>
+                            <input class="form-control" id="txtFiltroNoComponenteAlmacen" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtFiltroDescripcionComponenteAlmacen" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <button type="button" class="btn btn-info margin-top" style="margin-bottom: 45px;" id="btnBuscarAlmacen">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                            <button type="button" class="btn btn-warning margin-top" style="margin-bottom: 45px;" id="btnReporteAlmacen">
+                                <span class="glyphicon glyphicon-file"></span> Reporte
+                            </button>
+                        </div>   
+                                         
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3" style="width: 25%;">
+                            <label>Grupo:</label>
+                            <select class="form-control" id="cboFiltroGrupoMaquinaAlmacen"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3" style="width: 25%;">
+                            <label>Modelo:</label>
+                            <select class="form-control" id="cboFiltroModeloMaquinaAlmacen"></select>
+                        </div>
+
+                       
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Cambio</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <button type="button" class="btn btn-success" id="btnCambioAlmacen" disabled>
+                                <span class="fa fa-exchange"></span> Mover
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Intercambio</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <button type="button" class="btn btn-success" id="btnIntercambioAlmacen" disabled>
+                                <span class="fa fa-exchange"></span> Intercambio
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Componentes en almacén:</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="grid_ComponentesAlmacen" class="table table-condensed table-hover table-striped" @*aria-busy="false"*@>
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        @*<th data-column-id="fechaEntrada" style="text-align:center;" data-formatter="fechaEntrada">FECHA&lt;br&gt;INGRESO</th>*@
+                                        <th data-column-id="fecha" style="text-align:center;" data-formatter="fecha">FECHA&lt;br&gt;RECOLECCIÓN</th>
+                                        <th data-column-id="entrada" style="text-align:center;" data-formatter="entrada">FECHA LLEGADA&lt;br&gt;COMPONENTE&lt;br&gt;A OBRA</th>
+                                        <th data-column-id="fechaEntradaFactura" style="text-align:center;" data-formatter="fechaEntradaFactura">FECHA&lt;br&gt;ENTRADA POR&lt;br&gt;ALMACÉN</th>
+                                        <th data-column-id="dias" style="text-align:center;" data-formatter="dias">DÍAS EN&lt;br&gt;ALMACÉN</th>
+                                        <th data-column-id="subconjunto" style="text-align:center;" data-formatter="subconjunto">SUBCONJUNTO</th>
+                                        <th data-column-id="noComponente" style="text-align:center;" data-formatter="noComponente" data-identifier="true">SERIE</th>
+                                        <th data-column-id="modeloId" style="text-align:center;" data-formatter="modeloId">MODELO</th>
+                                        <th data-column-id="locacion" style="text-align:center;" data-formatter="estatus">ALMACÉN</th>
+                                        <th data-column-id="horasCicloActual" style="text-align:center;" data-formatter="horasCicloActual">HORÓMETRO&lt;br&gt;ACTUAL</th>
+                                        <th data-column-id="detalle" style="text-align:center;" data-formatter="detalle">DETALLE</th>
+                                        <th data-column-id="Desecho" style="text-align:center;" data-formatter="desecho">DESECHO</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="modal fade" id="modalDesechoAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none; height:80%">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header modal-bg">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                        <div class="text-center">
+                                            <h3><label id="title-modal-desecho"></label></h3>
+                                        </div>
+                                    </div>
+                                    <div class="modal-body text-center modal-content-tamaño">
+                                        <div class="container-fluid">
+                                            <form id="frmComentario" novalidate="novalidate">
+                                                <div class="row">
+
+                                                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                        <fieldset class="fieldset-custm">
+                                                            <legend class="legend-custm">Imagen Serie Componente:</legend>
+                                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group text-center" style="text-align: center">
+                                                                <button id="btncargarSerieDesecho" class="btn btn-info"> <i class="fa fa-upload"></i>   Seleccionar imagen</button>
+                                                            </div>
+                                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                                                <input type="file" class="form-control btn btn-info pull-left" id="inCargarSerieDesecho" accept="image/*">
+                                                                <img id="imgDesecho" src="" style="max-width: 200px;">
+                                                            </div>
+
+                                                        </fieldset>
+                                                        <fieldset class="fieldset-custm">
+                                                            <legend class="legend-custm">Motivo:</legend>
+                                                            <label>Motivo del desecho del componente (Especificar):</label>
+                                                            <textarea class="form-control" id="txtaObsDesecho" title="Introducir motivo" style="height:100px; width:97%;" placeholder="Escriba el motivo"></textarea>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="height:20%">
+                                                        <fieldset class="fieldset-custm">
+                                                            <legend class="legend-custm">Archivos:</legend>
+                                                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                                                    <label>ARCHIVO:</label>
+                                                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                                                        <button id="btncargarEvidenciaDesecho" class="btn btn-primary"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                                                    </div>
+                                                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarEvidenciaDesecho" accept="image/*">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                <table id="gridEvidenciaDesecho" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                    <thead class="bg-table-header">
+                                                                        <tr>
+                                                                            <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                            <th data-column-id="nombre" class="text-left" style="" data-formatter="nombre">Nombre</th>
+                                                                            <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">Eliminar</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody><tr><td colspan="4" class="">No se encontró información</td></tr></tbody>
+                                                                </table>
+                                                            </div>
+                                                        </fieldset>
+
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top: 10px;">
+                                                        <fieldset class="fieldset-custm">
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnGuardarComentarioDesecho">
+                                                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                                </button>
+                                                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnCancelarComentarioDesecho" data-dismiss="modal">
+                                                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                                </button>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="modal fade" id="modalDetallesAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modalAlmacen"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <fieldset class="fieldset-custm fielset-Filtros">
+                                            <legend class="legend-custm">FILTROS:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                                <label>ECONÓMICO:</label>
+                                                <select class="form-control" id="cboFiltroModalEconomicoAlmacen"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-2">
+                                                <label>SERIE COMPONENTE:</label>
+                                                <input class="form-control" id="txtFiltroModalComponenteAlmacen" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                                <button type="button" class="btn btn-info margin-top" id="btnBuscarModalAlmacen">
+                                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                                </button>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmComponentesAlmacen" novalidate="novalidate">
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend class="legend-custm">DETALLES COMPONENTES EQUIPO:</legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="grid_DetallesAlmacen" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">ESTATUS</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="locacion">LOCACIÓN</th>
+                                                                    <th data-column-id="noComponente" class="text-center" style="">SERIE&lt;br&gt;COMPONENTE</th>
+                                                                    <th data-column-id="subconjunto" class="text-center" style="">SUBCONJUNTO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADASs</th>
+                                                                    <th data-column-id="numVidasAcumuladas" class="text-center" style="" data-formatter=""># VIDAS</th>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="">FECHA&lt;br&gt;INSTALACIÓN</th>
+                                                                    <th data-column-id="horasCicloActual" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="cicloVidaHoras" class="text-center" style="" data-formatter="">TARGET</th>
+                                                                    <th data-column-id="fechaUltimaRemocion" class="text-center" style="" data-formatter="">PRÓXIMA&lt;br&gt;REMOCIÓN</th>
+                                                                    <th data-column-id="horometroRemocion" class="text-center" style="" data-formatter="">HOR. PRÓX.&lt;br&gt;REMOCIÓN</th>
+                                                                    <th data-column-id="detalles" class="text-center" style="" data-formatter="detalles">DETALLES</th>
+                                                                    <th data-column-id="remocion" class="text-center" style="" data-formatter="remocion">REMOCIÓN</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalIntercambioAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-md" style="" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-intercambioAlmacen"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmModalIntercambioAlmacen" novalidate="novalidate">
+                                            <div class="row" style="width:100%; text-align:center;">
+                                                <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                    <legend id="lgModalIntercambioAlmacen" class="legend-custm">DATOS REQUERIDOS:</legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                                        <label>ALMACÉN:</label>
+                                                        <select class="form-control" id="cboModalIntercambioAlmacen"></select>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                                        <label>UNIDAD:</label>
+                                                        <input class="form-control" id="txtModalIntercambioUnidadAlmacen" type="text" maxlength="100" />
+                                                    </div>       
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <label>CHOFER:</label>
+                                                        <input class="form-control" id="txtModalIntercambioChoferAlmacen" type="text" maxlength="100" />
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-12" style="text-align:center">
+                                                        <button id="btnAdminCorreosAlmacen" class="btn btn-primary margin-top pull-left">
+                                                            <span class="glyphicon glyphicon-envelope"></span> Correos
+                                                        </button>
+                                                        <button type="button" class="btn btn-info margin-top pull-right" id="btnGuardarModalIntercambioAlmacen">
+                                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                        </button>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset class="fieldset-custm">
+                                                    <legend class="legend-custm">COMPONENTES:</legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="gridCambioAlmacen" class="table table-condensed table-hover table-striped" aria-busy="false">
+                                                            <thead class="bg-table-header">
+                                                                <tr>
+                                                                    <th data-column-id="id" class="text-center" style="" data-formatter="id" data-identifier="true" data-visible="false">COMPONENTE</th>
+                                                                    <th data-column-id="numero" class="text-center" style="" data-formatter="numero">#</th>
+                                                                    <th data-column-id="noComponente" class="text-center" style="" data-formatter="noComponente">SERIE</th>
+                                                                    <th data-column-id="descripcion" class="text-center" style="" data-formatter="descripcion">DESCRIPCION</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="modalDetallesComponenteAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-historialAlmacen"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmDetallesHistorialAlmacen" novalidate="novalidate">
+
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend id="lgHistorialAlmacen" class="legend-custm"></legend>
+
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="gridDetallesHistorialAlmacen" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                    <th data-column-id="horasCiclo" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                    <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">PROVEEDOR   <i class="fa fa-hand-holding"></i><i class="fas fa-cogs"></i></legend>
+                                                                <span id="spProveedorHistorialAlmacen" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">ORDEN DE COMPRA   <i class="fas fa-shopping-cart"></i></legend>
+                                                                <span id="spOrdenCompraHistorialAlmacen" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="modalEntradaAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog" style="" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label> </label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmEntradaAlmacen" novalidate="novalidate">
+                                            <div class="row" style="width:100%; text-align:center;">
+                                                <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                    <legend class="legend-custm">FECHA ENTRADA ALMACEN:</legend>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center" style="display:inline-table;">
+                                                        <div class="" style="display:inline-table;width:50%;">
+                                                            <label>FECHA:</label>
+                                                            <input class="form-control" id="txtEntradaAlmacen" />
+                                                        </div>
+                                                    </div>     
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnGuardarEntrada">
+                                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                        </button>
+                                                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnCancelarEntrada" data-dismiss="modal">
+                                                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                        </button>
+                                                    </div>                                     
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="reporteDesecho">
+                @Html.Partial("reportViewerView")
+            </div>
+            <div id="reporteAlmacen2">
+                @Html.Partial("reportViewerView", false)
+            </div>
+        </div>
+        <div id="inactivos" class="tab-pane">
+            <div class="row form-group">
+                <div class="col-lg-12 text-center">
+                    <fieldset class="fieldset-custm fielset-Filtros">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Tipo de Salida:</label>
+                            <select class="form-control" style="text-align-last: center;" multiple="multiple" id="cboFiltroLocacionInactivos"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Componente:</label>
+                            <input class="form-control" id="txtFiltroNoComponenteInactivos" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtFiltroDescripcionComponenteInactivos" type="text" maxlength="100">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <button type="button" class="btn btn-info margin-top pull-right" style="margin-bottom: 30px;" id="btnBuscarInactivos">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Componentes Inactivos</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="grid_ComponentesInactivos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="noComponente" class="text-center" style="">COMPONENTE</th>
+                                        <th data-column-id="subconjunto" class="text-center" style="">SUBCONJUNTO</th>
+                                        <th data-column-id="locacion" class="text-center" style="" data-formatter="locacion">TIPO DE SALIDA</th>
+                                        <th data-column-id="almacen" class="text-center" style="" data-formatter="almacen">ALMACEN</th>
+                                        <th data-column-id="reactivar" class="text-center" style="width:3%;" data-formatter="reactivar">REACTIVAR</th>
+                                        <th data-column-id="detalle" class="text-center" style="width:3%;" data-formatter="detalle">DETALLE</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                    <div class="modal fade" id="modalDetallesInactivos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modalInactivos"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <fieldset class="fieldset-custm fielset-Filtros">
+                                            <legend class="legend-custm">FILTROS:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                                <label>ECONÓMICO:</label>
+                                                <select class="form-control" id="cboFiltroModalEconomicoInactivos"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-2">
+                                                <label>SERIE COMPONENTE:</label>
+                                                <input class="form-control" id="txtFiltroModalComponenteInactivos" type="text" maxlength="100">
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                                <button type="button" class="btn btn-info margin-top" id="btnBuscarModalInactivos">
+                                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                                </button>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmComponentesInactivos" novalidate="novalidate">
+
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend class="legend-custm">DETALLES COMPONENTES:</legend>
+
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="grid_DetallesInactivos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">ESTATUS</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="locacion">LOCACIÓN</th>
+                                                                    <th data-column-id="noComponente" class="text-center" style="">SERIE</th>
+                                                                    <th data-column-id="subconjunto" class="text-center" style="">SUBCONJUNTO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="numVidasAcumuladas" class="text-center" style="" data-formatter="">#VIDAS</th>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="">FECHA&lt;br&gt;INSTALACIÓN</th>
+                                                                    <th data-column-id="horasCicloActual" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="cicloVidaHoras" class="text-center" style="" data-formatter="">TARGET</th>
+                                                                    <th data-column-id="fechaUltimaRemocion" class="text-center" style="" data-formatter="">PRÓXIMA&lt;br&gt;REMOCIÓN</th>
+                                                                    <th data-column-id="horometroRemocion" class="text-center" style="" data-formatter="">HOR. PRÓX.&lt;br&gt;REMOCIÓN</th>
+                                                                    <th data-column-id="detalles" class="text-center" style="" data-formatter="detalles">DETALLES</th>
+                                                                    <th data-column-id="remocion" class="text-center" style="" data-formatter="remocion">REMOCIÓN</th>
+
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalReactivarInactivos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-md" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="lbReactivarInactivos"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <fieldset class="fieldset-custm fielset-Filtros">
+                                        <legend class="legend-custm">Datos Requeridos:</legend>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                            <label>Destino:</label>
+                                            <select class="form-control" id="destinoReactivarInactivos"></select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                            <label>Fecha Reactivación:</label>
+                                            <input class="form-control" id="fechaReactivarInactivos" type="text" maxlength="100">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <button type="button" class="btn btn-info margin-top pull-right" id="btnReactivarInactivos">
+                                                <span class="glyphicon glyphicon-repeat"></span> Reactivar
+                                            </button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <div class="modal fade" id="modalDetallesComponenteInactivos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                        <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header modal-bg">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                    <div class="text-center">
+                                        <h3><label id="title-modal-historialInactivos"></label></h3>
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                    </div>
+                                </div>
+                                <div class="modal-body text-center modal-content-tamaño">
+                                    <div class="container-fluid">
+                                        <form id="frmDetallesHistorialInactivos" novalidate="novalidate">
+                                            <div class="row">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend id="lgHistorialInactivos" class="legend-custm">DETALLES HISTORIAL COMPONENTE:</legend>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                        <table id="gridDetallesHistorialInactivos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header" style="color:white">
+                                                                <tr>
+                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                    <th data-column-id="horasCiclo" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;CICLO</th>
+                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS&lt;br&gt;ACUMULADAS</th>
+                                                                    <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                    <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">PROVEEDOR   <i class="fa fa-hand-holding"></i><i class="fas fa-cogs"></i></legend>
+                                                                <span id="spProveedorHistorialInactivos" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">ORDEN DE COMPRA   <i class="fas fa-shopping-cart"></i></legend>
+                                                                <span id="spOrdenCompraHistorialInactivos" class="btn btn-primary">Sin Especificar</span>
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalArchivoHistorial" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+            <div class="modal-dialog modal-md" style="" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="text-center">
+                            <h3><label>Archivos Historial</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center modal-content-tamaño">
+                        <div class="container-fluid">
+                            <form novalidate="novalidate">
+                                <div class="row" style="width:100%; text-align:center;">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">ARCHIVOS:</legend>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <table id="tblArchivosHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                        <th data-column-id="FechaCreacion" class="text-left" style="" data-formatter="fecha">FECHA</th>
+                                                        <th data-column-id="nombre" class="text-left" style="">NOMBRE</th>
+                                                        <th data-column-id="descargar" class="text-left" style="" data-formatter="descargar">DESCARGAR</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalCorreos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+            <div class="modal-dialog modal-md" style="" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="text-center">
+                            <h3><label>Elegir Correos</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center modal-content-tamaño">
+                        <div class="container-fluid">
+                            <form novalidate="novalidate">
+                                <div class="row" style="width:100%; text-align:center;">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">AGREGAR CORREO:</legend>
+                                        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                            <input class="form-control" type="email" id="txtCorreo" size="30" required>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                            <button id="agregarCorreo" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                                        </div>
+                                    </fieldset>                                            
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">CORREOS:</legend>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tablaMediana">
+                                            <table id="tblCorreos" class="table table-condensed table-hover table-striped text-center" aria-busy="false">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                        <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                                        <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>        
+</div>
+
+   
+
+<!--Scripts-->
+<script src="~/Scripts/js/Maquinaria/Overhaul/AdministracionComponentesJS.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/Scripts/js/Maquinaria/Catalogo/Componente.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.fixedHeader.min.js"></script>

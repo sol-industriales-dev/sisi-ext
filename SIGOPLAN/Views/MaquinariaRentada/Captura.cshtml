@@ -1,0 +1,919 @@
+﻿@{
+    ViewBag.Title = "Captura";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    table tfoot tr th {
+        border-top: 1px solid #808080 !important;
+        border-bottom: 1px solid #808080 !important;
+        background-color: #e8e2e2;
+    }
+
+    table thead tr th {
+        border-bottom: 1px solid #808080 !important;
+        /*background-color: orange;*/
+        border-top: 1px solid #808080;
+    }
+
+    table {
+        border-bottom: 0px !important;
+    }
+
+    table tbody tr td {
+        border: 0px solid #000000 !important;
+    }
+
+    .TerminarRentaHoy{
+        background-color: #ee4747 !important;
+        color: white !important;
+    }
+    .TerminarRentaHoy:hover {
+        background-color: #cb7d7d !important;
+        color: black !important;
+    }
+    .TerminarRentaProxima {
+        background-color: #ea8136 !important;
+        color: white !important;
+    }
+    .TerminarRentaProxima:hover {
+        background-color: #de9865 !important;
+        color: black !important;
+    }
+
+    /*.modal-header {
+        background-color: #da6a1a;
+    }*/
+    /*.modal-body {
+        background-color: #edeaea;
+    }*/
+    .modal-lg {
+        width: 95% !important;
+    }
+    .modal-body {
+        max-height: calc(100vh - 212px);
+        overflow-y: auto;
+    }
+
+    .modal .hasDatepicker {
+        z-index:5000 !important;
+    }
+
+    /*#modalCapturaRentaMaquinaria .modal-body{
+        background-color: #686868;
+    }*/
+
+    .blockUI {
+        z-index: 6000 !important;
+    }
+</style>
+
+<link href="~/Content/style/bootstrap-switch.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h2 class="text-center">CAPTURA RENTA DE MAQUINARIA</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3>Control de renta de maquinaria</h3></div>
+                <div class="panel-body">
+                    <!-- Filtros tabla maquinas rentadas -->
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Área cuenta</span>
+                                <select class="form-control" id="cboFiltroAreaCuenta" value=""></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Centro de costo</span>
+                                <select class="form-control" id="cboFiltroCentroCosto" value=""></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Periodo desde</span>
+                                <input type="text" class="form-control" id="txtFiltroPeriodoDesde" />
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Periodo hasta</span>
+                                <input type="text" class="form-control" id="txtFiltroPeriodoHasta" />
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-info" id="btnFiltroBuscar">Buscar</button>
+                            <button type="button" class="btn btn-warning" id="btnFiltroOrdenarUrgentes">Cierran pronto</button>
+                            <button type="button" class="btn btn-success" id="btnAbrirModalRentaNueva">Nueva</button>
+                            <button type="button" class="btn btn-primary pull-right" id="btnReporteTiempoUtilizadoVs" value="199">Reporte</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tabla maquinas rentadas -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblMaquinasRentadas" class="table cell-border hover" style="width:100%"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal opciones de la tabla maquinas rentadas -->
+<div id="modalOpcionesTblMaquinasRentadas" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title">Opciones</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal captura/edicion renta -->
+<div id="modalCapturaRentaMaquinaria" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title">Nueva renta</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Maquina</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="input-group">
+                                            <input type="number" value="0" id="txtRentaId" hidden />
+                                            <input type="text" value="" id="txtFolio" hidden />
+                                            <input type="number" value="0" id="txtPeriodoInicial" hidden />
+                                            <input type="number" value="0" id="txtIdProveedor" hidden />
+                                            <input type="number" value="0" id="txtIdAreaCuenta" hidden />
+                                            <span class="input-group-addon">Centro de costo</span>
+                                            <select class="form-control" id="cboRentaCentroCosto" value=""></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Equipo</span>
+                                            <input type="text" class="form-control" id="txtRentaEquipo" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. serie</span>
+                                            <input type="text" class="form-control" id="txtRentaNumeroSerie" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Modelo</span>
+                                            <input type="text" class="form-control" id="txtRentaModelo" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Proveedor</span>
+                                            <input type="text" class="form-control" id="txtRentaProveedor" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Generales</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Obra</span>
+                                            <input type="text" class="form-control" id="txtRentaObra" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. factura</span>
+                                            <input type="text" class="form-control" id="txtRentaNumeroFactura" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Dep. garantía</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaDepGarantia" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Tramite DG</span>
+                                            <input type="checkbox" class="form-control" id="cbRentaTramiteDg" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Nota de crédito</span>
+                                            <input type="text" class="form-control" id="txtRentaNotaCredito" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Aplicó NC</span>
+                                            <input type="checkbox" class="form-control" id="cbRentaAplicaNc" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Base hora</span>
+                                            <input type="number" class="form-control soloNumero0D" id="txtRentaBaseHoraMensual" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Periodo del</span>
+                                            <input type="text" class="form-control" id="txtRentaPeriodoDel" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Periodo al</span>
+                                            <input type="text" class="form-control" id="txtRentaPeriodoAl" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Horometro inicial</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaHorometroInicial" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Horometro final</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaHorometroFinal" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Horas trabajadas</span>
+                                            <input type="number" class="form-control" id="txtRentaHorasTrabajadas" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Horas extras</span>
+                                            <input type="number" class="form-control" id="txtRentaHorasExtras" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Total $ Hrs ext</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaTotalHorasExtras" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Precio</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaPrecioPorMes" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Seguro</span>
+                                            <input type="text" class="form-control soloNumero2D" id="txtRentaSeguroPorMes" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">IVA</span>
+                                            <input type="text" class="form-control" id="txtRentaIVA" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Total renta</span>
+                                            <input type="text" class="form-control" id="txtRentaTotalRenta" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Orden de compra</span>
+                                            <input type="text" class="form-control" id="txtRentaOrdenCompra" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Contra recibo</span>
+                                            <input type="text" class="form-control" id="txtRentaContraRecibo" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Anotaciones</span>
+                                            <input type="text" class="form-control" id="txtRentaAnotaciones" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Moneda</span>
+                                            <select id="cboRentaMoneda" class="form-control">
+                                                <option value="1" selected>MX</option>
+                                                <option value="2">US</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Diferencía entre horas</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Horas extras</span>
+                                            <input type="text" class="form-control soloNumero0D" id="txtRentaDifHorasExtras" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Contra recibo</span>
+                                            <input type="text" class="form-control" id="txtRentaDifContraRecibo" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. factura</span>
+                                            <input type="text" class="form-control" id="txtRentaDifNumeroFactura" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Orden de compra</span>
+                                            <input type="text" class="form-control" id="txtRentaDifOrdenCompra" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Fecha de contra recibo</span>
+                                            <input class="form-control" id="txtRentaDifFechaContraRecibo" value="" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">¿Hay diferencía?</span>
+                                            <input type="checkbox" class="form-control" id="cbRentaDifHoras" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Cargo por daño</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. factura</span>
+                                            <input type="text" class="form-control" id="txtRentaDañoNumeroFactura" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Orden de compra</span>
+                                            <input type="text" class="form-control" id="txtRentaDañoCompra" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">¿Hay cargo por daño?</span>
+                                            <input type="checkbox" class="form-control" id="cbRentaCargoDaño" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Fletes</div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. factura</span>
+                                            <input type="text" class="form-control" id="txtRentaFletesNumeroFactura" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Orden de compra</span>
+                                            <input type="text" class="form-control" id="txtRentaFletesOrdenCompra" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">¿Hay fletes?</span>
+                                            <input type="checkbox" class="form-control" id="cbRentaFletes" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> <span>Cerrar</span></button>
+                <button type="button" class="btn btn-warning" data-tipo_renta="1" id="btnRentaLimpiarCampos"><span id="btnRentaRegistrarCancelar"><span class="glyphicon glyphicon-erase"></span> Limpiar campos</span></button>
+                <button type="button" class="btn btn-primary" data-tipo_renta="1" id="btnRentaRegistrar"><span class="glyphicon glyphicon-ok"></span> <span id="btnRentaRegistrarText">Registrar</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+@*<div class="container-fluid">
+
+
+    <div class="stepwizard hidden">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step">
+                <a href="#step-1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                <p>Paso 1</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p>Paso 2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="setup-content" id="step-1">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+            <div class="row">
+                <h1 class="text-center">Captura de Renta</h1>
+            </div>
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"><label id="lblTitulotblEquiposPendientes">Control de rentas de maquinaria</label></legend>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Centro Costos:</label>
+                    <select type="text" class="form-control" id="cboCC" value=""></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>No economico:</label>
+                    <select class="form-control" id="filtroNoEconomico" value=""></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Perido inicio:</label>
+                    <input type="text" class="form-control" id="filtroPeriodoInicio" value="" />
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Ultimo periodo:</label>
+                    <input type="text" class="form-control" id="filtroPeriodoFin" value="" />
+                </div>
+                <div class="col-lg-offset-4"></div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button type="button" class="btn btn-info margin-top" id="btnBuscar">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button class="btn btn-success  margin-top" type="button" id="btnProceso">
+                        <span class="glyphicon glyphicon-print"></span> Proceso
+                    </button>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button class="btn btn-success  margin-top" type="button" id="btnNuevo">
+                        <span class="glyphicon glyphicon-arrow-right"></span> Nueva
+                    </button>
+                </div>
+                <table id="tblMaquinasRentadas" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th data-column-id="Folio"><label>Folio</label></th>
+                            <th data-column-id="CentroCosto"><label>Centro costo</label></th>
+                            <th data-column-id="AreaCuenta"><label id="data['value'].NumeroAreaCuenta">Área cuenta</label></th>
+                            <th data-column-id="PeriodoDel"><label>Del</label></th>
+                            <th data-column-id="PeriodoA"><label>Al</label></th>
+                            <th data-column-id="TotalRenta"><label>Total de la renta</label></th>
+                            <th data-column-id="ContraRecibo"><label>Contrarecibo</label></th>
+                            <th data-column-id="Id"><label>Opción</label></th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+
+
+    </div>
+    <div class="setup-content" id="step-2" hidden="hidden">
+        <div class="row">
+            <h1 class="text-center">Gerencia de Adquisición y Renta de Equipo</h1>
+            <h1 class="text-center">Control de rentas de maquinaria</h1>
+
+        </div>
+
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Maquina:</legend>
+                <div class="row col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10 col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <button class="btn btn-danger nextBtn" style="float:right;" type="button" id="btnCancelar">
+                        Regresar
+                    </button>
+                    <button class="btn btn-success nextBtn" style="float:right;" type="button" id="btnNuevo2">
+                        Limpiar campos
+                    </button>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group" hidden="hidden">
+                    <input type="text" class="form-control" id="txtId" />
+                    <input type="text" class="form-control" id="txtFolio" />
+                    <input type="text" class="form-control" id="txtEsEditar" />
+                    <select class="form-control" id="cboProveedor" data-proveedorId=""></select>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No Economico:</label>
+                    <select class="form-control no-padding" id="txtNoEconomico"></select>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Equipo:</label>
+                    <input type="text" class="form-control" id="txtEquipo" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No Serie:</label>
+                    <input type="text" class="form-control" id="txtNoSerie" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Modelo:</label>
+                    <input type="text" class="form-control" id="txtModelo" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Proveedor:</label>
+                    <input type="text" class="form-control" id="txtProveedor" value="" disabled/>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Generales:</legend>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Obra:</label>
+                    <input type="text" class="form-control" id="txtObra" value="" data-obraId="" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No. Factura:</label>
+                    <input type="number" class="form-control" id="txtNoFactura" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Dep. Garantia:</label>
+                    <input type="number" class="form-control" id="txtDepGarantia" value="" />
+                </div>
+
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Tramite DG:</label><br />
+                    <input type="checkbox" id="txtTramiteDG" checked>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Nota de credito:</label>
+                    <input type="text" class="form-control" id="txtNotaCredito" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Aplico NC:</label><br />
+                    <input type="checkbox" id="txtAplicoNC" checked>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Base hora mensual:</label>
+                    <input type="number" class="form-control" id="txtNBaHoraMensual" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Perido del:</label>
+                    <input type="text" class="form-control" id="txtPeriodoDel" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Periodo Al:</label>
+                    <input type="text" class="form-control" id="txtPeriodoAl" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horometro Inicial:</label>
+                    <input type="number" class="form-control" id="txtHorometroInicial" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horometro Final:</label>
+                    <input type="number" class="form-control" id="txtHorometroFinal" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horas Trabajadas:</label>
+                    <input type="number" class="form-control" id="txtHorasTrabajadas" value="" disabled="disabled" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horas Extras:</label>
+                    <input type="number" class="form-control" id="txtHorasExtras" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Total $ HRS EXT:</label>
+                    <input type="number" class="form-control" id="txtTotalHRS" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Precio por Mes:</label>
+                    <input type="number" class="form-control" id="txtPrecioMes" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Seguro por Mes:</label>
+                    <input type="number" class="form-control" id="txtSeguroMes" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>IVA:</label>
+                    <input type="number" class="form-control" id="txtIVA" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Total Renta:</label>
+                    <input type="number" class="form-control" id="txtTotalRenta" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Orden de Compra:</label>
+                    <input type="text" class="form-control" id="txtOrdenCompra" value="" />
+                </div>
+
+                
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Contra Recibo:</label>
+                    <input type="text" class="form-control" id="txtContraRecibo" value="" />
+                </div>
+
+
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Anotaciones:</label>
+                    <input type="text" class="form-control" id="txtAnotaciones" value="" />
+                </div>
+
+                
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                    <label>Moneda</label><br />
+                    <select id="cbMoneda" class="form-control">
+                        <option value="1" selected>MX</option>
+                        <option value="2">US</option>
+                    </select>
+                </div>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Diferencía entre horas:</legend>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtDifHorasExtra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Contra Recibo:</label>
+                        <input type="text" class="form-control" id="txtDifHoraContra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtDifHoraFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtDifHoraOrdenCompra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Fecha de contra recibo:</label>
+                        <input type="text" class="form-control" id="dtDifHorafecha" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbDifHoras" checked>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Cargo por daño:</legend>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group" hidden>
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtDañoHorasExtra" value="" />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtDañoFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtDañoOrdenCompra" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbCargoDaño" checked>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Fletes:</legend>
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group" hidden>
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtFletesExtras" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtFletesFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtFletesOrdenCompra" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbFletes" checked>
+                    </div>
+                </fieldset>
+            </fieldset>
+        </div>
+
+        <div class="col-md-12 text-right">
+            <button class="btn btn-success btnGuardar" id="btnNuevoRegistro">Nuevo registro</button>
+            <button class="btn btn-success" id="btnActualizar">Actualizar registro</button>
+            <button class="btn btn-success btnGuardar" id="btnSiguiente">Siguiente registro</button>
+        </div>
+
+    </div>
+    @Html.Partial("reportViewerView", false)
+
+</div>
+
+<div id="modalActualizarRenta">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Actualizar renta</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center">
+            <label>¿Desea cerrar o actualizar la renta?</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnModalTerminarRenta" value="">Terminar renta</button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" value="" id="btnModalActualizarRenta" onclick="getDetalleMaquinaEditar(this.value)">
+                    Rentar de nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalNuevo">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Nuevo Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center">
+            <label>Se va guardar un nuevo registro</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalNuevoRegistro">
+                    Nuevo registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelNuevo">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalActualizar">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Actualizar Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center" ">
+            <label>Se va actualizar el registro presente</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalActualizar">
+                    Actualiar registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelActualizar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalSiguiente">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Siguiente Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center" ">
+            <label>Se va guardar un nuevo registro</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalSiguiente">
+                    Siguiente registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelSiguiente">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12" id="modalProceso">
+    <div class="containerGraficaProcesoPesos">
+        <canvas id="GraficaProcesoPesos" width="1150" height="400"></canvas>
+    </div>
+    <div class="containerGraficaProcesoDlls">
+        <canvas id="GraficaProcesoDlls" width="1150" height="400"></canvas>
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 form-group">
+        <label>Conclusión:</label>
+        <textarea class="form-control" id="txProcesoConclusion" rows="4" cols="100"></textarea>
+    </div>
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+        <label>Tipo de cambio:</label>
+        <input type="number" class="form-control" id="txTC" />
+    </div>
+    <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+        <button class="btn btn-success form-control" id="btnModalRptProceso" value="40">
+            <span class="glyphicon glyphicon-print"></span>  Abrir reporte
+        </button>
+    </div>
+</div>*@
+
+<script src="~/Scripts/Utilities/bootstrap-switch.min.js"></script>
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Inventario/RN_Maquinaria.js"></script>

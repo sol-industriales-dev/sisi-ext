@@ -1,0 +1,151 @@
+﻿@using System.Collections
+@model Hashtable
+<link href = "/scripts/dropzone/basic.css" rel = "stylesheet" />
+<link href="/scripts/dropzone/dropzone.css" rel="stylesheet" />
+<style>
+#myModal .modal-dialog {
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    margin : 0px;
+}
+#myModal .modal-dialog .modal-content {
+    display: flex;
+    flex-direction: column;
+}
+#myModal .modal-dialog .modal-header,
+#myModal .modal-dialog .modal-footer {
+    height: 60px;
+}
+#myModal .modal-dialog .modal-content .modal-body {
+    height: 100%;
+    overflow-y: auto;
+}
+</style>
+<div class="row">
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-center">Visor</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divDocViewer">
+                        <div id="div_@ViewBag.ViewerID"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div
+        </div>
+    </div>
+</div>
+@Html.Raw(ViewBag.ViewerCSS)
+@Html.Raw(ViewBag.ViewerScripts)
+<script type="text/javascript" src="~/scripts/dropzone/dropzone.js"></script>
+<script language="javascript" type="text/javascript">
+    var objctlDoc = null; // Server object id is "ctlDoc"
+    var esArchivoSession = false; // Bandera de archivo en session
+    function Resize() {
+        var h = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        // var w = "innerWidth" in window ? window.innerWidth : document.documentElement.offsetWidth;
+        // use width variable w if required
+        $("#divDocViewer").height(h - 150); // adjust value as required
+    }
+    $(window).on("load", function () {
+        /* Init code for viewer */
+        @Html.Raw(ViewBag.ViewerInit)
+        Resize();
+    });
+    $(window).resize(function () {
+        Resize();
+    });
+    $('#myModal').on('shown.bs.modal', function () {
+        // Refresh the viewer
+        setTimeout(() => setToken(), 100);
+    });
+    function OpenDocument(link) {
+        var token = $(link).attr("data-token");
+        setTimeout(function () {objctlDoc.View(token); }, 100);
+        $('#myModal').modal('show');
+    }
+    function setToken() {
+        if(esArchivoSession)
+        {
+            return;
+        }
+        esArchivoSession = false;
+        let ruta = $('#myModal').data().ruta;
+        $.blockUI({ message: 'Cargando archivo...' });
+        if (ruta != null) {
+            $.post('/Visor/OpenFile', { name:ruta })
+                .always($.unblockUI)
+                .then(token => {
+
+                setTimeout(() => objctlDoc.View(token), 100);
+
+                }, error => {
+                    AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+                });
+        } else {
+            $.post('/Visor/LoadFile')
+                .always($.unblockUI)
+                .then(response => {
+                    if (response.success) {
+                        setTimeout(() => objctlDoc.View(response.token), 100);
+                    } else {
+                        AlertaGeneral(`Operación fallida`, `No se pudo completar la operación: ${response.message}`);
+                    }
+                }, error => {
+                    AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+                });
+        }
+    }
+    setVisorFile = (archivo, extencion) => {
+        esArchivoSession = false;
+        $.blockUI({ message: 'Cargando archivo...' });
+        var formData = new FormData();
+        formData.append("archivo", archivo);
+        formData.append("extencion", extencion);
+        var request = new XMLHttpRequest();
+        request.open("POST", "/Visor/setFile");
+        request.send(formData);
+        request.onload = function(oEvent) {
+            if (request.status == 200) {
+                $.post('/Visor/LoadFile').always($.unblockUI)
+                .then(response => { 
+                    if(response.success){
+                        setTimeout(() =>  objctlDoc.View(response.token), 100); 
+                        $('#myModal').modal('show');
+                    }
+                    else {
+                        AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor.`);
+                    }
+                }, error => AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`) );
+            } else {
+                AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`)
+            }
+        };
+    }
+    setVisorFromArchivoPDF = urlReporte => {
+        esArchivoSession = false;
+        axios.get(urlReporte).then(response => {
+            if (response.status == 200) {
+                    axios.post("/Visor/LoadFile").then(response => {
+                        if(response.data.success){
+                            setTimeout(() =>  objctlDoc.View(response.data.token), 100); 
+                            esArchivoSession = true;
+                            $('#myModal').modal('show');
+                        }
+                        else {
+                            AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor.`);
+                        }
+                    }).catch(o_O => AlertaGeneral(o_O.message));
+            }
+        }).catch(o_O => AlertaGeneral(o_O.message));
+    }
+</script>

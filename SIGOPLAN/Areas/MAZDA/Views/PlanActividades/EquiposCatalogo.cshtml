@@ -1,0 +1,356 @@
+﻿@{
+    ViewBag.Title = "EquiposCatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/EquiposCatalogo.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/RevisionCuadrilla.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/EquiposCatalogo.js"></script>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <h2 class="text-center">Catálogo Equipos</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divPlanAct">
+            <fieldset id="fieldPlanAct" class="fieldset-custm">
+                <div class="container-fluid">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a id="tabTitle1" data-toggle="tab" href="#tabEquipo">Equipos</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade in active" id="tabEquipo">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                <fieldset id="fieldBusquedaEquipo" class="fieldset-custm" style="border-radius: 0px !important;">
+                                    <legend class="legend-custm">Filtros:</legend>
+                                    <div class="input-group col-md-12">
+
+                                        <div class="col-lg-3">
+                                            <label>Cuadrillas:</label>
+                                            <select class="form-control" id="multiSelectCuadrillas" multiple="multiple"></select>
+                                        </div>
+
+                                        <div class="col-lg-3">
+                                            <label>Areas:</label>
+                                            <select class="form-control" id="multiSelectArea" multiple="multiple"></select>
+                                        </div>
+
+                                        <div class="col-lg-3">
+                                            <label>Subáreas:</label>
+                                            <select class="form-control" id="multiSelectSubAreas" multiple="multiple"></select>
+                                        </div>
+                                                 
+                                        <div class="col-lg-2" id="containerbtnBuscarEquipo" style="padding-left: 0px;">
+                                            <button type="button" class="btn btn-primary" id="btnBuscar_Equipo" style="margin-top: 24px; margin-right: 5px;">
+                                                <span class="glyphicon glyphicon-search"></span> Buscar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                        <legend class="legend-custm"></legend>
+                                        <button id="btnNuevoEquipo" class="btn btn-primary" style="margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-plus"></span> Nuevo Equipo</button>
+                                        <table id="tblEquipo"></table>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogNuevoEquipo" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Nuevo Equipo</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoNuevoDescripcion" class="form-control" placeholder="Nombre" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo/Caracteristicas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoNuevoCaracteristicas" class="form-control" placeholder="Tipo/Caracteristicas" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Modelo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoNuevoModelo" class="form-control" placeholder="Modelo" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tonelaje:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoNuevoTonelaje" class="form-control" placeholder="Tonelaje" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoNuevoCuadrilla" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Area:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoNuevoArea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Sub Area:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoNuevoSubArea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cantidad:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoNuevoCantidad" class="form-control" placeholder="Cantidad" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12" id="divGaleriaNuevoEquipo"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-4">
+                        <div class="custom-file-upload" style="text-align: left;">
+                            <label for="inputReferencia" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Referencia
+                            </label>
+                            <input type="file" id="inputReferencia" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <a id="btnGuardarEquipo" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogEditarEquipo" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Editar Equipo</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoEditDescripcion" class="form-control" placeholder="Nombre" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo/Caracteristicas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoEditCaracteristicas" class="form-control" placeholder="Tipo/Caracteristicas" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Modelo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoEditModelo" class="form-control" placeholder="Modelo" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tonelaje:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoEditTonelaje" class="form-control" placeholder="Tonelaje" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoEditCuadrilla" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Area:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoEditArea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subárea:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEquipoEditSubarea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cantidad:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtEquipoEditCantidad" class="form-control" placeholder="Cantidad" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btnEditarEquipo" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mdlReferenciaEditar">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3><label><i class="fa fa-photo"></i> Referencia</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12" id="divGaleriaReferenciaEditar"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-lg-2">
+                            <div class="custom-file-upload">
+                                <label for="inputReferenciaEditar" class="custom-file-upload">
+                                    <i class="fa fa-photo"></i> Agregar
+                                </label>
+                                <input id="inputEditarEquipoReferencia" style="display: none;" />
+                                <input type="file" id="inputReferenciaEditar" accept="image/*" multiple>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btnEditarReferencia"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Referencia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogBajaEquipo" title="Eliminar Equipo" style="display: none;">
+        <text id="txtElimEquipo">¿Está seguro que desea eliminar este equipo?</text>
+    </div>
+</div>

@@ -1,0 +1,743 @@
+﻿@{
+    ViewBag.Title = "Catalogos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    @* var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().privilegioCapacitacion(); *@
+}
+
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/EstiloGeneral.css" rel="stylesheet" />
+
+<style>
+    .select2-container {
+        display: inline !important;
+    }
+</style>
+
+<div class="row text-center">
+    <h2>CATÁLOGOS</h2>
+</div>
+
+<ul id="ulTabs" class="nav nav-tabs" style="margin-top: 10px;">
+    <li class="active" style="width: 16.66%;"><a data-toggle="tab" href="#tabPlantilla">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">PLANTILLA</h5>
+        </a></li>
+    <li style="width: 16.66%;"><a data-toggle="tab" href="#tabEvaluadores">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">EVALUADORES</h5>
+        </a></li>
+    <li style="width: 16.66%;"><a data-toggle="tab" href="#tabFacultamiento">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">FACULTAMIENTO</h5>
+        </a></li>
+    <li style="width: 16.66%;"><a data-toggle="tab" href="#tabFirmaSubcontratista">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">FIRMA SUBCONTRATISTA</h5>
+        </a></li>
+    <li style="width: 16.66%;"><a data-toggle="tab" href="#tabFirmaGerente">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">FIRMA GERENTE</h5>
+        </a></li>
+    <li style="width: 16.66%;"><a data-toggle="tab" href="#tabEspecialidad">
+            <h5 style="margin-top: 3px; margin-bottom: 3px;">ESPECIALIDAD</h5>
+        </a></li>
+</ul>
+
+<div id="divTabs" class="tab-content">
+    <div id="tabPlantilla" class="tab-pane fade in active">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Plantilla</span>
+                                                    <select id="selectPlantilla" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Contratos</span>
+                                                    <select id="selectContratos" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarPlantillasCreadas" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                    <button id="botonNuevaPlantilla" class="btn botonNaranja"><i class="fa fa-plus"></i>&nbsp;Nueva</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">PLANTILLAS CREADAS</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaPlantillasCreadas" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabEvaluadores" class="tab-pane fade">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">CC</span>
+                                                    <select id="selectProyectoEvaluadores" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Elemento</span>
+                                                    <select id="selectElemento" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarEvaluadores" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                    <button id="botonNuevoEvaluador" class="btn botonNaranja"><i class="fa fa-plus"></i>&nbsp;Nuevo</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">EVALUADORES</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaEvaluadores" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabFacultamiento" class="tab-pane fade">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">CC</span>
+                                                    <select id="selectProyectoFacultamientos" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Tipo de usuario</span>
+                                                    <select id="selectTipoFacultamiento" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarFacultamientos" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                    <button id="botonNuevoFacultamiento" class="btn botonNaranja"><i class="fa fa-plus"></i>&nbsp;Nuevo</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FACULTAMIENTOS</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaFacultamientos" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabFirmaSubcontratista" class="tab-pane fade">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-10">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Subcontratista</span>
+                                                    <select id="selectSubcontratista" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarFirmas" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                    <button id="botonNuevaFirma" class="btn botonNaranja"><i class="fa fa-plus"></i>&nbsp;Nuevo</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FIRMAS SUBCONTRATISTAS</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaFirmas" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabFirmaGerente" class="tab-pane fade">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-10">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">CC</span>
+                                                    <select id="selectCentroCosto" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarFirmasGerente" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                    <button id="botonNuevaFirmaGerente" class="btn botonNaranja"><i class="fa fa-plus"></i>&nbsp;Nuevo</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FIRMAS GERENTES</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaFirmasGerente" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabEspecialidad" class="tab-pane fade">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-principal panelFiltro" style="border-radius: 0px;">
+                    <div class="panel-heading" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-10">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">CC</span>
+                                                    <select id="selectProyectoEspecialidad" class="form-control select2"></select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <div class="pull-right">
+                                                    <button id="botonBuscarSubcontratistasEspecialidad" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default panel-principal panelFiltro">
+                                    <div class="panel-heading">
+                                        <h5 class="text-center">ESPECIALIDADES</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="tablaSubcontratistasEspecialidades" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalPlantilla' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg' style="width: 95%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTituloModalPlantilla">REGISTRO DE PLANTILLA</span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12'>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos generales de plantilla</legend>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre</span>
+                                        <input id="inputNombrePlantilla" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkPeriodico" class="regular-checkbox checkTipoPlantilla" valor="1">
+                                        <label for="checkPeriodico"></label>
+                                        <label style="font-size: 12px;">PERIÓDICO</label>
+                                    </div>
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkArranque" class="regular-checkbox checkTipoPlantilla" valor="2">
+                                        <label for="checkArranque"></label>
+                                        <label style="font-size: 12px;">ARRANQUE</label>
+                                    </div>
+                                    <div style="display: inline-block; margin-top: 4px;">
+                                        <input type="checkbox" id="checkCierre" class="regular-checkbox checkTipoPlantilla" valor="3">
+                                        <label for="checkCierre"></label>
+                                        <label style="font-size: 12px;">CIERRE</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mrgTop">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Contratos</span>
+                                        <select id="selectContratosPlantilla" class="form-control select2" multiple></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mrgTop">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Colaborador</span>
+                                        <input id="inputColaboradorPlantilla" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha</span>
+                                        <input id="inputFechaPlantilla" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div style="display: inline-block; margin-top: 4px;">
+                                        <label style="font-size: 12px;">¿PLANTILLA BASE?</label>
+                                        <input type="checkbox" id="checkBase" class="regular-checkbox" />
+                                        <label for="checkBase"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Elemento</legend>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Elemento a evaluar</span>
+                                        <select id="selectElementoEvaluarPlantilla" class="form-control select2"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1" style="padding-left: 0px;">
+                                    <button id="botonNuevoElementoPlantilla" type="button" class="btn botonNaranja"><i class='fa fa-plus'></i>&nbsp;Nuevo</button>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="btn btn-sm botonGris">¿Elemento crítico?</button>
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkElementoCriticoSi" class="regular-checkbox checkElementoCritico" valor="1">
+                                        <label for="checkElementoCriticoSi"></label>
+                                        <label style="font-size: 12px;">SÍ</label>
+                                    </div>
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkElementoCriticoNo" class="regular-checkbox checkElementoCritico" valor="0">
+                                        <label for="checkElementoCriticoNo"></label>
+                                        <label style="font-size: 12px;">NO</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Ponderación del elemento</span>
+                                        <input id="inputPonderacionElementoPlantilla" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mrgTop">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Mensaje del elemento</span>
+                                        <input id="inputMensajeElementoPlantilla" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Requerimiento</legend>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Requerimientos</span>
+                                        <select id="selectRequerimientoPlantilla" class="form-control select2"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1" style="padding-left: 0px;">
+                                    <button id="botonNuevoRequerimientoPlantilla" type="button" class="btn botonNaranja"><i class='fa fa-plus'></i>&nbsp;Nuevo</button>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkRequerimientoUnico" class="regular-checkbox checkTipoRequerimiento" valor="1">
+                                        <label for="checkRequerimientoUnico"></label>
+                                        <label style="font-size: 12px;">ÚNICO</label>
+                                    </div>
+                                    <div style="display: inline-block; margin-top: 4px; margin-right: 5px;">
+                                        <input type="checkbox" id="checkRequerimientoRecurrente" class="regular-checkbox checkTipoRequerimiento" valor="2">
+                                        <label for="checkRequerimientoRecurrente"></label>
+                                        <label style="font-size: 12px;">RECURRENTE</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <button id="botonAgregarElemento" class="btn btn-primary pull-right mrgTop">Agregar</button>
+                    </div>
+
+                    <div class="col-sm-12 mrgTop">
+                        <table id="tablaElementosPlantilla" class="table compact table-bordered" style="width: 100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarPlantilla" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevoElemento' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg' style="width: 50%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Nuevo Elemento</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Clave</span>
+                            <input id="inputNuevoElementoClave" class="form-control">
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Asigna el nuevo elemento</span>
+                            <input id="inputNuevoElementoNombre" class="form-control">
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Mensaje del elemento</span>
+                            <input id="inputNuevoElementoMensaje" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevoElemento" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevoRequerimiento' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg' style="width: 50%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Nuevo Requerimiento</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Descripción</span>
+                            <input id="inputNuevoRequerimientoDescripcion" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevoRequerimiento" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevoEvaluador' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Nuevo Evaluador</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                            <span class="input-group-addon">Evaluador</span>
+                            <input id="inputEvaluador" class="form-control">
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                            <span class="input-group-addon">CC</span>
+                            <select id="selectProyectoNuevoEvaluador" class="form-control select2" multiple style="display:inline;"></select>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                            <span class="input-group-addon">Elementos</span>
+                            <select id="selectElementoNuevoEvaluador" class="form-control select2" multiple></select>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevoEvaluador" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevoFacultamiento' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Nuevo Facultamiento</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Colaborador</span>
+                            <input id="inputColaboradorFacultamiento" class="form-control">
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <select id="selectProyectoNuevoFacultamiento" class="form-control select2" multiple></select>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Privilegio</span>
+                            <select id="selectPrivilegioNuevoFacultamiento" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevoFacultamiento" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevaFirma' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>FIRMA SUBCONTRATISTA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Subcontratista</span>
+                            <select id="selectSubcontratistaNuevo" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre Completo</span>
+                            <input id="inputNombreFirma" class="form-control">
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Correo</span>
+                            <input id="inputCorreoFirma" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Contratos</span>
+                            <select id="selectContratoFirma" class="form-control select2" multiple></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevaFirma" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalNuevaFirmaGerente' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>FIRMA GERENTE</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Usuario</span>
+                            <input id="inputUsuarioGerente" class="form-control">
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <select id="selectCentroCostoNuevaFirmaGerente" class="form-control select2"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarNuevaFirmaGerente" type="button" class="btn botonNaranja"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlListadoCCRelUsuario' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>LISTADO DE CC</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblListadoCCRelUsuario" class="table hover stripe compact nowrap" width="100%"></table><table class="table"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/SubContratistas/Evaluacion/Catalogos.js"></script>

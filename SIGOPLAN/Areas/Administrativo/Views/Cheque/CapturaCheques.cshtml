@@ -1,0 +1,545 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<!-- CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Cheque/CapturaCheques.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h3>Captura Cheques</h3>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros Busqueda:</legend>
+                <div class="col-lg-5 inputCuentasG">
+                    <div class="col-md-4 col-lg-4" style="padding: 0;">
+                        <div class="input-group">
+                            <span class="input-group-addon">Cuenta:</span>
+                            <input class="form-control inputCuenta" id="inputCuentaPpal" type="number" />
+                        </div>
+                    </div>
+                    <div class="col-lg-8" style="padding-left: 0;">
+                        <input class="form-control inputDescripcionCuenta" id="inputCuentaDescripcionPpal" type="text" placeholder="Descripción Cuenta...." />
+                    </div>
+                </div>
+                <div class="col-lg-3" style="padding-right: 0;">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha Del</span>
+                        <input type="text" class="form-control" id="inputFechaInicio" />
+                        <span class="input-group-addon" style="border-left: 0; border-right: 0;">Al</span>
+                        <input type="text" class="form-control" id="inputFechaFin" />
+                    </div>
+                </div>
+                <div div class="col-lg-2" style="padding-right: 0;">
+                    <div class=" input-group">
+                        <span class="input-group-addon">
+                            <input type="checkbox" id="checkChequeElectronico">
+                        </span>
+                        <input type="text" class="disabledInput form-control" value="Cheques Electrónicos" style="color: black;opacity: inherit;border: none;  ">
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <button class="btn btn-info" id="btnBuscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="btn btn-primary" id="btnNuevoCheque">
+                        <i class="fas fa-money-check"></i>
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Lista Cheques:
+                </legend>
+                <table id="tablaCheques" class="table table-fixed table-hover table-responsive table-striped">
+                    <thead class="bg-table-header">
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCapturaCheques" data-backdrop="static">
+    <div class="fullmodal">
+        <div class="modal-content">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><i class="fas fa-money-check"></i> Nuevo Cheque</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center" id="divModalCheque">
+                <div class="row form-group">
+                    <div class="container-fluid">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">
+                                Cheque:
+                            </legend>
+                            <div class="form-group row">
+                                <div div class="col-lg-2" style="padding-right: 0;">
+                                    <div class=" input-group">
+                                        <span class="input-group-addon">
+                                            <input type="checkbox" id="ckChequeElectronico">
+                                        </span>
+                                        <input type="text" class="disabledInput form-control" value="Cheques Electrónicos" style="color: black;opacity: inherit;border: none;  ">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-3 col-lg-2">
+                                    <div class=" input-group">
+                                        <span class="input-group-addon">
+                                            <input type="checkbox" id="checkOrdenCompra">
+                                            Orden Compra
+                                        </span>
+                                        <select class="form-control" id="comboOrdenCompra" style="width:100%"></select>
+                                        <span class="input-group-addon btn-primary setButton" id="btnBuscarOC"><i class="fa fa-search" aria-hidden="true"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-5 col-lg-4 inputCuentasG">
+                                    <div class="col-xs-4 col-md-4 col-lg-4" style="padding: 0;">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Cuenta:</span>
+                                            <input class="form-control inputCuenta iCuentaBanco" id="inputCuentaBancoModal" type="number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-8 col-md-6 col-lg-6" style="padding-left: 0;">
+                                        <div class="input-group">
+                                            <input class="form-control inputDescripcionCuenta" id="inputDesrcipcionBancoModal" type="text" placeholder="Descripción Cuenta...." />
+                                            <span class="input-group-addon btn-primary setButton" id="butonCuentaBanco"><i class="fa fa-search" aria-hidden="true"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-md-2 col-lg-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Cheque:</span>
+                                        <input class="form-control" id="inputCheque" type="number" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-2 col-lg-2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha:</span>
+                                        <input class="form-control" id="inputFechaCheque" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+
+                                <div class="col-xs-12 col-md-6 col-lg-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Páguese a:</span>
+                                        <input type="text" class="form-control" placeholder="Páguese a..." id="inputDescripcionCheque" />
+                                        <span class="input-group-addon btn-primary setButton" id="butonBuscarProv"><i class="fa fa-search" aria-hidden="true"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-6 col-lg-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon" style="border-left: 0; border-right: 0;">$</span>
+                                        <input type="text" class="form-control" placeholder="Monto..." id="inputMonto" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-12 col-lg-12">
+                                    <input type="text" class="form-control disabledInput" disabled placeholder="Cantidad a..." id="inputCantidad" />
+                                </div>
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-12 col-md-6 col-lg-6">
+                                    <div class="col-xs-6 col-md-6 col-lg-6">
+                                        <label>Cuenta:</label>
+                                        <label id="txtCuentaDescripcionModal"></label>
+                                    </div>
+                                    <div class="col-xs-6 col-md-6 col-lg-6">
+                                        <label id="txtBanco"></label>
+                                        <label id="txtBancoCuenta"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="container-fluid">
+                        <fieldset class="fieldset-custm" style=" padding-top: 10px; ">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="row form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            Concepto:
+                                        </span>
+                                        <textarea class="form-control" id="inputConceptoCheque"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-11 col-xs-12">
+                                    <table id="tablaCheques" class="table table-fixed table-hover table-responsive table-striped">
+                                        <thead class="color-table">
+                                            <tr>
+                                                <th>Hecha Por:</th>
+                                                <th>C.C.</th>
+                                                <th>Tipo Mov.</th>
+                                                <th>Póliza</th>
+                                                <th>Tipo Póliza</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><input class="form-control" id="inputUsuarioRealiza" /></td>
+                                                <td style="width: 271px;"><select class="form-control" id="comboCC" style="width: 100%;"></select></td>
+                                                <td style="width: 271px;"><select class="form-control" style="width: 100%;" id="comboTipoMovimiento"></select></td>
+                                                <td><input class="form-control disabledInput" id="inputPoliza" disabled /></td>
+                                                <td><input class="form-control disabledInput" id="inputTipoPolizaCheque" disabled /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-lg-1 col-xs-12">
+                                    <button type="button" id="btnGuardarCheque" class="btn btn-primary">
+                                        <i class="far fa-save"></i> Generar Polizas
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="container-fluid">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Poliza General:</legend>
+
+                            <div class="row">
+
+
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Tipo Póliza:</span>
+                                        <input type="text" class="form-control disabledInput" placeholder="Tipo Póliza" id="inputTipoPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Status:</span>
+                                        <input type="text" class="form-control disabledInput" id="inputEstatusPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Cargos:</span>
+                                        <input type="number" class="form-control disabledInput" id="inputCargosPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Póliza:</span>
+                                        <input type="number" class="form-control disabledInput" id="inputPolizaPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Generada:</span>
+                                        <input type="text" class="form-control disabledInput" id="inputGeneradaPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Abonos:</span>
+                                        <input type="number" class="form-control disabledInput" id="inputAbonosPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha:</span>
+                                        <input type="text" class="form-control disabledInput" id="inputFechaPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CC:</span>
+                                        <input type="text" class="form-control disabledInput" id="inputCCPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Diferencia:</span>
+                                        <input type="text" class="form-control disabledInput" id="inputDiferenciaPoliza" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            Concepto:
+                                        </span>
+                                        <textarea class="form-control" id="inputConceptoPoliza"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"> Detalle Poliza:</legend>
+                            <div class="form-group row">
+                                <div class="form-group">
+                                    <div class="col-xs-12 col-lg-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Cta:</span>
+                                            <input type="text" class="form-control disabledInput" id="inputCtaPoliza" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-lg-3">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">interfase:</span>
+                                            <input type="text" class="form-control disabledInput" id="inputInterfasePoliza" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-lg-3">
+                                        <input type="text" class="form-control disabledInput" id="inputInterfaseDescPoliza" disabled />
+                                    </div>
+                                    <div class="col-xs-12 col-lg-3">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">T.M.:</span>
+                                            <input type="text" class="form-control disabledInput" id="inputTMPoliza" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-lg-1">
+                                        <button class="btn btn-info" id="butonNewRenglon">
+                                            <i class="fa fa-plus" aria-hidden="true">Neva Linea</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 form-group">
+                                    <table id="tablaPolizas" class="table table-fixed table-hover table-responsive table-striped"></table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Cancelar
+                </button>
+                <button type="button" id="btnGuardarInfo" class="btn btn-primary">
+                    <i class="far fa-save"></i> Guardar
+                </button><button type="button" id="btnValidaPoliza" class="btn btn-primary">
+                    <i class="far fa-save"></i> Validar
+                </button>
+                <button type="button" class="btn btn-info" id="btnPrintCheque">
+                    <i class="fa fa-print" aria-hidden="true"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalGeneral" class="modal fade" data-backdrop="static">
+    <div class="modal-content" id="divmodal">
+        <div class="modal-header color-header">
+            <div class="text-center">
+                <h3 class="text-center"><label id="lblGeneral"></label> <i class="fas fa-money-check"></i></h3>
+            </div>
+        </div>
+        <div class="modal-body text-center">
+            <div class="col-lg-12">
+                <table id="tablaGeneral" class="table table-fixed table-hover table-responsive table-striped">
+                    <thead class="bg-table-header">
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                <i class="far fa-window-close"></i> Regresar
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalGeneralPolizas" class="modal fade" data-backdrop="static" style="z-index: 9999;">
+
+    <div class="modal-content" id="divmodalPolizas">
+        <div class="modal-header color-header">
+            <div class="text-center">
+                <h3 class="text-center"><i class="fas fa-money-check"></i> Cuentas.</h3>
+            </div>
+        </div>
+        <div class="modal-body text-center">
+            <div class="col-lg-12">
+                <table id="tablaGeneralPolizas" class="table table-fixed table-hover table-responsive table-striped">
+                    <thead class="bg-table-header">
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                <i class="far fa-window-close"></i> Regresar
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalPoliza" class="modal fade" data-backdrop="static">
+    <div class="modal-content">
+        <div class="modal-header color-header">
+            <div class="text-center">
+                <h3 class="text-center">Polizas <i class="far fa-list-alt"></i></h3>
+            </div>
+        </div>
+        <div class="modal-body-Cheque  text-center">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                <i class="far fa-window-close"></i>
+            </button>
+            <button type="button" class="btn btn-success" id="btnGuardarPoliza">
+                <i class="far fa-save"></i> Guardar
+            </button>
+            <button type="button" class="btn btn-success hidden" id="btnActualizarPoliza">
+                <i class="far fa-save"></i> Actualizar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalBuscarOC" class="modal fade" data-backdrop="static" style="z-index: 9999;">
+    <div class="modal-content">
+        <div class="modal-header color-header">
+            <div class="text-center">
+                <h3 class="text-center"><i class="fas fa-table"></i> Buscar O.C.</h3>
+            </div>
+        </div>
+        <div class="modal-body text-center">
+            <div class="col-lg-12 form-group">
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">CC:</span>
+                        <select class="form-control" style="width: 100%;" id="cboCCModalOC"></select>
+                    </div>
+                </div>
+                <div class="col-lg-2 hide">
+                    <div class="input-group">
+                        <span class="input-group-addon">Numero:</span>
+                        <input type="text" class="form-control hide" id="inputNumeroOCModalOC" />
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="btn btn-default" id="btnBuscarOCCC">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-12 form-group">
+                <table id="tablaBuscarOC" class="table table-fixed table-hover table-responsive table-striped">
+                    <thead class="bg-table-header">
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+                <i class="far fa-window-close"></i> Regresar
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalVerpolizas" class="modal fade" data-backdrop="static" style="z-index: 9999;">
+    <div class="modal-content">
+        <div class="modal-header color-header">
+            <div class="text-center">
+                <h3 class="text-center"><i class="fas fa-table"></i>Detalles Poliza</h3>
+            </div>
+        </div>
+        <div class="modal-body text-center">
+            <div class="row">
+                <div class="col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Poliza Cheque</legend>
+
+
+                        <div class="col-lg-12 form-group">
+                            <table id="tablaPolizaChequeCap" class="table table-fixed table-hover table-responsive table-striped">
+                                <thead class="bg-table-header">
+                            </table>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="col-lg-2 pull-right hide">
+                                <button class="btn form-control btn-success">
+                                    <i class="fa-font fa-save">Guardar</i>
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset><div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Poliza Proveedores</legend>
+
+                                <div class="col-lg-12 form-group">
+                                    <table id="tablaPolizaProveedores" class="table table-fixed table-hover table-responsive table-striped">
+                                        <thead class="bg-table-header">
+                                    </table>
+                                </div>
+                                <div class="col-lg-12 hide">
+                                    <div class="col-lg-2 pull-right">
+                                        <button class="btn form-control btn-success">
+                                            <i class="fa-font fa-save">Guardar</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Poliza Diario</legend>
+                                <div class="col-lg-12 form-group">
+                                    <table id="tablaPolizaDiario" class="table table-fixed table-hover table-responsive table-striped">
+                                        <thead class="bg-table-header">
+                                    </table>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-2 pull-right">
+                                        <button class="btn form-control btn-success" id="btnGuardarPolizaDiario">
+                                            <i class="fa fa-floppy-o" aria-hidden="true"></i>Guardar</i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="far fa-window-close"></i> Regresar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/NumeroALetras.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/CapturaCheque.js"></script>

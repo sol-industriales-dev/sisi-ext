@@ -1,0 +1,421 @@
+﻿@{
+    ViewBag.Title = "Asignacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Menu = new SIGOPLAN.Controllers.BaseController();
+    var usuario = Menu.getUsuario();
+    var nombreCompleto = usuario.nombre + " " + usuario.apellidoPaterno + " " + usuario.apellidoMaterno;
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Alamcen/Resguardo/Asignacion.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<h2 class="text-center"> Asignación de Resguardos</h2>
+
+<fieldset id="fieldsetInfo" class="fieldset-custm">
+    <legend class="legend-custm"></legend>
+
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Centro Costo:</span>
+            <select id="selectCC" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Almacén:</span>
+            <select id="selectAlmacen" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Almacén Resguardo:</span>
+            <select id="selectAlmacenResguardo" class="form-control" disabled></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft noPadRight mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Resguardo:</span>
+            <input id="inputFechaResguardo" class="form-control" disabled />
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Folio:</span>
+            <input id="inputFolio" class="form-control" />
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-4 noPadLeft mrgTop">
+        <button id="btnGuardarAsignacion" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+        <button id="btnRegresar" class="btn btn-warning" disabled><i class="fa fa-reply"></i> Regresar</button>
+        <button id="btnVerReporte" class="btn btn-primary"><i class="fa fa-file"></i> Reporte</button>
+        <button id="btnCambio" class="btn btn-default" disabled><i class="fa fa-exchange-alt"></i> Cambio</button>
+        <!-- <button id="btnUsuariosQueNoCoinciden" class="btn btn-default">Usuarios que no coinciden</button> -->
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm mrgTop" style="margin-bottom: 200px;">
+    <legend class="legend-custm"></legend>
+
+    <div class="col-md-6 col-lg-6 noPadLeft">
+        <div class="col-md-3 col-lg-3 noPadLeft noPadRight mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Entregó:</span>
+                <input id="inputEntregoNum" class="form-control" value="@usuario.id" disabled />
+            </div>
+        </div>
+        <div class="col-md-9 col-lg-9 noPadLeft noPadRight mrgTop">
+            <input id="inputEntregoDesc" class="form-control" disabled value="@nombreCompleto" />
+        </div>
+
+        <div class="col-md-3 col-lg-3 noPadLeft noPadRight mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Autorizó:</span>
+                <input id="inputAutorizoNum" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-8 col-lg-8 noPadLeft noPadRight mrgTop">
+            <input id="inputAutorizoDesc" class="form-control" disabled />
+        </div>
+        <div class="col-md-1 col-lg-1 noPadLeft noPadRight mrgTop">
+            <button id="btnMostrarEmpleadosAutorizo" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+        </div>
+
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Estatus Resguardo</legend>
+
+                <div class="input-group mrgBottom">
+                    <input id="inputEstatus" class="form-control" disabled />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Recibió:</span>
+                    <input id="inputRecibio" class="form-control" disabled />
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha Devolución:</span>
+                <input id="inputFechaDevolucion" class="form-control" disabled />
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Condiciones:</span>
+                <input id="inputCondiciones" class="form-control" disabled />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-6 noPadRight">
+        <fieldset id="fieldsetPanelDerecho" class="fieldset-custm">
+            <legend class="legend-custm">Descripción Activo</legend>
+
+            <div class="input-group">
+                <span class="input-group-addon">Marca:</span>
+                <input id="inputMarca" class="form-control tg" tabindex="1" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Modelo:</span>
+                <input id="inputModelo" class="form-control tg" tabindex="2" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Color:</span>
+                <input id="inputColor" class="form-control tg" tabindex="3" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Núm. Serie:</span>
+                <input id="inputNumSerie" class="form-control tg" tabindex="4" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Valor Activo:</span>
+                <input id="inputValorActivo" class="form-control text-right tg" tabindex="5" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Costo Prom:</span>
+                <input id="inputCostoProm" class="form-control text-right tg" tabindex="6" />
+            </div>
+            <div class="input-group mrgTop">
+                <span class="input-group-addon">Comentarios:</span>
+                <textarea id="textAreaComentarios" class="form-control tg" tabindex="7"></textarea>
+            </div>
+            <div class="input-group mrgTop">
+                <span style="display: table-cell;">Condiciones:</span>
+                <form id="formRadioBtnCondiciones" style="margin-left: 5px;">
+                    <input type="radio" name="cond" value="B" texto="Buenas"> Buenas
+                    <input type="radio" name="cond" value="R" texto="Regulares"> Regulares
+                    <input type="radio" name="cond" value="M" texto="Malas"> Malas
+                </form>
+            </div>
+        </fieldset>
+
+        <div class="col-md-5 col-lg-5 noPadLeft noPadRight mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Empleado con Custodia:</span>
+                <input id="inputEmpleadoCustodiaNum" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-5 col-lg-5 noPadLeft noPadRight mrgTop">
+            <input id="inputEmpleadoCustodiaDesc" class="form-control" disabled>
+        </div>
+        <div class="col-md-2 col-lg-2 noPadLeft noPadRight mrgTop">
+            <button id="btnMostrarEmpleados" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+            <button id="btnNuevoEmpleado" class="btn btn-success"><i class="fa fa-plus"></i></button>
+        </div>
+        <div class="elementoMexico">
+            <div class="col-md-5 col-lg-5 noPadLeft noPadRight mrgTop">
+                <div class="input-group">
+                    <span class="input-group-addon">Clave Empleado:</span>
+                    <input id="inputClaveEmpleado" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-5 col-lg-5 noPadLeft noPadRight mrgTop">
+                <input id="inputClaveEmpleadoDesc" class="form-control">
+            </div>
+            <div class="col-md-2 col-lg-2 noPadLeft noPadRight mrgTop">
+                <button id="btnMostrarEmpleadosClaveEmpleadoDescActivo" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight mrgTop">
+        <button id="btnAgregarInsumo" type="button" class="btn btn-sm btn-primary mrgBottom"><i class="fa fa-plus"></i></button>
+        <button id="btnQuitarInsumo" type="button" class="btn btn-sm btn-danger mrgBottom"><i class="fa fa-minus"></i></button>
+        <button id="btnInfoEnter" class="btn btn-xs btn-default" style="margin-top: 10px;"><i class="fa fa-question"></i></button>
+        <table id="tblInsumos" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlDevolucionResguardo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Recibiendo Activo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <label id="labelFechaDevolución"></label>
+                <div class="col-md-12 col-lg-12">
+                    <div class="col-md-3 col-lg-3 noPadLeft noPadRight mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Recibió:</span>
+                            <input id="inputRecibioDevolucionNum" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-lg-9 noPadLeft noPadRight mrgTop">
+                        <input id="inputRecibioDevolucionDesc" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="input-group mrgTop">
+                    <span style="display: table-cell;">Condiciones:</span>
+                    <form id="formRadioBtnCondicionesDevolucion" style="margin-left: 5px;">
+                        <input type="radio" name="cond" value="B" texto="Buenas" checked="checked"> Buenas
+                        <input type="radio" name="cond" value="R" texto="Regulares"> Regulares
+                        <input type="radio" name="cond" value="M" texto="Malas"> Malas
+                    </form>
+                </div>
+
+                <table id="tblInsumosDevolucion" width="100%"></table>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarDevolucion" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEmpleados" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Empleados</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Empleado</span>
+                                <input id="inputFiltroEmpleado" class="form-control" data-column-index='0'>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="inputFiltroNombre" class="form-control" data-column-index='1'>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <button id="btnQuitarFiltros" class="btn btn-sm btn-danger"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <table id="tblEmpleados" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlNuevoEmpleado" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Nuevo Empleado</label></h3>
+                    @* <button class="btn btn-primary" id="btnCrearRFC">CREAR RFC</button> *@
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <div class="col-lg-4 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="inputEmpleadoNombre" class="form-control" value="Omar Arturo">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Ap. Paterno</span>
+                                <input id="inputEmpleadoPaterno" class="form-control" value="Nuñez">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Ap. Materno</span>
+                                <input id="inputEmpleadoMaterno" class="form-control" value="Valdez">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mrgTop noPadLeft elementoMexico">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Nacimiento</span>
+                                <input id="inputEmpleadoFechaNacimiento" class="form-control" value="12/09/1996">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mrgTop noPadLeft noPadRight elementoMexico">
+                            <div class="input-group">
+                                <span class="input-group-addon">RFC</span>
+                                <input id="inputEmpleadoRFC" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Regresar</button>
+                <button id="btnGuardarNuevoEmpleado" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlUbicacionDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Ubicación </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblUbicacion" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCambio" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Cambio </label> <label id="tituloCambio"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Centro Costo:</span>
+                            <select id="selectCCCambio" class="form-control" style="width: 100%"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-5 mrgTop noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Empleado con Custodia:</span>
+                            <input id="inputEmpleadoCustodiaNumCambio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-5 mrgTop noPadLeft noPadRight">
+                        <input id="inputEmpleadoCustodiaDescCambio" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-2 col-lg-2 mrgTop">
+                        <button id="btnMostrarEmpleadosCambio" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+                        <button id="btnNuevoEmpleadoCambios" class="btn btn-success elementoMexico"><i class="fa fa-plus"></i></button>
+                    </div>
+                    <div class="elementoMexico">
+                        <div class="col-md-5 col-lg-5 mrgTop noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave Empleado:</span>
+                                <input id="inputClaveEmpleadoCambio" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-5 col-lg-5 mrgTop noPadLeft noPadRight">
+                            <input id="inputClaveEmpleadoDescCambio" class="form-control">
+                        </div>
+                        <div class="col-md-2 col-lg-2 mrgTop">
+                            <button id="btnMostrarEmpleadosCambioClave" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-5 mrgTop noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Autorizó:</span>
+                            <input id="inputAutorizoNumMdlCambio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-5 mrgTop noPadLeft noPadRight">
+                        <input id="inputAutorizoDescMdlCambio" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-2 col-lg-2 mrgTop">
+                        <button id="btnMostrarEmpleadosCambioAutorizo" class="btn btn-default"><i class="fa fa-align-justify"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Regresar</button>
+                <button id="btnGuardarCambio" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Almacen/Resguardo/Asignacion.js"></script>
+<script src='~/Scripts/select2.js'></script>
+
+@Html.Partial("reportViewerView", false)

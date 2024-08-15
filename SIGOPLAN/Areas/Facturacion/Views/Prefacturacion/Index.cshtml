@@ -1,0 +1,437 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Facturación/PrefacturacionCSS.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Facturacion/Prefacturacion/PrefacturacionJS.js"></script>
+<script src="~/textboxio-client/textboxio/textboxio.js"></script>
+<script src="~/Scripts/Utilities/html2canvasV5.js"></script>
+
+<style>
+    .select2-selection {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 34px !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-dropdown {
+        z-index: 999999;
+    }
+</style>
+
+<div class="container-fluid">
+    <h1 class="text-center">Prefactura</h1>
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Búsqueda</legend>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+            <label for="txtFecha">Fecha Inicio</label>
+            <input type="text" class="form-control" id="dtFechaFiltroInicio" />
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+            <label for="txtFecha">Fecha Fin</label>
+            <input type="text" class="form-control" id="dtFechaFiltroFin" />
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <label>Centro Costos</label>
+            <select class="form-control select2" id="selCCFiltro"></select>
+        </div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 form-group">
+            <button class="btn-primary btn-xs form-control margin-top" id="btnBuscar">
+                <span class="glyphicon glyphicon-search"></span> Buscar
+            </button>
+        </div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 form-group">
+            <button class="btn-primary btn-xs form-control margin-top" id="btnReporte">
+                <span class="glyphicon glyphicon-plus"></span> Nuevo
+            </button>
+        </div>
+    </fieldset>
+    <div class="tab_container">
+        <input id="tab1" type="radio" name="tabs" checked>
+        <label for="tab1" class="tabLabel"><i class="fa fa-clock-o"></i><span>Pendiente</span></label>
+        <input id="tab2" type="radio" name="tabs">
+        <label for="tab2" class="tabLabel"><i class="fa fa-check"></i><span>Aceptada</span></label>
+        <input id="tab3" type="radio" name="tabs">
+        <label for="tab3" class="tabLabel"><i class="fa fa-remove"></i><span>Rechazada</span></label>
+        <section id="content1" class="tab-content">
+            <table id="tblEnEspera" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="Acciones" data-align="center" data-header-align="center">ACCIONES</th>
+                        <th data-column-id="Folio" data-align="center" data-header-align="center">FOLIO</th>
+                        <th data-column-id="Fecha" data-align="center" data-header-align="center">FECHA</th>
+                        <th data-column-id="CC" data-align="center" data-header-align="center">OBRA</th>
+                        <th data-column-id="Nombre" data-align="center" data-header-align="center">NOMBRE</th>
+                        <th data-column-id="RFC" data-align="center" data-header-align="center">RFC</th>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+        <section id="content2" class="tab-content">
+            <table id="tblAceptado" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="Acciones" data-align="center" data-header-align="center">ACCIONES</th>
+                        <th data-column-id="Folio" data-align="center" data-header-align="center">FOLIO</th>
+                        <th data-column-id="Fecha" data-align="center" data-header-align="center">FECHA</th>
+                        <th data-column-id="CC" data-align="center" data-header-align="center">OBRA</th>
+                        <th data-column-id="Nombre" data-align="center" data-header-align="center">NOMBRE</th>
+                        <th data-column-id="RFC" data-align="center" data-header-align="center">RFC</th>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+        <section id="content3" class="tab-content">
+            <table id="tblRechazado" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="Acciones" data-align="center" data-header-align="center">ACCIONES</th>
+                        <th data-column-id="Folio" data-align="center" data-header-align="center">FOLIO</th>
+                        <th data-column-id="Fecha" data-align="center" data-header-align="center">FECHA</th>
+                        <th data-column-id="CC" data-align="center" data-header-align="center">OBRA</th>
+                        <th data-column-id="Nombre" data-align="center" data-header-align="center">NOMBRE</th>
+                        <th data-column-id="RFC" data-align="center" data-header-align="center">RFC</th>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+    </div>
+</div>
+<div class="col-lg-12" id="modalPrefactura" style="display:none;">
+    <div id="divIndentificacion" style="border: 1px solid #000 !important;  padding-left: 0px;">
+        <div class="row">
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <img src="~/Content/img/logo/logo2.png">
+            </div>
+            <div class="col-xs-5 col-sm-5 col-md-7 col-lg-7">
+                <h4 class="text-center">Dirección de Administración y Finanzas</h4>
+                <h1 class="text-center">Prefactura</h1>
+
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-2">
+                <label>Folio:</label><label id="lblFolio" class="text-right">0000000000</label>
+            </div>
+        </div>
+        <div class="row">
+            <div hidden>
+                <input type="text" class="form-control" id="txtIdReporte" value="0" />
+                <input type="text" class="form-control" id="txtEstado" value="0" />
+            </div>
+            <div>
+
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 text-right">
+                <label>Nombre: </label>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-6" id="divNombre">
+                <input hidden id="numCliente" value="0" />
+                <input type="text" class="form-control busqCliente validaSel" id="txtNombre" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-right">
+                <label>Fecha:</label>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2 col-lg-3" id="divFecha">
+                <input type="text" class="form-control busqCliente validaSel" id="dpFechaPrefactura" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 text-right">
+                <label>Dirección:</label>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-6" id="divDireccion">
+                <input type="text" class="form-control busqCliente validaSel" id="txtCalle" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-right">
+                <label>C. P.:</label>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2 col-lg-3" id="divCp">
+                <input type="text" class="form-control codigoPostal busqCliente" id="txtCp" value="" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 text-right">
+                <label>Ciudad:</label>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-6" id="divCiudad">
+                <input type="text" class="form-control busqCliente validaSel" id="txtCiudad" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-right">
+                <label>RFC:</label>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-2 col-lg-3" id="divRfc">
+                <input type="text" class="form-control rfc busqCliente" id="txtRfc" data-toggle="tooltip" title="Buscar con F3" />
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 20px;"></div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style=" padding-left: 0px;">
+        <div id="divTabla" class="table-responsive" style="border: hidden; overflow: hidden; -webkit-print-color-adjust: exact !important;">
+            <table id="tblUnidades" class="table  text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="Id" data-formatter="Id" data-header-align="center" data-visible="false"></th>
+                        <th data-column-id="Tipo" data-formatter="Tipo" data-header-align="center" data-width="10%">Tipo</th>
+                        <th data-column-id="Cantidad" data-formatter="Cantidad" data-header-align="center" data-width="8%" class="5p">Cantidad</th>
+                        <th data-column-id="Unidad" data-formatter="Unidad" data-header-align="center" data-width="8%" class="85p">Unidad</th>
+                        <th data-column-id="Concepto" data-formatter="Concepto" data-header-align="center" data-width="58%" class="85p">Concepto</th>
+                        <th data-column-id="Precio" data-formatter="Precio" data-header-align="center" data-width="8%" class="5p">Precio</th>
+                        <th data-column-id="Importe" data-formatter="Importe" data-header-align="center" data-width="8%" class="5p">Importe</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="" id="botonera1">
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <button class="btn-success btn-xs form-control" id="btnAddRenglon">
+                        <span class="glyphicon glyphicon-plus"></span> Renglon
+                    </button>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <button class="btn-warning btn-xs form-control" id="btnMinusRenglon">
+                        <span class="glyphicon glyphicon-minus"></span> Renglon
+                    </button>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-4">
+                    <div class="radioBtn btn-group">
+                        <a class="btn btn-primary  active" data-toggle="radCalAuto" data-title="true">Calcular Automático</a>
+                        <a class="btn btn-primary  notActive" data-toggle="radCalAuto" data-title="false">No</a>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px;"></div>
+            <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
+                    <div id="divPago">
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-12">
+                            <div class="input-group" id="divCC">
+                                <span class="input-group-addon tituloSelect">Centro Costos</span>
+                                <select class="form-control validaSel select2" id="selCCPractura"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-left hidden" id="botonera2">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radCC" data-title="true">Visible</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radCC" data-title="false">No</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-12">
+                            <div class="input-group" id="divMoneda">
+                                <span class="input-group-addon tituloSelect">Tipo de Moneda</span>
+                                <select class="form-control validaSel" id="txtTipoMoneda">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="MX">PESOS MEXICANOS</option>
+                                    <option value="DLL">DOLARES</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-left hidden" id="botonera4">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radTipoMoneda" data-title="true">Visible</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radTipoMoneda" data-title="false">No</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-12">
+                            <div class="input-group" id="divMetodoPago">
+                                <span class="input-group-addon tituloSelect">Metodo de pago</span>
+                                <select class="form-control validaSel" id="txtMetodoPago"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-12">
+                            <div class="input-group" id="divMetodoPago">
+                                <span class="input-group-addon tituloSelect">Uso CFDI</span>
+                                <select class="form-control validaSel" id="selUsocfdi"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-left hidden" id="botonera3">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radMetodoPago" data-title="true">Visible</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radMetodoPago" data-title="false">No</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="botonera5">
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-4">
+                            <button class="btn-danger btn-xs form-control" id="btnCerrar">
+                                <span class="glyphicon glyphicon-arrow-left"></span> Regresar
+                            </button>
+                        </div>
+                        <div class="col-xs-4 col-sm-3 col-md-3 col-lg-4">
+                            <button class="btn-primary btn-xs form-control" id="btnVerReporte" value="41">
+                                <span class="glyphicon glyphicon-print"></span> Prefactura
+                            </button>
+                        </div>
+                        <div class="col-xs-4 col-sm-3 col-md-3 col-lg-4">
+                            <button class="btn-default btn-xs form-control" id="btnModalPlantilla" data-toggle="modal" data-target="#modalBusqPlantila">
+                                <span class="glyphicon glyphicon-search"></span> Plantilla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="divImpuesto">
+                    <table id="tblImpuesto" class="table table-hover" style="margin-bottom:0px;">
+                        <tbody></tbody>
+                    </table>
+                    <div id="divTotal" class="input-group"><input type="text" value="0" hidden id="hdnTotalId" /><input type="text" class="form-control" value="Total" readonly /><span class="input-group-addon"></span><input type="text" class="form-control" id="txtValTotal" value="$0.00" /></div>
+                    <datalist id="lstConceptoImporte"></datalist>
+                    <div id="botonera6">
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+                            <button class="btn-success btn-xs form-control" id="btnAddImporte">
+                                <span class="glyphicon glyphicon-plus"></span> Importe
+                            </button>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-3">
+                            <button class="btn-warning btn-xs form-control" id="btnMinusImporte">
+                                <span class="glyphicon glyphicon-minus"></span> Importe
+                            </button>
+                        </div>
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-6">
+                            <label for="radImporte" class="col-sm-4 col-md-5 control-label">Importe en</label>
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  notActive" data-toggle="radImporte" data-title="true">Cuerpo</a>
+                                <a class="btn btn-primary  active" data-toggle="radImporte" data-title="false">Pie</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalListaArchivos" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Lista de Archivos</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblListaArchivo" class="table table-fixed table-responsive table-striped">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="Accion" data-formatter="Accion" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Descarga</th>
+                                    <th data-column-id="tipo" data-align="center" data-header-align="center">Tipo archivo</th>
+                                    <th data-column-id="nombArchivo" data-align="center" data-header-align="center">Nombre Archivo</th>
+                                    <th data-column-id="Fecha" data-align="center" data-header-align="center">Fecha</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                        <label>Archivo:</label>
+                        <input type="file" id="fupAdjunto2" multiple>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>Tipo Archivo:</label>
+                        <select class="form-control" id="cboTipo">
+                            <option value="1">
+                                Contrato
+                            </option>
+                            <option value="2">
+                                Orden de compra
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <button type="button" id="btnSubirN" class="btn btn-primary margin-top" style="font-weight:bold;font-size:large;">Subir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalConfirmacion" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center">
+                    <label>¿Desea cambiar el estado de la prefactura?</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger margin-top" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmar" class="btn btn-success margin-top">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalBusqCliente" style="display:none;">
+    <div class="text-center">
+        <h3>Buscar cliente</h3>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3 col-lg-offset-1">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon3">No.</span>
+            <select class="form-control" id="selBusqNumcte"></select>
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-4">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon3">Nombre</span>
+            <input class="form-control" id="txtxBusqNombre" disabled />
+        </div>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+        <button type="button" id="btnBusqClienteSelecciona" class="btn btn-success">Seleccionar</button>
+        <button type="button" id="btnBusqClienteCerrar" class="btn btn-danger">Cerrar</button>
+    </div>
+</div>
+<div id="modalBusqPlantila" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">Buscar plantilla de Prefactura</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">No.</span>
+                            <select class="form-control" id="selPlantillaNumcte"></select>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-9">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">Nombre</span>
+                            <input class="form-control" id="txtxPlantillaNombre" disabled />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-8 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon tituloSelect">Centro Costos</span>
+                            <select class="form-control" id="selPlantillaCC"></select>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-4 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon tituloSelect">Tipo de Moneda</span>
+                            <select class="form-control" id="selPlantillaMoneda">
+                                <option value="">--Seleccione--</option>
+                                <option value="MX">PESOS MEXICANOS</option>
+                                <option value="DLL">DOLARES</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <label id="lblPlantillaMensaje"></label>
+                <button type="button" id="btnPLantillaSelecciona" class="btn btn-success">Seleccionar</button>
+                <button type="button" id="btnPlantillaClienteCerrar" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

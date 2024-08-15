@@ -1,0 +1,198 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    .calendar table.month thead tr th.day-header {
+        background: #CA6216;
+        border: solid 1px;
+        border-color: #FFFFFF;
+    }
+
+    .event-tooltip-content {
+        padding: 10px;
+        background-color: #FFFFFF;
+        color: #333;
+    }
+
+    .event-tooltip-content:not(:last-child) {}
+
+    #events-log {
+        display: inline-block;
+        vertical-align: top;
+        width: 500px;
+        background-color: #e5e5e5;
+        padding: 10px;
+        min-height: 250px;
+        border-radius: 10px;
+    }
+
+    #events-log div {
+        font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    #calendar {
+        display: inline-block;
+        vertical-align: right;
+        width: calc(140% - 500px);
+    }
+
+    .calendar-header {
+        display: none;
+    }
+</style>
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/Calendario.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+@* <link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+    <link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' /> *@
+@* <link el="stylesheet" type="text/css" href="~/Content/style/js-year-calendar.min.css" /> *@
+<link href="~/Content/style/css/Subcontratistas/EstiloGeneral.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="~/Content/style/js-year-calendar.min.css" />
+
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>CALENDARIO</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Centro de costo:</span>
+                                <select name="" id="cboFiltroCC" class="form-control" multiple="multiple"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcontratista:</span>
+                                <select name="" id="cboFiltroSubcontratista" class="form-control"
+                                    multiple="multiple"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 pull-right">
+                            <button type="button" title ="Limpiar filtros" class="btn btn-primary marginBottom" id="btnFiltroLimpiar" style="margin-top: 4px">Limpiar</button>
+                            <button type="button" title ="Exportar reporte" class="btn btn-primary marginBottom" id="btnFiltroExportar" style="margin-top: 4px">Exportar</button>
+                            <button type="button" title ="Buscar evaluaciones" class="btn btn-primary marginBottom" id="btnFiltroBuscar" style="margin-top: 4px">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <i class="fas fa-square-full" style="color:#E9960D"></i>&nbsp;DIA CON EVALUACIÓN
+                        </div>
+                        <div class="col-sm-3">
+                            <i class="fas fa-square-full" style="color:#37A82A"></i>&nbsp;EVALUACIÓN
+                            TERMINADA
+                        </div>
+                        <div class="col-sm-3">
+                            <i class="fas fa-square-full" style="color:#154A9C"></i>&nbsp;PROGRAMADAS
+                        </div>
+                        <div class="col-sm-3">
+                        </div>
+                        <!-- <div class="align_right">
+                            @* <button type="button" class="btn btn-xs" id="btnFiltroImprimir">imprimir</button> *@
+                            <button class='btn btn-xs' id="btnFiltroImprimir"><i class='fas fa-print'></i></button>
+                        </div> -->
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9" style="background-color:white;">
+                            <!-- CALENDARIO -->
+                            <div id="calendar" class="" style="width:800px !important;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="events-log" style="width:100%;">
+                                <h4>Próximos Eventos</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: BODY -->
+            </div>
+        </div>
+    </div>
+    <!-- END: CONTAINER FLUID -->
+
+    <!-- ACTUALIZAR FECHAS EVALUACIONES -->
+    <div id='mdlActualizarFechaEvaluacion' class='modal fade' role='dialog' data-backdrop="static">
+        <div class='modal-dialog modal-xs'>
+            <div class='modal-content'>
+                <div class='modal-header text-center'>
+                    <h4 class='modal-title'><i class='fa fa-dollar'></i>PERIODO DE EVALUACIÓN</h4>
+                </div>
+                <div class='modal-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <label for="">Nombre evaluación:</label>
+                            <input type="text" id="txtCENombreEvaluacion" class="form-control">
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class="col-lg-6">
+                            <label for="">Fecha inicial:</label>
+                            <input type="date" id="txtCEFechaInicial" class="form-control">
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="">Fecha final:</label>
+                            <input type="date" id="txtCEFechaFinal" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="">Fecha de evaluación:</label>
+                            <input type="date" id="txtCEFechaEvaluacion" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-success' id="btnCEActualizarFechaEvaluacion"><i
+                            class="fas fa-save"></i>&nbsp;Actualizar</button>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                            class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: ACTUALIZAR FECHAS EVALUACIONES -->
+
+    @Html.Partial("reportViewerView", false)
+
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/js/SubContratistas/Calendario.js"></script>
+<script src="~/Scripts/starrr.js"></script>
+@* <script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.js"></script> *@
+<script src="~/Scripts/js-year-calendar.min.js"></script>
+<script src="~/Scripts/js-year-calendar.es.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/popper.min.js"></script>
+<script src="~/Scripts/index.all.min.js"></script>
+<script src="~/Scripts/dom-to-image.min.js"></script>

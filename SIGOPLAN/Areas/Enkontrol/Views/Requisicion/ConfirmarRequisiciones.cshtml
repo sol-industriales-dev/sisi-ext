@@ -1,0 +1,191 @@
+﻿@{
+ViewBag.Title = "ConfirmarRequisiciones";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/ConfirmarRequisiciones.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Autorizante.css" rel="stylesheet" />
+
+<h2 class="text-center">Consulta Surtido Requisiciones</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+
+    <div class="col-md-4 col-lg-4">
+        <div class="input-group">
+            <span class="input-group-addon">Centro Costo</span>
+            <select id="multiSelectCC" class="form-control" multiple="multiple"></select>
+        </div>
+    </div>
+    <div class="col-md-2 col-lg-2 noPadLeft" style="display: none;">
+        <div class="input-group">
+            <button id="btnGuardarValidaciones" class="btn btn-primary disabled"><i class="fas fa-save"> Guardar</i></button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm mrgTop">
+    <div class="table-responsive col-md-12 col-lg-12 mrgTop">
+        <table id="tblRequisiciones" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlDetalleReq" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Detalle Requisición</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fa fa-edit"></i>Captura</legend>
+
+                    <div class="col-md-6 col-lg-6 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Centro Costo</span>
+                            <select id="selCCDetReq" class="form-control valAddInsumo"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Número Req.</span>
+                            <input type="text" id="txtNum" class="form-control valAddInsumo" />
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Folio Origen</span>
+                            <input type="text" id="txtFolioOrigen" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-lg-3 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="text" id="dtFecha" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">L.A.B.</span>
+                            <select id="selLab" class="form-control valAddInsumo"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Tipo</span>
+                            <select id="selTipoReq" class="form-control valAddInsumo"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3 marginTop5 noPadLeft noPadRight">
+                        <button id="spanEstatus" type="button" class="btn btn-default flotante hidden" disabled style="margin-bottom: 5px;"></button>
+                        <button id="spanActivos" type="button" class="btn btn-default flotante hidden" disabled style="margin-bottom: 5px;">Activos
+                            Fijos</button>
+                    </div>
+                    <div class="col-md-4 col-lg-4 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Estatus Autorización</span>
+                            <input type="text" id="txtEstatus" class="form-control valAddInsumo" readonly />
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-lg-2 marginTop5 noPadLeft noPadRight" style="display: none;">
+                        <div class="input-group">
+                            <span class="input-group-addon">TMC</span>
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary active" data-toggle="radTmc" data-title="false"><i class="fa fa-times"></i></a>
+                                <a class="btn btn-primary notActive" data-toggle="radTmc" data-title="true"><i class="fa fa-check"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9 col-lg-9 marginTop5 noPadLeft noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Comentarios</span>
+                            <input type="text" id="txtComentarios" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-lg-3 marginTop5 noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Modificación</span>
+                            <input type="text" id="txtModificacion" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Solicitó</span>
+                            <input type="text" id="txtSolicito" class="form-control valAddInsumo" readonly />
+                            <!-- <span id="spnAyudaUsuario" class="input-group-addon btn btn-primary" style="width: 5%;" data-toggle="tooltip" title="Nó es mi nombre.">
+                                <i class='fa fa-question'></i>
+                            </span> -->
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Autorizó</span>
+                            <input id="selAutorizo" type="text" class="form-control valAddInsumo" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Empleado Autorización</span>
+                            <input type="text" id="txtEmpNum" class="form-control" readonly />
+                            <span class="input-group-addon" id="txtEmpNom" style="width: 65%;"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft noPadRight">
+                        <div class="input-group">
+                            <span class="input-group-addon">Usuario Modifica</span>
+                            <input type="text" id="txtUsuNum" class="form-control" readonly />
+                            <span class="input-group-addon" id="txtUsuNom" style="width: 70%;"></span>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fa fa-table"></i>Insumos</legend>
+                    <div class="table-responsive">
+                        <table id="tblInsumos" class="table table-fixed table-bordered" width="100%"></table>
+                    </div>
+                    <label>Descripción de la partida</label>
+                    <textarea id="txtDescPartida" class="form-control" disabled></textarea>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button id="btnVerSurtido" class="btn btn-default"><i class="fa fa-eye"></i> Ver Surtido</button>
+                <button id="btnConfirmarRequisicion" class="btn btn-primary" style="display: none;"><i class="fa fa-save"></i> Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlSurtido" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Surtido</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 mrgTop">
+                        <table id="tblSurtido" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/ConfirmarRequisiciones.js"></script>

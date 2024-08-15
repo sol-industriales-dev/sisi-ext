@@ -1,0 +1,221 @@
+﻿@{
+    ViewBag.Title = "Locaciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<script src="~/Scripts/js/Maquinaria/Overhaul/LocacionesJS.js"></script>
+
+<style>
+    .bootgrid-table th:active, .bootgrid-table td { white-space:normal; }
+    .column-header-anchor  { white-space:normal !important; }
+    .tabla { overflow-y: auto; height: 500px; }
+    .tabla th {
+        font-size: 14px;
+        position: sticky; top: 0;
+        background-color: #81bd72 !important;
+        /*text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000;*/
+        white-space: nowrap;
+    }
+    td { vertical-align: middle !important; }    
+    .bootgrid-footer {
+        position: sticky; bottom: 0; border-color:red;
+        background-color: #81bd72 !important;
+    }
+    .column-header-anchor {
+        text-align: center;
+    }
+    .bootgrid-table td {
+        text-align: center;
+    }
+    .col-centered{
+        float: none;
+        margin: 0 auto;
+    }
+    .wrap { 
+        width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<h2 class="text-center">Catálogo de Locaciones</h2>
+
+<div class="row form-group">
+    <div class="col-lg-10">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                <label>Locación:</label>
+                <input class="form-control" id="txtFiltroDescripcionLocacion" type="text" maxlength="100">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboFiltroEstatusLocacion">
+                    <option value="1">ACTIVO</option>
+                    <option value="0">INACTIVO</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <button type="button" class="btn btn-info margin-top" id="btnBuscar_Locaciones">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-lg-2 text-center">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Locación:</legend>
+            <button type="button" class="btn btn-success margin-top" id="btnNueva_Locacion">
+                <span class="glyphicon glyphicon-plus"></span> Nuevo
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Locaciones:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                <table id="grid_Locaciones" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th data-column-id="update" class="text-center" style="width:6%;" data-formatter="update">EDITAR</th>
+                            <th data-column-id="delete" class="text-center" style="width:6%;" data-formatter="delete">BAJA</th>
+                            <th data-column-id="descripcion" class="text-center" style="">LOCACIÓN</th>
+                            <th data-column-id="tipoLocacion" class="text-center" style="" data-formatter="tipoLocacion">TIPO LOCACIÓN</th>
+                            <th data-column-id="estatusTexto" class="text-center" style="">ESTATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </fieldset>
+
+        <div class="modal fade" id="modalLocaciones" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="text-center">
+                            <h3><label id="title-modal">Alta Locación</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center modal-content-tamaño">
+                        <div class="container-fluid">
+                            <form id="frmLocaciones" novalidate="novalidate">
+
+                                <div class="row">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">Datos Locación:</legend>
+
+                                        <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-6 form-group">
+                                            <label>Tipo Locación</label>
+                                            <select id="cboModalTipoLocacion" class="form-control required" aria-required="true">
+                                                <option value="2">PROVEEDOR</option>
+                                                <option value="1">ALMACÉN</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-xs-6 col-md-6 col-lg-6 form-group">
+                                            <label>Descripción:</label>
+                                            <input class="form-control required" id="txtDescripcion" type="text" aria-required="true">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" style="display:none">
+                                            <label>Area Cuenta:</label>
+                                            <select id="cboModalCC" class="form-control required" aria-required="true"></select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group noPadLeft">
+                                            <div class="row" style="width:100%; text-align:center;">
+                                                <fieldset class="fieldset-custm">
+                                                    <legend class="legend-custm">AGREGAR CORREO:</legend>
+                                                    <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                                        <input class="form-control" type="email" id="txtCorreo" size="30" required>
+                                                    </div>
+                                                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                                        <button id="btnAgregarCorreo" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                                                    </div>
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top">
+                                                        <table id="tblCorreos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                            <thead class="bg-table-header">
+                                                                <tr>
+                                                                    <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                    <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                                                    <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                        <div>
+                                            <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar_Locacion">
+                                                <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar_Locacion" data-dismiss="modal">
+                                                <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="modal fade" id="modalCorreos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+            <div class="modal-dialog modal-md" style="" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <div class="text-center">
+                            <h3><label>Archivos Historial</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center modal-content-tamaño">
+                        <div class="container-fluid">
+                            <form novalidate="novalidate">
+                                <div class="row" style="width:100%; text-align:center;">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">AGREGAR CORREO:</legend>
+                                        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                            <input class="form-control" type="email" id="txtCorreo" size="30" required>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                            <button id="btnAgregarCorreo" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">CORREOS:</legend>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <table id="tblCorreos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                        <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                                        <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    </div>
+</div>

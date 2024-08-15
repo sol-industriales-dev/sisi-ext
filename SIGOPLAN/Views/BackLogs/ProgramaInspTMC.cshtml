@@ -1,0 +1,219 @@
+﻿@{
+    ViewBag.Title = "Programa de Inspección";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/ProgramaInspTMC.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/General.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">PROGRAMA DE INSPECCIÓN TMC</h2>
+</fieldset>
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <div class="row form-group" style="display: none">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-lg-3">
+                <fieldset class="fieldset-custm">
+                    <!-- LISTADO DE PROYECTOS -->
+                    <legend class="legend-custm">PROYECTO</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <select class="form-control" id="cboProyecto"></select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioTMC">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaRehabilitacion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnPresupuestoRehabilitacion">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Presupuesto de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnSeguimientoPresupuestos">
+                        <i class="fas fa-file-invoice-dollar icono-menu"></i>&nbsp;Seguimiento a Presupuestos
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnFrenteBackLogs">
+                        <i class="fas fa-briefcase icono-menu"></i>&nbsp;Frentes de Trabajo
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informes de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnIndicadoresRehabilitacionTMC">
+                        <i class="fa fa-file-pdf icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Presupuesto (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Autorización de Presupuesto (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Rehabilitación Programada (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        BackLogs Instalados (100%)
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><span class="badge">Filtros</span></legend>
+            <div class="row">
+                <br />
+                <div class='col-lg-2'>
+                    <label for='cboFiltroAnio'>Año</label>
+                    <select id='cboFiltroAnio' class='form-control select2'>
+                        <option value="">--Seleccione--</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="cboFiltroPeriodo">Periodo: <span id="lblFechaInicio"></span> <span id="lblAl"> al </span> <span id="lblFechaFinal"></span></label>
+                    <select id="cboFiltroPeriodo" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="cboFiltroTipo">Tipo: </label>
+                    <select id="cboFiltroTipo" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-6"><br>
+                    <button id="btnFiltroBuscar" class="btn btn-primary"> <i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    <button id="btnGuardar" class="btn btn-success"> <i class="fas fa-save"></i>&nbsp;Guardar</button>
+                    @* <button id="btnExportar" class="btn boton-menu"> <i class="fas fa-table"></i>&nbsp;Exportar</button> *@
+                </div>
+            </div><br />
+        </fieldset><br />
+
+        <!-- TABLA PROGRAMACIÓN -->
+        <fieldset class='fieldset-custm'><br>
+            <legend class='legend-custm'><span class="badge">Programación</span></legend>
+            <div class="col-sm-12 no-padding">
+                <div class="table-responsive text-align-center"></div>
+                <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-bottom:30px;">
+                    <table id="tblEnProgramacion" class="table-bordered compact hover text-center no-margin"></table>
+                </div>
+            </div>
+    </div>
+</fieldset><br />
+<!-- END: TABLA PROGRAMACIÓN -->
+
+<!-- TABLA PROGRAMA -->
+<fieldset class='fieldset-custm seccion'>
+    <fieldset class='fieldset-custm'><br>
+        <legend class='legend-custm'><span class="badge">Programa</span></legend>
+        <div class="col-sm-12 no-padding">
+            <div class="table-responsive text-align-center"></div>
+            <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-bottom:30px;">
+                <table id="tblEnPrograma" class="table-bordered compact hover text-center no-margin"></table>
+            </div>
+        </div>
+    </fieldset>
+</fieldset>
+<!-- END: TABLA PROGRAMA -->
+</div>
+<!-- END: FILTRO -->
+
+<!-- MODAL EDITAR PROGRAMA -->
+<div class="modal fade-in disenioModal" id="mdlActualizarInsp">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-align-center" id="titleMdlActualizarInsp">ACTUALIZAR PROGRAMA</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-2">
+                        <label>Partida: </label>
+                        <input id="txtActualizarPartida" class="form-control" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label>No. Económico: </label>
+                        <input id="txtActualizarNoEconomico" class="form-control" />
+                    </div>
+                    <div class="col-lg-7">
+                        <label>Descripción: </label>
+                        <input id="txtActualizarDescripcion" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>Modelo: </label>
+                        <input id="txtActualizarModelo" class="form-control" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Horas: </label>
+                        <input id="txtActualizarHoras" class="form-control" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Motivo: </label>
+                        <input id="txtActualizarMotivo" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>Fecha de programación: </label>
+                        <input type="date" id="txtActualizarFechaProgramacion" class="form-control" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Fecha requerido: </label>
+                        <input type="date" id="txtActualizarFechaRequerido" class="form-control" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Fecha promesa: </label>
+                        <input type="date" id="txtActualizarFechaPromesa" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btnActualizarPrograma" class="btn btn-success"><i class="fas fa-save"></i>&nbsp;Actualizar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</fieldset>
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/ProgramaInspTMC.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>

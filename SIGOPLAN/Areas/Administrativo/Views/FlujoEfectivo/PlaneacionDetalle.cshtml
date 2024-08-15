@@ -1,0 +1,265 @@
+﻿@{
+    ViewBag.Title = "Planeación Detalle.";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+<link rel='stylesheet' href='~/Content/style/datatables/datatables.min.css' />
+<link rel='stylesheet' href="~/Content/style/Datepicker/semana highlight.css" />
+<link rel='stylesheet' href="~/Content/style/css/Contabilidad/FlujoEfectivo/PlaneacionDetalle.css"/>
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>Captura de Planeación Detalle</h2>
+    </div>
+    <input id="txtDirInicioObra" readonly class="hide" />
+    <div class="row">
+        <div class="col-xs-12 col-lg-12 col-md-12">
+            <fieldset class="fieldset-custm">
+                <legend class='legend-custm'><i class='fa fa-search'></i> Búsqueda</legend>
+                <div class="col-xs-6 col-md-7 col-lg-7">
+                    <div class="input-group">
+                        <span class="input-group-addon">Centro Costos</span>
+                        <select id="comboCentroCostos" class="form-control" style="width: 100%;"></select>
+                    </div>
+                </div>
+                <div class='col-xs-6 col-md-4 col-lg-4'>
+                    <div class='input-group'>
+                        <span class='input-group-addon'>Periodo</span>
+                        <input type="text" id='mpDirSemana' class='form-control' readonly>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <fieldset class="fieldset-custm">
+                <legend class='legend-custm'><i class="fas fa-project-diagram"></i> Planeación</legend>
+                <div class="table-responsive">
+                    <table id="tablaConceptos" class="table table-fixed table-hover table-striped">
+                        <thead class="bg-table-header"></thead>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-lg-7">
+            <div class="hide" id="divCapturaDetalle">
+                <fieldset class="fieldset-custm">
+                    <legend id="lblCaptura" class="legend-custm"></legend>
+                    <div class="col-lg-12 col-md-12 col-xs-12 form-group divForm" style="padding: 0px;">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">Concepto</span>
+                            <input type="text" class="form-control" placeholder="concepto" aria-describedby="basic-addon1" id="inputDescripcion">
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-xs-12 form-group divForm" style="padding: 0px;">
+                        <div class="input-group">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="text" class="form-control text-right" placeholder="monto" id="inputMonto">
+                            <span class='input-group-btn'>
+                                <button id="botonAgregar" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar</button>
+                                <button id='btnDetLimpiar' type='button' class='btn btn-default'><i class='fa fa-brush'></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div id='divSelDetCC' class="col-lg-12 col-md-12 col-xs-12 form-group divForm" style="padding: 0px;">
+                        <div class='input-group'>
+                            <span class='input-group-addon'>Centro Costos</span>
+                            <select id='selDetCC' class='form-control'></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-xs-12 table-responsive">
+                        <table id="tablaConceptoDetalle" class=" table table-fixed">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cargar Detalles de Costos de Proyecto -->
+<div class="modal fade" id="modalGastosProyecto" role="dialog">
+    <div class="modal-dialog modal-dialog-ppal" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3><label id="labelCostosProyecto"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Concepto Detalles:</legend>
+                        <table id="tablaGastosProv" class=" table table-fixed table-hover table-responsive table-striped">
+                            <thead class="bg-table-header">
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> regresar
+                </button>
+                <button id="btnGuardarCostosProyecto" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cargar Detalles Gastos operativos -->
+<div class="modal fade" id="modalGastosOperativos" role="dialog">
+    <div class="modal-dialog modal-dialog-ppal" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3><label id="labelGastosOperativos"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+            <div class="row">
+                <div class='col-md-3 col-lg-3'>
+                    <div id='divNomina' class='input-group'>
+                        <span class='input-group-addon'>Periodo</span>
+                        <select id='selNomina' class='form-control' multiple></select>
+                    </div>
+                </div>
+            </div>
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Concepto Detalles:</legend>
+                        <table id="tablaGastosOperativos" class=" table table-fixed table-hover table-responsive table-striped">
+                            <thead class="bg-table-header">
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> regresar
+                </button>
+                <button id="btnGuardarGastosOperativos" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cargar Efectivos Recibidos -->
+<div class="modal fade" id="modalEfectivoRecibido" role="dialog">
+    <div class="modal-dialog modal-dialog-ppal" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3><label id="labelEfectivoRecibido"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body ">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Concepto Detalles:</legend>
+                        <table id="tablaEfectivoRecibido" class=" table table-fixed table-hover table-responsive table-striped">
+                            <thead class="bg-table-header">
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> regresar
+                </button>
+                <button id="btnGuardarEfectivoRecibido" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cargar Contratos Programados -->
+<div class="modal fade" id="modalContratos" role="dialog">
+    <div class="modal-dialog modal-dialog-ppal" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Contratos Programados</h3>
+                </div>
+            </div>
+            <div class="modal-body ">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Concepto Detalles:</legend>
+                            <table id="tablaProgramacion" class="hover stripe order-column compact" style="width:100%">
+                                <thead style="background: #E67E22;">
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group pull-right">
+                            <label>Seleccionar todo</label>
+                            <input type="checkbox" class="input-group-addon form-control chkTodo pull-right" onchange="fnChkTodo(this)" style="width: 44px;height: 34px;margin: 0;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> regresar
+                </button>
+                <button id="btnAgregarContratos" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/FlujoEfectivo/PlaneacionDetalle.js"></script>
+<script>
+    function fnChkTodo(_this) {
+        var chk = $(_this);
+        $(".agregarMonto").prop("checked", chk.is(":checked"));
+    }
+</script>

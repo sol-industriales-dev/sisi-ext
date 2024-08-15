@@ -1,0 +1,148 @@
+﻿@page "/"
+@using DoconutBlazor.Model
+
+@inject IJSRuntime js;
+
+@code
+{
+    DocView ctlDoc;
+    bool isViewerBusy = true;
+    public string docToken = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var docData = new DocModel
+        {
+            ShowThumbs = true,
+            AutoLoad = false,
+            AutoFocus = true,
+            AutoPageFocus = true,
+            BasePath = "/",
+            ResPath = "images",
+            CacheEnabled = false,
+            FitType = "width",
+            FixedZoom = true,
+            FixedZoomPercent = 100,
+            FixedZoomPercentMobile = 75,
+            LargeDoc = true,
+            MaxZoom = 300,
+            PageZoom = 100,
+            ZoomStep = 10,
+            ShowHyperlinks = false,
+            ShowToolTip = true,
+            ToolTipPageText = "Page "
+        };
+
+        ctlDoc.SetModelData(docData);
+
+        await base.OnAfterRenderAsync(firstRender);
+
+        isViewerBusy = false;
+        StateHasChanged();
+    }
+
+    protected async void OpenDocument(string fileName)
+    {
+        // Open an already open Document ( optional code, you can use this to quickly view a document from its previous token )
+        // if (docToken.Length > 0)
+        // {
+        // await js.InvokeVoidAsync("viewDocumentJS", docToken);
+        // }
+        // else
+        {
+            // Open first time then store the token
+            var token = await ctlDoc.OpenDocumentInstanceJS(fileName, "");
+
+            if (token.Length > 0)
+            {
+                // docToken = token; // store the token ( optional )
+            }
+        }
+    }
+
+}
+
+<style>
+    #divContainer {
+        height: 80vh;
+    }
+
+    .slidecontainer {
+        width: 200px;
+    }
+
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+</style>
+
+
+<div class="row">
+    <input type="button" value="Sample.doc" disabled="@isViewerBusy" class="btn btn-primary" @onclick="@(() => OpenDocument("Sample.doc"))" />&nbsp;
+    <input type="button" value="Sample.ppt" disabled="@isViewerBusy" class="btn btn-info" @onclick="@(() => OpenDocument("Sample.ppt"))" />&nbsp;
+    <div class="loader" id="imgLoading" style="display:none"></div>&nbsp;
+    <span id="divPage">Page#&nbsp;<input type="number" min="1" style="width: 50px" id="txtPage" /></span>&nbsp;<span id="divPagination">
+        <input type="button" onclick="GoPrevious();" value="&nbsp;&lt;&lt;&nbsp;" /><input type="button" onclick="GoNext();" value="&nbsp;&gt;&gt;&nbsp;" />
+    </span>&nbsp;Zoom <span class="slidecontainer">
+        <input id="txtZoom" type="range" min="10" max="200" value="0" />
+    </span>&nbsp;<span id="altScroll">(hold ALT key + Scroll for zoom)</span>&nbsp;
+    <input type="button" value="Print Document" disabled="@isViewerBusy" class="btn btn-dark float-right" onclick="PrintDocument();" />&nbsp;
+</div>
+<div class="row">
+    <div id="divContainer" class="col-lg-12 text-center">
+        <DocView @ref="ctlDoc" DocID="ctlDoc"
+                 ImageResolution="200"
+                 TimeOut="30"
+                 Watermark="Sample Copy~Red~24~Verdana~50~-45" />
+    </div>
+</div>
+
+<!--Modal: Print-->
+<div class="modal fade" id="modalPrint" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+
+        <!--Content-->
+        <div class="modal-content">
+
+            <!--Body-->
+            <div class="modal-body mb-0 p-0">
+
+                <div class="embed-responsive embed-responsive-16by9 z-depth-1-half">
+                    <iframe id="printFrame" class="embed-responsive-item" src=""></iframe>
+                </div>
+
+            </div>
+
+        </div>
+        <!--/.Content-->
+
+    </div>
+</div>
+<!--Modal: Print-->

@@ -1,0 +1,316 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@* <link href="~/Content/style/css/ControlObra/controlObra2.css" rel="stylesheet" /> *@
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/Dashboard.css" rel="stylesheet" />
+<link href="~/Content/style/starrr.css" rel="stylesheet" />
+@*<link href="~/Content/style/css/Subcontratistas/EstiloGeneral.css" rel="stylesheet" />*@
+@* <link href="~/Content/style/highcharts.css rel=" stylesheet" /> *@
+<link href="path/to/multiselect.css" media="screen" rel="stylesheet" type="text/css">
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>DASHBOARD</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select id="cboCC" class="form-control" multiple="multiple"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcontratista</span>
+                                <select id="cboSubContratista" class="form-control" multiple="multiple"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Especialidades</span>
+                                <select id="cboEspecialidad" class="form-control" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio: </span>
+                                <input type="text" name="" id="fechaFiltroInicio" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Fin: </span>
+                                <input type="text" name="" id="fechaFiltroFin" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estado</span>
+                                <select id="selectEstado" class="form-control"></select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-3 mrgTop">
+                            <div class="input-group">
+                                <span class="input-group-addon">Municipios</span>
+                                <select id="selectMunicipio" class="form-control"></select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6 mrgTop">
+                            <button id="btnBuscar" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                            <button id="btnFiltroExportar" class="btn btn-success">Excel</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div id="divTabs">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#tabGeneral" aria-controls="tabGeneral" role="tab" data-toggle="tab">General</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabDetalle" aria-controls="tabDetalle" role="tab" data-toggle="tab">Detalle</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabReporte" aria-controls="tabReporte" role="tab" data-toggle="tab">Reporte
+                                Ejecutivo</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <!-- Tab GENERAL-->
+                        <div role="tabpanel" class="tab-pane fade in active" id="tabGeneral" style="margin-bottom: 100px;">
+                            <div class=" row margin-top" style="display: none;">
+                                <!-- Panel Cumplimiento Global -->
+                                <div class="col-xs-12 col-md-12">
+                                    <div class="panel-group">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#panelCumplimientoGlobalSubcontratista">
+                                                        <i class="fas fa-globe-americas"></i>
+                                                        CUMPLIMIENTO GLOBAL DE SUBCONTRATISTA
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="panelCumplimientoGlobalSubcontratista" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="row">
+
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top" style="display: none;">
+                                <!-- Panel Cumplimiento Global Elementos -->
+                                <div class="col-xs-12 col-md-12">
+                                    <div class="panel-group">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#panelCumplimientoGlobalElementos">
+                                                        <i class="fas fa-globe-americas"></i>
+                                                        CUMPLIMIENTO GLOBAL POR ELEMENTOS
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="panelCumplimientoGlobalElementos" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="row">
+
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top" style="display: none;">
+                                <!-- Panel Cumplimiento Global Evaluacion -->
+                                <div class="col-xs-12 col-md-12">
+                                    <div class="panel-group">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#panelCumplimientoGlobalEvaluacion">
+                                                        <i class="fas fa-globe-americas"></i>
+                                                        CUMPLIMIENTO GLOBAL POR EVALUACIÓN
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="panelCumplimientoGlobalEvaluacion" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divGraficasGenerales">
+                                <div class="row margin-top">
+                                    <div class="col-xs-12 col-md-12">
+                                        <div class="panel-group">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="#panelCumplimientoGlobalSubcontratista">
+                                                            <i class="fas fa-globe-americas"></i>
+                                                            CUMPLIMIENTO GLOBAL DE SUBCONTRATISTA
+                                                        </a>
+                                                        <button id="botonConsultarCumplimientoGlobalSubcontratista" class="btn btn-xs btn-default pull-right" data-elemento="P1">Consultar</button>
+                                                    </h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div id="chartPorcentajeCumplimientoGlobalSubcontratista"></div>
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top">
+                                    <div class="col-xs-12 col-md-12">
+                                        <div class="panel-group">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="#panelCumplimientoGlobalElementos">
+                                                            <i class="fas fa-globe-americas"></i>
+                                                            CUMPLIMIENTO GLOBAL POR ELEMENTOS
+                                                        </a>
+                                                        <button id="botonConsultarCumplimientoGlobalElementos" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                    </h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div id="chartPorcentajeCumplimientoGlobalElementos"></div>
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row margin-top">
+                                    <div class="col-xs-12 col-md-12">
+                                        <div class="panel-group">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" href="#panelCumplimientoGlobalEvaluacion">
+                                                            <i class="fas fa-globe-americas"></i>
+                                                            CUMPLIMIENTO GLOBAL POR EVALUACIÓN
+                                                        </a>
+                                                        <button id="botonConsultaCumplimientoGlobalEvaluacion" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                    </h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div id="chartPorcentajeCumplimientoGlobalEvaluacion"></div>
+                                                    </div>
+                                                    <hr>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- tab DETALLE -->
+                        <div role="tabpanel" class="tab-pane fade" id="tabDetalle" style="margin-bottom: 100px;">
+                        </div>
+
+                        <!-- tab REPORTE -->
+                        <div role="tabpanel" class="tab-pane fade" id="tabReporte" style="margin-bottom: 100px;">
+                            <div class="row margin-top" style="margin-bottom: 100px;">
+                                <!-- Panel Reporte Ejecutivo -->
+                                <div class="col-xs-12 col-md-12">
+                                    <div class="panel-group">
+                                        <div class="panel panel-primary oculto" id="div-estadisticas">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" href="#panelReporteEjecutivo">
+                                                        <i class="fas fa-list-alt"></i>
+                                                        Reporte Ejecutivo
+                                                    </a>
+                                                    <button id="botonConsultarReporteEjecutivo" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                </h4>
+                                            </div>
+                                            <div id="panelReporteEjecutivo" class="panel-collapse collapse">
+                                                <div class="panel-body">
+
+
+
+                                                    <table id="tblReporteEjecutivo" class="table table-condensed table-hover table-striped text-center">
+                                                        <button id="botonExportarExcel" class="btn botonExcel pull-right">
+                                                            <i class="far fa-file-excel"></i> Exportar
+                                                        </button>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/Scripts/moment-with-locales.js"></script>
+    <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+    <script src="~/Scripts/select2.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+    <script src="~/Scripts/starrr.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+    <script src="~/Scripts/js/SubContratistas/Evaluacion/Dashboard.js"></script>

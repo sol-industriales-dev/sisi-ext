@@ -1,0 +1,282 @@
+﻿@{
+    ViewBag.Title = "Reporte de Aditivas y Deductivas De Personal";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<link href='~/Content/select2.css' rel='stylesheet' />
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/AditivaPersonal/AltasAdvs.js"></script>
+<script src="~/Scripts/Utilities/Utilities.js"></script>
+<script src='~/Scripts/select2.js'></script>
+
+<style>
+    .categorias {
+        display: none !important;
+    }
+</style>
+
+<di class="container-fluid">
+
+    <div class="row">
+        <h1 class="text-center">Aditiva Personal</h1>
+        <h2 class="text-center" id="hFolio"></h2>
+    </div>
+
+
+    @*raguilar 21/11/17 Trabajo diseño y inicializacion script*@
+
+    <div id="divInfoCambio" class="row">
+        <div class="col-lg-12" id="Html_padre">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Formato:</legend>
+                <div class="col-md-10">
+
+                    <input type="number" class="hidden" id="idFormatoAditivaDeductiva" value="@ViewBag.idFormatoAditivaDeductiva">
+                    @*<input type="number" class="hidden" id="FormatoId" value="@ViewBag.IdFormato">*@
+
+                    <table class=" table table-condensed table-hover table-striped text-center">
+
+                        <tbody>
+                            <tr>
+                                <td class="col-lg-2">Centro De Costos:</td>
+                                <td>
+                                    <div class="col-lg-12">
+                                        <select class="form-control no-padding" id="cboCC" style="width:100%;"></select>
+                                    </div>
+                                </td>
+                                <td class="col-lg-1">Fecha de Solicitud:</td>
+                                <td>
+                                    <div class="col-lg-12">
+                                        <input type="text" id="fechaIni" class="form-control" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                    <button type="button" id="addPlantilla" class="pull-left" style="font-size:medium; margin-bottom:3px;">
+                        <span class="glyphicon glyphicon-plus"></span> Agregar Puesto </button>
+
+                    <button type="button" id="addPuesto" class="pull-left" style="font-size:medium; margin-bottom:3px; margin-left:5px;">
+                        <span class="glyphicon glyphicon-user"></span> Nuevo Puesto
+                    </button>
+
+                    <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%;" border="1" id="tablaPadre">
+
+                        <thead class="bg-table-header table-responsive" style="text-align:center">
+                            <tr>
+                                <th rowspan="2">Puesto</th>
+                                <th rowspan="2" style="display: none;">Categoria</th>
+                                <th colspan="4" style="text-align: center">STAFFING GUIDE EN GENERAL DETALLADO</th>
+                                <th rowspan="2" style="text-align:center">Personal<br />Total Requerido</th>
+                                <th rowspan="2">Aditiva</th>
+                                <th rowspan="2">Deductiva</th>
+                                <th rowspan="2">Justificación</th>
+                                <th rowspan="2">Remover</th>
+                            </tr>
+                            <tr>
+                                <th>Personal Necesario</th>
+                                <th>Personal Existente</th>
+                                <th>Personal Faltante</th>
+                                <th>Lugares/Plant.</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tblPlantilla">
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row divJustificacion" style="display:block;">
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 margin-top">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Consideraciones iniciales de la obra/proyecto
+                </legend>
+                <textarea id="txtCondicionInicial" rows="3" style="width:100%;" placeholder=" "></textarea>
+            </fieldset>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 margin-top">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Condiciones actuales de la obra/proyecto
+                </legend>
+                <textarea id="txtCondicionActual" rows="3" style="width:100%;" placeholder=" "></textarea>
+            </fieldset>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group otraJustificacion">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Soporte de aditiva / deductiva de personal:
+                </legend>
+                <textarea id="txtOtraJustificacion" rows="3" style="width:100%;" placeholder=" "></textarea>
+            </fieldset>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <label for="fuEvidencia">Evidencia:</label>
+            <input type="file" id="fuEvidencia" class="form-control" style="background: white;" />
+        </div>
+    </div>
+
+    <div id="divAceptacion" class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Aceptación</legend>
+
+                <div class="col-sm-12">
+                    <table class=" table table-condensed table-hover table-striped text-center">
+
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th class="col-sm-6">Solicita:</th>
+                                <th class="col-sm-4">Puesto:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                                <td><input class="form-control" id="selAutSolicita" placeholder="*"> </td>
+                                <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos</label></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    <table class=" table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th class="col-sm-6">VoBo:</th>
+                                <th class="col-sm-4">Puesto:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input class="form-control" id="selAutVoBo" placeholder="*"> </td>
+                                <td class="text-center" style="vertical-align: middle;"><label>Capital Humano</label></td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    <table class=" table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                            <label> Autoriza 1:</label>
+                                        </div>
+
+                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;">
+                                            <input type="checkbox" class="form-control" style="height:20px;right: 30px;" id="btnAutorizaCck1">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;">
+                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza1" placeholder="N/R"> </td>
+                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Gerente/SubDirector/Director de Área</label></td>
+
+                            </tr>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza12" placeholder="N/R"> </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class=" table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                            <label> Autoriza 2:</label>
+                                        </div>
+
+                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;">
+                                            <input type="checkbox" class="form-control" style="height:20px;right: 30px;" id="btnAutorizaCck2">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;">
+                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="col-sm-4">Puesto:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza2" placeholder="N/R"> </td>
+                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Director de Línea de Negocios</label></td>
+
+                            </tr>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza22" placeholder="N/R"> </td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                    <table class=" table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                            <label> Autoriza 3:</label>
+                                        </div>
+
+                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;">
+                                            <input type="checkbox" class="form-control" style="height:20px;right: 30px;" id="btnAutorizaCck3">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;">
+                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th class="col-sm-4">Puesto:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza3" placeholder="N/R"> </td>
+                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Alta Dirección</label></td>
+
+                            </tr>
+                            <tr>
+                                <td><input class="form-control" id="selAutoriza32" placeholder="N/R"> </td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+
+    <div id="divInfoUsuario" class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Acciones</legend>
+
+                <div class="col-md-12 text-right">
+                    <button class="btn btn-default" id="btnSolicitarAp">Guardar</button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    @Html.Partial("reportViewerView", false)

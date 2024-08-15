@@ -1,0 +1,161 @@
+﻿@{
+    ViewBag.Title = "Reporte Adeudo Insituticion Financiera.";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@* Styles CSS *@
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/select2/select2.css" rel="stylesheet" />
+
+<input type="hidden" id="txtEmpresaActual" value="@ViewBag.EmpresaActual" />
+
+@Html.Partial("reportViewerView", false)
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <h3>Reporte detalle de Adeudo Por Equipos</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="col-sm-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Institución</span>
+                        <select id="comboInstituciones" class="form-control" multiple></select>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Moneda:</span>
+                        <select id="comboTipoMoneda" class="form-control">
+                            @switch ((int)ViewBag.EmpresaActual)
+                            {
+                                case 1:
+                                    <option value="1">Moneda Nacional(MXN)</option>
+                                    <option value="2">Dolares(USD DLL)</option>
+                                    break;
+                                case 2:
+                                    <option value="1">Moneda Nacional(MXN)</option>
+                                    <option value="2">Dolares(USD DLL)</option>
+                                    break;
+                                case 3:
+                                    break;
+                                case 6:
+                                    <option value="1">Moneda Nacional(SOL)</option>
+                                    <option value="2">Dolares(USD DLL)</option>
+                                    break;
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-2 col-lg-2">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha</span>
+                        <input class="form-control" id="inputFecha" />
+                    </div>
+                </div>
+                <div class="col-sm-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Tipo</span>
+                        <select class="form-control" id="comboTipoArre" multiple>
+                            <option value="false">Arrendamiento Financiero</option>
+                            <option value="true">Arrendamiento Puro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-lg-1">
+                    <div class="input-group">
+                        <span class="input-group-addon">Detalle</span>
+                        <input type="checkbox" class="form-control" style="height:23px !important; width:26px !important; " id="checkDetalle" />
+                    </div>
+                </div>
+                <div class="col-sm-3 col-lg-2 pull-right margin-top">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="btnBusqueda">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary" id="btnPrintReporte">
+                            <i class="far fa-file-pdf"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 mrgTop">
+            <table id="tblReporteAdedudo" class="hover stripe order-column compact" style="width:100%;font-size: 10px;">
+                <thead style="background: #E67E22;">
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Totales:</th>
+                        <th></th>
+                        <th></th>
+                        <th ></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr> <!-- class="text-right" -->
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@* Zona JS *@
+<script src="~/Scripts/Utilities/select2/select2.min.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Contratos/ReporteDeAdeudoDetalle.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

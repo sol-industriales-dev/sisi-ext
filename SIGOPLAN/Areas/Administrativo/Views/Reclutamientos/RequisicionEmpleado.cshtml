@@ -1,0 +1,302 @@
+﻿@{
+    ViewBag.Title = "Requisiciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+
+    var puedeAutorizarMasivo = (bool)ViewBag.AutorizacionMasivaActiva;
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Reclutamientos/RequisicionEmpleado.css" rel="stylesheet" />
+<link href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" type="text/css" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">REQUISICIÓN DE EMPLEADOS</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">CC</div>
+                                <select id="cboFiltroCC" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">ESTATUS</div>
+                                <select id="cboFiltroEstatus" class="form-control">
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="A">AUTORIZADA</option>
+                                    <option value="P" selected>PENDIENTE</option>
+                                    <option value="C">CANCELADA</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <button id="btnFiltrar" class="btn btn-info">
+                                <i class="fas fa-search"></i> FILTRAR
+                            </button>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <button id="btnNuevo" class="btn btn-success pull-right"><i class="fas fa-plus-circle"></i>&nbsp;AGREGAR</button>
+                            @if(puedeAutorizarMasivo) {
+                                <button id="btnAutorizarMasivo" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fas fa-user-check"></i>&nbsp;AUTORIZAR</button>
+                            } else {
+
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsible">
+                                <table id="tblRequisiciones" class="hover stripe order-column compact" style="width: 100%;"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalRequisicion" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modalRequisicionTitulo">REQUISICIÓN</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputId" class="col-sm-3 control-label">ID Requisición:</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="inputId" autocomplete="off" disabled>
+                        </div>
+
+                        <label for="inputEstatus" class="col-sm-3 control-label">Estatus:</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="inputEstatus" autocomplete="off" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboCC" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Centro de costos:</label>
+                        <div class="col-sm-9">
+                            <select type="text" class="form-control" id="cboCC" autocomplete="off"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputPlantilla" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Plantilla:</label>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="inputPlantilla" autocomplete="off" disabled>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" id="btnPlantilla">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <label for="inputVacantes" class="col-sm-5 control-label"><span class="puntoRojo">*</span>Vacantes a Cubrir:</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="inputVacantes" autocomplete="off" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputPuesto" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Puesto:</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="inputPuesto" autocomplete="off" disabled>
+                        </div>
+
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="inputPuestoDescripcion" autocomplete="off" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboGrupo" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Categoria:</label>
+                        <div class="col-sm-3">
+                            @* <input type="text" class="form-control" id="inputJefe" autocomplete="off"> *@
+                            <select class="form-control" id="cboCategoria"></select>
+                        </div>
+
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <div class="input-group-addon">Tipo nomina</div>
+                                <input type="text" class="form-control" id="inputSueldoTipoNomina" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Sueldo</label>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">Base</div>
+                                <input type="text" class="form-control" id="inputSueldoBase" disabled>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">Complemento</div>
+                                <input type="text" class="form-control" id="inputSueldoComplemento" disabled>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-addon">Total nominal</div>
+                                <input type="text" class="form-control" id="inputSueldoTotalNominal" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputJefe" class="col-sm-3 control-label"><span class="puntoRojo">*</span>RESPONSABLE DE CC:</label>
+                        <div class="col-sm-9">
+                            @* <input type="text" class="form-control" id="inputJefe" autocomplete="off"> *@
+                            <select class="form-control" id="inputJefe"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputSolicita" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Solicita:</label>
+                        <div class="col-sm-9">
+                            @* <input type="text" class="form-control" id="inputSolicita" autocomplete="off"> *@
+                            <select class="form-control" id="inputSolicita" disabled="disabled"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputAutoriza" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Autoriza:</label>
+                        <div class="col-sm-9">
+                            @* <input type="text" class="form-control" id="inputAutoriza" autocomplete="off"> *@
+                            <select class="form-control" id="inputAutoriza"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboTipoContrato" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Tipo de Contrato:</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="cboTipoContrato"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputFechaContratacion" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Fecha de elaboración:</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="inputFechaContratacion" autocomplete="off" disabled="disabled">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboRazonSolicitud" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Razón de la Solicitud:</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" id="cboRazonSolicitud"></select>
+                        </div>
+                        <div id="divRemplazoFecha" style="display:none;">
+                            <label for="inputFechaBaja" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Fecha de Baja:</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="inputFechaBaja" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divRemplazoEmpleado" class="form-group" style="display:none;">
+                        <label for="txtEmpleadoRemplazar" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Empleado a Remplazar:</label>
+                        <div class="col-sm-3">
+                            <input class="form-control" id="txtNumEmpleadoRemplazar" disabled>
+                        </div>
+                        <div class="col-sm-6">
+                            <input class="form-control" id="txtEmpleadoRemplazar">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputFechaVigencia" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Fecha Vigencia:</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="inputFechaVigencia" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6 pull-right control-label"><span class="puntoRojo">* CAMPOS OBLIGATORIOS</span></label>
+                    </div>
+
+                    <div id="divComentarioRechazo" class="form-group">
+                        <label for="textAreaComentarioRechazo" class="col-sm-3 control-label"><span class="puntoRojo">*</span>Comentario Rechazo:</label>
+                        <div class="col-sm-9">
+                            <textarea id="textAreaComentarioRechazo" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+
+                <button type="button" class="btn btn-success" id="btnAutorizar" style="display: none;">
+                    <i class="fas fa-user-check"></i> AUTORIZAR
+                </button>
+
+                <button type="button" class="btn btn-warning" id="btnRechazar" style="display: none;">
+                    <i class="fas fa-user-times"></i> CANCELAR
+                </button>
+
+                <button type="button" class="btn btn-success" id="btnGuardar" style="display: none;"><i class="fa fa-save"></i> GUARDAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPlantilla" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>PLANTILLA <span id="ccPlantilla"></span></h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsible">
+                            <table id="tblPlantilla" class="hover stripe order-column compact" style="width: 100%;"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/RequisicionEmpleado.js"></script>
+<script src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js" type="text/javascript"></script>

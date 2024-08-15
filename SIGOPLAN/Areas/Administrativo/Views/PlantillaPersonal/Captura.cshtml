@@ -1,0 +1,210 @@
+﻿ 
+@{
+    ViewBag.Title = "Captura";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/default/easyui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/PlantillaPersonal/Captura.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+
+<div class="row">
+    <h2 class="text-center">Captura Plantilla Personal</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Datos:</legend>
+            <div class="col-md-3">
+                <label>Centro Costos:</label>
+                <select class="form-control no-padding" id="cboCC"></select>
+            </div>
+            <div class="col-md-3">
+                <label>Fecha Inicio:</label>
+                <input type="text" class="form-control no-padding" id="txtFechaInicio"/>
+            </div>
+            <div class="col-md-3">
+                <label>Fecha Fin:</label>
+                <input type="text" class="form-control no-padding" id="txtFechaFin"/>
+            </div>
+            <div class="col-md-1" style="display:none;">
+                <button type="button" class="btn btn-info margin-top" id="btnBuscar">
+                    <span class="glyphicon glyphicon-search"></span> Cargar
+                </button>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-info margin-top" id="btnGuardar">
+                    <span class="glyphicon glyphicon-floppy-save"></span> Guardar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divFilstroBusqueda">
+        <fieldset class="fieldset-custm">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="btnAgregar" class="btn btn-primary" style="position:relative;float:left;top:-8px;">Nuevo</button>
+                    <h3 class="panel-title text-center" style="font-weight: bold;">
+                        Plantilla
+                    </h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tblData" class="display bg" width="100%">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>ID</th>
+                                <th>PUESTO</th>
+                                <th>DEPTO</th>
+                                <th>NÓMINA</th>
+                                <th>PERSONAL<br />NECESARIO</th>
+                                <th>SUELDO BASE</th>
+                                <th>COMPLEMENTO</th>
+                                <th>TOTAL NÓMINA</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 id="totalPersonalNecesario">Total personal necesario: 0</h3>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div id="divAceptacion" class="row">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Aceptación</legend>
+
+            <div class="col-sm-12">
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-sm-6">Solicita:</th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutSolicita" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Responsable del Centro de Costos" data-orden="1" placeholder="*"> </td>
+                            <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos</label></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-sm-6">VoBo:</th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutVoBo" data-id="" data-nombre="" data-tipo="VoBo" data-puesto="Capital Humano" data-orden="6" placeholder="*"> </td>
+                            <td class="text-center" style="vertical-align: middle;"><label>Capital Humano</label></td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                        <label> Autoriza 1:</label>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutoriza11" data-id="" data-nombre="" data-tipo="Autoriza 1" data-puesto="Director de Línea de Negocios 1" data-orden="2" placeholder="N/R"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Director de Línea de Negocios</label></td>
+                        </tr>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutoriza12" data-id="" data-nombre="" data-tipo="Autoriza 1" data-puesto="Director de Línea de Negocios 2" data-orden="3" placeholder="N/R"> </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                        <label> Autoriza 2:</label>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutoriza21" data-id="" data-nombre="" data-tipo="Autoriza 2" data-puesto="Alta Dirección 1" data-orden="4" placeholder="N/R"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Alta Dirección</label></td>
+                        </tr>
+                        <tr>
+                            <td><input class="form-control autoriza" id="selAutoriza22" data-id="" data-nombre="" data-tipo="Autoriza 2" data-puesto="Alta Dirección 2" data-orden="5" placeholder="N/R"> </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </fieldset>
+    </div>
+</div>
+<div id="dialogCargar" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    Alerta
+                </h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class='row'>
+                    <div class='col-md-12'>
+                        <h3>¡Si continua se borraran los datos que no haya guardado!<br />¿Desea continuar?</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnContinuar" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Confirmar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "Expediente Digital";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Catalogos/AnexosMaquinariaStyle.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://cdn.datatables.net/colreorder/1.5.6/css/colReorder.dataTables.min.css"/>
+
+<style>
+    table thead {
+        font-size: 9px !important;
+        background-color: lightgray !important;
+        color: #000 !important;
+    }
+
+    #tablaExpedientes_wrapper tbody tr td {
+        vertical-align: middle;
+    }
+
+    .botonRedondo {
+        border-radius: 50px;
+    }
+
+    #tablaExpedientes_wrapper {
+        font-size: 12px !important;
+    }
+
+    table.dataTable {
+        font-size: 9px !important;
+    }
+
+    /* DISEÑO SELECT2 */
+    .select2-selection__rendered {
+        line-height: 31px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 35px !important;
+    }
+
+    .select2-selection__arrow {
+        height: 34px !important;
+    }
+
+    /* END: DISEÑO SELECT2 */
+</style>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h3>EXPEDIENTE DE DOCUMENTOS</h3>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Expediente Digital:</legend>
+
+                <div class="col-sm-1" style="text-align: center;">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">Activos</span>
+                        <button class="btn btn-xs btn-success botonRedondo" disabled><i class="fa fa-check"></i></button>
+                    </div>
+                </div>
+                <div class="col-sm-1" style="text-align: center;">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">Pendientes</span>
+                        <button class="btn btn-xs btn-warning botonRedondo" disabled><i class="fa fa-file"></i></button>
+                    </div>
+                </div>
+                <!-- <div class="col-sm-3" style="text-align: center;">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">No Aplica</span>
+                        <button class="btn btn-xs btn-default botonRedondo" disabled><i class="fa fa-times"></i></button>
+                    </div>
+                </div> -->
+                <div class="col-sm-3">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">Empleados</span>
+                        <select style="width: 100%;" name="" id="chkFiltroEsPendiente" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">CC</span>
+                        <select class="form-control" id="selectCC" style="width: 100%; height: 33.99px"></select>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="input-group" style="margin-top: 21px;">
+                        <span class="input-group-addon">Estatus</span>
+                        <select class="form-control" id="cboFiltroEstatus" style="width: 100%; height: 33.99px" multiple>
+                            <option value="Todos">TODOS</option>
+                            <option value="1">Completo</option>
+                            <option value="2">Parcial</option>
+                            <option value="0">Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <button id="botonBuscar" class="btn btn-success " style="margin-top: 21px;"></i>Buscar</button>
+                    <!-- <button id="botonAgregar" class="btn btn-primary pull-right" style="margin-top: 21px;"><i class="fa fa-plus"></i>&nbsp;Agregar</button> -->
+                    @if (baseController.getEmpresaID() == 6)
+                    {
+                        <button id="botonDescargar" class="btn btn-primary" style="margin-top: 21px;"><i class="fa fa-download"></i> Descargar</button>
+                    }
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Documentos por empleado</legend>
+                <table id="tablaExpedientes" class='display compact' style="width:100%"></table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="modal fade" id="modalCaptura">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Expediente Digital</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>Clave Empleado:</label>
+                        <input id="inputClaveEmpleado" class="form-control">
+                    </div>
+                    <div class="col-sm-10" style="padding-left: 0px;">
+                        <input id="inputNombreEmpleado" class="form-control" disabled style="margin-top: 25px;">
+                    </div>
+                    <!-- <div class="col-sm-5">
+                        <label>Archivos Aplicables:</label>
+                        <select id="selectArchivoAplicable" class="form-control" multiple></select>
+                    </div> -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> <span id="txtBotonGuardar">Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHistorial">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Expediente Digital</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaHistorial" class="table compact hover nowrap" style="width: 100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_menuClick")
+@Html.Action("_visorGrid")
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/ExpedienteDigital.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='https://cdn.datatables.net/colreorder/1.5.6/js/dataTables.colReorder.min.js'></script>

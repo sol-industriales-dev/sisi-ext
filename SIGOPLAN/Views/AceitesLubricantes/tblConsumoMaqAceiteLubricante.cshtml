@@ -1,0 +1,159 @@
+﻿@model List<Core.Entity.Maquinaria.Captura.tblM_MaquinariaAceitesLubricantes>
+<link href="~/Content/style/css/Captura/AceitesLubricantes.css" rel="stylesheet" />
+<div class="table-responsive">
+    <table id="tblConsumo" class="table table-condensed table-hover table-striped margin-top table-fixed">
+        <thead class="bg-table-header">
+            <tr>
+                <th rowspan="2" style="width: 120px;">ECONOMICO</th>
+                <th rowspan="2">ANTIFREEZE</th>
+                <th rowspan="2" style="width: 92px">MOTOR</th>
+                <th rowspan="2">TRANSMISIÓN</th>
+                <th rowspan="2">HIDRAULICO</th>
+                <th rowspan="2">DIFERENCIAL</th>
+                <th>M. F. T.</th>
+                <th rowspan="2">DIR</th>
+                <th rowspan="2">GRASA</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    var desabilitado = ViewBag.turno == item.Turno && ViewBag.fecha == DateTime.Now ? "" : "disabled";
+                    <tr>
+                        <td>
+                            <div hidden><input class="hddnAddid" value="row.id" /><input class="hddnAddturno" value="row.Turno" /><input class="hddnAddfecha" value="row.Fecha" /></div>
+                            <select class="cboAddEconomico" desabilitado></select>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="radioBtn btn-group">
+                                    <a class="btn btn-xs" desabilitado>Sí</a>
+                                    <a class="btn btn-xs" desabilitado>No</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="radioBtn btn-group">
+                                    <a class="btn btn-xs @(item.Sopleteo ? "btn-success" : "btn-default")" desabilitado>Sí</a>
+                                    <a class="btn btn-xs @(!item.Sopleteo ? "btn-danger" : "btn-default")" desabilitado>No</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="radioBtn btn-group">
+                                    <a class="btn btn-xs @(item.AK ? "btn-success" : "btn-default")" desabilitado>Sí</a>
+                                    <a class="btn btn-xs @(!item.AK ? "btn-danger" : "btn-default")" desabilitado>No</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="radioBtn btn-group">
+                                    <a class="btn btn-xs @(item.Lubricacion? "btn-success" : "btn-default")" desabilitado>Sí</a>
+                                    <a class="btn btn-xs @(!item.Lubricacion ? "btn-danger" : "btn-default")" desabilitado>No</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <input type="text" class="txtAddAntiFreeze" style="width: 100%; height: 50px;" desabilitado />
+                                @string.Format("{0} L", item.Antifreeze)
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div>
+                                    <select class="cboAddMotor" desabilitado></select>
+                                    <label>@item.MotorId</label>
+                                </div>
+                                <div>
+                                    <input type="text" class="txtAddMotor" style="width: 100%;" desabilitado />
+                                    @string.Format("{0} L", item.MotorVal)
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div>
+                                    <select class="cboAddTransmision" desabilitado></select>
+                                    <label>@item.TransmisionID</label>
+                                </div>
+                                <div>
+                                    <input type="text" class="txtAddTransmision" style="width: 100%;" desabilitado />
+                                    @string.Format("{0} L", item.TransmisionVal)
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div>
+                                    <select class="cboAddHidraulico" desabilitado></select>
+                                    <label>@item.HidraulicoVal</label>
+                                </div>
+                                <div>
+                                    <input type="text" class="txtAddHidraulico" style="width: 100%;" desabilitado />
+                                    @string.Format("{0} L", item.HidraulicoVal)
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div>
+                                    <select class="cboAddDiferencial" desabilitado></select>
+                                    <label>@item.DiferencialId</label>
+                                </div>
+                                <div>
+                                    <input type="text" class="txtAddDiferencial" style="width: 100%;" desabilitado />
+                                    @string.Format("{0} L", item.DiferencialVal)
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <select class="cboAddMFTIzq" style=" width: 50%; float:left;" desabilitado></select>
+                                <select class="cboAddMFTDer" style="width: 50%;" desabilitado></select>
+                                <label>@item.MFTIzqId - @item.MDDerID</label>
+                            </div>
+                            <input type="text" class="txtAddMFTIzq" style=" width: 50%; float:left;" desabilitado>
+                            <input type="text" class="txtAddMFTDer" style=" width: 50%;" desabilitado>
+                            @string.Format("{0} L - {1} L", item.MFTIzqVal, item.MDDerVal)
+                        </td>
+                        <td>
+                            <div>
+                                <select class="cboAddMDIzq" style=" width: 50%; float:left;" desabilitado></select>
+                                <select class="cboAddMDDer" style="width: 50%;" desabilitado></select>
+                                <label>@item.MDIzqID - @item.MDDerID</label>
+                            </div>
+                            <input type="text" class="txtAddMDIzq" style=" width: 50%; float:left;" desabilitado>
+                            <input type="text" class="txtAddMDDer" style=" width: 50%;" desabilitado>
+                            @string.Format("{0} L - {1} L", item.MDIzqVal, item.MDDerVal)
+                        </td>
+                        <td>
+                            <div>
+                                <select class="cboAddDir" desabilitado></select>
+                                <label>@item.DirId</label>
+                            </div>
+                            <div>
+                                <input type="text" class="txtAddDir" style="width: 100%;" desabilitado />
+                                @string.Format("{0} L", item.DirVal)
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" class="txtAddGrasa" style="width: 100%; height: 50px;" desabilitado />
+                            @string.Format("{0:P2}", item.Grasa)
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="15" class="no-results">No se encontró información</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+

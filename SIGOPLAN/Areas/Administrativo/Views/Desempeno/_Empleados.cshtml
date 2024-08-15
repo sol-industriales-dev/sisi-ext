@@ -1,0 +1,267 @@
+﻿@{
+    Layout = null;
+}
+
+<style> 
+    .dropdown-menu {
+        background-color: #fff !important;
+    }
+
+    .swal-wide {
+        width: 550px !important;
+    }
+</style>
+
+<link href="~/Content/style/css/RecursosHumanos/Desempeno/_Empleados.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker-es.min.css" rel="stylesheet" />
+
+<div class="col-sm-12">
+    <ul class="nav nav-tabs nav-justified" role="tablist">
+        <li role="presentation" class="active"><a href="#tabEmpleados" aria-controls="tabEmpleados" role="tab" data-toggle="tab">Empleados</a></li>
+        <li role="presentation"><a href="#tabProcesos" aria-controls="tabProcesos" role="tab" data-toggle="tab">Procesos</a></li>
+        @*<li role="presentation"><a href="#tabEvaluaciones" aria-controls="tabEvaluaciones" role="tab" data-toggle="tab">Evaluaciones</a></li>*@
+    </ul>
+
+    <br />
+
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade in active" id="tabEmpleados">
+            <div class="form-inline">
+                <label for="cbEstatus">Estatus&nbsp;</label>
+                <select id="cbEstatus" class="text-center form-control" name="cbEstatus">
+                    <option value="1" selected>Activo</option>
+                    <option value="0">Desactivado</option>
+                </select>&nbsp;
+
+                <button class="btn btn-primary" id="buscarEmpleado"><i class="fas fa-search"></i> Buscar</button>&nbsp;
+                <button class="btn btn-primary" id="agregarEmpleado"><i class="fas fa-plus"></i> Agregar Empleado</button>
+            </div>
+
+            <br />
+            
+            <div @*class="table-responsive"*@>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblEmpleados" class="hover stripe order-column"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="tabProcesos">
+            <div class="form-inline">
+                <button class="btn btn-primary form-control" id="btnAgregarProceso"><i class="fas fa-plus"></i> Proceso</button>
+            </div>
+
+            <br />
+
+            <div class="table-responsive">
+                <table id="tblProcesos" class="hover stripe order-column"></table>
+            </div>
+        </div>
+        @*<div role="tabpanel" class="tab-pane fade" id="tabEvaluaciones">
+            <div class="table-responsive">
+                <table id="tblEvaluaciones" class="hover stripe oder-column"></table>
+            </div>
+        </div>*@
+    </div>
+</div>
+
+<div class="modal fade-in" id="modalAltaEmpleado" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>*@
+                <div class="text-center">
+                    <h3 class="titleHeader">Alta de Empleado</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label>Empleado:</label>
+                        <input class="form-control" id="txtEmpleado" type="text" maxlength="100">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Jefe:</label>
+                        <input class="form-control" id="txtJefe" type="text" maxlength="100" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Privilegios:</label>
+                        <select id="cbTipo" class="text-center form-control" name="cbTipo">
+                            <option value="3" selected>Regular</option>
+                            <option value="1">Administrador</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <button type="button" class="btn btn-default margin-top" data-dismiss="modal">
+                            <i class="fas fa-undo"></i> Cancelar
+                        </button>
+                        <button class="btn btn-primary margin-top" id="guardarEmpleado">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade-in" id="modalAgregarProceso">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Agregar proceso</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label>Proceso</label>
+                            <input type="text" class="form-control" id="txtProceso">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de inicio</label>
+                            <input type="text" class="form-control" id="txtFechaInicioProceso" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Fecha de finalización</label>
+                            <input type="text" class="form-control" id="txtFechaFinProceso" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <hr />
+                    </div>
+                </div>
+                <div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label><i class="fas fa-circle text-center" style="color:#ff3939;"></i></label>
+                            <label>0.00 - 70.00% Bajo.</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label><i class="fas fa-circle text-center" style="color:#ff6a00;"></i></label>
+                            <label>70.01 - 80.00% Regular.</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label><i class="fas fa-circle text-center" style="color:#ffd93b;"></i></label>
+                            <label>80.01 - 85.00% Bueno.</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label><i class="fas fa-circle text-center" style="color:#bdd262;"></i></label>
+                            <label>85.01 - 90.00% Muy bueno.</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label><i class="fas fa-circle text-center" style="color:#36bcc2;"></i></label>
+                            <label>90.01 - 100.00% Sobresaliente.</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-success" id="btnRegistrarProceso">
+                    <i class="fas fa-check"></i> Registrar
+                </button>
+                <button type="button" class="btn btn-success" id="btnActualizarProceso" data-id="">
+                    <i class="fas fa-check"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade-in" id="modalEvaluacionesPorProceso">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>*@
+                <h3 class="modal-title">Evaluaciones</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-inline">
+                    <button class="btn btn-primary form-control" id="btnAgregarEvaluacionPorProceso" data-toggle="collapse" data-target="#divAgregarEvaluacion" aria-expanded="false" aria-controls="divAgregarEvaluacion">
+                        <i class="fas fa-plus"></i> Evaluación
+                    </button>
+                </div>
+
+                <div id="divAgregarEvaluacion" class="collapse">
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label>Nombre</label>&nbsp;
+                            <input type="text" class="form-control" id="txtNombreEvaluacion" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Inicio</label>&nbsp;
+                            <input type="text" class="form-control" id="txtFechaInicioEvaluacion" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Finalización</label>&nbsp;
+                            <input type="text" class="form-control" id="txtFechaFinEvaluacion" />
+                        </div>
+                        <div class="col-sm-4 text-right">
+                            <button class="btn btn-default margin-top" id="btnCancelarRegistroEvaluacion" data-toggle="collapse" data-target="#divAgregarEvaluacion" aria-expanded="true" aria-controls="divAgregarEvaluacion">
+                                <i class="fas fa-undo"></i> Cancelar
+                            </button>
+                            <button class="btn btn-success margin-top" id="btnGuardarEvaluacion" data-procesoid="" data-evaluacionid="">
+                                <i class="fas fa-check"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblEvaluacionesPorProceso" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui.js")"></script>
+<!--<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.ui.datepicker-es.js")"></script>-->
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Desempeno/_Empleados.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker-es.min.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<!--//moment-with-locales.min.js-->

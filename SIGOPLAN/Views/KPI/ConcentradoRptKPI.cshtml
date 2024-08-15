@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="col-lg-12">
+        <h2 class="text-center">Reporte KPI</h2>
+    </div>
+    <div class="col-lg-12 col-sm-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">
+                <label>Filtros: </label>
+            </legend>
+            <div class="row">
+                <div class="col-lg-4 hide" id="divNoCC">
+                    <div class="input-group">
+                        <span class="input-group-addon">Division:</span>
+                        <select class="form-control" id="txtDivision"></select>
+                    </div>
+                </div>
+                <div class="col-lg-4 id="divnocc">
+                    <div class="input-group">
+                        <span class="input-group-addon">Area Cuenta:</span>
+                        <select class="form-control" id="cboAC"></select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">Grupo:</span>
+                        <select class="form-control" id="cboGrupo"></select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">Modelo:</span>
+                        <select class="form-control" id="cboModelo"></select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha:</span>
+                        <input class="form-control" id="inputFecha" />
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                    <button id="btnBusqueda" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                <div class="col-lg-1">
+                    <button id="btnExcel" style="display:none;" class="btn btn-primary">
+                        <i class="far fa-file-excel"></i> Reporte
+                    </button>
+                </div>
+                <div class="col-lg-1">
+                    <button id="btnGuardarSemana" style="display:none;" class="btn btn-primary">
+                        <i class="fas fa-user-check"></i> Generar
+                    </button>
+                </div>
+                <div class="col-lg-1">
+
+                    <button id="btnValidar" style="display:none;" class="btn btn-primary">
+                        <i class="fas fa-user-check"></i> Validar
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-lg-12">
+        <table id="tablaKPI" class="display" cellspacing="0" width="100%">
+            <thead class="bg-table-header"></thead>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalGestion" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Generar KPI</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Caratula</legend>
+                            <div class="col-md-5 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro Costo</span>
+                                    <select id="selBusqCC" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-5 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Conciliacion:</span>
+                                    <select id="selSemanas" class="form-control"></select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-lg-12">
+                        <table id="tablaKpiGenerados" class=" table table-fixed table-hover table-responsive table-striped">
+                            <thead class="bg-table-header">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarSemana" class="btn btn-primary">
+                    <i class="fas fa-user-check"></i> Generar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src="~/Scripts/js/Maquinaria/KPI/concentradorptKPI_v2.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>

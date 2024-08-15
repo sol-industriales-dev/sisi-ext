@@ -1,0 +1,127 @@
+﻿@{
+ViewBag.Title = "Captura";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Requerimientos/Estilo.css" rel="stylesheet" />
+
+<style>
+    .ui-datepicker-calendar {
+        display: none;
+    }
+
+    .ui-datepicker {
+        z-index: 9999 !important;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Captura</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-md-3 noPadRight">
+            <label>Centro de Costo:</label>
+            <select class="form-control select2" id="selectCentroCosto"></select>
+        </div>
+        <div class="col-md-3 noPadRight">
+            <label>Clasificación:</label>
+            <select class="form-control" id="selectClasificacion"></select>
+        </div>
+        <div class="col-md-2 noPadRight">
+            <label>Requerimiento:</label>
+            <select class="form-control select2" id="selectRequerimiento"></select>
+        </div>
+        <div class="col-md-2 noPadRight">
+            <label>Estatus:</label>
+            <select class="form-control" id="selectEstatus">
+                <option value="">--Seleccione--</option>
+                <option value="1">Pendiente</option>
+                <option value="2">Completo</option>
+                <option value="3">Evaluado</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label>Responsable:</label>
+            <select class="form-control" id="selectResponsable"></select>
+        </div>
+        <div class="col-sm-3 noPadRight" style="display: none;">
+            <label>Fecha:</label>
+            <div class="input-group">
+                <input id="inputFechaInicio" class="form-control">
+                <span class="input-group-addon"></span>
+                <input id="inputFechaFin" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 20px;"><i class="fas fa-search"></i> Buscar</button>
+            <button type="button" class="btn btn-default" id="botonCargaMasiva" style="margin-top: 20px;"><i class="fa fa-file-upload"></i> Carga Masiva</button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm">Capturas:</legend>
+    <div class="row mrgTop">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary pull-right" id="botonGuardar"><i class="fas fa-save"></i> Guardar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaCapturas" class="table table-hover table-fixed table-bordered" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalCargaMasiva">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Carga Masiva</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFile" type="file">
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12" style="margin-top: 10px;">
+                        <label>Estructura de carpetas:</label>
+                        <span>Archivo ZIP -> Carpetas CC. -> Archivos Evidencia Código</span>
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <label>Tamaño máximo del archivo:</label>
+                        <span>200 MB.</span>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Mes:</label>
+                        <div class="input-group">
+                            <input id="inputFechaCapturaMasiva" class="form-control date-picker">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button id="botonGuardarCargaMasiva" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_visorGrid")
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Requerimientos/Captura.js"></script>

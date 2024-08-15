@@ -1,0 +1,156 @@
+﻿@{
+ViewBag.Title = "Dashboard";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/Administrativo/ControlPresupuestal/Estilo.css' rel='stylesheet' />
+
+<h2 style="text-align: center;">Dashboard</h2>
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Filtros</legend>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">División</span>
+                <select id="selectDivision" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">Proyecto</span>
+                <select id="selectProyecto" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="input-group">
+                <span class="input-group-addon">Tipo</span>
+                <select id="selectTipo" class="form-control">
+                    <option value="1">MAYOR</option>
+                    <option value="2">MENOR</option>
+                    <option value="3">TRANSPORTE</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">Grupo</span>
+                <select id="selectGrupo" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="input-group">
+                <span class="input-group-addon">Modelo</span>
+                <select id="selectModelo" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">Concepto</span>
+                <select id="selectConcepto" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha</span>
+                <input id="inputFechaInicial" class="form-control">
+                <span class="input-group-addon" style="padding-left: 1px !important; padding-right: 1px !important;"></span>
+                <input id="inputFechaFinal" class="form-control">
+            </div>
+        </div>  
+        <div class="col-sm-2">
+            <button id="botonBuscar" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+</fieldset>
+
+<div id="divDashboard" class="col-md-12" style="display: none; padding-left: 0px; padding-right: 0px;">
+    <fieldset class='fieldset-custm mrgTop'>
+        <div class="col-md-12 mrgTop">
+            <button class="btn btn-primary botonMeses pull-right" data-tipo="24" id="botonBuscar24EmpresaDiv">24 Meses</button>
+            <button class="btn btn-primary botonMeses pull-right" data-tipo="12" style="margin-right:5px;" id="botonBuscar12EmpresaDiv">12 Meses</button>
+            <button class="btn btn-primary botonMeses pull-right" data-tipo="actual" style="margin-right:5px;" id="botonBuscarActualEmpresaDiv">Periodo Año Actual</button>
+            <button class="btn btn-primary botonMeses pull-right" data-tipo="consultado" style="margin-right:5px;" id="botonBuscarConsultadoEmpresaDiv">Periodo Consultado</button>
+        </div>
+        <div class="col-md-12">
+            <div id="graficaEmpresaDivision" style="margin-top: 10px;"></div>
+        </div>
+        <div class="col-md-12">
+            <table id="tablaEmpresaDivision" class="table compact table-hover table-striped table-bordered text-center"></table>
+        </div>
+    </fieldset>
+    <fieldset class='fieldset-custm mrgTop'>
+        <div class="row">
+            <div class="col-md-12 mrgTop">
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="24" id="botonBuscar24Proyecto">24 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="12" style="margin-right:5px;" id="botonBuscar12Proyecto">12 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="actual" style="margin-right:5px;" id="botonBuscarActualProyecto">Periodo Año Actual</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="consultado" style="margin-right:5px;" id="botonBuscarConsultadoProyecto">Periodo Consultado</button>
+            </div>
+            <div class="col-md-12">
+                <div id="graficaProyecto" style="margin-top: 10px;"></div>
+            </div>
+            <div class="col-md-12">
+                <table id="tablaProyecto" class="table compact table-hover table-striped table-bordered text-center"></table>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class='fieldset-custm mrgTop'>
+        <div class="row">
+            <div class="col-md-12 mrgTop">
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="24" id="botonBuscar24Grupo">24 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="12" style="margin-right:5px;" id="botonBuscar12Grupo">12 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="actual" style="margin-right:5px;" id="botonBuscarActualGrupo">Periodo Año Actual</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="consultado" style="margin-right:5px;" id="botonBuscarConsultadoGrupo">Periodo Consultado</button>
+            </div>
+            <div class="col-md-12">
+                <div id="graficaModelo" style="margin-top: 10px;"></div>
+            </div>
+            <div class="col-md-12">
+                <table id="tablaModelo" class="table compact table-hover table-striped table-bordered text-center"></table>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class='fieldset-custm mrgTop'>
+        <div class="row">
+            <div class="col-md-12 mrgTop">
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="24" id="botonBuscar24Concepto">24 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="12" style="margin-right:5px;" id="botonBuscar12Concepto">12 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="actual" style="margin-right:5px;" id="botonBuscarActualConcepto">Periodo Año Actual</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="consultado" style="margin-right:5px;" id="botonBuscarConsultadoConcepto">Periodo Consultado</button>
+            </div>
+            <div class="col-md-12">
+                <div id="graficaConcepto" style="margin-top: 10px;"></div>
+            </div>
+            <div class="col-md-12">
+                <table id="tablaConcepto" class="table compact table-hover table-striped table-bordered text-center"></table>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class='fieldset-custm mrgTop' style="padding-bottom: 100px;">
+        <div class="row">
+            <div class="col-md-12 mrgTop">
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="24" id="botonBuscar24Pareto">24 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="12" style="margin-right:5px;" id="botonBuscar12Pareto">12 Meses</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="actual" style="margin-right:5px;" id="botonBuscarActualPareto">Periodo Año Actual</button>
+                <button class="btn btn-primary botonMeses pull-right" data-tipo="consultado" style="margin-right:5px;" id="botonBuscarConsultadoPareto">Periodo Consultado</button>
+            </div>
+            <div class="col-md-12">
+                <div id="graficaDiagramaParetoPresupuesto" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+
+<script src="~/Scripts/js/Administrativo/Contabilidad/ControlPresupuestal/Dashboard.js"></script>

@@ -1,0 +1,630 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/RecursosHumanos/Mural/MuralMain.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/RecursosHumanos/Mural/MuralCanvas.css")">
+<script src="~/Scripts/jscolor.js"></script>
+    <style>
+        body {
+          overflow: hidden !important; /* Hide scrollbars */
+        }
+    </style>
+<section id="sWorkSpace" class="hidden"></section>
+<section id="sMural" class="hidden"></section>
+<section id="sCanvas">
+    <div class="viewport use-engine sidebars-collapsed" hover-over-widget="false">
+        <div class="warning-bar">
+            <div class="ui-notification-bar warning" data-qa="notification-bar-qa">
+                <i class="icon">
+                    <img src="~/Content/style/css/RecursosHumanos/Mural/reconnecting.gif" alt="reconnecting" class="reconnecting-icon">
+                </i>
+                <span>Intentando reconectar...</span>
+            </div>
+        </div>
+        <div class="mural-sidebar open drag-items">
+            <div class="tabs-container">
+                <div id="focus-observer" tabindex="0" role="button"></div>
+                <div class="mural-ui-tabs-tab tab tab-text open" tabindex="-1">
+                    <h1 class="tab-title">Text</h1>
+                    <div class="tab-scroll" data-scroll-anchor="true" style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                        <h2 class="tab-description">Arrastre y suelte notas, titulos, cajas de texto o figuras.</h2>
+                        <div class="text-elements-list-container">
+                            <div class="text-elements-container">
+                                <button class="mural-ui-tabs-text-tab-text-element draggable" draggable="true" data-tipo="titulo" data-familia="texto" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="title" tabindex="0">
+                                    <div class="tooltip top tip-middle" style="margin-left: 0px;">Titulo</div>
+                                    <svg class="mute" width="70px" height="70px" viewBox="0 0 70 70" version="1.1">
+                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <g id="title-01">
+                                                <g id="Group">
+                                                    <path class="text-element-border" d="M69,1 L69,69 L1,69 L1,1 L69,1 L69,1 Z M70,0 L0,0 L0,70 L70,70 L70,0 L70,0 L70,0 Z" id="Shape" fill="#CCCCCC"></path>
+                                                    <g id="Layer_2" transform="translate(42.000000, 19.000000)" fill="#4C4C4C">
+                                                        <rect id="Rectangle-path" x="5" y="1" width="1" height="30"></rect>
+                                                        <rect id="Rectangle-path" x="0" y="0" width="5" height="1"></rect>
+                                                        <rect id="Rectangle-path" x="6" y="0" width="5" height="1"></rect>
+                                                        <rect id="Rectangle-path" x="0" y="31" width="5" height="1"></rect>
+                                                        <rect id="Rectangle-path" x="6" y="31" width="5" height="1"></rect>
+                                                    </g>
+                                                </g>
+                                                <polygon id="Page-1" fill="#4B4B4B" points="18 24 18 26 26 26 26 45 29 45 29 26 37 26 37 24"></polygon>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button class="mural-ui-tabs-text-tab-text-element draggable" draggable="true" data-tipo="texto" data-familia="texto" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="text-box" tabindex="0">
+                                    <div class="tooltip top tip-middle" style="margin-left: 0px;">Cajas de texto</div>
+                                    <svg class="mute" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="70px" height="70px" viewBox="-444 246 70 70" enable-background="new -444 246 70 70">
+                                        <g>
+                                            <path class="text-element-border" fill="#CCCCCC" d="M-375,247v68h-68v-68H-375 M-374,246h-70v70h70V246L-374,246z"></path>
+                                            <rect x="-392" y="288.5" fill="#4C4C4C" width="1" height="10"></rect>
+                                            <rect x="-394" y="287.5" fill="#4C4C4C" width="2" height="1"></rect>
+                                            <rect x="-391" y="287.5" fill="#4C4C4C" width="2" height="1"></rect>
+                                            <rect x="-394" y="298.5" fill="#4C4C4C" width="2" height="1"></rect>
+                                            <rect x="-391" y="298.5" fill="#4C4C4C" width="2" height="1"></rect>
+                                            <rect x="-429" y="262.5" fill="#4C4C4C" width="30" height="2"></rect>
+                                            <rect x="-429" y="270.5" fill="#4C4C4C" width="36" height="2"></rect>
+                                            <rect x="-429" y="278.5" fill="#4C4C4C" width="33" height="2"></rect>
+                                            <rect x="-429" y="294.5" fill="#4C4C4C" width="33" height="2"></rect>
+                                            <rect x="-429" y="286.5" fill="#4C4C4C" width="27" height="2"></rect>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button class="mural-ui-tabs-text-tab-text-element hidden" data-proto-id="comment" tabindex="0">
+                                    <div class="tooltip top tip-middle" style="margin-left: 0px;">Comentarios</div>
+                                    <svg class="mute" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="70px" height="70px" viewBox="0 0 70 70" enable-background="new 0 0 70 70">
+                                        <g>
+                                            <path class="text-element-border" fill="#CCCCCC" d="M69,1.104v68H1v-68H69 M70,0.104H0v70h70V0.104L70,0.104z"></path>
+                                        </g>
+                                    </svg>
+                                    <svg width="24" height="21" viewBox="0 0 24 21" xmlns="http://www.w3.org/2000/svg" class="comment-icon">
+                                        <g fill-rule="nonzero">
+                                            <path fill="#010101" d="M21.32 0H2.67a2.532 2.532 0 0 0-1.94.718A2.448 2.448 0 0 0 0 2.627v11.805c-.048.71.218 1.406.73 1.91a2.532 2.532 0 0 0 1.939.717h7.636l3.919 3.936 3.908-3.936h3.198a2.531 2.531 0 0 0 1.933-.722 2.448 2.448 0 0 0 .726-1.905V2.627a2.448 2.448 0 0 0-.73-1.91A2.532 2.532 0 0 0 21.32 0z"></path>
+                                            <path fill="#fff" d="M22.99 14.432c.047.449-.113.895-.437 1.214a1.534 1.534 0 0 1-1.233.43h-3.618l-3.488 3.502-3.489-3.512H2.67a1.534 1.534 0 0 1-1.228-.427A1.482 1.482 0 0 1 1 14.432V2.627a1.482 1.482 0 0 1 .436-1.213A1.534 1.534 0 0 1 2.67.984H21.32c.456-.047.909.11 1.233.43.324.318.484.764.437 1.213v11.805z"></path>
+                                        </g>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="mural-ui-tabs-text-tab-sticky-elements-container">
+                                <h2 class="stickies-list-title">Notas</h2>
+                                <div class="stickies-list square">
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="sticky-#fcfe7d" tabindex="0" style="background: rgb(252, 254, 125);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#ffe08a" data-height="285" data-wigth="285" data-proto-id="sticky-#ffe08a" tabindex="0" style="background: rgb(255, 224, 138);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#c7fe80" data-height="285" data-wigth="285" data-proto-id="sticky-#c7fe80" tabindex="0" style="background: rgb(199, 254, 128);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#9bedfd" data-height="285" data-wigth="285" data-proto-id="sticky-#9bedfd" tabindex="0" style="background: rgb(155, 237, 253);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#ffc2e8" data-height="285" data-wigth="285" data-proto-id="sticky-#ffc2e8" tabindex="0" style="background: rgb(255, 194, 232);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#e1bbfc" data-height="285" data-wigth="285" data-proto-id="sticky-#e1bbfc" tabindex="0" style="background: rgb(225, 187, 252);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#000000" data-height="285" data-wigth="285" data-proto-id="sticky-#000000" tabindex="0" style="background: rgb(31, 31, 31);"></button>
+                                    <button class="sticky-element draggable" draggable="true" data-tipo="nota" data-familia="texto" data-color="#ffffff" data-height="285" data-wigth="285" data-proto-id="sticky-#ffffff" tabindex="0" style="background: rgb(255, 255, 255);"></button>
+                                </div>
+                            </div>
+                            <div class="mural-ui-tabs-shape-tab-list-container">
+                                <h2 class="subtitle">Figuras</h2>
+                                <button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="circulo" data-familia="shape" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="circle-shape" tabindex="0"><svg class="circle svg-ov" data-qa="circle-shape" viewBox="0 0 138 138" width="100%" height="100%"><path d="M138,69 C138,107.165625 107.165625,138 69,138 C30.834375,138 0,107.165625 0,69 C0,30.834375 30.834375,0 69,0 C107.165625,0 138,30.834375 138,69 Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>
+                                <button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="cuadrado" data-familia="shape" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="square-shape" tabindex="0"><svg class="square svg-ov" data-qa="square-shape" viewBox="0 0 138 138" width="100%" height="100%"><path d="M138,138 L0,138 L0,0 L138,0 Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>
+                                <button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="triangulo" data-familia="shape" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="triangle-shape" tabindex="0"><svg class="triangle svg-ov" data-qa="triangle-shape" viewBox="0 0 138 125" width="100%" height="100%"><path d="M2.5 123L135.4 123 68.5 3.1 2.5 123Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>
+                                <button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="diamante data-familia=" shape"" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="diamond-shape" tabindex="0"><svg class="diamond svg-ov" data-qa="diamond-shape" viewBox="0 0 138 138" width="100%" height="100%"><path d="M69.2 135.9L135.9 69.1 69.2 2.1 2.1 69.1 69.2 135.9Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>
+                                @*<button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="pentagono" data-familia="shape" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="pentagon-shape" tabindex="0"><svg class="pentagon svg-ov" data-qa="pentagon-shape" viewBox="0 0 138 131" width="100%" height="100%"><path d="M110.6 129.5L136.2 50.6 69 1.9 1.8 50.6 27.4 129.5 110.6 129.5Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>
+                                <button class="mural-ui-tabs-shape-tab-list-item draggable" draggable="true" data-tipo="hexagono" data-familia="shape" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="hexagon-shape" tabindex="0"><svg class="hexagon svg-ov" data-qa="hexagon-shape" viewBox="0 0 138 120" width="100%" height="100%"><path d="M102.6 118.5L136.3 60 102.6 1.5 35.4 1.5 1.7 60 35.4 118.5 102.6 118.5Z" style="fill: none; stroke-width: 3; vector-effect: non-scaling-stroke;"></path></svg></button>*@
+                            </div>
+                            <div class="mural-ui-tabs-shape-tab-list-container">
+                                <h2 class="subtitle">Layout</h2>
+                                <div class="ml2 layouts-list-item draggable" draggable="true" data-tipo="layout_cuadrado" data-familia="layout" data-color="#fcfe7d" data-height="285" data-wigth="285" data-proto-id="2-2x2 Grid" role="button" tabindex="0"><img alt="2x2 Grid" class="layout-thumb item-thumb thumb-wrapper" src="/static/images/stickers/Spaces/2x2-Thumb.svg"><h4 class="layout-title">Tabla 2x2</h4></div>
+                            </div>
+                            @*<div class="mural-ui-tabs-text-tab-sticky-elements-container mt2">
+                                <h2 class="stickies-list-title">5x3 STICKY NOTE</h2>
+                                <div class="stickies-list rectangle">
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#fcfe7d" tabindex="0" style="background: rgb(252, 254, 125);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#ffe08a" tabindex="0" style="background: rgb(255, 224, 138);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#c7fe80" tabindex="0" style="background: rgb(199, 254, 128);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#9bedfd" tabindex="0" style="background: rgb(155, 237, 253);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#ffc2e8" tabindex="0" style="background: rgb(255, 194, 232);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#e1bbfc" tabindex="0" style="background: rgb(225, 187, 252);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#000000" tabindex="0" style="background: rgb(31, 31, 31);"></button>
+                                    <button class="sticky-element" data-proto-id="wide-sticky-#ffffff" tabindex="0" style="background: rgb(255, 255, 255);"></button>
+                                </div>
+                            </div>
+                            <div class="mural-ui-tabs-text-tab-sticky-elements-container mt2">
+                                <h2 class="stickies-list-title">CIRCLE STICKY NOTE</h2>
+                                <div class="stickies-list circle">
+                                    <button class="sticky-element" data-proto-id="round-sticky-#fcfe7d" tabindex="0" style="background: rgb(252, 254, 125);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#ffe08a" tabindex="0" style="background: rgb(255, 224, 138);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#c7fe80" tabindex="0" style="background: rgb(199, 254, 128);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#9bedfd" tabindex="0" style="background: rgb(155, 237, 253);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#ffc2e8" tabindex="0" style="background: rgb(255, 194, 232);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#e1bbfc" tabindex="0" style="background: rgb(225, 187, 252);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#000000" tabindex="0" style="background: rgb(31, 31, 31);"></button>
+                                    <button class="sticky-element" data-proto-id="round-sticky-#ffffff" tabindex="0" style="background: rgb(255, 255, 255);"></button>
+                                </div>
+                            </div>*@
+                        </div>
+                    </div>
+                    <button type="button" class="m m-close-slim"></button>
+                </div>
+            </div>
+            <div class="sidebar-buttons-container">
+                <a href="/Administrativo/Mural/Workspace" class="back-button">
+                    <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                        <span class="tip-safezone"></span>Back to dashboard
+                    </div>
+                    <span class="mute m m-btn-sidebar-back center-all"></span>
+                </a>
+                <div class="tabs-buttons-container text-center pt1 clsNoPermiso">
+                    <div class="sidebar-button clickable dinamico" data-tipo="1" role="button" tabindex="0">
+                        <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                            <span class="tip-safezone"></span>Texto
+                        </div>
+                        <span class="mute m fs-icon m-btn-stickies"></span>
+                    </div>
+                    <div class="sidebar-button clickable dinamico hidden" role="button" tabindex="0">
+                        <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                            <span class="tip-safezone"></span>Formas y Conectores
+                        </div>
+                        <span class="mute m fs-icon m-btn-shapes"></span>
+                    </div>
+                    <div class="sidebar-button clickable dinamico hidden" role="button" tabindex="0">
+                        <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                            <span class="tip-safezone"></span>Iconos
+                        </div>
+                        <span class="mute m fs-icon m-btn-stickers"></span>
+                    </div>
+                    <div class="sidebar-button clickable hidden" role="button" tabindex="0">
+                        <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                            <span class="tip-safezone"></span>Imagenes
+                        </div>
+                        <span class="mute m fs-icon m-btn-images"></span>
+                    </div>
+                    <div class="draw-button sidebar-button clickable" role="button" tabindex="0">
+                        <div class="ui-callout ui-tooltip right middle tip-size-small tip-middle color-tooltip">
+                            <span class="tip-safezone"></span>Dibujar
+                        </div>
+                        <svg version="1.1" viewBox="0 0 20 20" class="svg-icon">
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="pencil" transform="translate(9.960155, 10.960155) rotate(-45.000000) translate(-9.960155, -10.960155) translate(-2.039845, 7.460155)">
+                                    <path d="M4.92638343,5.21263249e-08 L19.7175025,5.21263611e-08 C22.4394453,-0.000264159562 23.7934375,1.00387167 23.7794792,3.01240755 C23.7655208,5.02094343 22.4182292,6.0277668 19.7376042,6.03287766 L4.94594202,6.03287766 C4.85683093,6.03287766 4.76933893,6.00906264 4.69252164,5.9638975 L0.027381509,3.22100379 C-0.210664178,3.08104357 -0.290178163,2.77460924 -0.150217947,2.53656355 C-0.100765047,2.45245358 -0.0277834944,2.38465058 0.059732366,2.34151068 L4.70531389,0.0515267952 C4.77407888,0.0176299153 4.84971777,5.2126325e-08 4.92638343,5.21263253e-08 Z" id="Path-2"></path>
+                                    <path d="M19.21125,0.0113932292 L19.21125,5.98211736" id="Path-4"></path>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mural-ui-right-bar close">
+        </div>
+        <div class="mural-container">
+            <div class="mural-topbar">
+                <div class="mural-topbar-container">
+                    <div class="mural-ui-topbar-left-side">
+                        <div class="mural-ui-topbar-title-dropdown">
+                            <div class="ui-input-editable">
+                                <input class="editable-text italic muralName" data-id="" type="text" name="name" value=" " style="width:500px !important;border: none;background-color: transparent;" />
+                                @*<span class="editable-text italic muralName" data-id="" contenteditable="false" role="button" tabindex="0"></span>*@
+                                <div class="ui-callout ui-tooltip bottom middle tip-size-small tip-middle color-tooltip">
+                                    <span class="tip-safezone"></span>Click para editar</div>
+                            </div>
+                            <div class="mural-menu-trigger clickable hidden">
+                                <span class="m m-dropdown-down fs-icon" tabindex="0" role="button"></span>
+                            </div>
+                        </div>
+                        <div class="collaboration-tools ml1">
+                            <button id="btnAtras" type="button" aria-label="Undo" class="undo-button mural-ui-topbar-button clickable mural-ui-topbar-button-undefined" tabindex="-1" disabled>
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Des-hacer</div>
+                                <span class="mute fs-icon m m-contextual-undo"></span>
+                            </button>
+                            <button id="btnAdelante" type="button" aria-label="Redo" class="redo-button mural-ui-topbar-button clickable mural-ui-topbar-button-undefined" tabindex="0" disabled>
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Re-hacer</div>
+                                <span class="mute fs-icon m m-contextual-redo"></span>
+                            </button>
+                            <div class="voting-button contextual-dropdown hidden">
+                                <div class="m-btn-voting" tabindex="0" role="button" data-qa="topbar-voting-btn" aria-label="Voting Session">
+                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Sesión para votar</div>
+                                </div>
+                            </div>
+                            <div class="private-mode-button hidden">
+                                <button type="button" aria-label="Private Mode" class="mural-ui-topbar-button clickable mural-ui-topbar-button-private" data-qa="mural-ui-topbar-button-private" tabindex="0">
+                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Modo privado</div>
+                                    <svg x="0px" y="0px" width="24px" height="22px" viewBox="0 0 24 22" enable-background="new 0 0 24 22">
+                                        <path fill="#000000" d="M24,11v1H0v-1H24z M18.832,7H5.164L4,10h16L18.832,7z M22.5,17.5c0,2.485-2.015,4.5-4.5,4.5
+	                                            c-0.586,0-1.145-0.113-1.658-0.316c-0.324-0.129-0.629-0.294-0.911-0.49C14.264,20.38,13.5,19.03,13.5,17.5
+	                                            c0-0.054,0.002-0.107,0.004-0.16C13.048,17.122,12.538,17,12,17s-1.048,0.122-1.504,0.34c0.002,0.053,0.004,0.106,0.004,0.16
+	                                            c0,1.53-0.764,2.881-1.931,3.693c-0.282,0.197-0.587,0.361-0.911,0.49C7.145,21.887,6.586,22,6,22c-2.485,0-4.5-2.015-4.5-4.5
+	                                            S3.515,13,6,13c2.076,0,3.822,1.406,4.342,3.317C10.855,16.113,11.414,16,12,16s1.145,0.113,1.658,0.317
+	                                            C14.178,14.406,15.924,13,18,13C20.485,13,22.5,15.015,22.5,17.5z M9.5,17.5c0-0.237-0.024-0.469-0.069-0.694
+	                                            C9.108,15.208,7.693,14,6,14c-1.93,0-3.5,1.57-3.5,3.5S4.07,21,6,21c0.538,0,1.048-0.122,1.504-0.34
+	                                            c0.397-0.19,0.752-0.453,1.05-0.771c0.453-0.485,0.771-1.098,0.891-1.778C9.481,17.912,9.5,17.709,9.5,17.5z M21.5,17.5
+	                                            c0-1.93-1.57-3.5-3.5-3.5c-1.693,0-3.108,1.208-3.431,2.806C14.524,17.031,14.5,17.263,14.5,17.5c0,0.209,0.019,0.412,0.055,0.611
+	                                            c0.12,0.68,0.438,1.293,0.891,1.778c0.297,0.318,0.653,0.581,1.05,0.771C16.952,20.878,17.462,21,18,21
+	                                            C19.93,21,21.5,19.43,21.5,17.5z M16.404,0.764c-0.24-0.584-0.89-0.905-1.465-0.699L12,1.123L8.984,0.044
+	                                            C8.887,0.015,8.781,0,8.677,0C8.184,0,7.734,0.335,7.558,0.831L5.552,6h12.89L16.404,0.764z">
+                                        </path>
+                                        <path class="active-fill" fill="transparent" d="M9.499,17.499c0,1.933-1.567,3.499-3.499,3.499s-3.499-1.567-3.499-3.499S4.067,14,6,14
+	                                            S9.499,15.567,9.499,17.499z M18,14c-1.933,0-3.499,1.567-3.499,3.499s1.567,3.499,3.499,3.499s3.499-1.567,3.499-3.499
+	                                            S19.933,14,18,14z">
+                                        </path>
+                                    </svg>
+                                </button><!-- react-empty: 549 -->
+                            </div>
+                            <div class="mural-ui-topbar-timer-wrapper hidden">
+                                <div class="mural-ui-topbar-timer no">
+                                    <div aria-label="Timer" class="dropdown-trigger" tabindex="0" role="button" data-qa="topbar-timer-btn">
+                                        <div class="finishing-wrapper">
+                                            <div class="parenthesis-big">
+                                                <div class="parenthesis-small">
+                                                    <div class="m-icon-timer"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ui-callout ui-tooltip bottom middle tip-size-small tip-middle color-tooltip">
+                                            <span class="tip-safezone"></span>Timer
+                                        </div>
+                                    </div>
+                                    <div class="feedbacks-wrapper">
+                                        <div class="feedback hide" data-qa="topbar-timer-feedback">
+                                            <span>05:00</span>Restantes
+                                        </div>
+                                        <div class="feedback-time-up hide" data-qa="topbar-timer-feedback-times-up">
+                                            <span>Se acavo el tiempo!</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button aria-label="Facilitator Superpowers Modal" class="facilitator-pill-container hidden">
+                                <span class="external-pill">
+                                    <svg x="0px" y="0px" width="18px" height="18px" viewBox="0 0 18 18" enable-background="new 0 0 18 18" class="facilitator-star">
+                                        <path d="M9,0C4.029,0,0,4.029,0,9s4.029,9,9,9s9-4.029,9-9S13.971,0,9,0z"></path>
+                                        <g><polygon class="star" fill="#FFFFFF" points="13.701,15.263 9,13.089 4.299,15.263 4.943,10.184 1.393,6.448 6.493,5.483 9,1 11.507,5.483 16.607,6.448 13.057,10.184"></polygon></g>
+                                    </svg>Facilitador
+                                </span>
+                            </button>
+                            <div class="mural-ui-topbar-saving-feedback hidden"><p>Todos los cambios estan guardados</p></div>
+                        </div>
+                    </div>
+                    <div class="sharing-tools-container">
+                        <div class="mural-ui-topbar-mural-members-dropdown new-dropdown-menu va-middle mr1 clsPrueba" tabindex="0" role="button">
+                            <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Miembros</div>
+                            <div class="new-dropdown-trigger mute">
+                                <div class="menu-trigger-container">
+                                    <span class="menu-trigger-button m-btn-members"></span>
+                                    <span class="member-number">1</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="topbar-buttons">
+                            <div class="button-container">
+                                <div class="mural-ui-export-mural-menu">
+                                    <div class="ui-dropdown-menu">
+                                        <div class="ui-dropdown menu clsExportar" data-qa="export-mural">
+                                            <div class="ui-dropdown-trigger-box" tabindex="0" role="button">
+                                                <div class="ui-button-export" data-qa="export-mural">
+                                                    <svg x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" class="export-icon">
+                                                        <path fill="#231F20" d="M12.5,1v13.059l3.601-3.601l0.707,0.707L12,15.973l-4.808-4.809l0.707-0.707l3.601,3.601V1H12.5z M3,14v6 c0,0.552,0.449,1,1,1h16c0.551,0,1-0.448,1-1v-6h1v6c0,1.105-0.896,2-2,2H4c-1.105,0-2-0.895-2-2v-6H3z"></path>
+                                                        <path class="style-filled" fill="#231F20" d="M21,0H3C1.343,0,0,1.343,0,3v18c0,1.657,1.343,3,3,3h18c1.657,0,3-1.343,3-3V3C24,1.343,22.657,0,21,0z M7.899,10.457l3.601,3.601V2h1v12.059l3.601-3.601l0.707,0.707L12,15.973l-4.808-4.809L7.899,10.457z M22,20c0,1.105-0.896,2-2,2H4 c-1.105,0-2-0.895-2-2v-6h1v6c0,0.552,0.449,1,1,1h16c0.551,0,1-0.448,1-1v-6h1V20z"></path>
+                                                    </svg>
+                                                    <div class="ui-callout ui-tooltip bottom middle tip-size-small tip-middle color-tooltip">
+                                                    <span class="tip-safezone"></span>Exportar</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="topbar-buttons-container hidden">
+                            <button type="button" class="mural-ui-topbar-chat-button clickable va-middle iblock" tabindex="0">
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Chat</div>
+                                <span class="mute fs-icon m m-btn-chat">
+                                    <span class="mural-ui-topbar-chat-button-unread-counter animated hidden">0</span>
+                                </span>
+                            </button>
+                            <button type="button" class="mural-ui-topbar-button clickable mural-ui-topbar-button-comment" tabindex="0">
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Comentarios</div>
+                                <svg width="24" height="21" viewBox="0 0 24 21" xmlns="http://www.w3.org/2000/svg" class="comment-icon">
+                                    <g fill-rule="nonzero">
+                                        <path fill="#010101" d="M21.32 0H2.67a2.532 2.532 0 0 0-1.94.718A2.448 2.448 0 0 0 0 2.627v11.805c-.048.71.218 1.406.73 1.91a2.532 2.532 0 0 0 1.939.717h7.636l3.919 3.936 3.908-3.936h3.198a2.531 2.531 0 0 0 1.933-.722 2.448 2.448 0 0 0 .726-1.905V2.627a2.448 2.448 0 0 0-.73-1.91A2.532 2.532 0 0 0 21.32 0z"></path>
+                                        <path fill="#fff" d="M22.99 14.432c.047.449-.113.895-.437 1.214a1.534 1.534 0 0 1-1.233.43h-3.618l-3.488 3.502-3.489-3.512H2.67a1.534 1.534 0 0 1-1.228-.427A1.482 1.482 0 0 1 1 14.432V2.627a1.482 1.482 0 0 1 .436-1.213A1.534 1.534 0 0 1 2.67.984H21.32c.456-.047.909.11 1.233.43.324.318.484.764.437 1.213v11.805z"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                            <button type="button" class="mural-ui-topbar-button clickable mural-ui-topbar-button-news" tabindex="0">
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Actividad</div>
+                                <span class="mute fs-icon m m-btn-history"></span>
+                            </button>
+                            <button type="button" class="mural-ui-topbar-button clickable mural-ui-topbar-button-outline" tabindex="0">
+                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Outline</div>
+                                <span class="mute fs-icon m m-btn-outline"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mural-container-content">
+                @*<div id="canvaContainer">
+
+                </div>*@
+                @*<canvas id="canvaPrincipal" class="render-engine" tabindex="1"></canvas>*@
+                <div class="widgets-container-container">
+                    
+                    <div class="widgets-container">
+                        <div>
+                            <div>
+                                <div class="render-engine-placeholder" style="touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                                    <canvas id="canvaPrincipal" width="2000" height="2000" class="render-engine" tabindex="1"></canvas>
+                                </div>
+                            </div>
+                            <div class="widget-layer" style="transform: matrix(0.190682, 0, 0, 0.190682, 42, -78);">
+                                <div class="remote-edition-layer" style="left: 0px; position: absolute; top: 0px; z-index: 9999;"></div>
+                                <div class="mural-ui-arrow-connection-borders"></div>
+                            </div>
+                            <div class="tooltip-layer" style="transform: matrix(1, 0, 0, 1, 42, -78);"></div>
+                        </div>
+                        <div class="snapping-grid"></div>
+                        <textarea id="clipboard" tabindex="-1" style="height: 0px; left: -10px; opacity: 0; position: absolute; top: -10px; width: 0px;"></textarea>
+                    </div>
+                </div>
+                <div class="visualization-controls">
+                    <div class="mural-navigation-controls">
+                        <button class="mural-navigation-move-mode-button clsBtnHand" style="background-color:yellow;" tabindex="-1">
+                            <div class="tooltip left tip-middle" style="margin-left: 0px;">Move Mode</div>
+                            <i class="m-icon-hand unclickable"></i>
+                        </button>
+                        <div class="navigation-visuals">
+                            <div class="mural-navigation-zoom-controls">
+                                <button data-qa="zoom-out-button" class="zoom-button m m-icon-less" tabindex="-1">
+                                    <div class="ui-callout ui-tooltip top middle tip-size-mid tip-middle color-tooltip">
+                                        <span class="tip-safezone"></span>
+                                        <strong>Zoom out</strong><br>
+                                        Press
+                                        <div class="shortcut-key ctrl">
+                                            <span>CTRL</span>
+                                        </div>
+                                        and
+                                        <div class="shortcut-key minus">
+                                            <span>-</span>
+                                        </div>
+                                    </div>
+                                </button>
+                                <span class="zoom-slider-container">
+                                    <div>
+                                        <div class="zoom-slider">
+                                            <div class="line"></div>
+                                            <div class="knob-container">
+                                                <button class="mark" tabindex="-1" style="left: 46.4276%;">
+                                                    <div class="ui-callout ui-tooltip top middle tip-size-mid tip-middle color-tooltip">
+                                                        <span class="tip-safezone"></span>
+                                                        <strong>Zoom to 100%</strong><br>
+                                                        Press
+                                                        <div class="shortcut-key ctrl">
+                                                            <span>CTRL</span>
+                                                        </div>
+                                                        <div class="shortcut-key alt">
+                                                            <span>alt</span>
+                                                        </div>
+                                                        and
+                                                        <div class="shortcut-key">
+                                                            <span>0</span>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                                <div class="knob" style="left: 3.07043%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                                <button data-qa="zoom-in-button" class="zoom-button m m-icon-more" tabindex="-1">
+                                    <div class="ui-callout ui-tooltip top middle tip-size-mid tip-middle color-tooltip">
+                                        <span class="tip-safezone"></span>
+                                            <strong>Zoom in</strong><br>
+                                            Press
+                                            <div class="shortcut-key ctrl">
+                                                <span>CTRL</span>
+                                            </div>
+                                            and
+                                            <div class="shortcut-key">
+                                                <span>+</span>
+                                            </div>
+                                    </div>
+                                </button>
+                                <div class="zoom-field">19%</div>
+                            </div>
+                            <div class="minimap-container">
+                                <div style="touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                                    <div class="mural-navigation-minimap" data-qa="minimap" style="width: 160px; height: 108px;">
+                                        <canvas id="previewCanvas" width="160" height="108" class="render-engine-minimap"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<button class="mural-navigation-settings-button" tabindex="-1">
+                            <i class="m-icon-settings"></i>
+                            Zoom settings
+                        </button>*@
+                    </div>
+                </div>
+                <center>
+                    <div class="mural-ui-toolbar fade-in-enter-done toolbar_sigoplan toolbar_texto_general" style="display:none;z-index:9999999;top:2px;left:45%;">
+                        <div class="mural-ui-toolbar-content ">
+                            <div class="buttons">
+                                <div class="toolbar-button-group">
+                                    <div class="toolbar-button-container tb_clsDisminuirLetra">
+                                        <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Desminuir tamaño de fuente</div>
+                                        <div class="toolbar-button mute"><span class="m-btn-decrease-font"></span></div>
+                                    </div>
+                                    <div class="toolbar-button-container tb_clsAumentarLetra">
+                                        <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Incrementar tamaño de fuente</div>
+                                        <div class="toolbar-button mute"><span class="m-btn-increase-font"></span></div>
+                                    </div>
+                                </div>
+                                <div class="toolbar-button-container tb_clsFormatoTexto">
+                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Farmato del texto</div>
+                                    <div class="toolbar-button mute"><span class="m-btn-text-tools"></span></div>
+                                    <div class="ttg_FotmatoTexto" style="display:none;">
+                                        <ul class="toolbar-dropdown" style="transform: translateX(-4px);">
+                                            <div class="toolbar-dropdown-box toolbar-button-container">
+                                                <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Font Family</div>
+                                                <div class="toolbar-button mute with-text">
+                                                    <div class="toolbar-dropdown-value" style="width: 131px;">Proxima Nova</div>
+                                                </div>
+                                            </div>
+                                            <div class="toolbar-button-group">
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_BoldParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Toggle bold</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Bold"><span class="m-btn-bold-text"></span></div>
+                                                </div>
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_ItalicParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Toggle italic</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Italic"><span class="m-btn-italic-text"></span></div>
+                                                </div>
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_UnderlineParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Toggle underline</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Underline"><span class="m-btn-text-decoration-underline"></span></div>
+                                                </div>
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_StrikeParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Toggle strike</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Strike"><span class="m-btn-text-decoration-strike"></span></div>
+                                                </div>
+                                            </div>
+                                            <div class="toolbar-button-group">
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_LeftParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Align left</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Left"><span class="m-btn-text-align-left"></span></div>
+                                                </div>
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_CenterParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Align center</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Center"><span class="m-btn-text-align-center"></span></div>
+                                                </div>
+                                                <div class="toolbar-button-container ttg_FotmatoTexto_RightParent">
+                                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Align right</div>
+                                                    <div class="toolbar-button mute ttg_FotmatoTexto_Right"><span class="m-btn-text-align-right"></span></div>
+                                                </div>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="toolbar-button-container tb_clsColorTexto">
+                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Color de letra</div>
+                                    <button class="toolbar-button m-btn-font-color" style="border:1px solid black;" data-jscolor="{onChange: 'Mural_colorPickerFont(this)',width:250, position:'bottom', value:'rgb(252, 254, 125)'}"></button>
+                                </div>
+                                <div class="toolbar-button-container tb_clsBorde hidden">
+                                    <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Borde</div>
+                                    <div class="toolbar-button mute"><span class="m-btn-toggle-border"></span></div>
+                                </div>
+                                <div class="toolbar-button-group">
+                                    <div class="toolbar-button-container tb_clsColorFondo">
+                                        <div class="tooltip bottom tip-middle" style="margin-left: 0px;">Color de fondo</div>
+                                        <button class="toolbar-button" style="border:1px solid black;" data-jscolor="{onChange: 'Mural_colorPicker(this)',width:250, position:'bottom', value:'rgb(252, 254, 125)'}"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </center>
+            </div>
+        </div>
+        <div class="context-menu fade-in-up-enter-done clsContextMenu" style="display:none;">
+            <ul>
+                <li class="context-menu-item cls_CM_TraerEnfrente" data-qa="bring-to-front">
+                    <span class="item-icon m-contextual-bring-to-front"></span>
+                    <span class="context-menu-item-text">Traer al frente</span>
+                </li>
+                <li class="context-menu-item cls_CM_EnviarAtras" data-qa="send-to-back">
+                    <span class="item-icon m-contextual-bring-to-back"></span>
+                    <span class="context-menu-item-text">Enviar atras</span>
+                </li>
+                <li class="context-menu-item cls_CM_Duplicar" data-qa="duplicate-widgets">
+                    <span class="item-icon m-contextual-duplicate"></span>
+                    <span class="context-menu-item-text">Duplicar</span>
+                </li>
+                <li class="context-menu-item info" data-qa="lock-widgets-menu">
+                    <span class="context-menu-item-text">
+                        <svg width="18px" height="18px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" fill="#4C4C4D" d="M12,8h-6v-3c0-1.7,1.3-3,3-3s3,1.3,3,3V10z M10,14h-2v-3h2V14z M13,8v-3c0-2.2-1.8-4-4-4s-4,1.8-4,4v3h-2v9h12 v-9H-292z"></path></svg>Bloquear
+                        <svg version="1.1" x="0px" y="0px" width="7px" height="11px" viewBox="0 0 7 11" class="arrow"><polygon fill-rule="evenodd" clip-rule="evenodd" fill="#4D4D4D" points="0,1.378 4.201,5.502 0,9.626 1.4,11.001 5.601,6.876 7,5.502 1.4,0 "></polygon></svg>
+                        <div class="context-submenu lock">
+                            <ul>
+                                <li class="context-menu-item cls_CM_DesbloqueoCualquiera hidden" data-qa="lock-widgets-regular">
+                                    <span class="context-menu-item-text">Cualquier mienbro puede desbloquear</span>
+                                </li>
+                                <li class="context-menu-item cls_CM_DesbloqueoFacilitador" data-qa="lock-widgets-facilitator">
+                                    <span class="context-menu-item-text">Solo facilitadores pueden desbloquear</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </span>
+                </li>
+                <li class="context-menu-item cls_CM_Desbloquear" data-qa="unlock-widgets">
+                    <span class="context-menu-item-text">
+                        <svg width="18px" height="18px" viewBox="0 0 18 18"><path fill-rule="evenodd" clip-rule="evenodd" fill="#4C4C4D" d="M9.998,13.988v-2.993H8.002v2.993H9.998z M11.993,8.002V5.009 c0-1.65-1.343-2.993-2.993-2.993c-1.648,0-2.99,1.34-2.993,2.987H5.009C5.012,2.802,6.798,1.018,9,1.018 c2.204,0,3.991,1.787,3.991,3.991v2.993h1.995v8.979H3.014V8.002H11.993z"></path></svg>Desbloquear
+                    </span>
+                </li>
+                <li class="context-menu-item cls_CM_Agrupar" data-qa="group-widgets">
+                    <span class="item-icon m-contextual-group"></span>
+                    <span class="context-menu-item-text">Agrupar</span>
+                </li>
+                <li class="context-menu-item cls_CM_Desagrupar" data-qa="ungroup-widgets">
+                    <span class="item-icon m-contextual-group"></span>
+                    <span class="context-menu-item-text">Des-agrupar</span>
+                </li>
+                <li class="context-menu-item cls_CM_MeterArea hidden" data-qa="cluster-into-area">
+                    <span class="item-icon m-btn-cluster"></span>
+                    <span class="context-menu-item-text">Organizar dentro de area</span>
+                </li>
+                <li class="context-menu-item cls_CM_AgregarMarcador hidden" data-qa="cluster-to-outline">
+                    <span class="item-icon m-btn-outline"></span>
+                    <span class="context-menu-item-text">Agregar a marcador</span>
+                </li>
+                <li class="context-menu-item cls_CM_CrearContenido hidden" data-qa="save-snippet">
+                    <span class="context-menu-item-text">
+                        <svg width="24px" height="23px" viewBox="0 0 24 23" enable-background="new 0 0 24 23" class="library-icon"><path fill="#B7B7B8" d="M5,2.5v18H1v-18H5 M5,1.5H1c-0.552,0-1,0.448-1,1v18c0,0.552,0.448,1,1,1h4c0.552,0,1-0.448,1-1v-18 C6,1.948,5.552,1.5,5,1.5L5,1.5z"></path><path fill="#B7B7B8" d="M12,2.5v18H8v-18H12 M12,1.5H8c-0.552,0-1,0.448-1,1v18c0,0.552,0.448,1,1,1h4c0.552,0,1-0.448,1-1v-18 C13,1.948,12.552,1.5,12,1.5L12,1.5z"></path><path fill="#B7B7B8" d="M18.341,2.289L18.341,2.289L23,19.676l-3.864,1.035L14.477,3.324L18.341,2.289 M18.342,1.289 c-0.086,0-0.173,0.011-0.259,0.034l-3.864,1.035c-0.534,0.143-0.85,0.691-0.707,1.225L18.17,20.97 c0.12,0.447,0.524,0.741,0.965,0.741c0.086,0,0.173-0.011,0.259-0.034l3.864-1.035c0.534-0.143,0.85-0.691,0.707-1.225L19.307,2.03 C19.187,1.583,18.783,1.289,18.342,1.289L18.342,1.289z"></path></svg>Guardar en libreria de contenido
+                    </span>
+                </li>
+                <li class="context-menu-item cls_CM_CopiarEstilo" data-qa="copy-style">
+                    <span class="context-menu-item-text">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 9h7V5h-1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1h10a1 1 0 011 1v1h2v6H9v1h1v6H7v-6h1V9zm1 3H8v4h1v-4zm4-9H3v3h10V3z" fill="#4C4C4C" fill-rule="nonzero"></path>
+                        </svg>Copiar estilo
+                    </span>
+                </li>
+                <li class="context-menu-item cls_CM_PegarEstilo" data-qa="paste-style">
+                    <span class="context-menu-item-text">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 9h7V5h-1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1h10a1 1 0 011 1v1h2v6H9v1h1v6H7v-6h1V9zm1 3H8v4h1v-4z" fill="#4C4C4C" fill-rule="nonzero"></path>
+                        </svg>Pegar estilo
+                    </span>
+                </li>
+                <hr data-qa="sep-after-main">
+                <li class="context-menu-item cls_CM_Eliminar" data-qa="delete">
+                    <span class="item-icon m-contextual-trash-filled"></span>
+                    <span class="context-menu-item-text">Eliminar</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+<canvas id="canvasMedida" style="display:none;"></canvas>
+<script src="~/Scripts/konva.js"></script>
+<script src="~/Scripts/fabric.min.js"></script>
+<script src="~/Scripts/jspdf.debug.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Mural/MuralFabric.js"></script>
+<script>
+
+    jscolor.presets.default = {
+        //onChange: Mural_colorPicker,
+        position: 'right',
+        hideOnLeave: true,
+        hideOnPaletteClick: true,
+        palette: [
+            'rgba(255,255,255,0)', '#ffe08a', '#c7fe80', '#ff7139', '#18a7d7', '#aa35db', '#fa1759', '#eaeaea', '#9bedfd', '#aa35db', '#cb8cf9', '#fcf356', '#fa1759', '#ff5ba0', '#ffffff', '#f5f5f5', '#eaeaea', '#b3b3b3',
+            '#000000', '#fcfe7d', '#9bedfd',
+            '#ffc2e8', '#e1bbfc', '#fcf356', '#ffcb43', '#a2ef59',
+            '#4cdef2', '#ff5ba0', '#cb8cf9', '#ffe33b', '#ff7139',
+            '#3ac010', '#18a7d7', '#fa1759', '#aa35db', '#fda101', '#ed0b00',
+            '#2d9613', '#2589a7', '#ca1041', '#80499a', 'rgba(255,255,255,0.2)', 'rgba(245,245,245,0.2)',
+            'rgba(204,204,204,0.2)', 'rgba(153,153,153,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.3)'
+        ],
+        //paletteCols: 12,
+        //hideOnPaletteClick: true,
+    };
+    // Here we can adjust defaults for all color pickers on page:
+  
+    
+
+    
+</script>

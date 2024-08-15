@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "ManoObra";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Barrenacion/ManoObra.css" rel="stylesheet" />
+
+<style>
+    div .margin-fix {
+        margin: auto !important;
+    }
+
+    .modal-largest {
+        width: 90%;
+    }
+</style>
+
+<div class="row text-center">
+    <h2>Mano de Obra <i class="fas fa-users"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+
+    <div class="col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Area Cuenta</span>
+            <select name="" id="comboAC" class="form-control"></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Estatus Operadores</span>
+            <select id="comboEstatus" class="form-control">
+                <option value="2" selected>Todo</option>
+                <option value="1">Operadores asignados</option>
+                <option value="0">Sin asignar</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3">
+        <button id="botonBuscar" class="btn btn-primary">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </div>
+</fieldset>
+
+<div class="col-md-12 col-lg-12 margin-top">
+    <table id="tablaEquipos" class="table table-fixed table-hover table-responsive table-striped">
+        <thead class="bg-table-header">
+    </table>
+</div>
+
+<div class="modal fade" id="modalGestion" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-largest" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Gestionar Operadores y Ayudantes</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">No. Económico</span>
+                            <input type="text" id="inputNoEconomico" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Descripción</span>
+                            <input type="text" id="inputDescripcion" class="form-control" disabled>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Turno</span>
+                            <select id="comboTurno" class="form-control">
+                                <option value="1" selected>Turno 1</option>
+                                <option value="2">Turno 2</option>
+                                <option value="3">Turno 3</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row margin-top margin-fix">
+
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Operador</legend>
+                            <div class="row margin-fix">
+                                <div class="col-md-2 col-lg-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CVE</span>
+                                        <input type="text" id="inputClaveOperador" tipooperador=1 class="form-control inputClave"
+                                               placeholder="# Empleado">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Descripción</span>
+                                        <input type="text" id="inputOperador" class="form-control inputDescripcion"
+                                               placeholder="Nombre del operador">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Horas Jornada</span>
+                                        <input type="number" id="inputHorasJornadaOperador" tipooperador=1 class="form-control totalOperadores"
+                                               placeholder="Jornada">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">FSR</span>
+                                        <input type="number" id="inputFSROperador" tipooperador=1 class="form-control totalOperadores"
+                                               placeholder="FSR">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-4 hidden">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Total</span>
+                                        <input type="number" id="inputTotalOperador" tipooperador=1 class="form-control " placeholder="Costo Hora" >
+
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-4 hidden">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Sueldo Diario</span>
+                                        <input type="text" id="inputSueldoOperador" tipooperador=1 class="form-control totalOperadores inputSueldo" placeholder="Sueldo Diario." disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row margin-top margin-fix">
+                    <div class="col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">
+                                Ayudante
+                            </legend>
+                            <div class="row margin-fix">
+                                <div class="col-md-2 col-lg-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CVE</span>
+                                        <input type="text" id="inputClaveAyudante" tipooperador=2 class="form-control inputClave"
+                                               placeholder="# Empleado">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-5 col-lg-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Descripción</span>
+                                        <input type="text" id="inputAyudante" class="form-control inputDescripcion"
+                                               placeholder="Nombre del ayudante">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4 hide">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Sueldo Diario</span>
+                                        <input type="text" id="inputSueldoAyudante" tipooperador=1 class="form-control inputSueldo totalAyudantes"
+                                               placeholder="Sueldo.">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Horas Jornada</span>
+                                        <input type="number" id="inputHorasJornadaAyudante" tipooperador=1 class="form-control inputJornada totalAyudantes"
+                                               placeholder="Jornada" style=" padding: 9%; ">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">FSR</span>
+                                        <input type="number" id="inputFSRAyudante" tipooperador=1 class="form-control inputFSR totalAyudantes"
+                                               placeholder="FSR">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4 hide">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Total</span>
+                                        <input type="number" id="inputTotalAyudante" tipooperador=1 class=" form-control " placeholder="Costo Hora" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonAsignarOperadores" class="btn btn-primary">
+                    <i class="fas fa-user-check"></i> Asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Barrenacion/ManoObra.js"></script>

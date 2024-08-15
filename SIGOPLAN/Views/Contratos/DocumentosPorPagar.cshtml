@@ -1,0 +1,828 @@
+﻿@{
+    ViewBag.Title = "Documentos Por Pagar";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/select2/select2.css" rel="stylesheet" />
+
+<style>
+    #tablaContratos_wrapper th,
+    #tablaContratos_wrapper td,
+    #tablaMaquinas_wrapper th,
+    #tablaMaquinas_wrapper td,
+    #tablaPagos_wrapper th,
+    #tablaPagos_wrapper td {
+        font-size: 12px;
+        /* padding: 0px !important; */
+    }
+
+    .pagadoClass {
+        background-color: #1ABC9C !important;
+    }
+
+    .vencidoClass {
+        background-color: #EC7063 !important;
+    }
+
+    .dataTables_scrollHeadInner table thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+
+    div#modalNuevaInstitucion {
+        z-index: 1051;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .modal {
+        overflow-y: auto;
+    }
+
+    .row.RenderBody {
+        height: 90% !important;
+    }
+
+    .ui-menu {
+        z-index: 1051;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center">
+    <h2>Documentos Por Pagar</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-10">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Folio</span>
+                    <input name="inputFiltroFolio" id="inputFiltroFolio" class="form-control" maxlength="10">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Descripción</span>
+                    <input type="text" name="inputFiltroDescripcion" id="inputFiltroDescripcion" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Fecha</span>
+                    <input type="text" name="inputFiltroFecha" id="inputFiltroFecha" class="form-control">
+                </div>
+            </div>
+            <div class="col-sm-3 col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Empresa:</span>
+                    <select class="form-control" id="comboEmpresaFiltro">
+                        @{
+                            if (ViewBag.EmpresaActual == 1)
+                            {
+                                <option value="1">Construplan:</option>
+                            }
+                            else if (ViewBag.EmpresaActual == 2)
+                            {
+                                <option value="2">Arrendadora:</option>
+                            }
+                            else if (ViewBag.EmpresaActual == 6)
+                            {
+                                <option value="6">Perú</option>
+                            }
+                            else if (ViewBag.EmpresaActual == 3)
+                            {
+                                <option value="3">Colombia</option>
+                            }
+}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3 col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Arrendamiento:</span>
+                    <select class="form-control" id="comboArrendamientoFiltro">
+                        <option value="1">Arrendamiento Financiado:</option>
+                        <option value="2">Arrendamiento Puro:</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3 col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Financiera:</span>
+                    <select class="form-control" id="comboFinancieraFiltro"></select>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-md-2">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Contrato:</legend>
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <div class="col-lg-6">
+                        <button type="button" class="btn btn-success" id="btnNuevoContrato">
+                            <i class="fas fa-plus"></i> Nuevo
+                        </button>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <fieldset class="fieldset-custm" style="margin-top: 10px;">
+            <legend class="legend-custm">Contratos:</legend>
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="tblContratos" class="hover stripe order-column compact" style="width:100%"></table>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMaquinas">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Máquinas</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="col-sm-3 form-inline">
+                        <label>Económico:</label>
+                        <select id="selectMaquina" class="form-control select2"></select>
+                    </div>
+                    <div class="col-sm-3 form-inline">
+                        <label>Crédito:</label>
+                        <input name="inputCreditoMaquina" id="inputCreditoMaquina" class="form-control">
+                    </div>
+                    <div class="col-sm-4">
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" class="btn btn-primary pull-right top" id="btnAgregarMaquina"
+                                data-id_contrato="" style="display:none;">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 mrgTop">
+                        <table id="tblMaquinas" class="table table-hover table-fixed table-bordered compact"
+                               style="width:100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCambioPeriodo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="background-color:#da6a1a;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h3>Modificar Mensualidad.</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row form-group">
+                        <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <label>Parcialidad</label>
+                            <input class="form-control" id="inputParcialidadModifica" />
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <label>Nueva Fecha</label>
+                            <input class="form-control" id="inputNuevaFecha" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <button class="btn btn-default" id="bntGuardarMensualidad">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevaInstitucion" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#da6a1a;">
+                <div class="text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h3>Agregar Institución.</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class=" col-lg-12 col-md-12 col-xs-12 form-group">
+                            <label>Nombre Institución</label>
+                            <input class="form-control" id="inputInstitucionDescripcion" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-xs-12 ">
+                            <button class="btn btn-default" id="btnGuardarInstitucion">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDesgloseGeneral">
+    <div class="modal-dialog modal-lg" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Desglose contrato</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button class="btn btn-default" id="btnImprimir">Imprimir</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 mrgTop">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Tabla de Amortizacion:</legend>
+                            <table id="tblDesgloseGeneral" class="hover stripe order-column" style="width:100%">
+                                <thead></thead>
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Totales:</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-12 mrgTop">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Poliza</legend>
+                            <div class="col-xs-12 col-md-2 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Poliza</span>
+                                    <input id="inputFechaPoliza" class="form-control" type="text" disabled>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-2 col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Poliza</span>
+                                    <input id="inputPoliza" class="form-control" type="text" disabled>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-2 col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Poliza</span>
+                                    <input id="inputTipoPoliza" class="form-control" type="text" disabled value="03">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">GeneradaPor</span>
+                                    <input id="inputGenerada" class="form-control" type="text" disabled value="CONTABILIDAD">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                @switch ((int)ViewBag.EmpresaActual)
+                                {
+                                    case 6:
+                                        <button type="button" class="btn btn-primary" data-id_contrato="" id="btnAddLinea" style="display:none;">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                        break;
+                                    default:
+                                        <button type="button" class="btn btn-primary" data-id_contrato="" id="btnAddLinea">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button>
+                                        break;
+                                }
+                            </div>
+                            <div class="col-xs-12 col-md-2 col-lg-2 hide">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Aplica Poliza.</span>
+                                    <input type="checkbox" class="form-control" />
+                                </div>
+                            </div>
+                            <table id='tblDeudas' class="hover stripe order-column" width='100%'>
+                                <thead class='bg-table-header'></thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Totales:</th>
+                                        <th></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                @switch ((int)ViewBag.EmpresaActual)
+                {
+                    case 6:
+                        <button type="button" class="btn btn-primary" data-id_contrato="" id="btnGuardarDeudas" style="display:none;">
+                            <i class="far fa-save"></i> Guardar
+                        </button>
+                        break;
+                    default:
+                        <button type="button" class="btn btn-primary" data-id_contrato="" id="btnGuardarDeudas">
+                            <i class="far fa-save"></i> Guardar
+                        </button>
+                        break;
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDesglosePorMaquina">
+    <div class="modal-dialog modal-lg" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Desglose por maquina</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 mrgTop">
+                        <table id="tblDesglosePorMaquina" class="hover stripe order-column" style="width:100%"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPagos">
+    <div class="modal-dialog modal-lg" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Pagos</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-sm-12 mrgTop">
+                                <table id="tblPagos" class="hover stripe order-column" style="width:100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            Fecha Pago:
+                            <input class="form-control" id="inputFechaPago" />
+                        </div>
+                        <div class="col-lg-3">
+                            Pago Total:
+                            <input class="form-control" id="inputTotalPago" />
+                        </div>
+                        <div class="col-lg-3">
+                            Total Pago Parcial:
+                            <input class="form-control" id="inputPagoParcial" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-primary" id="btnGuardarPagos">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoContrato" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#F5B041">
+                <div class="text-center">
+                    <h3>Captura de Contrato</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Contrato:</legend>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Arrendamiento Puro:</label>
+                                <input type="checkbox" name="inputArrendamientoP" id="inputArrendamientoPuro"
+                                       class="form-control" />
+                            </div>
+                            <div class="col-sm-2 col-lg-2">
+                                <label>No Contrato:</label>
+                                <input name="inputFolio" id="inputFolio" class="form-control" maxlength="20">
+                            </div>
+
+                            <div class="col-sm-6 col-lg-4">
+                                <label>Descripción:</label>
+                                <input type="text" name="inputDescripcion" id="inputDescripcion" class="form-control">
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Institución:</label>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" id="btnAddNewInstitucion">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </span>
+                                    <select id="selectInstitucion" class="form-control"></select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Cta:</label>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" id="btnBuscarCuentas">
+                                            <span class="glyphicon glyphicon-search"></span>
+                                        </button>
+                                    </span>
+                                    <input type="text" id="inputCtaInfo" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2 col-lg-2">
+                                <label>Cta IA:</label>
+                                <div class="input-group">
+                                    <input type="text" id="inputCtaIAInfo" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>RFC:</label>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" id="buscarRFC">
+                                            <span class="glyphicon glyphicon-search"></span>
+                                        </button>
+                                    </span>
+                                    <input type="text" id="inputRFC" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-1 col-lg-1">
+                                <label>Plazo:</label>
+                                <input name="inputPlazo" id="inputPlazo" placeholder="Meses" class="form-control"
+                                       type="number">
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Fecha Inicio:</label>
+                                <input name="inputFechaInicio" id="inputFechaInicio" class="form-control" autocomplete="off">
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Fecha de vencimiento pagos:</label>
+                                <select id="selectVencimiento" class="form-control">
+                                    <option value="1">Ultimo día del mes</option>
+                                    <option value="2">Día 15 del mes</option>
+                                    <option value="3">Seleccionar día</option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3" id="divInputFechaVencimiento">
+                                <label>Fecha de vencimiento:</label>
+                                <input name="inputFechaVencimiento" id="inputFechaVencimiento" class="form-control" />
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Tasa Fija:</label>
+                                <input type="checkbox" name="inputTasaFija" id="inputTasaFija"
+                                       class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Aplica Interes:</label>
+                                <input type="checkbox" name="inputTasaFija" id="inputAplicaInteres" class="form-control" checked>
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Contrato Aplica Intereses:</label>
+                                <input type="checkbox" name="inputTasaFija" id="inputContratoAplicaInteres" class="form-control" checked/>
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Monto Financiado:</label>
+                                <input name="inputCredito" id="inputCredito" class="form-control inputMoneda" />
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Amortización Capital Inicial:</label>
+                                <input name="inputAmortizacion" id="inputAmortizacion"
+                                       class="form-control inputMoneda" />
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Tasa:</label>
+                                <input name="inputTasa" id="inputTasa" class="form-control inputPorcentaje"/>
+                            </div>
+                            
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Interes moratorio:</label>
+                                <input name="inputInteresMoratorio" id="inputInteresMoratorio"
+                                       class="form-control inputPorcentaje" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Moneda Contrato:</label>
+                                <select class="form-control" id="comboMonedaContrato">
+                                    @switch ((int)ViewBag.EmpresaActual)
+                                    {
+                                        case 6:
+                                            <option value="1">Sol</option>
+                                            <option value="2">US-Dolar</option>
+                                            break;
+                                        default:
+                                            <option value="1">Peso-Mexicano</option>
+                                            <option value="2">US-Dolar</option>
+                                            break;
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Fecha Firma:</label>
+                                <input name="inputFechaF" id="inputFechaF" class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Tipo cambio:</label>
+                                <input name="inputTipoCambio" id="inputTipoCambio" class="form-control" />
+                            </div>
+
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Domiciliado:</label>
+                                <input type="checkbox" name="inputDomiciliado" id="inputDomiciliado"
+                                       class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Monto Opción Compra:</label>
+                                <input id="inputMontoOpcionCompra" class="form-control inputMoneda" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Pena Convencional:</label>
+                                <input name="inputNamePenaConvencional" id="inputPenaConvencional"
+                                       class="form-control" />DocumentosPorPagar
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Empresa:</label>
+                                <select class="form-control" id="comboEmpresa">
+                                    @switch ((int)ViewBag.EmpresaActual)
+                                    {
+                                        case 6:
+                                            <option value="6">Perú:</option>
+                                            break;
+                                        default:
+                                            <option value="1">Construplan:</option>
+                                            <option value="2">Arrendadora:</option>
+                                            break;
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label class="form-label">Archivo Contrato:</label>
+                                <div class="form-group" id="divArchivoContrato">
+                                    <input type="file" name="inputArchivoContrato" id="inputArchivoContrato"
+                                           accept="application/pdf, image/*" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-lg-3" style="display:none;" id="colPagoInterino">
+                                <label>Pago Interino:</label>
+                                <input id="inputPagoInterino" class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3" style="display:none;" id="colPagoInterino2">
+                                <label>Pago Interino 2:</label>
+                                <input id="inputPagoInterino2" class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3" style="display:none;" id="colDepGarantia">
+                                <label>Depósito Garantía:</label>
+                                <input id="inputDepGarantia" class="form-control" />
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label class="form-label">Archivo Pagaré:</label>
+                                <div class="form-group" id="divArchivoPagare">
+                                    <input type="file" name="inputArchivoPagare" id="inputArchivoPagare"
+                                           accept="application/pdf, image/*" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-lg-3">
+                                <label>Contrato:</label>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="button" id="btnDescargaContrato">
+                                            <i class="fas fa-file-download"></i>
+                                        </button>
+                                    </span>
+                                    <input type="text" id="inputArchivoContratoNombre" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 form-group">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle de Economicos</legend>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-12 col-lg-2">
+                                    <label>Económico:</label>
+                                    <select id="comboEconomicos" class="form-control"></select>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-2">
+                                    <label>No Serie:</label>
+                                    <input class="form-control" id="inputNoSerie" disabled />
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-3">
+                                    <label>Porcentaje:</label>
+                                    <input class="form-control" id="inputPorcentaje" />
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-3">
+                                    <label>Totales:</label>
+                                    <input class="form-control" id="inputTotalesFinales" disabled />
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-2 ">
+                                    <button type="button" class="btn btn-primary pull-right margin-top"
+                                            id="btnAgregarEconomico">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class=" col-xs-12 col-md-12 col-sm-12">
+                                    <table id="tblEconomicosContratos"
+                                           class="table table-hover table-fixed table-bordered compact" style="width:100%"></table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnGuardarContrato">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalGeneral" class="modal fade" data-backdrop="static">
+    <div>
+        <div class="modal-content" id="divmodal">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><label id="lblGeneral"></label> <i class="fas fa-money-check"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="col-lg-12">
+                    <table id="tablaGeneral" class="table table-fixed table-hover table-responsive table-striped">
+                        <thead class="bg-table-header"></thead>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalCtas" class="modal fade" data-backdrop="static">
+    <div>
+        <div class="modal-content" id="divmodal">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><label>Lista de Cuentas</label> <i class="fas fa-money-check"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="col-lg-12">
+                    <table id="tablaCtas" class="table table-fixed table-hover table-responsive table-striped">
+                        <thead class="bg-table-header">
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalUpdateContrato" class="modal fade" data-backdrop="static">
+    <div>
+        <div class="modal-content" id="divmodal">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><label>Archivo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="col-sm-12 col-lg-12">
+                    <label class="form-label">Archivo Contrato:</label>
+
+                    <input type="file" name="inputArchivoContratoUpdate" id="inputArchivoContratoUpdate" accept="application/pdf, image/*" class="form-control">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnGuardarUpdateArchivo">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/bootbox/bootbox.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/select2/select2.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Contratos/DocumentosPorPagar.js"></script>

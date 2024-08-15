@@ -1,0 +1,170 @@
+﻿@{
+    ViewBag.Title = "Capturas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<!-- CSS -->
+<link href='~/Content/style/datatables/jquery.dataTables.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/PNAgrupaciones.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class='container-fluid'>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>GRUPO CONSTRUCCIONES PLANIFICADAS SA DE CV.</h1>
+            <h2>RECURSOS NECESARIOS</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class='col-lg-2'>
+                            <label>Año</label>
+                            <select id='cboFiltroAnio' class='form-control select2'></select>
+                        </div>
+                        <div class='col-lg-8'>
+                            <label>CC</label>
+                            <select id='cboFiltroCC' class='form-control select2'></select>
+                        </div>
+                        <div class='pull-right' style="margin-top: 25px;">
+                            <button type='button' class='btn btn-primary' id='btnFiltroBuscar'><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                            <button type='button' class='btn btn-primary marginRight' id='btnFiltroNuevo'><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class='col-xs-12'>
+                            <table id='tblAF_CtrlPptalOfCe_RN_CatAgrupaciones' class='table table-hover table-bordered compact' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR/EDITAR AGRUPACIÓN -->
+<div id='mdlCEAgrupacion' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCEAgrupacion'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCEAnio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCECC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Agrupación</label>
+                        <input type='text' placeholder="INGRESAR AGRUPACIÓN." id='txtCEAgrupacion' class='form-control' />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCEAgrupacion'><span id='lblTitleBtnCEAgrupacion'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR AGRUPACIÓN -->
+
+<!-- MODAL LISTADO DE CONCEPTOS -->
+<div id='mdlListadoConceptos' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleListadoConceptos'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='pull-right'>
+                    <button type='button' class='btn btn-primary' id='btnFiltroNuevoConcepto'><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                </div><br><br>
+                <div class='row'>
+                    <div class='col-xs-12'>
+                        <table id='tblAF_CtrlPptalOfCe_RN_CatConceptos' class='table table-hover table-bordered compact' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE CONCEPTOS -->
+
+<!-- MODAL CREAR/EDITAR CONCEPTO -->
+<div id='mdlCEConcepto' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCEConcepto'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCEConceptoAnio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCEConceptoCC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-lg-12'>
+                        <label>Agrupación</label>
+                        <select id='cboCEConceptoAgrupacion' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Concepto</label>
+                        <input type='text' placeholder="INGRESAR CONCEPTO." id='txtCEConceptoConcepto' class='form-control' autocomplete="off" />
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Cantidad</label>
+                        <input type='text' placeholder="INGRESAR CANTIDAD." id='txtCEConceptoCantidad' class='form-control' autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCEConcepto'><span id='lblTitleBtnCEConcepto'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CONCEPTO -->
+
+<!-- SCRIPTS -->
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/moment.min.js'></script>
+<script src='~/Scripts/datetime-moment.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/PNAgrupaciones.js'></script>
+<script src='~/Scripts/Utilities/datatables/jquery.dataTables.js'></script>

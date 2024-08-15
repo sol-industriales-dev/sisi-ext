@@ -1,0 +1,213 @@
+@{
+    ViewBag.Title = "Reporte Anual Nomina";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/Dropzone/basic.min.css" rel="stylesheet" />
+<link href="~/Content/style/Dropzone/dropzone.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/ReporteEmpleadoCC.css" rel="stylesheet" />
+
+
+<style>
+
+.ui-datepicker-calendar {
+    display: none;
+}
+
+</style>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">REPORTE DE NOMINA (RANGO) Por Empleado y Centro de costo</h2>
+        </div>
+    </div>
+
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-calendar-week"></i> Periodo</legend>
+        <div class="row">
+            <div class="margin-top col-md-2 col-lg-2">
+                <label>Mes: </label>
+                <input id="inputMes" name="inputMes" class="form-control text-center" type = "text" autocomplete="off">
+
+            </div>
+            <div class="margin-top col-md-2 col-lg-2">
+                <label>Centro de Costo: </label>
+                <select id="cboxCentroCostos" autocomplete="off" style="width: 100%; height: 26px"></select>
+            </div>
+            <div class="margin-top col-md-2 col-lg-2">
+                <label>Empleado : </label>
+                <select id="cboxEmpleado" autocomplete="off" style="width: 100%; height: 26px"></select>
+            </div>
+            <div class="margin-top col-md-2 col-lg-2">
+                <label>Tipo de Raya: </label>
+                <select id="cboFiltroTipoRaya" autocomplete="off" style="width: 100%; height: 26px">
+                    <option value="1">Nomina</option>
+                    <option value="2">Finiquito</option>
+                </select>
+            </div>
+            <div class="pull-right">
+                <div class ="col-lg-12 margin-top margin-right">
+                    <button type = "button" id = "btnSetRango" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button  type="button" id = "btnExportar" class="btn btn-primary" disabled>
+                        <i class="fas fa-save"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </fieldset>
+
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-table"></i> # Empleados: <span id="numHeadEmpleados"></span></legend>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="panelGeneral" class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-responsive">
+                                    <table id="tblReporteEmpleadoCC" class="hover stripe order-column compact" style="width:100%">
+                                        <!-- <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th>Totales</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot> -->
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+
+    
+</div>
+
+
+<script src="~/Scripts/Utilities/Dropzone/dropzone.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/fixedColumns.dataTables.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/ReporteEmpleadoCC.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>

@@ -1,0 +1,390 @@
+﻿@{
+    ViewBag.Title = "rptHorasHombre";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@*<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+    <script src="~/Scripts/Utilities/datatables/datatables.js"></script>*@
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.16/datatables.min.css" />
+
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.16/datatables.min.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Captura/OT/rptHorasHombreJS.js"></script>
+
+
+
+@Html.Partial("reportViewerView", false)
+<div class="container-fluid">
+    <div class="row">
+        <h3 class="text-center">
+            <label>Reporte de Horas Hombre</label>
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>CC</label>
+                    <select class="form-control" id="cboCC"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class=" row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Fecha Inicio:
+                            </label>
+                            <input class="form-control" id="txtFechaIncioFiltro" type="text" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Fecha Fin:
+                            </label>
+                            <input class="form-control" id="txtFechaFinFiltro" type="text" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Motivo Paro</label>
+                    <select class="form-control" id="cboMotivoParo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Tipo Paro:</label>
+                    <select class="form-control " id="cboTipoParo">
+                        <option value="0">Todos</option>
+                        <option value="1">Paro Programado</option>
+                        <option value="2">Paro no Programado</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Condicion Paro:</label>
+                    <select class="form-control" id="cboCondicionParo">
+                        <option value="0">Todos</option>
+                        <option value="1">Preventivo</option>
+                        <option value="2">Correctivo</option>
+                        <option value="3">Predictivo</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Grupo de Maquina:</label>
+                    <select class="form-control" id="cboGrupo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Economico:</label>
+                    <select class="form-control" id="cboNoEconomico"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                    <label>Condicion Equipo:</label>
+                    <select class="form-control" id="cboEstatusEquipo">
+                        <option value="0">Todos</option>
+                        <option value="1"> Maquinaria en stand by</option>
+                        <option value="2"> Maquinaria trabajando</option>
+                        <option value="3"> Falta de Tramo</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 margin-top">
+                            <button type="button" id="btnCargar" class="btn btn-default">
+                                Buscar
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 margin-top">
+                            <button type="button" id="btnGraficaHorasHombre" class="btn btn-default">
+                                Grafica General
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 margin-top">
+                            <button type="button" id="btnReporteGeneral" class="btn btn-default">
+                                Reporte Puestos
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 margin-top">
+                            <button type="button" id="btnReporteMaquinaria" class="btn btn-default">
+                                Reporte Maquinas
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Reporte Datos:</legend>
+                <table class="table table-responsive table-fixed" id="tblHorasHombre">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th>No.</th>
+                            <th>Puesto</th>
+                            <th>Total Horas hombre</th>
+                            <th>Costo hr-hombre</th>
+                            <th>Costo Total de horas hombre</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th style="text-align:right">Totales:</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalDetalleHorasHombre" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="divPersonalModalDetalle">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="button" id="btnReportePersonal" class="btn btn-default">
+                            Exportar
+                        </button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblDetalleHorasHombre" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>Nombre Personal</th>
+                                            <th>Hrs Trabajadas mantto Preventivo</th>
+                                            <th>Hrs trabajadas mantto Predictivo</th>
+                                            <th>Hrs trabajadas mantto Correctivo</th>
+                                            <th>Cantidad de OT</th>
+                                            <th>Total de horas OT</th>
+                                            <th>Detalle OTs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine1" width="1150" height="300"></canvas>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row hide" id="divOTModalDetalle">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="button" id="btnReporteOTsPersonal" class="btn btn-default btn-block">
+                            Exportar
+                        </button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"><span class="glyphicon glyphicon-arrow-left" id="btnRegresar"></span> <label id="txtOTDetalle"></label></legend>
+                            <table id="tblOTsPersonal" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>No Economico</th>
+                                        <th>Motivo Paro</th>
+                                        <th>Hora entrada OT</th>
+                                        <th>Hora Salida OT</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalverGrafica" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body scroll">
+                <div class='row'>
+                    <div class="col-lg-1 form-group pull-right">
+                        <button type="button" id="btnRtpGenerales" class="btn btn-default">
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-heading" style="padding: 0px;">
+                    <ul class="nav nav-tabs">
+                        <li class="active hide">
+                            <a data-toggle="tab" href="#tabTotalHorasHombre">GRAFICAS TOTAL HORAS NOMBRE</a>
+                        </li>
+                        <li class="text-right hide">
+                            <a data-toggle="tab" href="#tabCostoXHora">GRAFICA COSTO POR HORA</a>
+                        </li>
+                        <li class="text-right hide">
+                            <a data-toggle="tab" href="#tabCostoTotalXHoraHombre">GRAFICAS COSTO TOTAL X HORA HOMBRE</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tabTotalHorasHombre" class="tab-pane fade in active">
+                            <div class="row">
+                                <div class="row center-block scroll">
+                                    <fieldset class='fieldset-custm'>
+                                        <legend class='legend-custm'> GRAFICAS TOTAL HORAS NOMBRE</legend>
+                                        <canvas id="LineWithLine2" width="2200" height="900"></canvas>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tabCostoXHora" class="tab-pane fade in hide">
+                            <div class="row">
+                                <div class="row center-block">
+                                    <fieldset class='fieldset-custm'>
+                                        <legend class='legend-custm'> GRAFICA COSTO POR HORA</legend>
+                                        <canvas id="LineWithLine3" width=" 1150" height="300"></canvas>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tabCostoTotalXHoraHombre" class="tab-pane fade in active">
+                            <div class="row">
+                                <div class="row center-block">
+                                    <fieldset class='fieldset-custm'>
+                                        <legend class='legend-custm'> GRAFICAS COSTO TOTAL X HORA HOMBRE</legend>
+                                        <canvas id="LineWithLine4" width="2200" height="900"></canvas>
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+<div class="modal fade" id="modalverRPTHorasHombre" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModal">Datos de Reporte</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>Puestos: </label>
+                        <select class="form-control" id="cboPuestosModal" multiple></select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Personal: </label>
+                        <select class="form-control" id="cboNombrePersonal" multiple></select>
+                    </div>
+                    <div class="col-lg-4 margin-top">
+                        <div class="col-lg-6">
+                            <button type="button" id="btnBuscarrpt" class="btn btn-default">
+                                Buscar
+                            </button>
+                        </div>
+                        <div class="col-lg-6">
+                            <button type="button" id="btnVerReporte" class="btn btn-default">
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Resultado: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblDetalleHorasHombreRpt" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>Nombre Personal</th>
+                                            <th>Hrs Trabajadas mantto Preventivo</th>
+                                            <th>Hrs trabajadas mantto Predictivo</th>
+                                            <th>Hrs trabajadas mantto Correctivo</th>
+                                            <th>Cantidad de OT</th>
+                                            <th>Total de horas OT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalverRPTMaquinaria" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModal">Datos de Reporte</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>Maquinaria: </label>
+                        <select class="form-control" id="cboMaquinaria" multiple></select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Puestos: </label>
+                        <select class="form-control" id="cboPuestosModal2" multiple></select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Personal: </label>
+                        <select class="form-control" id="cboNombrePersonal2" multiple></select>
+                    </div>
+                    <div class="col-lg-6">
+                        <button type="button" id="btnVerReporte2" class="btn btn-default">
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

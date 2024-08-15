@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "Registro de Backlogs";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/InformeTMC.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/General.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">INFORME DE REHABILITACIÓN</h2>
+</fieldset>
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <div class="col-lg-3">
+        <fieldset class="fieldset-custm" style="display: none">
+            <!-- LISTADO DE PROYECTOS -->
+            <legend class="legend-custm">PROYECTO<span id="lblErrorProyecto"></span></legend>
+            <div class="col-xs-10 col-sm-10 col-md-12 col-lg-10">
+                <select class="form-control" id="cboProyecto"></select>
+            </div>
+        </fieldset>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-lg-12">
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'><span class="badge">Reporte general</span></legend>
+                    <div id="divReporteGeneral" style="display:none;">
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha fin</span>
+                                    <input type="text" class="form-control" id="rptGeneralFechaFin" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha inicio</span>
+                                    <input type="text" class="form-control" id="rptGeneralFechaInicio" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <button class="btn btn-primary" id="rptGeneral"><i class="fas fa-file-alt"></i>&nbsp;Generar</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-lg-12">
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'><span class="badge">Excel cargo nómina</span></legend>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Económico</span>
+                                <select id="selectCentroCosto" class="form-control" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio</span>
+                                <input type="text" class="form-control" id="inputFechaInicioCargo" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Fin</span>
+                                <input type="text" class="form-control" id="inputFechaFinCargo" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <button class="btn btn-primary" id="botonGenerarExcelCargo"><i class="fas fa-file-alt"></i>&nbsp;Generar</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <div id="graficaCargoNomina"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioTMC">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnPresupuestoRehabilitacion">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Presupuesto de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnSeguimientoPresupuestos">
+                        <i class="fas fa-file-invoice-dollar icono-menu"></i>&nbsp;Seguimiento a Presupuestos
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnFrenteBackLogs">
+                        <i class="fas fa-briefcase icono-menu"></i>&nbsp;Frentes de Trabajo
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informes de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnIndicadoresRehabilitacionTMC">
+                        <i class="fa fa-file-pdf icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Presupuesto (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Autorización de Presupuesto (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Rehabilitación Programada (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        BackLogs Instalados (100%)
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO REGISTRO DE BACKLOGS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><span class="badge">Filtros</span></legend>
+            <div class="row">
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboCC">CC: </label>
+                    <select id="cboCC" class="form-control" multiple></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="txtModelo">Modelo: </label>
+                    @* <select id="cboModelo" class="form-control"></select> *@
+                    <input type="text" id="cboModelo" class="form-control" disabled="disabled">
+                </div>
+
+                <div class="col-lg-4">
+                    <label class="text-color" for="txtGrupo">Grupo: </label>
+                    @* <select id="cboGrupo" class="form-control"></select> *@
+                    <input type="text" id="cboGrupo" class="form-control" disabled="disabled">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboConjunto">Conjunto: </label><br>
+                    <select id="cboConjunto" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboSubconjunto">Subconjunto: </label><br>
+                    <select id="cboSubconjunto" class="form-control"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-color" for="cboMes">Mes: </label>
+                    <select type="text" id="cboMes" class="form-control js-example-data-array"></select>
+                </div><br>
+            </div><br>
+
+            <div class="row">
+                <div class="form-inline">
+                    <div class="col-lg-1"></div>
+
+                    @* <div class="col-lg-1">
+                        <label class="text-color">Estatus: </label>
+                        </div> *@
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-20">
+                        <label class="text-color">20%: </label>
+                        <input id="chk20" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-40">
+                        <label class="text-color">40%: </label>
+                        <input id="chk40" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-50">
+                        <label class="text-color">50%: </label>
+                        <input id="chk50" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-60">
+                        <label class="text-color">60%: </label>
+                        <input id="chk60" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-80">
+                        <label class="text-color">80%: </label>
+                        <input id="chk80" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-90">
+                        <label class="text-color">90%: </label>
+                        <input id="chk90" type="checkbox" />
+                    </div>
+
+                    <div class="col-lg-1 form-group form-control boton-estatus-100">
+                        <label class="text-color">100%: </label>
+                        <input id="chk100" type="checkbox" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 pull-right">
+                        <button id="btnBuscar" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                        <button id="btnExportar" class="btn btn-success"><i class="fas fa-table"></i>&nbsp;Exportar</button>
+                        <button id="btnLiberar" class="btn btn-default"><i class="fas fa-road"></i>&nbsp;Liberar</button>
+                    </div>
+                </div>
+            </div><br />
+
+            <div class="col-lg-12 table-responsive ">
+                <table id="tblBL_CatBackLogsTMC" class="hover stripe order-column compact"></table>
+            </div>
+
+        </fieldset>
+        <br />
+    </div>
+
+    <!-- MODAL VER NUMERO DE OC -->
+    <div class="modal fade-in disenioModal" id="modalVerOC">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Número OC</h3>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblBL_OrdenesCompra" class="hover stripe order-column"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo-alt"></i>&nbsp;Regresar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VER NUMERO DE REQUISICION -->
+    <div class="modal fade-in disenioModal" id="modalVerRequisicion">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Requisiciones</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblBL_Requisiciones" class="hover stripe order-column"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EVIDENCIAS -->
+    <div class="modal fade-in disenioModal" id="mdlEvidencias">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Evidencias</h3>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-1"></div>
+                        <div clas="col-lg-8">
+                            <div class="col-lg-4">
+                                <label class="inputs pointer" for='inputExamen'>
+                                    <img src="https://byspel.com/wp-content/uploads/2017/01/upload-cloud.png" style="width:25%" />
+                                </label>
+
+                                <input id='inputExamen' type="file" style="display:none;" />
+                                <label id="lblTexto1" style="margin-left: -45px;">Ningún archivo seleccionado</label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4" id="divCboMdlEvidenciasTipoEvidencias">
+                            <label for="cboMdlEvidenciasTipoEvidencia">Seleccionar tipo de evidencia: </label>
+                            <select id="cboMdlEvidenciasTipoEvidencia" class="form-control">
+                                <option value="">--Seleccione--</option>
+                                <option value="3">Evidencia para OT vacía</option>
+                                <option value="1">Evidencia para OT</option>
+                                <option value="2">Evidencia de seguridad</option>
+                                <option value="4">Evidencia para liberar</option>
+                                <option value="5">Evidencia para Orden de BL</option>
+                            </select>
+                        </div>
+
+                        <input id='rowDataId' style="display:none;" />
+                    </div>
+                    @* <div class="row">
+                        <div class="col-lg-6">
+                        <input type="file" id="btnCargarEvidenciaFile" />
+                        </div>
+                        </div><br> *@
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="table-responsive">
+                                <table id="tblEvidencias" class="hover stripe order-column"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="btnGuardarEvidencia"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                    <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: MODAL EVIDENCIAS -->
+
+</fieldset>
+
+<!-- MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+<div id='mdlDescripcionBL' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Descripción del BL</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcionBL" onkeypress="return false;" cols="30" rows="10" data-width="100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/BackLogs/TMCInformeJS.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>

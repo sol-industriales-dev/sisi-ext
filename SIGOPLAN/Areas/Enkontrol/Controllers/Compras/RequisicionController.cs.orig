@@ -1,0 +1,1187 @@
+﻿using Core.DTO;
+using Core.DTO.Enkontrol.Alamcen;
+using Core.DTO.Enkontrol.Requisicion;
+using Core.Entity.Enkontrol.Compras.Requisicion;
+using Core.Enum.Enkontrol.Requisicion;
+using Data.Factory.Enkontrol.Compras;
+using Data.Factory.Principal.Usuarios;
+using Infrastructure.Utils;
+using SIGOPLAN.Controllers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+
+namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
+{
+    public class RequisicionController : BaseController
+    {
+        // GET: Enkontrol/Requisicion
+        private RequisicionFactoryServices rfs;
+        private UsuarioFactoryServices ufs;
+        Dictionary<string, object> result;
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            rfs = new RequisicionFactoryServices();
+            ufs = new UsuarioFactoryServices();
+            base.OnActionExecuting(filterContext);
+        }
+        #region Captura
+        public ActionResult Solicitar()
+        {
+            return View();
+        }
+        public ActionResult Editar()
+        {
+            return View();
+        }
+        public ActionResult Surtido()
+        {
+            return View();
+        }
+        public ActionResult Entradas()
+        {
+            return View();
+        }
+        public ActionResult Salidas()
+        {
+            return View();
+        }
+        public ActionResult checkEditar()
+        {
+            var result = new Dictionary<string, object>();
+
+            var empresa = vSesiones.sesionEmpresaActual;
+            var menuID = vSesiones.sesionCurrentView;
+
+            bool check = false;
+
+            if (empresa == 1 && menuID == 7246)
+            {
+                check = true;
+            }
+
+            if (empresa == 2 && menuID == 7244)
+            {
+                check = true;
+            }
+
+            result.Add("check", check);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult _renglonVacio()
+        {
+            return PartialView();
+        }
+        public ActionResult _mdlUsuarioEnkontrol()
+        {
+            return PartialView();
+        }
+        public ActionResult SeguimientoRequisiciones()
+        {
+            return View();
+        }
+        public ActionResult _renglonNuevo(int partida, bool nuevo, bool cancelado)
+        {
+            ViewBag.partida = partida;
+            ViewBag.nuevo = nuevo;
+            ViewBag.cancelado = cancelado;
+
+            if (vSesiones.sesionCurrentView == 7221)
+            {
+                ViewBag.vistaAutorizar = true;
+            }
+            else
+            {
+                ViewBag.vistaAutorizar = false;
+            }
+
+            //Condición para los dos ID's porque no coinciden las tablas "tblP_Menu" en las dos bases de datos
+            if (vSesiones.sesionCurrentView == 7252 || vSesiones.sesionCurrentView == 7251)
+            {
+                ViewBag.vistaSurtido = true;
+            }
+            else
+            {
+                ViewBag.vistaSurtido = false;
+            }
+
+            return PartialView();
+        }
+        public ActionResult guardar(tblCom_Req req, List<tblCom_ReqDet> det, List<ReqDetalleComentarioDTO> comentarios)
+        {
+            return Json(rfs.getReqService().guardar(req, det, comentarios), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getNewReq(string cc)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var req = rfs.getReqService().getNewReq(cc);
+
+                if (req[0][0].numero != null)
+                {
+                    result.Add("numero", (int)req[0][0].numero + 1);
+                    result.Add("solicitoNom", string.Format("{0}", req[1][0].descripcion));
+                    result.Add("solicito", (int)req[1][0].empleado);
+                }
+                else
+                {
+                    result.Add("numero", 1);
+                    result.Add("solicitoNom", string.Format("{0}", req[0][0].descripcion));
+                    result.Add("solicito", (int)req[0][0].empleado);
+                }
+
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add("numero", 0);
+                result.Add("solicitoNom", "Default");
+                result.Add("solicito", 0);
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetUltimaRequisicionSIGOPLAN(string cc)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var req = rfs.getReqService().getUltimaRequisicionSIGOPLAN(cc);
+
+                result.Add("numero", req != null ? req[0].numero.Value : 0);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add("numero", 0);
+                result.Add("solicitoNom", "Default");
+                result.Add("solicito", 0);
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetRequisicion(string cc, int num)
+        {
+            return Json(rfs.getReqService().getRequisicion(cc, num), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getReq(string cc, int num)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var requisicionSIGOPLAN = rfs.getReqService().getRequisicionSIGOPLAN(cc, num);
+                var res = rfs.getReqService().getReq(cc, num);
+
+                if (res.Count > 0)
+                {
+                    var requisicionInfo = new
+                    {
+                        id = 0,
+                        cc = (string)res[0][0].cc,
+                        numero = (int?)res[0][0].numero,
+                        fecha = (DateTime?)res[0][0].fecha,
+                        libre_abordo = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : (int?)res[0][0].libre_abordo,
+                        tipo_req_oc = (string)res[0][0].tipo_req_oc,
+                        solicito = (int?)res[0][0].solicito,
+                        vobo = (int?)res[0][0].vobo,
+                        autorizo = (int?)res[0][0].autorizo,
+                        comentarios = (string)res[0][0].comentarios,
+                        st_estatus = (string)res[0][0].st_estatus,
+                        st_autoriza = (string)res[0][0].st_autoriza,
+                        empleado_modifica = (int?)res[0][0].empleado_modifica,
+                        fecha_modifica = (DateTime?)res[0][0].fecha_modifica,
+                        fecha_modificaString = ((DateTime?)res[0][0].fecha_modifica).Value.Date.ToShortDateString(),
+                        hora_modifica = (DateTime?)res[0][0].hora_modifica,
+                        hora_modificaString = ((DateTime?)res[0][0].hora_modifica).Value.TimeOfDay.ToString(),
+                        fecha_autoriza = (DateTime?)res[0][0].fecha_autoriza,
+                        tmc = (int?)res[0][0].tmc,
+                        autoriza_activos = (int?)res[0][0].autoriza_activos,
+                        num_vobo = (int?)res[0][0].num_vobo,
+                        solicitoNom = (string)res[0][0].solicitoNom,
+                        empModificaNom = (string)res[0][0].empModificaNom,
+                        voboNom = (string)res[0][0].voboNom,
+                        empAutNom = (string)res[0][0].empAutNom,
+                        st_impresa = (string)res[0][0].st_impresa,
+
+                        folioOrigen = rfs.getReqService().getFolioOrigen(cc, num),
+                        consigna = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.consigna : false,
+                        validadoAlmacen = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.validadoAlmacen != null ? requisicionSIGOPLAN.validadoAlmacen : false : false,
+                        comprador = requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.comprador ?? 0) : 0
+                    };
+
+                    var lstPartida = new object[res[1].Count];
+
+                    var surtidos = rfs.getReqService().getSurtidoPorReq(cc, num);
+
+                    foreach (var p in res[1])
+                    {
+                        lstPartida[(int)p.partida - 1] = new
+                        {
+                            id = 0,
+                            idReq = 0,
+                            cc = (string)p.cc,
+                            numero = (int?)p.numero,
+                            partida = (int?)p.partida,
+                            insumo = (int?)p.insumo,
+                            insumoDesc = (string)p.insumoDesc,
+                            unidad = (string)p.unidad,
+                            cancelado = (string)p.cancelado,
+                            fecha_requerido = (DateTime?)p.fecha_requerido,
+                            cantidad = (decimal?)p.cantidad - (decimal?)p.cant_cancelada,
+                            cant_ordenada = (decimal?)p.cant_ordenada,
+                            fecha_ordenada = (DateTime?)p.fecha_ordenada,
+                            estatus = (string)p.estatus,
+                            cant_cancelada = (decimal?)p.cant_cancelada,
+                            referencia_1 = (string)p.referencia_1,
+                            cantidad_excedida_ppto = (decimal?)p.cantidad_excedida_ppto,
+                            area = (int?)p.area,
+                            cuenta = (int?)p.cuenta,
+                            compras_req = (int?)p.compras_req,
+                            partidaDesc = (string)p.partidaDesc,
+
+                            observaciones = requisicionSIGOPLAN != null ?
+                            requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.insumo == (int)p.insumo) != null ?
+                            requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.insumo == (int)p.insumo).observaciones
+                            : "" : "",
+
+                            cantidadCapturada = (surtidos.Count > 0 && surtidos.Where(x => x.insumo == (int)p.insumo).ToList().Count > 0) ? (surtidos.Where(x => x.insumo == (int)p.insumo).Select(y => y.cantidad).Sum()) : 0
+                        };
+                    }
+
+                    result.Add("req", requisicionInfo);
+                    result.Add("partidas", lstPartida);
+                    result.Add("requisicionNueva", false);
+                }
+                else
+                {
+                    var ultimaRequisicion = rfs.getReqService().getUltimaRequisicionNumero(cc);
+
+                    result.Add("requisicionNueva", true);
+                    result.Add("ultimaRequisicionNumero", ultimaRequisicion);
+                }
+
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetFolio(string folio, int tipo)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var existe = rfs.getReqService().getFolio(folio, tipo);
+
+                result.Add("existe", existe);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetExistenciaInsumo(int insumo, string cc, int almacen)
+        {
+            result = rfs.getReqService().getExistenciaInsumo(insumo, cc, almacen);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetExistenciaInsumoDetalle(int insumo)
+        {
+            result = rfs.getReqService().getExistenciaInsumoDetalle(insumo);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        #region Autorizacion
+        public ActionResult Autorizacion()
+        {
+            return View();
+        }
+        public ActionResult setAuth(List<tblCom_Req> lst)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(SUCCESS, rfs.getReqService().setAuth(lst));
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult isEmpAdmin()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add("isEmpAdmin", rfs.getReqService().isEmpAdmin());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add("isEmpAdmin", false);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getEncReq(List<string> cc, bool isAuth)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var lstReq = rfs.getReqService().getReq(isAuth, cc);
+                result.Add("lstReq", lstReq);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            var json = Json(result, JsonRequestBehavior.AllowGet);
+
+            json.MaxJsonLength = int.MaxValue;
+
+            return json;
+        }
+        #endregion
+        #region cbo
+        public ActionResult FillComboLab()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboLab());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #region autoComplete
+        public ActionResult getInsumos(string term, string cc)
+        {
+            var items = rfs.getReqService().getInsumos(term, cc);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosDesc(string term, string cc)
+        {
+            var items = rfs.getReqService().getInsumosDesc(term, cc);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosByAlmacen(string term, string cc, int almacen)
+        {
+            var items = rfs.getReqService().getInsumosByAlmacen(term, cc, almacen);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosDescByAlmacen(string term, string cc, int almacen)
+        {
+            var items = rfs.getReqService().getInsumosDescByAlmacen(term, cc, almacen);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosTraspaso(string term, string cc)
+        {
+            var items = rfs.getReqService().getInsumos(term, cc);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosTraspasoDesc(string term, string cc)
+        {
+            var items = rfs.getReqService().getInsumosDesc(term, cc);
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        public ActionResult FillComboTipoReq()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboTipoReq());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboResponsablePorCc(string cc)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboResponsablePorCc(cc));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboAreaCuenta(string cc)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboAreaCuenta(cc));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboCcReq(bool isAuth)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboCcReq(isAuth));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboCcAsigReq()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboCcAsigReq());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboCcTodos()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboCcTodos());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboTipoFolio()
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboTipoFolio());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboTxtFolio(int tipo = 0)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboTxtFolio(tipo));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboAlmacenSurtir()
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboAlmacenSurtir());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillComboAlmacenSurtirAcceso()
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboAlmacenSurtirAcceso());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillComboAlmacenSurtirTodos()
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboAlmacenSurtirTodos());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillComboEstatusSurtidoRequisicion()
+        {
+            var result = new Dictionary<string, object>();
+            result.Add(ITEMS, GlobalUtils.ParseEnumToCombo<EstatusSurtidoRequisicionEnum>());
+            result.Add(SUCCESS, true);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboTipoInsumo()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboTipoInsumo());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        #region Usuario
+        public ActionResult getThisUsuarioEnkontrol()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var empleado = rfs.getReqService().getThisEmpleadoEnkontrol();
+                result.Add("empleado", (int)empleado[0].empleado);
+                result.Add("nombre", (string)empleado[0].nom);
+                result.Add("ekUsuario", (string)empleado[0].num);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                var usuario = vSesiones.sesionUsuarioDTO;
+                result.Add("nombre", string.Format("{0} {1} {2}", usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno));
+                result.Add(SUCCESS, false);
+                result.Add(MESSAGE, e.Message);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region SALIDA POR CONSUMO
+        public ActionResult SalidaConsumo()
+        {
+            return View();
+        }
+        public ActionResult GetReqSalidasConsumo(string cc, int tipo)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getReqSalidasConsumo(cc, tipo);
+
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetReqDetSalidasConsumo(string cc, int req, int almacen)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getReqDetSalidasConsumo(cc, req, almacen);
+
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GuardarConsumo(bool salidaNormal, List<SurtidoDetDTO> salidasConsumo)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var flagMaquinaStandBy = false;
+                if (vSesiones.sesionEmpresaActual == 2)
+                {
+                    flagMaquinaStandBy = rfs.getReqService().checkMaquinaStandBy(salidasConsumo[0].cc);
+                }
+
+                List<salidasAlmacenDTO> folioSalidaConsumo = new List<salidasAlmacenDTO>();
+                List<salidasAlmacenDTO> folioSalida = new List<salidasAlmacenDTO>();
+                List<entradasAlmacenDTO> folioEntrada = new List<entradasAlmacenDTO>();
+                bool seGuardo = false;
+
+                //SI ES SALIDA NORMAL, SOLO SE HACE UN MOVIMIENTO DE SALIDA POR CONSUMO
+                if (salidaNormal)
+                {
+                    folioSalidaConsumo = rfs.getReqService().guardarSalidasConsumo(salidasConsumo, salidaNormal);
+
+                    seGuardo = folioSalidaConsumo.Count > 0;
+                }
+                else
+                {
+                    rfs.getReqService().checarUbicacionesValidas(salidasConsumo);
+
+                    folioSalida = rfs.getReqService().GuardarSalidasC(salidasConsumo);
+                    folioEntrada = rfs.getReqService().GuardarEntradasConsumo(salidasConsumo);
+                    folioSalidaConsumo = rfs.getReqService().guardarSalidasConsumo(salidasConsumo, salidaNormal);
+
+                    seGuardo = folioSalida.Count > 0 && folioEntrada.Count > 0 && folioSalidaConsumo.Count > 0;
+                }
+
+                result.Add(SUCCESS, seGuardo);
+                result.Add("flagMaquinaStandBy", flagMaquinaStandBy);
+
+                if (seGuardo)
+                {
+                    Session["folioSalidaConsumo"] = folioSalidaConsumo;
+                };
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        //public ActionResult GuardarSalidasConsumo(List<SurtidoDetDTO> salidas)
+        //{
+        //    var result = new Dictionary<string, object>();
+
+        //    try
+        //    {
+        //        List<salidasAlmacenDTO> folios = rfs.getReqService().guardarSalidasConsumo(salidas);
+
+        //        result.Add(SUCCESS, true);
+        //        Session["foliosSalidas"] = folios;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        result.Add(MESSAGE, e.Message);
+        //        result.Add(SUCCESS, false);
+        //    }
+
+        //    return Json(result, JsonRequestBehavior.AllowGet);
+        //}
+
+        #endregion
+        #region Origen Por Stock
+
+        public ActionResult OrigenStock()
+        {
+            return View();
+        }
+
+
+        #endregion
+
+        #region Pendiente por Surtir
+        public ActionResult PendienteSurtir()
+        {
+            return View();
+        }
+
+        public ActionResult ObtenerRequisicionesPendientes(List<string> listaCC, List<int> listaAlmacenes, int estatus, int validadoAlmacen, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().ObtenerRequisicionesPendientes(listaCC, listaAlmacenes, estatus, validadoAlmacen, fechaInicio, fechaFin);
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, "Ocurrió un error interno.");
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        public ActionResult ConfirmarRequisiciones()
+        {
+            return View();
+        }
+        public ActionResult MesaAnalisis()
+        {
+            return View();
+        }
+        public ActionResult GuardarSurtido(RequisicionDTO info, List<SurtidoDTO> lstSurtido)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                rfs.getReqService().GuardarSurtido(info, lstSurtido);
+
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetSalidas(int almacenOrigenID, int almacenDestinoID)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getSalidas(almacenOrigenID, almacenDestinoID);
+
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GuardarSalidas(List<SurtidoDetDTO> salidas)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var flagMaquinaStandBy = false;
+                if (vSesiones.sesionEmpresaActual == 2)
+                {
+                    flagMaquinaStandBy = rfs.getReqService().checkMaquinaStandBy(salidas[0].cc);
+                }
+
+                List<salidasAlmacenDTO> folios = rfs.getReqService().GuardarSalidas(salidas);
+
+                result.Add(SUCCESS, true);
+                result.Add("flagMaquinaStandBy", flagMaquinaStandBy);
+                Session["foliosSalidasTraspasos"] = folios;
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetEntradas(int almacenOrigen, string centroCostoOrigen, int almacenDestino, string centroCostoDestino)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getEntradas(almacenOrigen, centroCostoOrigen, almacenDestino, centroCostoDestino);
+
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetSalidaTraspaso(int almacenOrigen, string centroCostoOrigen, int almacenDestino, string centroCostoDestino, int folioTraspaso)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getSalidaTraspaso(almacenOrigen, centroCostoOrigen, almacenDestino, centroCostoDestino, folioTraspaso);
+
+                result.Add(SUCCESS, true);
+                result.Add("data", data);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GuardarEntradas(List<SurtidoDetDTO> entradas, int folio_traspaso)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                rfs.getReqService().checarUbicacionesValidas(entradas);
+
+                List<entradasAlmacenDTO> folios = rfs.getReqService().GuardarEntradas(entradas, folio_traspaso);
+
+                result.Add(SUCCESS, true);
+                Session["foliosEntradas"] = folios;
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetMovSalidaAlmacen(int almacen_id, string cc, int folioSalida)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var movimiento = rfs.getReqService().getMovSalidaAlmacen(almacen_id, cc, folioSalida);
+
+                result.Add(SUCCESS, true);
+                result.Add("movimiento", movimiento);
+
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ValidarSurtido(string cc, int numero)
+        {
+            return Json(rfs.getReqService().validarSurtido(cc, numero), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ValidarSurtidoCompras(string cc, int numero)
+        {
+            return Json(rfs.getReqService().validarSurtidoCompras(cc, numero), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetRequisicionesPorUsuarioProcesadas(List<string> listCC)
+        {
+            return Json(rfs.getReqService().getRequisicionesPorUsuarioProcesadas(listCC), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ValidacionesRequisitor(string cc, List<int> numeros)
+        {
+            return Json(rfs.getReqService().validacionesRequisitor(cc, numeros), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetUbicacionDetalle(string cc, int almacenID, int insumo)
+        {
+            return Json(rfs.getReqService().getUbicacionDetalle(cc, almacenID, insumo), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetUbicacionPorRequisicion(RequisicionDTO requisicion)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getUbicacionPorRequisicion(requisicion);
+
+                List<UbicacionDetalleDTO> listUbicacionDetalle = new List<UbicacionDetalleDTO>();
+
+                if ((List<UbicacionDetalleDTO>)Session["borradorDetalle"] != null)
+                {
+                    listUbicacionDetalle.AddRange((List<UbicacionDetalleDTO>)Session["borradorDetalle"]);
+                }
+                if (data != null)
+                {
+                    listUbicacionDetalle.AddRange(data);
+                }
+
+                Session["borradorDetalle"] = listUbicacionDetalle;
+
+                result.Add("data", data);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult LimpiarSesionBorrador()
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                Session["borradorDetalle"] = null;
+
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult ConfirmarRequisicion(RequisicionDTO requisicion)
+        {
+            return Json(rfs.getReqService().confirmarRequisicion(requisicion), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult getInsumosAutoComplete(string term)
+        {
+            var items = rfs.getReqService().getInsumosAutoComplete(term);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInsumosDescAutoComplete(string term)
+        {
+            var items = rfs.getReqService().getInsumosDescAutoComplete(term);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetInsumoInformacion(int insumo)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add("data", rfs.getReqService().getInsumoInformacion(insumo));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetInsumoInformacionByAlmacen(int insumo, int almacen)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add("data", rfs.getReqService().getInsumoInformacionByAlmacen(insumo, almacen));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetSurtidoDetalle(string cc, int numero)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                result.Add("data", rfs.getReqService().getSurtidoDetalle(cc, numero));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult BorrarRequisicion(string cc, int numero)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                rfs.getReqService().borrarRequisicion(cc, numero);
+
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetRequisicionesSeguimiento(List<string> listaCC, List<int> listaTipoInsumo, DateTime fechaInicial, DateTime fechaFinal, int estatus, int comprador, int requisitor)
+        {
+            var result = new Dictionary<string, object>();
+
+<<<<<<< Updated upstream
+            //try
+            //{
+            var data = rfs.getReqService().getRequisicionesSeguimiento(listaCC, listaTipoInsumo, fechaInicial, fechaFinal, estatus).Where(x => comprador != 0 ? x.comprador == comprador : true).ToList();
+=======
+            try
+            {
+                var data = rfs.getReqService().getRequisicionesSeguimiento(listaCC, listaTipoInsumo, fechaInicial, fechaFinal, estatus, requisitor).Where(x => comprador != 0 ? x.comprador == comprador : true);
+>>>>>>> Stashed changes
+
+            Session["seguimientoRequisiciones"] = data;
+
+            result.Add("data", data);
+            result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            var json = Json(result, JsonRequestBehavior.AllowGet);
+
+            json.MaxJsonLength = int.MaxValue;
+
+            return json;
+
+            //return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult CancelarValidado(string cc, int numero)
+        {
+            return Json(rfs.getReqService().cancelarValidado(cc, numero), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetReporteSurtidoRequisicion(string cc, int numero)
+        {
+            var result = new Dictionary<string, object>();
+
+            try
+            {
+                var data = rfs.getReqService().getReporteSurtidoRequisicion(cc, numero);
+
+                Session["surtidoRequisicion"] = data;
+
+                result.Add("data", data);
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult FillComboRequisitores()
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().getRequisitores().OrderBy(x=>x.Text).ToList());
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+    }
+}

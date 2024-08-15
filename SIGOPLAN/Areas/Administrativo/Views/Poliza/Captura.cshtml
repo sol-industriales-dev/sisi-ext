@@ -1,0 +1,614 @@
+﻿@{
+    ViewBag.Title = "Captura";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Contabilidad/Poliza/Captura.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<div class="container-fluid">
+    <h1 class="text-center">Pólizas</h1>
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#tabPoliza">Gestor de Pólizas</a></li>
+        @*<li><a data-toggle="tab" href="#tabCadena">Archivos Pendientes</a></li>*@
+        <li><a data-toggle="tab" href="#tabAplicado">Cadenas Productivas</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="tabPoliza" class="tab-pane fade in active">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Búsqueda</legend>
+                <div class="col-md-2 form-group">
+                    <label>Inicio:</label>
+                    <input type="text" id="dtIni" class="form-control" />
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Fin:</label>
+                    <input type="text" id="dtFin" class="form-control" />
+                </div>
+                <div class="col-md-1">
+                    <label>Número:</label>
+                    <input type="number" id="numPoliza" class="form-control numPoliza" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                </div>
+                <div class="col-md-3">
+                    <label>Tipo:</label>
+                    <select type="text" class="form-control" id="selTp"></select>
+                </div>
+                <div class="col-md-1">
+                    <button id="btnGetPoliza" class="btn btn-primary margin-top">
+                        <i class="fa fa-search" aria-hidden="true"></i> Buscar
+                    </button>
+                </div>
+                <div class="col-md-1 hidden">
+                    <button id="btnReporte" type="button" class="btn btn-primary margin-top">
+                        <i class="fa fa-print" aria-hidden="true"></i> Reporte
+                    </button>
+                </div>
+                <div class="col-md-1">
+                    <button id="btnNuevo" type="button" class="btn btn-primary margin-top">
+                        <i class="fa fa-plus" aria-hidden="true"></i> Póliza
+                    </button>
+                </div>
+            </fieldset>
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados</legend>
+                <div class="row">
+                    <div class="col-lg-12 container-fluid">
+                        <table id="tblPolizas" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>PÓLIZA</th>
+                                    <th>TIPO PÓLIZA</th>
+                                    <th>FECHA</th>
+                                    <th>CARGO</th>
+                                    <th>ABONO</th>
+                                    <th>DIFERENCIA</th>
+                                    <th>ESTATUS</th>
+                                    <th>GENERÁDA</th>
+                                    <th>CONCEPTO</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div id="tabCadena" class="tab-pane fade">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Acciones</legend>
+                <div class="col-md-2 col-lg-2">
+                    <label>Moneda:</label>
+                    <select type="text" class="form-control" id="selCadMoneda">
+                        <option value="1">Pesos</option>
+                        <option value="2">Dólares</option>
+                    </select>
+                </div>
+            </fieldset>
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Pólizas Factoraje</legend>
+                <table id="tblCadena" class="table table-condensed table-hover table-striped text-center" width="100%">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th># PROVEEDOR</th>
+                            <th>PROVEEDOR</th>
+                            <th>MONTO</th>
+                            <th>FECHA EMISION</th>
+                            <th>FECHA VENCIMIENTO</th>
+                            <th>IMPRIMIR</th>
+                            <th>PAGAR</th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+        <div id="tabAplicado" class="tab-pane fade">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Acciones</legend>
+                <div class="col-md-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon3">Moneda</span>
+                        <select type="text" class="form-control" id="selAplMoneda">
+                            <option value="1">Pesos</option>
+                            <option value="2">Dólares</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-1 col-lg-1">
+                    <button id="btnLstAplicado" type="button" class="btn btn-success">
+                        <i class="fa fa-table" aria-hidden="true"></i> Diarias
+                    </button>
+                </div>
+                <div class="col-md-1 col-lg-1">
+                    <button id="btnLstLimpiar" type="button" class="btn btn-default">
+                        <i class="fa fa-eraser" aria-hidden="true"></i> Limpiar
+                    </button>
+                </div>
+            </fieldset>
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados</legend>
+                <div class="table-responsive">
+                    <table id="tblAplicado" class="table table-condensed table-hover table-striped text-center" width="100%">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th># PROVEEDOR</th>
+                                <th>PROVEEDOR</th>
+                                <th>MONTO</th>
+                                <th>FECHA EMISION</th>
+                                <th>FECHA VENCIMIENTO</th>
+                                <th>IMPRIMIR</th>
+                                <th>PAGAR</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>                
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div id="modalCaptura" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-archive"></i>
+                    Captura
+                </h4>
+            </div>
+            <div class="modal-body scrollbox">
+                <div class="row">
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">Tipo Póliza</span>
+                            <select type="text" class="form-control" id="selCapTp"></select>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">Estatus</span>
+                            <select type="text" class="form-control" id="txtCapStatus">
+                                <option value="A">Actualizado</option>
+                                <option value="B">Bloqueada</option>
+                                <option value="C">Capturada</option>
+                                <option value="E">Errónea</option>
+                                <option value="V">Validada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">Generada</span>
+                            <select type="text" class="form-control" id="txtCapGenerada">
+                                <option value="A">Administración</option>
+                                <option value="B">Bancos</option>
+                                <option value="C">Contabilidad</option>
+                                <option value="F">Facturación</option>
+                                <option value="I">Inventarios</option>
+                                <option value="P">Proveedores</option>
+                                <option value="C">Clientes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">Cargos</span>
+                            <input type="text" class="form-control text-right" id="txtCapCargo" readonly />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon" id="basic-addon3">Póliza</span>
+                            <input type="text" class="form-control numPoliza" id="txtCapPoliza" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="text" class="form-control" id="dpCapFecha" />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon" id="basic-addon3">Periodo</span>
+                            <input type="text" class="form-control" id="txtCapPeriodo" readonly />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon">Abonos</span>
+                            <input type="text" class="form-control text-right" id="txtCapAbono" readonly />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-2 col-lg-4">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon" id="basic-addon3">Concepto</span>
+                            <input type="text" class="form-control" id="txtCapConcepto" />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-2 col-lg-5">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon" id="basic-addon3">CC.</span>
+                            <input type="text" class="form-control" id="txtCapCC" readonly />
+                        </div>
+                    </div>
+                    <div class="col-xs-2 col-sm-6 col-md-4 col-lg-3">
+                        <div class="input-group margin-top">
+                            <span class="input-group-addon" id="basic-addon3">Diferencia</span>
+                            <input type="text" class="form-control text-right" id="txtCapDif" readonly />
+                        </div>
+                    </div>
+                    <div class="col-lg-12 margin-top">
+                        <fieldset class="fieldset-custm" style="padding-top: 5px;">
+                            <div class="col-xs-2 col-sm-6 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon3">Cuenta</span>
+                                    <input type="text" class="form-control" id="txtCapCuenta" readonly />
+                                </div>
+                            </div>
+                            <div class="col-xs-2 col-sm-6 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon3">Interfase</span>
+                                    <input type="text" class="form-control" id="txtCapITipo" style="width: 50px; display: inline-block;" readonly />
+                                    <input type="text" class="form-control" id="txtCapIDesc" style="width: 255px; display: inline-block;" readonly />
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon3">T.M.</span>
+                                    <input type="text" class="form-control" id="txtCapTm" readonly />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-lg-12 margin-top">
+                        <table id="tblMovPolizas" class="table table-condensed table-hover text-center" width="100%">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Cta</th>
+                                    <th>SCta</th>
+                                    <th>SSCta</th>
+                                    <th>D</th>
+                                    <th>Mov</th>
+                                    <th>Proveedor</th>
+                                    <th>Referencia</th>
+                                    <th>CC</th>
+                                    <th>O.C./Cte</th>
+                                    <th>AC</th>
+                                    <th>Concepto</th>
+                                    <th>Tipo Movimiento</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <label id="msjError"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-xs-2 col-sm-6 col-md-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon3">Precio del dolar</span>
+                        <input type="text" class="form-control" id="txtDolar" readonly />
+                    </div>
+                </div>
+                <button type="button" id="btnGuardar" class="btn btn-primary disabled"><i class="fa fa-save" aria-hidden="true"></i> Guardar</button>
+                <button type="button" id="btnAddMov" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Movimiento</button>
+                <button type="button" id="btnCargarIva" class="btn btn-success btnIva" data-aplicado="1"><i class="fa fa-plus" aria-hidden="true"></i> IVA</button>
+                <button type="button" id="btnAbonarIva" class="btn btn-success btnIva" data-aplicado="1"><i class="fa fa-minus" aria-hidden="true"></i> IVA</button>
+                <button type="button" id="btnDiffCambiaria" class="btn btn-success btnIva"><i class="fa fa-dollar" aria-hidden="true"></i> Dif. Cambiaria</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> a gestión</button>
+                <button type="button" id="btnLimpiar" class="btn btn-default"><i class="fa fa-eraser" aria-hidden="true"></i> Limpiar</button>
+                <button type="button" id="btnEliminar" class="btn btn-danger"><i class="fa fa-close" aria-hidden="true"></i> Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalReporte" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-archive"></i>
+                    Parámetros del reporte
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row container-fluid">
+                    <fieldset class="fieldset-custm col-md-12">
+                        <legend class="legend-custm">Reporte resumido</legend>
+                        <div class="col-xs-2 col-sm-4">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radResumido" data-title="true">Si</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radResumido" data-title="false">No</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-4 col-lg-4">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radPorHoja" data-title="true">Por hoja</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radPorHoja" data-title="false">No</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-4 col-lg-4">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radFirma" data-title="true">Firma</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radFirma" data-title="false">No</a>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-12">
+                        <legend class="legend-custm">Centro de Costos</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-2 col-lg-2">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radCC" data-title="true">CC</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radCC" data-title="false">No</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-5 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Inicial:</span>
+                                <select type="text" class="form-control" id="selRepICC"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-5 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Final:</span>
+                                <select type="text" class="form-control" id="selRepFCC"></select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-6">
+                        <legend class="legend-custm">Póliza</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-6 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Inicial:</span>
+                                <input type="text" class="form-control numPoliza" id="txtRepIPoliza" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Final:</span>
+                                <input type="text" class="form-control numPoliza" id="txtRepFPoliza" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-6">
+                        <legend class="legend-custm">Periodo</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Inicial:</span>
+                                <input type="text" class="form-control numPoliza" id="txtRepIPeriodo" />
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Final:</span>
+                                <input type="text" class="form-control numPoliza" id="txtRepFPeriodo" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-12">
+                        <legend class="legend-custm">Tipo póliza</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Inicial:</span>
+                                <select type="text" class="form-control" id="selRepITipoPoliza"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Final:</span>
+                                <select type="text" class="form-control" id="selRepFTipoPoliza"></select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-12">
+                        <legend class="legend-custm">Estátus</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-12 text-center">
+                            <div class="radioBtn btn-group">
+                                <a class="btn btn-primary  active" data-toggle="radEstatus" data-title="C">Capturadas</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="B">Bloqueadas</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="V">Validadas</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="E">Error</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="A">Actualizadas</a>
+                                <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="G">General</a>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm col-md-12">
+                        <legend class="legend-custm">Firma</legend>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Revisó:</span>
+                                <input type="text" class="form-control firma" id="txtRepFirma1" />
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-sm-6 col-md-3 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon3">Autorizó:</span>
+                                <input type="text" class="form-control firma" id="txtRepFirma2" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> a póliza</button>
+                <button type="button" id="btnAbreReporte" class="btn btn-primary"><i class="fa fa-print" aria-hidden="true"></i> Reporte</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalAyuda" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-archive"></i>
+                    Facturas
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-3 margin-top">
+                        <table id="tblProveedor" class="table table-condensed table-hover text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>Proveedor</th>
+                                    <th>Nombre</th>
+                                    <th>Moneda</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="col-lg-9 margin-top">
+                        <table id="tblFactura" class="table table-condensed table-hover text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>Factura</th>
+                                    <th>Fecha</th>
+                                    <th>Vence</th>
+                                    <th>C.C.</th>
+                                    <th>O.C.</th>
+                                    <th>Saldo</th>
+                                    <th>Concepto</th>
+                                    <th>Tipo de Movimiento</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> a póliza</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalPago" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-archive"></i> Generador de Pólizas
+                </h4>
+            </div>
+            <div class="modal-body scrollbox">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Acciones</legend>
+                            <div class="col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon3">Bancos</span>
+                                    <select class='form-control' id="cboBancos">
+                                        <option value=''>Selecciona banco</option>
+                                        <optgroup label="Pesos">
+                                            <option value='940' data-cta="6694788">BANAMEX</option>
+                                            <option value='1179' data-cta="0157323241">BANORTE</option>
+                                            <option value='4392' data-cta="6694788">MONEX</option>
+                                            <option value='0' data-cta="501970611">SANTANDER</option>
+                                            <option value='3965' data-cta="006621422">SCOTIABANK</option>
+                                        </optgroup>
+                                        <optgroup label="Dolares">
+                                            <option value='9157' data-cta="9176028">BANAMEX</option>
+                                            <option value='9676' data-cta="0155776535">BANORTE</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon3">Fecha</span>
+                                    <input type="text" id="dtComplementaria" class="form-control" />
+                                </div>
+                            </div>
+                            <button type="button" id="btnPagar" class="btn btn-success"><i class="fa fa-align-right" aria-hidden="true"></i> Pòlizas</button>
+                            <button type="button" id="btnTodo" class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Todos</button>
+                            <button id="btnLstLimpiarCadena" type="button" class="btn btn-default"><i class="fa fa-eraser" aria-hidden="true"></i> Limpiar</button>
+                        </fieldset>
+                        <table id="tblProductiva" class="table table-condensed table-hover text-center margin-top">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Proveedor</th>
+                                    <th>CC</th>
+                                    <th></th>
+                                    <th>Factura</th>
+                                    <th>Fecha</th>
+                                    <th>Vencimiento</th>
+                                    <th>Monto</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-lg-1">
+                    <label>Moneda</label>
+                    <input type="text" id="lblMoneda" class="form-control" readonly />
+                </div>
+                <div class="col-lg-1">
+                    <label>Dolar</label>
+                    <input type="text" class="form-control text-right" id="txtDllComplementaria" readonly />
+                </div>
+                <div class="col-lg-2">
+                    <label>Total</label>
+                    <input type="text" class="form-control text-right" id="txtSelcTotal" readonly />
+                </div>
+                <div class="col-lg-2 margin-top">
+                    <label>Tipo póliza</label>
+                    <div class="radioBtn btn-group">
+                        <a class="btn btn-primary active disabled" data-toggle="radIntereses" data-title="true">Diaria</a>
+                        <a class="btn btn-primary notActive disabled" data-toggle="radIntereses" data-title="false">Factoraje</a>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-warning margin-top" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> a cadena</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalCuenta" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-table"></i>
+                    Cuentas
+                </h4>
+            </div>
+            <div class="modal-body scrollbox">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblCuenta" class="table table-condensed table-hover text-center" width="100%">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>Cuenta</th>
+                                    <th>SubCuenta</th>
+                                    <th>SubSubCuenta</th>
+                                    <th>D</th>
+                                    <th>Descripción</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> a póliza</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/PolizaJS.js"></script>

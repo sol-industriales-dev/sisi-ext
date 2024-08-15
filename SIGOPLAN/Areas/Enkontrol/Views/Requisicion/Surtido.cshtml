@@ -1,0 +1,216 @@
+﻿@{
+ViewBag.Title = "Surtido";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Captura.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Surtido.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<h2 class="text-center"> Surtido Requisición</h2>
+
+<fieldset id="fieldsetOrigen" class="fieldset-custm">
+    <legend id="legendOrigen" class="legend-custm"><i class="far fa-folder-open"></i></legend>
+
+    <div id="divOrigenRequisicion">
+        <div class="col-md-3 col-lg-3 noPadLeft">
+            <div class="input-group">
+                <span class="input-group-addon">Centro Costo</span>
+                <select id="selectCCSurtido" class="form-control valAddInsumo"></select>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3 noPadLeft">
+            <div class="input-group">
+                <span class="input-group-addon">Número Req.</span>
+                <input type="text" id="inputNumeroSurtido" class="form-control valAddInsumo" />
+            </div>
+        </div>
+    </div>
+
+    <div id="divOrigenFolio">
+        <div class="col-md-3 col-lg-3 noPadLeft">
+            <div class="input-group">
+                <span class="input-group-addon">Origen</span>
+                <select id="selectTipoFolio" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3 noPadLeft">
+            <div class="input-group">
+                <span class="input-group-addon">Folio</span>
+                <select id="txtFolio" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2 col-lg-2 noPadLeft noPadRight hidden">
+        <div class="input-group">
+            <button id="btnBuscarOrigen" type="button" class="btn btn-primary">
+                <i class="fa fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset id="fieldsetCaptura" class="fieldset-custm">
+    <legend class="legend-custm"><i class="fa fa-edit"></i>Datos</legend>
+
+    <div class="col-md-2 col-lg-2 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha</span>
+            <input type="text" id="dtFecha" class="form-control" readonly />
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-4 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">L.A.B.</span>
+            <select id="selLab" class="form-control valAddInsumo" readonly></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Tipo</span>
+            <select id="selTipoReq" class="form-control valAddInsumo" readonly></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Estatus Autorización</span>
+            <input type="text" id="txtEstatus" class="form-control valAddInsumo" readonly />
+        </div>
+    </div>
+
+    <div class="col-md-2 col-lg-2 noPadLeft noPadRight" style="display: none;">
+        <div class="input-group">
+            <span class="input-group-addon">TMC</span>
+            <div id="divTMCswitch" class="radioBtn btn-group">
+                <a class="btn btn-primary active" data-toggle="radTmc" data-title="false"><i class="fa fa-times"></i></a>
+                <a class="btn btn-primary notActive" data-toggle="radTmc" data-title="true"><i class="fa fa-check"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9 col-lg-9 marginTop5 noPadLeft noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Comentarios</span>
+            <input type="text" id="txtComentarios" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 marginTop5 noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Modificación</span>
+            <input type="text" id="txtModificacion" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Solicitó</span>
+            <input type="text" id="txtSolicito" class="form-control valAddInsumo" readonly />
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Autorizó</span>
+            <select id="selAutorizo" class="form-control" readonly></select>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Empleado Autorización</span>
+            <input type="text" id="txtEmpNum" class="form-control" readonly />
+            <span class="input-group-addon" id="txtEmpNom" style="width: 65%;"></span>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6 marginTop5 noPadLeft noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Usuario Modifica</span>
+            <input type="text" id="txtUsuNum" class="form-control" readonly />
+            <span class="input-group-addon" id="txtUsuNom" style="width: 70%;"></span>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset id="fieldsetInsumos" class="fieldset-custm">
+    <legend class="legend-custm"><i class="fa fa-table"></i>Insumos</legend>
+
+    <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+        <div class="col-md-3 col-lg-3 noPadLeft" style="margin-bottom: 5px;">
+            <button id="btnAddRenglon" type="button" class="btn btn-primary marginBottom5" style="display: none;"><i class="fa fa-plus"></i></button>
+            <button id="btnRemRenglon" type="button" class="btn btn-danger marginBottom5" style="display: none;"><i class="fa fa-minus"></i></button>
+            <div class="input-group">
+                <span class="input-group-addon">Fecha Surtido</span>
+                <input id="inputFechaSurtido" class="form-control">
+            </div>
+        </div>
+        <div class="input-group pull-right col-md-9 col-lg-9" style="margin-bottom: 5px;">
+            <button id="btnReporte" class="btn btn-default" style="float: right; margin-left: 5px;"><i class="fas fa-print"></i> Imprimir</button>
+            <button id="btnCancelarValidado" class="btn btn-danger" style="float: right; margin-left: 5px;" disabled><i class="fa fa-times"></i> Cancelar</button>
+            <button id="btnValidadoAlmacen" class="btn btn-success" style="float: right; margin-left: 5px;"><i class="fa fa-check"></i> Procesar</button>
+            <button id="btnValidadoCompras" class="btn btn-warning" style="float: right; margin-left: 5px;"><i class="fa fa-check"></i> Procesar a Compras</button>
+            <button id="btnGuardarSurtir" class="btn btn-primary" style="float: right;"><i class="fa fa-save"></i> Guardar</button>
+        </div>
+    </div>
+
+    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+        <table id="tblInsumos" class="compact table-bordered marginBottom5" width="100%"></table>
+    </div>
+
+    <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="display: none;">
+        <div class="input-group pull-right col-md-2 col-lg-2">
+            <span class="input-group-addon">Cantidad Total</span>
+            <input type="text" id="inputCantidadTotal" class="form-control" readonly />
+        </div>
+    </div>
+
+    <label>Descripción de la partida</label>
+    <textarea id="txtDescPartida" class="form-control" disabled></textarea>
+</fieldset>
+
+<div class="modal fade" id="mdlSurtirAlmacen" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 id="headerModalSurtirAlmacen"><label> A Surtir </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <label id="labelCantidadSolicitada"></label>
+                <table id="tblSurtido" class="compact table-bordered marginBottom5" width="100%"></table>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCapturarSurtirAlmacen" class="btn btn-primary"><i class="fa fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlExistenciaDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Existencias </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/Surtido.js"></script>
+
+@Html.Partial("reportViewerView", false)

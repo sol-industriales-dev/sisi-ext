@@ -1,0 +1,137 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    ViewBag.Title = "Relación cuenta - empleado";
+
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/Dropzone/basic.min.css" rel="stylesheet" />
+<link href="~/Content/style/Dropzone/dropzone.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/CuentaEmpleado.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">CATALOGO CUENTAS EMPLEADOS</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelGeneral" class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <div class="input-group-addon">Tipo de cuenta</div>
+                                <select id="cboxTipoCuentaFiltro" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <div class="input-group-addon">CC</div>
+                                <select id="cboxCCFiltro" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <button id="btnAplicarFiltro" class="btn btn-default"><i class="fas fa-search"></i> Buscar</button>
+                        </div>
+                        <div class="col-sm-2 pull-right">
+                            <button id="btnAgregarNuevo" class="btn btn-primary pull-right"><i class="fas fa-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblCuentaEmpleado" class="hover stripe order-column compact" style="width:100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-12 pull-right">
+                            <button id="btnValidarCuentaEmpleado" class="btn btn-success pull-right"><i class="fas fa-check"></i> Guardar validación</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalAgregarEmpleado" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Agregar nuevo empleado</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputNumero" class="col-sm-4 control-label"># Empleado</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputNumero" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputNombre" class="col-sm-4 control-label">Nombre</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputNombre" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputApellidoPaterno" class="col-sm-4 control-label">Apellido Paterno</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputApellidoPaterno" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputApellidoMaterno" class="col-sm-4 control-label">Apellido Materno</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputApellidoMaterno" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cboxTipoCuenta" class="col-sm-4 control-label">Tipo cuenta</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="cboxTipoCuenta"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cboxCuenta" class="col-sm-4 control-label">Cuenta</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="cboxCuenta" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cboxCC" class="col-sm-4 control-label">CC</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="cboxCC"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarEmpleado">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/CuentaEmpleado.js"></script>

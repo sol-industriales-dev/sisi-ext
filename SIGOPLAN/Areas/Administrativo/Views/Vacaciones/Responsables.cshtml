@@ -1,0 +1,213 @@
+﻿@{
+    ViewBag.Title = "Responsables";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+
+    <!-- BAJAS -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>RESPONSABLES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboVacacionCC"></select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <div class="col-sm-12 margin-right">
+                                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Buscar Responsable"><button type="button" class="btn btn-default" id="btnFiltroBuscar">Buscar</button></span>
+                                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Nuevo Responsable"><button type="button" class="btn btn-primary marginRight" id="btnFiltroNuevo">Nuevo</button></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- VACAIONES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_Vacaciones_Vacaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: BAJAS -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR EDITAR VACACION -->
+<div id='mdlVacacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 id="titleCEVacacion" class='modal-title'><i class='fa fa-dollar'></i></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Núm. Empleado</span>
+                            <input type="text" class="form-control" id="txtCEVacacionClaveEmp" placeholder="Ingresar clave del empleado.">
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="txtCEVacacionNombreEmp" placeholder="Ingresar nombre del empleado.">
+                    </div>
+                </div>
+                <br>
+                <div class="row" style="display:none;">
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Num. Resposable</span>
+                            <input type="text" class="form-control" id="txtCEVacacionClaveResponsable">
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="txtCEVacacionNombreResponsable">
+                    </div>
+                </div>
+                <br>
+
+                <!-- CANT DÍAS VACACIONES -->
+                <div class="row">
+                    <div class="col-lg-5"></div>
+                    <div class="col-lg-2" style="text-align: center;">
+                        <label for="">Vacaciones</label>
+                    </div>
+                    <div class="col-lg-5"></div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4"></div>
+
+                    <div class="col-lg-1">
+                        <div class="pull-right">
+                            <button id="btnDiasSub" type="button" class="btn btn-light"><span style="font-size: 14px">-<span></button>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <input id="inputDias" class="form-control" style="text-align:center" placeholder="0 Días">
+                    </div>
+                    <div class="col-lg-1">
+                        <button id="btnDiasSum" type="button" class="btn btn-light"><span style="font-size: 14px">+</span></button>
+                    </div>
+
+                    <div class="col-lg-4"></div>
+                </div>
+                <!-- END: CANT DÍAS VACACIONES -->
+
+                <!-- CANT DÍAS VACACIONES PATERNIDAD -->
+                @* <div class="row">
+                    <div class="col-lg-5"></div>
+                    <div class="col-lg-2" style="text-align: center;">
+                        <label for="">Paternidad</label>
+                    </div>
+                    <div class="col-lg-5"></div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4"></div>
+
+                    <div class="col-lg-1">
+                        <div class="pull-right">
+                            <button id="btnMenosDiasPaternidad" type="button" class="btn btn-light"><span style="font-size: 14px">-<span></button>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <input id="txtCantDiasVacacionesPaternidad" class="form-control" style="text-align:center" placeholder="0 Días">
+                    </div>
+                    <div class="col-lg-1">
+                        <button id="btnMasDiasPaternidad" type="button" class="btn btn-light"><span style="font-size: 14px">+</span></button>
+                    </div>
+
+                    <div class="col-lg-4"></div>
+                </div> *@
+                <!-- END: CANT DÍAS VACACIONES PATERNIDAD -->
+
+                <!-- CANT DÍAS VACACIONES MATRIMONIO -->
+                @* <div class="row">
+                    <div class="col-lg-5"></div>
+                    <div class="col-lg-2" style="text-align: center;">
+                        <label for="">Matrimonio</label>
+                    </div>
+                    <div class="col-lg-5"></div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4"></div>
+
+                    <div class="col-lg-1">
+                        <div class="pull-right">
+                            <button id="btnMenosDiasMatrimonio" type="button" class="btn btn-light"><span style="font-size: 14px">-<span></button>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <input id="txtCantDiasVacacionesMatrimonio" class="form-control" style="text-align:center" placeholder="0 Días">
+                    </div>
+                    <div class="col-lg-1">
+                        <button id="btnMasDiasMatrimonio" type="button" class="btn btn-light"><span style="font-size: 14px">+</span></button>
+                    </div>
+
+                    <div class="col-lg-4"></div>
+                </div> *@
+                <!-- END: CANT DÍAS VACACIONES MATRIMONIO -->
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-primary' data-dismiss='modal' id="btnCEVacacionActualizar"><span id="btnTxtCEVacacion"></span></button>
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana">
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<div class="modal fade" id="modalHistorial">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Historial</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaHistorial" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Vacaciones/Responsables.js"></script>

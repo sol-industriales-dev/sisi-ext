@@ -1,0 +1,257 @@
+﻿@{
+    ViewBag.Title = "AsignacionDeEquipo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-Asignacion.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Inventario/AsignacionesJS.js"></script>
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>Asignación de Equipo a Solicitud</h2>
+    </div>
+    <div id="divSolicitudesAutorizados">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Solicitudes Pendientes:</legend>
+                    <table id="tblSolicitudesAutorizadas" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Folio" data-width="25%">Folio</th>
+                                <th data-column-id="CCName" data-width="25%">Centro Costos</th>
+                                <th data-column-id="UsuarioSolicitud" data-width="25%">Usuario Solicita</th>
+                                <th data-column-id="Fecha" data-width="25%">Fecha</th>
+                                <th data-column-id="VerSolicitud" data-formatter="VerSolicitud" data-sortable="false" data-width="25px">Ver Solicitud</th>
+                                <th data-column-id="Cancelar" data-formatter="Cancelar" data-sortable="false" data-width="25px">Cancelar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div class="row hidden" id="divListaEquiposAsignar">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend>Datos de solicitud</legend>
+                    <div class="col-lg-2 form-group">
+                        <label>Folio Solicitud:</label>
+                        <input class="form-control" id="tbFolioSolicitud" disabled />
+                    </div>
+                    <div class="col-lg-2 form-group">
+                        <label>Tipo Equipo:</label>
+                        <input class="form-control" id="tbTipoID" disabled />
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label>Grupo Equipos:</label>
+                        <input class="form-control" id="tbGrupoId" disabled />
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label>Modelo Equipos:</label>
+                        <input class="form-control" id="tbModeloEquipo" disabled />
+                    </div>
+                    <div class="col-lg-2 form-group">
+                        <label>Tipo Prioridad</label>
+                        <input class="form-control" id="tbTipoPrioridad" disabled />
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row">
+                            <div class="col-lg-6 form-group">
+                                <label> Fecha Inicio:</label>
+                                <input class="form-control" id="tbFechaInicio" disabled />
+                            </div>
+                            <div class="col-lg-6 form-group">
+                                <label> Fecha Fin:</label>
+                                <input class="form-control" id="tbFechaFin" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="row">
+                            <div class="col-lg-6 form-group">
+                                <label>Horas</label>
+                                <input class="form-control" id="tbHoras" disabled />
+                            </div>
+                            <div class="col-lg-6 form-group" style="padding: 0;">
+                                <label>Registros restantes:</label>
+                                <input class="form-control" id="tbCantidadRegistros" disabled />
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                        <label for="txtFechaPromesa">Fecha Promesa:</label>
+                        <input type="text" id="txtFechaPromesa" class="form-control" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-2 col-md-2 col-lg-3">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-6">
+                                <button type="button" class="btn btn-primary margin-top" id="btnEquipoAsignado">
+                                    <span class="glyphicon glyphicon-eye-open"></span> Equipo Asignado
+                                </button>
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-6">
+                                <button type="button" class="btn btn-success margin-top" id="btnRentaCompra">
+                                    <span class="glyphicon glyphicon-plus"></span> Renta o Compra
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" id="tbObservaciones" title="Comentario de Solicitud" style="width:100%;" disabled></textarea>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Listado de Economicos a Asignar:</legend>
+                    <table id="tblEconomicosAsignar" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="id" data-width="25%" data-css-class="hidden"
+                                    data-header-css-class="hidden" data-type="numeric">id</th>
+
+                                <th data-column-id="Economico" data-width="25%">Economico</th>
+                                <th data-column-id="Grupo" data-width="25%">Descripcion</th>
+                                <th data-column-id="Serie" data-width="25%">Num Serie</th>
+                                <th data-column-id="Modelo" data-width="25%">Modelo</th>
+                                <th data-column-id="Marca" data-width="25%">Marca</th>
+                                <th data-column-id="CC" data-width="25%">Localizacion</th>
+                                <th data-column-id="Asignar" data-formatter="Asignar" data-width="25px" data-searchable="false">Asignar Equipo</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <button type="button" class="btn btn-primary margin-top pull-right btnSiguiente">
+                    <span class="glyphicon glyphicon-arrow-right"></span> Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="divAsignacionEquipo" class="row hidden">
+        <div class="row">
+
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Vista Preliminar:</legend>
+                    <div class="clsFrame text-center form-group">
+                        <iframe id="report" align="middle" marginwidth="0"
+                                marginheight="0"
+                                hspace="0"
+                                vspace="0"
+                                frameborder="0"
+                                scrolling="no" class="StyleIframe"></iframe>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnRegresar">
+                                <span class=" glyphicon glyphicon-arrow-left"></span> Regresar
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnGuardar">
+                                <span class=" glyphicon glyphicon-floppy-disk"></span> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade " id="modalListaEquiposAsignados" role="dialog">
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Lista de Equipos asignados</label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row text-center form-group">
+                    <h3><label id="tituloModal"></label></h3>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <table id="tblListaEconomicos" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-formatter="Economico" data-width="25%">Economico</th>
+                                <th data-column-id="Grupo" data-width="25%">Descripcion</th>
+                                <th data-column-id="Modelo" data-width="25%">Modelo</th>
+                                <th data-column-id="Marca" data-width="25%">Marca</th>
+                                <th data-column-id="localizacion" data-width="25%">Localizacion</th>
+                                <th data-column-id="FechaPromesa" data-formatter="FechaPromesa" data-width="25%">Fecha Promesa</th>
+                                <th data-column-id="Remove" data-formatter="Remove" data-searchable="false" data-sortable="false" data-width="25px">Quitar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 btnModal">
+                        <button type="button" class="btn btn-primary pull-right btnSiguiente">
+                            <span class="glyphicon glyphicon-arrow-right"></span> Continuar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade " id="modalConfirmacionCancelacion" role="dialog">
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Cancelacion de Solicitudes</label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12">
+
+                        <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12 text-center">
+                            <h2>
+                                <label>Una vez Cancelada la Solicitud no podra visualizarse,</label>
+                                <label>¿Desea Continuar?</label>
+                            </h2>
+                        </div>
+                        <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12">
+                            <label>Motivo:</label>
+                            <input type="text" class="form-control" id="tbDescripcionModal" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <div>
+                            <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnCancelarSolicitud">
+                                <span class="glyphicon glyphicon-floppy-disk"></span> Aceptar
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal">
+                                <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

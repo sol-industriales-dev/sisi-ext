@@ -1,0 +1,221 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/Criterios.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/General.css' rel='stylesheet' />
+
+<!-- END: CONTAINER -->
+<div class='container-fluid'>
+
+    <!-- SECCIÓN MENÚ -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div id="menuPeriodos">
+                    <h2><i class="far fa-calendar-alt"></i></h2>
+                    <h5>Periodos</h5>
+                </div>
+                <div id="menuPersonal">
+                    <h2><i class="fas fa-user-tie"></i></h2>
+                    <h5>Personal</h5>
+                </div>
+                <div id="menuConductas">
+                    <h2><i class="fas fa-list"></i></h2>
+                    <h5>Conductas</h5>
+                </div>
+                <div id="menuCuestionarios">
+                    <h2><i class="fas fa-book"></i></h2>
+                    <h5>Cuestionarios</h5>
+                </div>
+                <div id="menuCriterios" class="opcionSeleccionada">
+                    <h2><i class="fas fa-tasks"></i></h2>
+                    <h5>Criterios</h5>
+                </div>
+                <div id="menuRelaciones">
+                    <h2><i class="fas fa-user-friends"></i></h2>
+                    <h5>Relaciones</h5>
+                </div>
+                <div id="menuEvaluaciones">
+                    <h2><i class="fas fa-window-restore"></i></h2>
+                    <h5>Evaluaciones</h5>
+                </div>
+                <div id="menuAvances">
+                    <h2><i class="fas fa-chart-pie"></i></i></h2>
+                    <h5>Avances</h5>
+                </div>
+                <div id="menuReporte360">
+                    <h2><i class="fas fa-bullseye"></i></h2>
+                    <h5>Reporte 360</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: SECCIÓN MENÚ -->
+
+    <!-- CONTAINER FILTROS -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div class="seccion">
+                <div class="row">
+                    <div class='pull-right'>
+                        <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        <button type='button' class='btn btn-primary' id='btnFiltroNuevo' title="Nuevo registro."><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class='col-xs-12'>
+                        <table id='tblRH_Eval360_CatPlantillas' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CONTAINER FILTROS -->
+
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PLANTILLA -->
+<div id='modalPlantilla' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="inputPlantilla">Plantilla:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <input type="text" id="inputPlantilla" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="inputDescripcionPlantilla">Descripción:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <textarea id="inputDescripcionPlantilla" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                    <button type='button' class='btn btn-success' id='btnGuardarPlantilla'></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PLANTILLA -->
+
+<!-- MODAL CRITERIOS -->
+<div id='modalCriterio' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>CRITERIOS</h4>
+            </div>
+            <div class='modal-body'>
+                <!-- DIV ACORDEON CREAR/EDITAR CRITERIO -->
+                <div id="divCrearEditarCriterio" class="collapse seccion">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label for="inputIdPlantilla" class="form-label">Plantilla:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-sticky-note"></i></span>
+                                <input id="Plantilla" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label for="inputLimiteInferior" class="form-label">Límite inferior:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-angle-double-down"></i></span>
+                                <input type="text" id="inputLimiteInferior" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="inputLimiteSuperior" class="form-label">Límite superior:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-angle-double-up"></i></span>
+                                <input type="text" id="inputLimiteSuperior" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="inputEtiqueta" class="form-label">Etiqueta:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-tag"></i></span>
+                                <input type="text" id="inputEtiqueta" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="inputDescripcion" class="form-label">Descripción:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-stream"></i></span>
+                                <textarea id="inputDescripcion" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label for="inputColor" class="form-label">Color:</label>
+                            <input type="color" id="inputColor" class="form-control" />
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="cboCuestionarios" class="form-label">Cuestionarios:</label>
+                            <select class="form-control select2" id="cboCuestionarios"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="pull-right">
+                            <button type='button' class='btn btn-default' id='btnCancelarCECriterio'><i class="fas fa-undo-alt"></i>&nbsp;Cancelar</button>
+                            <button type='button' class='btn btn-success' id='btnGuardarCriterio'></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: DIV ACORDEON CREAR/EDITAR CRITERIO -->
+
+                <!-- LISTADO DE CRITERIOS -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="pull-right">
+                            <button id="btnNuevoCriterio" class="btn btn-primary" data-toggle="collapse" data-target="#divCrearEditarCriterio" aria-expanded="false" aria-controls="divCrearEditarCriterio">
+                                <i class="fas fa-plus"></i>&nbsp;Nuevo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id='tblRH_Eval360_CatCriterios' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE CRITERIOS -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- END: MODAL CRITERIOS -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Evaluacion360/Criterios.js"></script>
+<script src='~/Scripts/select2.js'></script>

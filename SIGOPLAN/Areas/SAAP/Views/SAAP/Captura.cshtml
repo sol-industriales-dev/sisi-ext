@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Captura";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .ui-datepicker-calendar {
+        display: none;
+    }
+
+    .ui-datepicker {
+        z-index: 9999 !important;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload {
+        color: #fff;
+        background-color: #337ab7;
+        border-color: #2e6da4;
+        border: 1px;
+        border-radius: 5px;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .custom-file-upload:hover {
+        background-color: #286090;
+        border-color: #204d74;
+    }
+
+    .custom-file-upload-subido {
+        color: #fff;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        border: 1px;
+        border-radius: 5px;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .custom-file-upload-subido:hover {
+        background-color: #398439;
+        border-color: #255625;
+    }
+
+    .labelArchivo {
+        font-weight: normal;
+        /* display: inline-block; */
+        vertical-align: middle;
+        width: 200px;
+        overflow: hidden;
+        text-overflow: clip;
+        margin-bottom: 0px;
+    }
+
+    .progress {
+        position: relative;
+        background-color: #c4c4c4 !important;
+    }
+
+    .progress span {
+        position: absolute;
+        display: block;
+        width: 100%;
+        color: black;
+    }
+
+    .bar-warning {
+        background-color: yellow;
+    }
+
+    .bar-success {
+        background-color: green;
+    }
+
+    .bar-error {
+        background-color: red;
+    }
+
+    #tablaEvidencias span,
+    #tablaCapturas span {
+        color: #fff;
+        text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+    }
+</style>
+
+<div class="row text-center margin-top">
+    <h2>Captura</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-md-3 noPadRight">
+            <label>Agrupación:</label>
+            <select class="form-control select2" id="selectCentroCosto"></select>
+        </div>
+        <div class="col-md-3 noPadRight">
+            <label>Área:</label>
+            <select class="form-control" id="selectArea"></select>
+        </div>
+        <div class="col-md-3 noPadRight">
+            <label>Estatus:</label>
+            <select class="form-control" id="selectEstatus">
+                <option value="">--Seleccione--</option>
+                <option value="1">Sin Iniciar</option>
+                <option value="2">En Progreso</option>
+                <option value="3">Completo</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 20px;"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm">Capturas:</legend>
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaCapturas" class="table table-hover" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalEvidencias">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Evidencias</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaEvidencias" class="table table-hover" width="100%"></table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Agregar Evidencia</legend>
+                            <div class="col-sm-12">
+                                <div class="text-center">
+                                    <label id="botonEvidencia" for="inputEvidencia" class="custom-file-upload"><i class="fa fa-file-upload"></i></label>
+                                    <label id="labelArchivoEvidencia" class="labelArchivo"></label>
+                                    <input id="inputEvidencia" type="file" class="inputEvidencia" accept="application/pdf, image/*">
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label>Progreso Estimado:</label>
+                                <input id="inputProgresoEstimado" class="form-control" type="number">
+                            </div>
+                            <div class="col-sm-9">
+                                <label>Comentarios:</label>
+                                <input id="inputComentarios" class="form-control">
+                            </div>
+                        </fieldset>
+
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-undo"></i> Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="botonGuardar">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/SAAP/Captura.js"></script>

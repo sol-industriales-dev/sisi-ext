@@ -1,0 +1,260 @@
+﻿@{
+    ViewBag.Title = "Reporte Ppto";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/Index.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>REPORTE PPTO</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label>Año</label>
+                            <select id="cboFiltroAnio" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-6">
+                            <label>CC</label>
+                            <select id="cboFiltroCC" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar" title="Realizar búsqueda." style="margin-top: 26px;"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary marginRight" id="btnFiltroReportePlanMaestro" title="Visualizar plan maestro." style="margin-top: 26px;"><i class="fas fa-list-ul"></i>&nbsp;Plan maestro</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            @* <div style="max-height: 37vh; overflow-y: auto;"> *@
+                            <table id="tblCapturas" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                            @* </div> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL DETALLE CAPTURA -->
+<div id='mdlDetCaptura' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CAPTURA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblDetCapturas" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA -->
+
+<!-- MODAL DETALLE CAPTURA POR MES -->
+<div id='mdlDetCapturaMes' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CAPTURA <span id="lblTitlePorMes"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblDetCapturasMes" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnRegresar" class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA POR MES -->
+
+<!-- MODAL ADITIVAS -->
+<div id='mdlAditivas' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>ADITIVAS</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblAditivas" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADITIVAS -->
+
+<div id='modalMesContable' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CONTABLE</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tablaMesContable" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalTotalContable' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CONTABLE</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tablaTotalContable" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PLAN MAESTRO -->
+<div id='mdlPlanMaestro' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>PLAN MAESTRO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row marginBottom'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCE_PM_Anio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCE_PM_CC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Misión del área (CC)</h4>
+                            </div>
+
+                            <div class="panel-body">
+                                <textarea id="txtCE_PM_MisionArea" placeholder="INGRESAR MISIÓN DEL ÁREA (CC)." class="inputTextArea" cols="30" rows="3" disabled='disabled'></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Objetivo específico medible</h4>
+                            </div>
+
+                            <div class="panel-body">
+                                <textarea id="txtCE_PM_ObjetivoEspecificoMedible" placeholder="INGRESAR OBJETIVO ESPECÍFICO MEDIBLE." class="inputTextArea" cols="30" rows="3" disabled='disabled'></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class='col-lg-12'>
+                        <label>Meta</label>
+                        <input type="text" id="txtCE_PM_Meta" placeholder="INGRESAR META." class="form-control" autocomplete="off" disabled='disabled' />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Mediciones y/o Indicadores</h4>
+                            </div>
+
+                            <div class="panel-body">
+                                <table id="tblMedicionesIndicadores" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Agrupaciones y conceptos</h4>
+                            </div>
+
+                            <div class="panel-body">
+                                <table id="tblAgrupacionesConceptos" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: PLAN MAESTRO -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/Index.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>

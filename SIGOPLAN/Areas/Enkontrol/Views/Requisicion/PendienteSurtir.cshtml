@@ -1,0 +1,121 @@
+﻿@{
+ViewBag.Title = "PendienteSurtir";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/PendienteSurtir.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .select2-selection {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 34px !important;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+</style>
+
+<h2 class="text-center">Pendiente por Surtir</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="col-md-3 col-lg-5">
+        <div class="input-group">
+            <span class="input-group-addon">Centro Costo</span>
+            <select id="selCC" class="form-control" multiple></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-4">
+        <div class="input-group">
+            <span class="input-group-addon">Almacén</span>
+            <select id="selectAlmacen" class="form-control" multiple></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Estatus</span>
+            <select id="comboEstatus" class="form-control"></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Validado Almacén</span>
+            <select id="selectValidadoAlmacen" class="form-control">
+                <option value="">Ambas</option>
+                <option value="1">Validado</option>
+                <option value="2">No Validado</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- <div class="col-md-3 col-lg-3 mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Validado Requisitor</span>
+            <select id="selectValidadoRequisitor" class="form-control">
+                <option value="">Ambas</option>
+                <option value="1">Validado</option>
+                <option value="2">No Validado</option>
+            </select>
+        </div>
+    </div> -->
+
+    <div class='col-md-4 noPadRight mrgTop'>
+        <div class='input-group'>
+            <span class="input-group-addon">Fecha Inicio</span>
+            <input id="inputFechaInicio" class="form-control" />
+            <span class='input-group-addon'>Fecha Fin</span>
+            <input id="inputFechaFin" class="form-control" />
+        </div>
+    </div>
+
+    <div class="col-md-1 col-lg-1 mrgTop">
+        <button id="botonBuscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Salidas</legend>
+
+    <div class="table-responsive col-md-12 col-lg-12">
+        <table id="tblSalidas" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlExistenciaDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="labelModal"> Salida por consumo </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-primary btn-sm"><i class="fas fa-times-circle"></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/PendienteSurtir.js"></script>
+
+@Html.Partial("reportViewerView", false)

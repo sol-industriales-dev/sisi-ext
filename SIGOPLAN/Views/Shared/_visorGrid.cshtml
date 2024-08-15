@@ -1,0 +1,215 @@
+﻿@*@using System.Collections*@
+@*@model Hashtable*@
+    <link href = "/scripts/dropzone/basic.css" rel = "stylesheet" />
+        <link href="/scripts/dropzone/dropzone.css" rel="stylesheet" />
+        <div class="row">
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                                <div class="container">
+                                    <div class="collapse navbar-collapse" id="navbarResponsive">
+                                        <ul class="nav navbar-nav ml-auto">
+                                            <li class="dropdown">
+                                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                                                    Navegación
+                                                    <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.GotoPage(1);">Inicio</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Next(false);">Anterior</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Next(true);">Siguiente</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.GotoPage(parseInt(objctlDoc.TotalPages()));">Fin</a></li>
+                                                </ul>
+                                            </li>
+                                            <li class="dropdown">
+                                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                                                    Rotar
+                                                    <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(1);">Derecha</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(2);">180</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(3);">Izquierda</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(0);">Normal</a></li>
+                                                </ul>
+                                            </li>
+                                            <li class="dropdown">
+                                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                                                    Zoom
+                                                    <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(true);">Acercar</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(false);">Alejar</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(25);">25 %</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(100);">100 %</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('width');">Ajustar ancho</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('height');">Ajustar alto</a></li>
+                                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('');">Default</a></li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal"><i class="fas fa-times"></i> Cerrar</button>
+                                    </div>
+                                </div>
+                            </nav>
+                            <div id="divDocViewer">
+                                <div id="div_@ViewBag.ViewerID"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <style>
+            #myModal .modal-dialog {
+                height: 100%;
+                left: 0;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                margin : 0px;
+            }
+            #myModal .modal-dialog .modal-content {
+                display: flex;
+                flex-direction: column;
+            }
+            #myModal .modal-dialog .modal-header,
+            #myModal .modal-dialog .modal-footer {
+                height: 60px;
+            }
+            #myModal .modal-dialog .modal-content .modal-body {
+                height: 100%;
+                overflow-y: auto;
+            }
+</style>
+@Html.Raw(ViewBag.ViewerCSS)
+@Html.Raw(ViewBag.ViewerScripts)
+<script type="text/javascript" src="~/scripts/dropzone/dropzone.js"></script>
+
+<script language="javascript" type="text/javascript">
+    var objctlDoc = null; // Server object id is "ctlDoc"
+    var esArchivoSession = false; // Bandera de archivo en session
+    function Resize() {
+        var h = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        // var w = "innerWidth" in window ? window.innerWidth : document.documentElement.offsetWidth;
+        // use width variable w if required
+        $("#divDocViewer").height(h - 150); // adjust value as required
+    }
+
+    $(window).on("load", function () {
+        /* Init code for viewer */
+        @Html.Raw(ViewBag.ViewerInit)
+        Resize();
+    });
+
+    $(window).resize(function () {
+            Resize();
+    });
+
+    $('#myModal').on('shown.bs.modal', function () {
+        // Refresh the viewer
+        setTimeout(() => setToken(), 100);
+    });
+
+    $('#myModal').on('hidden.bs.modal', function () {
+        objctlDoc.Close();
+    });
+
+    function OpenDocument(link) {
+        var token = $(link).attr("data-token");
+        setTimeout(function () {objctlDoc.View(token); }, 100);
+        $('#myModal').modal('show');
+    }
+
+    function RotateDocument(iAngle) {
+            objctlDoc.Rotate(objctlDoc.CurrentPage(), iAngle);
+    }
+
+    function setToken() {
+        if(esArchivoSession)
+        {
+            return;
+        }
+        esArchivoSession = false;
+        let ruta = $('#myModal').data().ruta;
+        $.blockUI({ message: 'Cargando archivo...' });
+        if (ruta != null) {
+            $.post('/Visor/OpenFile', { name:ruta })
+                .always($.unblockUI)
+                .then(token => {
+
+                setTimeout(() => objctlDoc.View(token), 100);
+
+                }, error => {
+                    // Error al lanzar la petición.
+                    AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+                }
+                );
+        } else {
+            $.post('/Visor/LoadFile')
+                .always($.unblockUI)
+                .then(response => {
+                    if (response.success) {
+                        // Operación exitosa.
+                        setTimeout(() => objctlDoc.View(response.token), 100);
+                    } else {
+                        // Operación no completada.
+                        AlertaGeneral(`Operación fallida`, `No se pudo completar la operación: ${response.message}`);
+                    }
+                }, error => {
+                    // Error al lanzar la petición.
+                    AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+                }
+                );
+        }
+    }
+    setVisorFile = (archivo, extencion) => {
+        esArchivoSession = false;
+        $.blockUI({ message: 'Cargando archivo...' });
+        var formData = new FormData();
+        formData.append("archivo", archivo);
+        formData.append("extencion", extencion);
+        var request = new XMLHttpRequest();
+        request.open("POST", "/Visor/setFile");
+        request.send(formData);
+        request.onload = function(oEvent) {
+        if (request.status == 200) {
+            $.post('/Visor/LoadFile')
+                        .always($.unblockUI)
+                        .then(response => { 
+                            if(response.success){
+                                setTimeout(() =>  objctlDoc.View(response.token), 100); 
+                                //$('#myModal').modal('show');
+                                $('#myModal').removeClass("hidden");
+                            }
+                            else {
+                                AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor.`);
+                            }
+                        }, error =>  AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`) );
+          } else {
+            AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`)
+          }
+        };
+    }
+    setVisorFromArchivoPDF = urlReporte => {
+        esArchivoSession = false;
+        axios.get(urlReporte).then(response => {
+            if (response.status == 200) {
+                    axios.post("/Visor/LoadFile").then(response => {
+                        if(response.data.success){
+                            setTimeout(() =>  objctlDoc.View(response.data.token), 100); 
+                            esArchivoSession = true;
+                            $('#myModal').modal('show');
+                        }
+                        else {
+                            AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor.`);
+                        }
+                    }).catch(o_O => AlertaGeneral(o_O.message));
+            }
+        }).catch(o_O => AlertaGeneral(o_O.message));
+    }
+</script>

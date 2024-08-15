@@ -1,0 +1,602 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "PiezasPerforadoras";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Barrenacion/PiezasBarrenadora.css" rel="stylesheet" />
+
+<!-- Body -->
+<div class="row text-center">
+    <h2>Piezas por Perforadora <i class="fas fa-tools"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+
+    <div class="col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Area Cuenta</span>
+            <select name="" id="comboAC" class="form-control"></select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Estatus Piezas</span>
+            <select id="comboEstatus" class="form-control">
+                <option value="2" selected>Todo</option>
+                <option value="1">Completa</option>
+                <option value="0">Piezas Faltantes</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3">
+        <button id="botonBuscar" class="btn btn-primary">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <button id="botonModalBarrenadora" class="btn btn-primary pull-right">
+            <i class="fas fa-plus"></i> Agregar Equipo
+        </button>
+    </div>
+</fieldset>
+
+<div class="col-md-12 col-lg-12 margin-top">
+    <table id="tablaEquipos" class="table table-fixed table-hover table-responsive table-striped">
+        <thead class="bg-table-header">
+    </table>
+</div>
+
+<div class="modal fade" id="modalAgregarBarrenadora">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Agregar Perforadora <i class="fas fa-truck-pickup"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 text-center">
+                        <p>Introduzca el número económico del equipo que se considerará.:</p>
+                        <input class="form-control" type="text" id="inputNoEconomicoBarrenadora">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonAgregarBarrenadora" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar Equipo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="modalGestionPiezas" class="modal fade">
+    <div class="modal-dialog modal-dialog-ppal">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span arial-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Gestión de piezas para Perforadoras</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!--Grupo Insumos-->
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">
+                        Piezas: 
+                        <input type="checkbox" id="cbPiezasTotales" />
+                        <label>Completas</label>
+                    </legend>
+                    <div class="container-fluid">
+                        <!--Fieldset De Broca-->
+                        <div id="divBroca" class="col-lg-6 col-xs-12 seccion" tipopieza=1>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Broca</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-lg-12 divEditForm">
+                                        <div class="col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Broca" id="desmontarBroca" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-Broca" id="deshechoBroca" value="2" />
+                                                <label>Deshecho</label>
+                                                
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input disabled type="text" id="inputPiezaAccionBroca" class="form-control quitarPieza">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosBroca" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasBroca" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!--Fieldset De Barra-->
+                        <div id="divBarra" class="col-lg-6 col-xs-12 seccion" tipopieza=3>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo" id="butonEditBarra">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Barra</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 divEditForm">
+                                        <div class="col-md-6 col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Barra" id="desmontarBarra" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-Barra" id="deshechoBarra" value="2" />
+                                                <label>Deshecho</label>
+                                                
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input type="text" id="inputPiezaAccionBarra" class="form-control quitarPieza" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosBarra" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasBarra" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!--Fieldset De Barra Segunda-->
+                        <div id="divBarraSegunda" class="col-lg-6 col-xs-12 seccion" tipopieza=7>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo" id="buttonEditBarraSegunda">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Barra Segunda</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 divEditForm">
+                                        <div class="col-md-6 col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-BarraSegunda" id="desmontarBarraSegunda" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-BarraSegunda" id="deshechoBarraSegunda" value="2" />
+                                                <label>Deshecho</label>
+                                               
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input type="text" id="inputPiezaAccionBarraSegunda" class="form-control quitarPieza" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosBarraSegunda" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasBarraSegunda" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!--Fieldset De Martillo-->
+                        <div id="divMartillo" class="col-lg-6 col-xs-12 seccion" tipopieza=2>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo" id="butonEditMartillo">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Martillo</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 divEditForm">
+                                        <div class="col-md-6 col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Martillo" id="desmontarMartillo" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-Martillo" id="deshechoMartillo" value="2" />
+                                                <label>Deshecho</label>
+                                                <input type="checkbox" name="checkbox-Martillo" id="repararMartillo" value="3" />
+                                                <label>Reparar</label>
+                                               
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input type="text" id="inputPiezaAccionMartillo" class="form-control quitarPieza" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosMartillo" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasMartillo" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input id="inputSerieMartillo" type="text" class="form-control inputNoSerie">
+                                        <span id="spnReparadoMartillo" class="input-group-addon hidden"><i class="fas fa-tools"></i></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!--Fieldset De Culata-->
+                        <div id="divCulata" class="col-lg-6 col-xs-12 seccion" tipopieza=4>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo" id="botonEditCulata">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Culata</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 divEditForm">
+                                        <div class="col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Culata" id="desmontarCulata" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-Culata" id="deshechoCulata" value="2" />
+                                                <label>Deshecho</label>
+                                              
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior</span>
+                                                <input type="text" id="inputPiezaAccionCulata" class="form-control quitarPieza" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-md-4 col-lg-12">
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosCulata" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza</span>
+                                                <select id="comboPiezasCulata" class="form-control comboPieza">
+                                                    <option selected value="0">Nueva Pieza</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!--Cilindro-->
+                        <div id="divCilindro" class="col-lg-6 col-xs-12 seccion" tipopieza=6>
+                            <fieldset class='fieldset-custm'>
+                                <legend class='legend-custm'>
+                                    <button class="btn btn-xs btnEditInsumo" id="botonEditCilindro">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Cilindro </label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-12 divEditForm">
+                                        <div class="col-md-6 col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Cilindro" id="desmontarCilindro" value="1" />
+                                                <label>Desmontar</label>
+                                                <input type="checkbox" name="checkbox-Cilindro" id="deshechoCilindro" value="2" />
+                                                <label>Deshecho</label>
+
+                                            </span>
+                                        </div>
+
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input type="text" id="inputPiezaAccionCilindro" class="form-control quitarPieza" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="col-md-4 col-lg-12">
+
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosCilindro" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasCilindro" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!--Fieldset De Zanco-->
+                        <div id="divZanco" class="col-lg-6 col-xs-12 seccion" tipopieza=8>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    <button class="btn btn-xs btnEditInsumo">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <label>Zanco</label>
+                                </legend>
+                                <div class="row">
+                                    <div class="col-lg-12 divEditForm">
+                                        <div class="col-lg-6">
+                                            <span class="spanSizeRadio">
+                                                <input type="checkbox" name="checkbox-Zanco" id="deshechoZanco" value="2" />
+                                                <label>Deshecho</label>
+                                               
+                                            </span>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pza Anterior:</span>
+                                                <input disabled type="text" id="inputPiezaAccionZanco" class="form-control quitarPieza">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+
+                                    <div class="col-md-4 col-lg-12">
+
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Insumo</span>
+                                                <select id="comboInsumosZanco" class="form-control comboInsumo">
+                                                    <option selected value="0">Seleccione un insumo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Pieza:</span>
+                                                <select id="comboPiezasZanco" class="form-control comboPieza">
+                                                    <option selected value="0">Pieza Nueva</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">No. Serie</span>
+                                        <input disabled type="text" class="form-control inputNoSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4" style="padding: 0px!important;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Serie Manual</span>
+                                        <input disabled type="text" class="form-control inputSerie">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Precio</span>
+                                        <input disabled type="text" class="form-control inputPrecio">
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="btnGuardarPiezas" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Barrenacion/PiezasBarrenadora.js"></script>

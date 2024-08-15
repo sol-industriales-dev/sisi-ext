@@ -1,0 +1,91 @@
+﻿@{
+    List<Core.Entity.Administrativo.Contabilidad.tblC_CadenaProductiva> lst = new SIGOPLAN.Areas.Administrativo.Controllers.Contabilidad.Reportes.ReportesController().getTotal();
+    List<Core.Entity.Administrativo.Contabilidad.tblC_Linea> lstLinea = new SIGOPLAN.Areas.Administrativo.Controllers.Contabilidad.Reportes.ReportesController().lstLinea();
+    DateTime viernes = new SIGOPLAN.Areas.Administrativo.Controllers.Contabilidad.Reportes.ReportesController().getViernes();
+    DateTime ViernesAnt = viernes.AddDays(-7);
+}
+<div id="mdlCuadro" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title">
+                    <i class="fa fa-dollar"></i>
+                    Total disponible
+                    <i class="fa fa-dollar"></i>
+                </h1>
+            </div>
+            <div class="modal-body scrollbox">
+                <div class="row">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="tblCuadro" class="table table-condensed table-hover text-center" width="100%">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>Factoraje</th>
+                                    <th>Dispuesto</th>
+                                    <th>Vencido</th>
+                                    <th>Saldo MN</th>
+                                    <th>Saldo DLL</th>
+                                    <th>Total</th>
+                                    <th>Línea</th>
+                                    <th>Disponible</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{if (lst.Count == 0 || lstLinea.Count == 0)
+                                {
+                                    <tr><td colspan="8" class="text-center"><text>No hay datos disponibles</text></td></tr>
+                                }
+                                lst.ForEach(x =>
+                                    {
+                                        x.factoraje = x.banco.Equals("BANAMEX") ? x.factoraje : string.Empty;
+                                        x.tipoMoneda = x.banco.Equals("MONEX") || x.banco.Equals("SCOTIABANK") ? 0 : x.tipoMoneda;
+                                        var linea = lstLinea.FirstOrDefault(w => w.banco.Equals(x.banco) && w.factoraje.Equals(x.factoraje) && w.moneda == x.tipoMoneda);
+                                        if (x.fechaVencimiento < linea.fecha)
+                                            x.saldoFactura = 0;
+                                    });
+                                var lstG = lst.OrderBy(o => o.banco).ThenBy(o => o.tipoMoneda).ThenBy(o => o.factoraje).GroupBy(g => new { g.banco, g.tipoMoneda }, (k, g) => new
+                                {
+                                    banco = k.banco,
+                                    moneda = k.tipoMoneda,
+                                    lst = g.GroupBy(gg => new { gg.factoraje }, (kk, gg) => new
+                                    {
+                                        factoraje = kk.factoraje,
+                                        dispuesto = gg.Sum(s => s.saldoFactura),
+                                        vencido = gg.Where(w => w.fechaVencimiento <= viernes).Sum(s => s.saldoFactura),
+                                        HistCount = gg.Count(),
+                                        ActCount = gg.Where(w => w.fechaVencimiento <= viernes).Count(),
+                                    }).ToList(),
+                                }).ToList();
+                                foreach (var x in lstG)
+                                {
+                                    <tr><td colspan="8" class="warning">@x.banco @(x.moneda == 0 ? string.Empty : x.moneda == 1 ? "MX" : "DLL")</td></tr>
+                                    foreach (var y in x.lst)
+                                    {
+                                        <tr>
+                                            @{
+                                        var importe = y.dispuesto - y.vencido;
+                                        var linea = lstLinea.FirstOrDefault(w => w.banco.Equals(x.banco) && w.factoraje.Equals(y.factoraje) && w.moneda == x.moneda).linea;
+                                        var disponible = linea - importe;
+                                            }
+                                            <td>@(y.factoraje.Equals("N") ? "Normal" : y.factoraje.Equals("V") ? "Vencido" : string.Empty)</td>
+                                            <td>@(y.dispuesto.ToString("C2"))</td>
+                                            <td>@(y.vencido.ToString("C2"))</td>
+                                            <td class="text-right">@(x.moneda <= 1 ? importe.ToString("C2") : string.Empty)</td>
+                                            <td class="text-right">@(x.moneda == 2 ? importe.ToString("C2") : string.Empty)</td>
+                                            <td class="text-right">@importe.ToString("C2")</td>
+                                            <td class="text-right">@linea.ToString("C2")</td>
+                                            <td class="text-right @(disponible > 0 ? "success" : "danger")">@disponible.ToString("C2")</td>
+                                        </tr>
+                                    }
+                                }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left" aria-hidden="true"></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>

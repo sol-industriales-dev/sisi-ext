@@ -1,0 +1,819 @@
+﻿
+<link href="~/Content/style/css/Proyecciones/CifrasPrincipales.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/js/Administrativo/Proyecciones/CifrasPrincipales.js"></script>
+<style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+
+    table#tblCifrasPrincipales {
+        margin-bottom: 0px !important;
+    }
+
+    .lblEscenario {
+        color: #01DF01 !important;
+    }
+
+    .bnt-gra {
+        background: #A569BD !important;
+    }
+
+        .bnt-gra:hover {
+            color: #FDFEFE !important;
+            background-color: #6C3483 !important;
+        }
+
+    .nav > li > a:hover, .nav > li > a:focus {
+        text-decoration: none;
+        background-color: transparent;
+    }
+
+    .CLSColorTotal {
+        background-color: #76D7C4 !important;
+    }
+
+        .CLSColorTotal[disabled] {
+            background-color: #76D7C4 !important;
+        }
+
+    .CLSColorPorcentajes {
+        background-color: #D7BDE2 !important;
+    }
+
+        .CLSColorPorcentajes[disabled] {
+            background-color: #D7BDE2 !important;
+        }
+
+    .PaddingTotalMAx {
+        padding: 0 !important;
+        padding-top: 8px !important;
+    }
+
+    .VentaProyectada {
+        background-color: #85C1E9 !important;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row" style="margin-top: -18px;">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm" style=" font-size: inherit; "><span data-toggle="collapse" href="#collapseRango" style="cursor: pointer;font-size:medium;">&#8595;&#8593;</span></legend>
+            <div class="row panel-collapse collapse in" id="collapseRango">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <table class="table dt-body-center" style="margin-bottom: 15px;" id="tblCifrasPrincipales">
+                                <thead class="bg-table-header table-condensed">
+                                    <tr>
+                                        <th colspan="2" class="text-center">CIFRAS PRINCIPALES:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="width:70%;">
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra " type="button" id="btnModalVentas"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tblT1" class="text-center setBlank" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td style="width:30%;"><input id="tblT2" class="text-center setBlank" disabled /></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:70%;">
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra" type="button" id="btnModalResultadoAcumulado"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tblT3" class="text-center setBlank" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td style="width:30%;"><input id="tblT4" class="text-center setBlank" disabled /></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:70%;">
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra " type="button" id="btnModalFlujoFinalAnio"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tblT5" class="text-center setBlank" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td style="width:30%;"><input id="tblT6" class="text-center setBlank" disabled /></td>
+                                    </tr>
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-lg-6">
+                            <table class="table dt-body-center">
+                                <thead class="bg-table-header table-condensed">
+                                    <tr>
+                                        <th style="width: 10%;">LUGAR</th>
+                                        <th style="width: 50%;">DIVISIONES CON MAS VENTAS TOTALES</th>
+                                        <th style="width: 20%;">VTAS (Miles $)</th>
+                                        <th style="width: 20%;">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input id="tbLugar1" class="text-center setBlank" disabled /></td>
+                                        <td>
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra " type="button" id="btn1"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tbDescripcion1" class="text-center setBlank clsDescripcion" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td><input id="tbVenta1" class="text-right setBlank clsVentasTotales" disabled /></td>
+                                        <td class="CLSColorPorcentajes"><input id="tbPorcentaje1" class="text-center form-control setBlank CLSColorPorcentajes" disabled /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input id="tbLugar2" class="text-center setBlank" disabled /></td>
+                                        <td>
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra " type="button" id="btn2"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tbDescripcion2" class="text-center setBlank clsDescripcion" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td><input id="tbVenta2" class="text-right setBlank clsVentasTotales" disabled /></td>
+                                        <td class="CLSColorPorcentajes"><input id="tbPorcentaje2" class="text-center form-control setBlank CLSColorPorcentajes" disabled /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input id="tbLugar3" class=" text-center setBlank" disabled /></td>
+                                        <td>
+                                            <div class="input-group">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default bnt-gra " type="button" id="btn3"><span class="glyphicon glyphicon-signal"></span></button>
+                                                </span>
+                                                <input id="tbDescripcion3" class="text-center setBlank clsDescripcion" disabled />
+                                            </div><!-- /input-group -->
+                                        </td>
+                                        <td><input id="tbVenta3" class="text-right setBlank clsVentasTotales" disabled /></td>
+                                        <td class="CLSColorPorcentajes"><input id="tbPorcentaje3" class="text-center setBlank CLSColorPorcentajes" disabled /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <center>
+                                <table class="table dt-body-center table-condensed" id="tblProyec">
+                                    <thead class="bg-table-header" style="text-align:center;">
+                                        <tr>
+                                            <th class="text-center">CONCEPTO</th>
+                                            <th class="text-center">ENERO A FECHA ACTUAL</th>
+                                            <th class="text-center">PROYECCION ACTUAL HASTA DICIEMBRE</th>
+                                            <th class="text-center">TOTAL PROYECTADO AÑO ACTUAL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="background-color: #85C1E9 !important;">
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank " style="width:107%;background-color: #85C1E9 !important;" value="VENTA PROYECTADA" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbAnioAnteriorVentaProyectada" value="$2,546,306,000" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbProyeccionMesVentaProyectada" value="$134,328,000" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbProyectadoAnioVentaProyectada" value="$3,143,676,247" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" value="VENTA REAL" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbAnioAnteriorVentaReal" value="$2,423,136,448" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbProyeccionesMesVentaReal" value="$131,288,035" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbProyectadoAnioMesVentaReal" value="---" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center
+                                                           setBlank" value="% CUMPLIMIENTO" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbCumpliminetoAnioAnterior" value="95.00%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbCumpliminetoMesActual" value="97.73%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbCumpliminetoAnioActual" value="---" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color:#A2D9CE !important;">
+                                            <td colspan="4"></td>
+                                        </tr>
+                                        <tr style="background-color: #85C1E9 !important;">
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" value="UTILIDAD PLANEADA" value="UTILIDAD PLANEADA" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbAnioAnteriorUtilidadPlaneada" value="$181,064,000" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbProyecionesMesUtilidadPlaneada" value="$6,304,000" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" style="background-color: #85C1E9 !important;" id="tbProyecionesAnioUtilidadPlaneada" value="$379,524,485" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" value="" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbPorUtilidadPlaneadaAnioAnterior" value="7.11%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbPorUtilidadPlaneadaMesActual" value="5.00%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbProUtilidadPlaneadaAnioActual" value="12.00%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" value="UTILIDAD REAL " disabled />
+                                                        (ANTES DE IMPUESTOS Y OTROS INGRESOS)
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbAnioAnteriorUtilidadReal" value="$307,550,048" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbProyecionesMesUtilidadReal" value="$23,571,185" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbProyecionesAnioUtilidadReal" value="---" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" value="" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbPorUtilidadRealAnioAnterior" value="12.69%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbPorUtilidadRealMesActual" value="17.95%" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                            <td>
+                                                <center>
+                                                    <div>
+                                                        <input class="text-center setBlank" id="tbPorUtilidadRealAnioActual" value="---" disabled />
+                                                    </div><!-- /input-group -->
+                                                </center>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="modal fade" id="modalTblResultadoMensual" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-8 text-right" style="font-size: 20px;margin-top: 5px;">RESULTADO MENSUAL (En Miles de $)</div>
+                    <div class="col-lg-3 text-right" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="panel with-nav-tabs">
+                    <div class="panel-heading" style="padding: 0px;">
+                        <ul class="nav nav-tabs">
+                            <li class="active" style="background: #7DCEA0;">
+                                <a style="color:black;" class="CResultadoMensual" data-toggle="tab" href="#tabResultadoMensual">RESULTADO MENSUAL</a>
+                            </li>
+                            @*    <li style="margin-left: 50px;"><a data-toggle="tab" href="#tabResultadoAcumulado" data-grafica="7">RESULTADO ACUMULADO 12 MESES</a></li>*@
+                            <li style="background: #AED6F1;width: 340px;margin-right: 2px;" class="text-right">
+                                <a style="color:black;" class="DoceMeses" data-toggle="tab" href="#tabporSobreAcumMeses" data-grafica="8">% ACUM A 12 MESES (VENTAS / RESULTADO)</a>
+                            </li>
+                            <li style="background: #FAD7A0;width: 262px;" class="text-right">
+                                <a style="color:black;" class="CUtilidadBruta" data-toggle="tab" href="#tabUtilidadBrutaPro" data-grafica="4">% DE UTILIDAD BRUTA PROMEDIO</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div id="tabResultadoMensual" class="tab-pane fade in active">
+                            <div class="row center-block">
+                                <table class="table table-responsive table-fixed" style="font-weight:bold;" id="tblResultadoMensual">
+                                    <thead>
+                                        <tr class="titleSubheader">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>TOTAL</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine1" width="1150" height="300"></canvas>
+                            </div>
+                        </div>
+                        <div id="tabporSobreAcumMeses" class="tab-pane fade">
+                            <div class="row center-block">
+                                <table class="table table-responsive" style="font-weight:bold;" id="tblMargenResultadoAcumulado">
+                                    <thead>
+                                        <tr class="titleSubheader">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine8" width="1150" height="300"></canvas>
+                            </div>
+                        </div>
+                        @*<div id="tabResultadoAcumulado" class="tab-pane fade">
+                                <div class="row center-block">
+                                    <table class="table  table-responsive" style="font-weight:bold;" id="tblResultadoACumulado">
+                                        <thead>
+                                            <tr class="titleSubheader">
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="row center-block">
+                                    <canvas id="LineWithLine7" width="1150" height="300"></canvas>
+                                </div>
+                            </div>*@
+                        <div id="tabUtilidadBrutaPro" class="tab-pane fade">
+                            <div class="row center-block">
+                                <table class="table  table-responsive" style="font-weight:bold;" id="tblUtilidadBruta">
+                                    <thead>
+                                        <tr class="titleSubheader">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine4" width="1150" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTblFlujoEfectivo" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-8 text-right" style="font-size: 20px;margin-top: 5px;">FLUJO DE EFECTIVO  (En Miles de $)</div>
+                    <div class="col-lg-3 text-right" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row center-block">
+                    <table class="table table-responsive" style="font-weight:bold;" id="tblFlujoEfectivo">
+                        <thead>
+                            <tr class="titleSubheader">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="row center-block">
+                    <canvas id="LineWithLine2" width="1150" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTblVentasMensuales" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-8 text-right" style="font-size: 20px;margin-top: 5px;">VENTAS MENSUALES (En Miles de $)</div>
+                    <div class="col-lg-3 text-right" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="panel with-nav-tabs">
+                    <div class="panel-heading" style="padding: 0px;">
+                        <ul class="nav nav-tabs">
+                            <li class="active" style="background: #D7BDE2;">
+                                <a style="color:black;" data-toggle="tab" href="#tabVentasMensuales" data-grafica="3">VENTAS MENSUALES</a>
+                            </li>
+                            <li style="background: #F5CBA7;width: 460px;" class="text-right">
+                                <a style="color:black;" data-toggle="tab" href="#tabVentaAcumuladaMeses" data-grafica="6">VENTA ACUMULADA A 12 MESES (SIN CIERRE DE EJERCICIO) </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div id="tabVentasMensuales" class="tab-pane fade in active">
+                            <div class="row center-block">
+                                <table class="table table-responsive" style="font-weight:bold;" id="tblVentasMensuales">
+                                    <thead>
+                                        <tr class="titleSubheader">
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th class="OnlyBottomBorder"></th>
+                                            <th>TOTAL</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="row">
+                                <canvas id="LineWithLine3" width="1150" height="250"></canvas>
+                            </div>
+                        </div>
+
+                        <div id="tabVentaAcumuladaMeses" class="tab-pane fade">
+                            <div class="row center-block">
+                                <table class="table table-responsive" style="font-weight:bold;" id="tblVentaAcumulada">
+                                    <thead>
+                                        <tr class="titleSubheader">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine6" width="1150" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTblUtilidadBruta" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTblGastosAdmo" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-8 text-right" style="font-size: 20px;margin-top: 5px;">GASTOS DE ADMINISTRACIÓN (En Miles de $)</div>
+                    <div class="col-lg-3 text-right" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row center-block">
+                    <table class="table  table-responsive" style="font-weight:bold;" id="tblGastosAdmo">
+                        <thead>
+                            <tr class="titleSubheader">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="row center-block">
+                    <canvas id="LineWithLine5" width="1150" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTblVentaAcumulada" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-10 text-right" style="font-size: 20px;margin-top: 5px;">       VENTA ACUMULADA A 12 MESES (SIN CIERRE DE EJERCICIO) (En Miles de $)</div>
+                    <div class="" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row center-block">
+                    <table class="table table-responsive" style="font-weight:bold;" id="tblVentaAcumulada">
+                        <thead>
+                            <tr class="titleSubheader">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="row center-block">
+                    <canvas id="LineWithLine6" width="1150" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTblResultadoACumulado" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-10 text-right" style="font-size: 20px;margin-top: 5px;">RESULTADO ACUMULADO A 12 MESES (SIN CIERRE DE EJERCICIO) (En Miles de $)</div>
+                    <div class="" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTblMargenResultadoAcumulado" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="col-lg-12">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="col-lg-10" style="font-size: 20px;margin-top: 5px;text-align: center;">ACUM A 12 MESES VENTAS / RESULTADO</div>
+                    <div class="" style="font-size: 20px;margin-top: 5px;"><label class="lblEscenario" style="color: #6E2C00;">Escenario A</label></div>
+                </div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ModalAreasPPL" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div style="font-size: 20px;margin-top: 5px;text-align: center;"><label id="lblAreaPPL" style=" font-weight: normal;"></label> Total : <label style="    font-weight: normal;" id="lblAreaPPLTotal"></label></div>
+
+            </div>
+            <div class="modal-body">
+                <div class="row center-block">
+                    <table class="table  table-responsive" style="font-weight:bold;" id="tblDivisionesMassVentas">
+                        <thead>
+                            <tr class="titleSubheader">
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

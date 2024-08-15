@@ -1,0 +1,151 @@
+﻿
+@*@{
+    ViewBag.Title = "ReportesRemocion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}*@
+<!DOCTYPE html>
+<script src="~/Scripts/js/Maquinaria/Overhaul/ReportesRemocionJS.js"></script>
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12  text-center">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Filtros</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboEstatusReporte" style="width: 100%;">
+                    <option value=''>--Seleccione--</option>
+                    <option value="0">PENDIENTE VOBO</option>
+                    <option value="1">PENDIENTE ENVÍO</option>
+                    <option value="2">PENDIENTE AUTORIZACIÓN</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3">
+                <label>Subconjunto:</label>
+                <input class="form-control ui-autocomplete-input" id="txtFiltroDescripcionComponenteRR" type="text" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3">
+                <label>Económico:</label>
+                <input class="form-control ui-autocomplete-input" id="txtFiltroEconomicoRR" type="text" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3">
+                <label class="text-center">Obra:<br/></label>
+                <select id="cboCCRR" class="text-center form-control" name="cboCCRR" style="width:100%"></select>
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3">
+                <label>Motivo:</label>
+                <select class="form-control" id="cboMotivoRemocion" style="width: 100%;">
+                    <option value=''>--Seleccione--</option>
+                    <option value="0">VIDA UTIL</option>
+                    <option value="1">FALLA</option>
+                    <option value="2">ESTRATEGIA</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-9">
+                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarRR">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Reportes Remoción:</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+            <table id="gridReportes" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">ESTATUS</th>
+                        <th data-column-id="fecha" class="text-center" style="">FECHA&lt;br&gt;REMOCIÓN</th>
+                        <th data-column-id="componenteRemovido" class="text-center" style="">SERIE</th>
+                        <th data-column-id="subConjunto" class="text-center" style="">SUBCONJUNTO</th>
+                        <th data-column-id="noEconomico" class="text-center" style="">ECONOM.</th>
+                        <th data-column-id="cc" class="text-center" style="">CC</th>
+                        <th data-column-id="motivo" class="text-center" style="" data-formatter="motivo">MOTIVO</th>
+                        <th data-column-id="voboReporte" class="text-center" style="" data-formatter="voboReporte">VoBo</th>
+                        <th data-column-id="enviarReporte" class="text-center" style="" data-formatter="enviarReporte">ENVIAR</th>
+                        <th data-column-id="autorizarReporte" class="text-center" style="" data-formatter="autorizarReporte">AUTORIZAR</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </fieldset>
+    <div class="modal fade" id="modalReporteRemocion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+        <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="text-center">
+                        <h3><label id="title-modal"></label></h3>
+                    </div>
+                </div>
+                <div class="modal-body text-center modal-content-tamaño">
+                    <div class="container-fluid">
+                        <fieldset class="fieldset-custm fielset-Filtros" id="fsReporteRemocion"></fieldset>
+                    </div>
+                </div>
+                <div class="modal-body text-center modal-content-tamaño">
+                    <div class="container-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalCorreosRR" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+        <div class="modal-dialog modal-md" style="" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div class="text-center">
+                        <h3><label>Archivos Historial</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body text-center modal-content-tamaño">
+                    <div class="container-fluid">
+                        <form novalidate="novalidate">
+                            <div class="row" style="width:100%; text-align:center;">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">AGREGAR CORREO:</legend>
+                                    <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                        <input class="form-control" type="email" id="txtCorreoRR" size="30" required>
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                        <button id="btnAgregarCorreoRR" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">CORREOS:</legend>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <table id="tblCorreosRR" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                            <thead class="bg-table-header">
+                                                <tr>
+                                                    <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                    <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                                    <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                        </table>
+                                    </div>
+                                </fieldset>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnEnviarCorreo">
+                                        <span class="glyphicon glyphicon-envelope"></span> Enviar
+                                    </button>
+                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnCancelarEnvio" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="reporteRemocion">
+    @Html.Partial("reportViewerView")
+</div> 

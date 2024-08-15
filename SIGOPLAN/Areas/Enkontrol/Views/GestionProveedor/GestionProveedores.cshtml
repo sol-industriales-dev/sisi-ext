@@ -1,0 +1,331 @@
+﻿@{
+    ViewBag.Title = "GestionProveedores";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var idProv = (string)ViewBag.idProv;
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/default/easyui.css" rel="stylesheet" />
+<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css"
+    rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/GestionProveedor/GestionProveedores.css" rel="stylesheet" />
+
+<input type="hidden" id="idProv" value="@idProv" />
+
+<div class="col-sm-12">
+
+    <div class="row">
+        <h2 class="text-center">Catálogo de Proveedores</h2>
+    </div>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"></legend>
+
+    <!-- CONTROLES DE FILTRO -->
+    <!-- <div class="row">
+        <br />
+        <div class="col-lg-4">
+            <label class="form-label" for="cboOrden">Orden: </label>
+            <select id="cboOrden" class="form-control">
+                <option value="1">Codigo</option>
+                <option value="2">Razón Social</option>
+            </select>
+        </div>
+
+    </div><br /> -->
+    <div class="row">
+        <div class="col-lg-9"></div>
+        <div class="col-lg-3">
+            <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i>
+                Buscar</button>
+            <button type="button" data-toggle="modal" data-target="#mdlNuevoProveedor" class="btn btn-primary"
+                id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
+        </div>
+    </div><br>
+    <!-- END: CONTROLES DE FILTRO -->
+
+</fieldset>
+<br />
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'></legend>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="TblCom_RegistroProveedores" class="table table-condensed table-hover table-striped text-center"></table>
+        </div>
+    </div>
+
+</fieldset>
+</div>
+
+
+<div id="mdlNuevoProveedor" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>Nuevo Proveedor</h4>
+            </div>
+            <fieldset class='fieldset-custm marginBottom'>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-lg-3">
+                                    <label>Código: </label>
+                                    <input id="inpCodigo" class="form-control" maxlength="11"></input>
+                                    <input id="inpid" class="hidden"></input>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label>Tipo de Doc: </label>
+                                    <select id="cboTipoDoc" class="form-control">
+                                        <option value="">Seleccione documento</option>
+                                        <option value="0">0-Otro tipo de documento</option>
+                                        <option value="1">1-DNI</option>
+                                        <option value="2">2-Carnet de fuerzas policiales</option>
+                                        <option value="3">3-Carnet de fuerzas especiales</option>
+                                        <option value="4">4-Carnet de extranjería</option>
+                                        <option value="6">6-RUC</option>
+                                        <option value="7">7-Pasaporte</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-5">
+                                      <label>Tipo de Proveedor: </label><br>                                     
+                                   <input type="checkbox" id="cboTipoMov"> <label for="cboTipoMov">Caja Chica</label>  
+                                 </div>                                
+                              
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="divDatos" class="col-lg-12">
+                                <div class="col-lg-4"> <label>Primer nombre: </label>
+                                    <input id="inpPrimerNombre" maxlength="20" class="form-control"></input>
+                                    <label>Apellido paterno: </label>
+                                    <input id="inpApePaterno" maxlength="20" class="form-control"></input>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label>Segundo nombre: </label>
+                                    <input id="inpSegundoNombre" maxlength="20" class="form-control"></input>
+
+                                    <label>Apellido materno: </label>
+                                    <input id="inpApeMaterno" maxlength="20" class="form-control"></input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div id="divRazon" class="col-lg-12">
+                                    <label>Razon: </label>
+                                    <input id="inpRazon" maxlength="50" class="form-control"></input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <div class="col-lg-8"> <label>Dirección: </label>
+                                    <input id="inpDireccion" class="form-control" maxlength="100">
+                                </div>
+                                <div class="col-lg-4">
+                                    <label>Ubigeo: </label>
+                                    <input id="inpUbigueo" class="form-control" maxlength="6">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Localidad: </label>
+                                    <input id="inpLocalidad" class="form-control" maxlength="25">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>País: </label>
+                                    <input id="inpPais" class="form-control" maxlength="15">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Teléfono: </label>
+                                    <input id="inpTelefono" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Fax: </label>
+                                    <input id="inpFax" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Representante: </label>
+                                    <input id="inpRepresentante" maxlength="40" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Cargo del Representante: </label>
+                                    <input id="inpCargoRepresentante" class="form-control" maxlength="20">
+                                </div>         
+                                <div class="col-md-6">
+                                    <label>Teléfono del Representante: </label>
+                                    <input id="inpTelRepresentante" class="form-control" type="number">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Email: </label>
+                                    <input id="inpEmail" class="form-control" maxlength="60">
+                                </div>
+                                         <div class="col-md-6">
+                                  <button type="button" data-toggle="modal" data-target="#mdlCuentaBancaria" class="btn btn-primary"
+                                        id="btnCuentaBanco"><i class="fas fa-plus"></i> Mant. Cuenta Bancarias</button>
+                                    </div>
+                                <div class="col-md-6">
+                                    <label>Forma de Pago: </label>
+                                    <select id="cboFormaPago" class="form-control">
+                                        <option value="00">CONTADO CONTRA ENTREGA</option>
+                                        <option value="01">CRÉDITO 07 DÍAS</option>
+                                        <option value="02">CRÉDITO 15 DÍAS</option>
+                                        <option value="03">CRÉDITO 30 DÍAS</option>
+                                        <option value="04">CRÉDITO 45 DÍAS</option>
+                                        <option value="05">CRÉDITO 60 DÍAS</option>
+                                        <option value="06">CRÉDITO 75 DÍAS</option>
+                                        <option value="07">CRÉDITO 90 DÍAS</option>
+                                        <option value="08">CRÉDITO 120 DÍAS</option>
+                                        <option value="21">LETRA 30 DÍAS</option>
+                                        <option value="22">LETRA 45 DÍAS</option>
+                                        <option value="23">LETRA 60 DÍAS</option>
+                                        <option value="24">LETRA 90 DÍAS</option>
+                                        <option value="25">LETRA 120 DÍAS</option>
+                                        <option value="26">CANJE DE VENTA</option>
+                                        <option value="27">FINANCIAMIENTO CLC (LEASING)</option>
+                                        <option value="28">50% ANTICIPO Y 50% CONTRA ENTREGA</option>
+                                        <option value="29">50% OC y 50% CONTRA ENTREGA</option>
+                                    </select>
+                                </div>
+                           
+                                <div class="col-md-4">
+                                    <label>Estado: </label>
+                                    <select class="form-control" id="inpEstado">
+                                        <option value="V">Activo</option>
+                                        <option value="F">Inactivo</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Fecha: </label>
+                                    <input id="inpFecha" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <!-- ADJUNTAR ARCHIVOS -->
+                            <div class="col-md-12">
+                                <input type="file" id="txtArchivoAdjunto">
+                                <label class="label labelNombre" id=""> Ningún
+                                Archivo Seleccionado</label>
+                                <br>
+                                <div class="table-responsive">
+                                    <table id="tablaArchivosAdjuntos" class="table stripe compact nowrap" style="width:99%;"></table>
+                                </div>
+                            </div>
+                            <!-- END: ADJUNTAR ARCHIVOS -->   
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>
+                        Regresar</button>
+                    <button type="button" id="btnGuardar" class="btn btn-primary"><i class="fas fa-save"></i>
+                        Guardar</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<div id="mdlCuentasBancarias" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-sx">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>Listado de cuentas bancarias</h4>
+            </div>
+
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="col-lg-3">
+                            <button type="button" data-toggle="modal" data-target="#mdlNuevaCuenta" class="btn btn-primary"
+                                id="btnNuevaCuenta"><i class="fas fa-plus"></i> Nuevo</button>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="TblCom_RegistrosCuentas" class="table table-condensed table-hover table-striped text-center"></table>
+                </div>
+            </div>
+         </div>
+     </div>
+ </div>
+
+
+
+<div id="mdlNuevaCuenta" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <legend class="modal-title">Listado de cuentas bancarias</legend>
+            </div>
+
+            <fieldset class='fieldset-custm marginBottom'>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-md-6">
+                                    <label>Proveedor: </label>
+                                    <input id="inpProveedor" class="form-control" disabled>
+                                     <input id="inpidProv" class="hidden"></input>
+                                </div>
+                                   <div class="col-lg-6">
+                                    <label>Banco: </label>
+                                    <select id="cboCuentaBanco" class="form-control">
+                                        <option value="">Seleccione banco</option>
+                                        <option value="01">BANCO DE CREDITO</option>
+                                        <option value="02">BANCO SCOTIBANK</option>
+                                        <option value="03">BANCO CONTINENTAL</option>
+                                        <option value="04">BANCO DE LA NACION</option>
+                                        <option value="05">INTERBANK</option>
+                                        <option value="06">BANCO BBVA PERU</option>
+                                    </select>
+                                </div>
+                                      <div class="col-lg-6">
+                                    <label>Cuenta bancaria: </label>
+                                    <input id="inpCuentaCorriente" class="form-control">
+                                </div>
+                                          <div class="col-lg-6">
+                                    <label>Moneda: </label>
+                                    <select id="cboMoneda" class="form-control">
+                                        <option value="">Seleccione moneda</option>
+                                        <option value="ME">DOLARES AMERICANOS</option>
+                                        <option value="MN">SOLES</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <br>
+                </div>
+                <br>
+                <div class="modal-footer margin-top">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>
+                        Regresar</button>
+                    <button type="button" id="btnGuardarCuenta" class="btn btn-primary"><i class="fas fa-save"></i>
+                        Guardar</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Proveedores/GestionProveedores.js"></script>

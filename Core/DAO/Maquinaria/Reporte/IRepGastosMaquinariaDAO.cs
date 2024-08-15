@@ -1,0 +1,14 @@
+﻿using Core.DTO.Maquinaria.Reporte;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.DAO.Maquinaria.Reporte
+{
+    public interface IRepGastosMaquinariaDAO
+    {
+        List<RepGastosMaquinaDTO> FillCboConjuntos(bool estatus);
+    }
+}

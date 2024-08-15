@@ -1,0 +1,139 @@
+﻿@{
+ViewBag.Title = "Asignacion";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Facultamientos/Asignacion.css" rel="stylesheet" />
+<style>
+    .ui-autocomplete {
+        z-index: 9999;
+    }
+</style>
+<h1 class="text-center">Asignación de Facultamientos</h1>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros de Búsqueda</legend>
+    <div class="row">
+        <div class="col-md-3 col-lg-3">
+            <div class="input-group extraMargen">
+                <span class="input-group-addon">Departamento</span>
+                <select id="comboDepartamento" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3">
+            <div class="input-group extraMargen">
+                <span class="input-group-addon">Obra</span>
+                <select id="comboObra" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2">
+            <div class="input-group extraMargen">
+                <span class="input-group-addon">Estado</span>
+                <select id="comboEstado" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-md-1 col-lg-1">
+            <button id="btnBuscar" type="button" class="btn btn-primary extraMargen"><i class="fa fa-search"></i>
+                Buscar</button>
+        </div>
+        <div class="col-md-1 col-lg-1">
+            <button id="btnLimpiar" type="button" class="btn btn-primary extraMargen"><i class="fa fa-ban"></i>
+                Limpiar Campos</button>
+        </div>
+    </div>
+</fieldset>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Resultados de Búsqueda</legend>
+    <button type="button" class="btn btn-primary extraMargen" id="nuevaAsignacion"><i class="fa fa-check-square-o"></i>
+        Asignar</button>
+    <table id="tablaPaquetes" class="table table-fixed table-hover table-responsive table-striped">
+        <thead class="bg-table-header">
+            <tr>
+                <th>C.C.</th>
+                <th>Obra</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Departamento</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</fieldset>
+
+<div id="modalAsignacion" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 id="tituloCC" class="modal-title"></h4>
+                <h4 class="modal-title">
+                    <i class="fa fa-check-square-o"></i> Asignar Facultamientos
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class=" col-md-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Centro de Costos</span>
+                                <select id="comboCC" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <fieldset id="listadoFacultamientos" class="fieldset-custm col-md-12 col-lg-12">
+                            <legend id="lblLegend" class="legend-custm">Listado de Facultamientos</legend>
+                        </fieldset>
+                        <fieldset class="fieldset-custm col-md-12 col-lg-12">
+                            <legend class="legend-custm">Autorizantes</legend>
+                            <table id="tablaAutorizantes" class="table table-fixed table-responsive table-striped tblMonto">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Nombre</th>
+                                        <th>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Autoriza</td>
+                                        <td><input type="text" class="form-control" placeholder="Autoriza" /></td>
+                                        <td><span class="label label-default">Pendiente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>VoBo 1</td>
+                                        <td><input type="text" class="form-control" placeholder="VoBo" /></td>
+                                        <td><span class="label label-default">Pendiente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>VoBo 2</td>
+                                        <td><input type="text" class="form-control" placeholder="VoBo" /></td>
+                                        <td><span class="label label-default">Pendiente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>VoBo 3</td>
+                                        <td><input type="text" class="form-control" placeholder="VoBo" /></td>
+                                        <td><span class="label label-default">Pendiente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>VoBo 4</td>
+                                        <td><input type="text" class="form-control" placeholder="VoBo" /></td>
+                                        <td><span class="label label-default">Pendiente</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left"></i>
+                    Cancelar</button>
+                <button type="button" id="btnGuardar" disabled class="btn btn-success"><i class="fa fa-save"></i>
+                    Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Facultamiento/Asignacion.js"></script>

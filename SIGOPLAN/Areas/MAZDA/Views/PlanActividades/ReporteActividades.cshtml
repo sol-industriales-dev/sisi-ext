@@ -1,0 +1,404 @@
+﻿@{
+    ViewBag.Title = "ReporteActividades";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/ReporteActividades.css" rel="stylesheet" />
+
+<div class="container-fluid" >
+    <div class="row">
+        <h2 id="txtEncabezado" class="text-center">REPORTE DIARIO</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 1px; padding-right: 1px;">
+            <fieldset id="fieldFechaRep" class="fieldset-custm" style="border-radius: 0px !important;">
+                <div  style="padding-left: 5px; padding-right: 5px;">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="row">
+                                 <div class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                    <fieldset id="fieldFechaReporte">
+                                        <div class="col-lg-3" style="padding-left: 27px;">
+                                            <div class="input-group" style="margin-top: 5px;">
+                                                <span class="input-group-addon" style="border-radius: 0px; background-color: #81bd72; color: #fff; font-weight: bold; border: 1px solid black;">Fecha:</span>
+                                                <input class="form-control" id="dtPckrFechaReporte" style="border-radius: 0px; border-left: 0px;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" style="padding-left: 0px;">
+                                            <button id="btnPrint" class="btn btn-primary" style="margin-top: 5px; display: none;"><span class="glyphicon glyphicon-print"></span> Reporte</button>
+                                        </div>
+                                        <div class="col-lg-7" style="padding-right: 15px;">
+                                            <table id="tblSemaforoInfo" class="table pull-right">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="text-center" colspan="3">Semáforo de Avance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="padding: 3px; text-align: center;">
+                                                            <div class="circulo" circulotipo="1"></div>
+                                                            <span>Realizado</span>
+                                                        </td>
+                                                        <td style="padding: 3px; text-align: center;">
+                                                            <div class="circulo" circulotipo="2"></div>
+                                                            <span>Pendiente</span>
+                                                        </td>
+                                                        <td style="padding: 3px; text-align: center;">
+                                                            <div class="circulo" circulotipo="3"></div>
+                                                            <span>No se realizó</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <fieldset id="fieldTablaReporteActividades" class="fieldset-custm" style="margin-top: 5px; max-height: calc(100vh - 224px);">
+                                        <legend class="legend-custm"></legend>
+                                            <div class="circle"></div>
+
+                                            <table class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th id="headerFecha" class="text-center" style="border: 2px solid black; background-color: #ddd;">FECHA</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+
+                                            <table id="tblReporteActividades" class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="text-center col-lg-1">ACCIONES</th>
+                                                        <th class="text-center col-lg-1">CUADRILLA</th>
+                                                        <th class="text-center col-lg-2">ACTIVIDAD</th>
+                                                        <th class="text-center col-lg-1">EQUIPO</th>
+                                                        <th class="text-center col-lg-1">ÚLTIMO MANTENIMIENTO</th>
+                                                        <th class="text-center col-lg-1">SIGUIENTE MANTENIMIENTO</th>
+                                                        <th class="text-center col-lg-1">ÁREA EJECUCIÓN</th>
+                                                        <th class="text-center col-lg-4">DESCRIPCIÓN DE ACTIVIDAD</th>
+                                                        <th class="text-center col-lg-1">SEMÁFORO</th>
+                                                        <th class="text-center col-lg-1">REPROGRAMACIÓN</th>
+                                                        <th class="text-center col-lg-3">FECHA REPROGRAMACIÓN</th>
+                                                        <th class="text-center col-lg-3">ESTATUS</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+
+                                            @*<table id="tblReporteActividades" class="table" style="margin-bottom: 0px;">
+                                                    <thead></thead>
+                                                    <tbody></tbody>
+                                                </table>*@
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+           
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEvidencia">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleria"></div>
+                </div>
+                <div class="modal-footer">
+                    @*<div class="col-lg-2">
+                            <div class="custom-file-upload">
+                                <label for="inputEvidencias" class="custom-file-upload">
+                                    <i class="fa fa-photo"></i> Evidencia
+                                </label>
+                                <input type="file" id="inputEvidencias" accept="image/*" multiple>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btnGuardar"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Evidencia</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEvidenciaNueva">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Nueva Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleriaNueva"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-2">
+                        <div class="custom-file-upload">
+                            <label for="inputEvidenciaNueva" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Evidencia
+                            </label>
+                            <input type="file" id="inputEvidenciaNueva" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnGuardarEvidenciaNueva"><span class="glyphicon glyphicon-floppy-save"></span> Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlReferencias">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Referencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleriaReferencias"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlImagen">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Imagen</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="text-align:center;">
+                    <img id="imagenZoom" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlRevisionAC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label id="labelTituloRevisionAC"><i class="fa fa-photo"></i> Revisión</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="divCuadrillaAC" class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="container-fluid" style="padding-left: 0px; padding-right: 0px;">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                    <fieldset id="fieldBusquedaAC" class="fieldset-custm" style="border-radius: 0px !important;">
+                                        <div class="input-group col-md-12">
+                                            <div class="col-lg-4">
+                                                <label>Equipo:</label>
+                                                <input class="form-control" id="selectEquipo" readonly />
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label>Tonelaje:</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control text-right" id="inputTonelaje"
+                                                           readonly />
+                                                    <span class="input-group-addon">Toneladas</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label>Area:</label>
+                                                <input class="form-control" id="selectArea" readonly />
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label>Periodo:</label>
+                                                <input class="form-control" id="selectPeriodo" readonly />
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label>Técnico:</label>
+                                                <input class="form-control" id="selTecnico" readonly />
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label>Ayudantes:</label>
+                                                <input class="form-control" id="selAyudante" readonly />
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                            <legend class="legend-custm"></legend>
+                                            <table class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th data-column-id="" data-formatter="" data-header-align="center"
+                                                            class="text-center" style="border: 2px solid black; background-color: #ddd;">
+                                                            ACTIVIDADES
+                                                            DE MANTENIMIENTO DE AIRES ACONDICIONADOS
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <table id="tblCondensador" class="table text-center" style="margin-bottom: 0px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="text-center col-lg-7" rowspan="2">CONDENSADOR</th>
+                                                        <th class="text-center col-lg-1">SE REALIZO</th>
+                                                        <th class="text-center col-lg-4" rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">
+                                                            SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <table id="tblEvaporador" class="table text-center" style="margin-top: 5px; margin-bottom: 10px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center col-lg-7"
+                                                            rowspan="2">EVAPORADOR</th>
+                                                        <th data-header-align="center" class="text-center col-lg-1">
+                                                            SE
+                                                            REALIZO
+                                                        </th>
+                                                        <th data-header-align="center" class="text-center col-lg-4"
+                                                            rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">
+                                                            SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObs" class="form-control" style="border-radius: 0px; height: 100px;"
+                                                      readonly></textarea>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlRevisionCua">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label id="labelTituloRevisionCua"><i class="fa fa-photo"></i> Revisión</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="divCuadrillaGeneral" class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                        <div class="col-lg-2" style="padding-left: 0px; margin-bottom: 5px;">
+                                            <label>Mes:</label>
+                                            <input class="form-control" id="selectMes" readonly />
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label>Técnico:</label>
+                                            <input class="form-control" id="selTecnicoCua" readonly />
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label>Ayudantes:</label>
+                                            <input class="form-control" id="selAyudanteCua" readonly />
+                                        </div>
+                                        <table id="tblRevisionActividades" class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                            <thead class="bg-table-header">
+                                                <tr>
+                                                    <th class="text-center col-lg-1" rowspan="2">FRECUENCIA</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ÁREA</th>
+                                                    <th class="text-center col-lg-4" rowspan="2">ACTIVIDADES</th>
+                                                    <th class="text-center col-lg-1">SE REALIZO</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ESTATUS</th>
+                                                </tr>
+                                                <tr>
+                                                    <th data-header-align="center" class="text-center">
+                                                        SI <span class="glyphicon glyphicon-ok"></span>
+                                                        NO <span class="glyphicon glyphicon-remove"></span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                            <tfoot></tfoot>
+                                        </table>
+                                        <div id="divObservaciones" style="margin-top: 5px;">
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObsCua" class="form-control" style="border-radius: 0px; height: 100px;"
+                                                      readonly></textarea>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/ReporteActividades.js"></script>

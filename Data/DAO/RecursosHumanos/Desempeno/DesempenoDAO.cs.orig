@@ -1,0 +1,759 @@
+﻿using Core.DAO.RecursosHumanos.Desempeno;
+using Core.DTO;
+using Core.DTO.Principal.Generales;
+using Core.Entity.RecursosHumanos.Desempeno;
+using Core.Enum.Principal.Bitacoras;
+using Data.EntityFramework.Generic;
+using Infrastructure.Utils;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity.Migrations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Core.Entity.Principal.Usuarios;
+using Core.Enum.RecursosHumanos;
+using Core.DTO.RecursosHumanos.Desempeno;
+using System.Web;
+using Data.DAO.Principal.Archivos;
+
+namespace Data.DAO.RecursosHumanos.Desempeno
+{
+    public class DesempenoDAO : GenericDAO<tblRH_ED_CatProceso>, IDesempenoDAO
+    {
+        string nombreControlador = "Desempeno";
+
+        #region coloresEventos
+        const string colorProceso = "#0561b0";
+        const string colorEvaluacion = "#35b445";
+        const string colorWarning = "#f1ce11";
+        const string colorDanger = "#b63939";
+        #endregion
+
+        public Respuesta UsuarioSesion()
+        {
+            var r = new Respuesta();
+            try
+            {
+                var usuarioSesion = new UsuarioDTO();
+
+                var empleado = _context.tblRH_ED_Empleado.FirstOrDefault(x => x.empleadoID == vSesiones.sesionUsuarioDTO.id && x.estatus);
+                if (empleado == null)
+                {
+                    usuarioSesion.esAdmin = false;
+                    usuarioSesion.EmpleadoId = vSesiones.sesionUsuarioDTO.id;
+                    usuarioSesion.Id = 0;
+                    usuarioSesion.JefeId = 0;
+                    usuarioSesion.Nombre = vSesiones.sesionUsuarioDTO.nombre + " " + vSesiones.sesionUsuarioDTO.apellidoPaterno + " " + vSesiones.sesionUsuarioDTO.apellidoMaterno;
+                    usuarioSesion.TipoUsuario = 3;
+                }
+                else
+                {
+                    usuarioSesion.esAdmin = empleado.tipo == ED_TipoEmpleado.ADMIN;
+                    usuarioSesion.EmpleadoId = empleado.empleadoID;
+                    usuarioSesion.Id = empleado.id;
+                    usuarioSesion.JefeId = empleado.jefeID;
+                    usuarioSesion.Nombre = vSesiones.sesionUsuarioDTO.nombre + " " + vSesiones.sesionUsuarioDTO.apellidoPaterno + " " + vSesiones.sesionUsuarioDTO.apellidoMaterno;
+                    usuarioSesion.TipoUsuario = (int)empleado.tipo;
+                }
+
+                r.Success = true;
+                r.Message = "Ok";
+                r.Value = usuarioSesion;
+            }
+            catch (Exception ex)
+            {
+                r.Message += ex.Message;
+            }
+            return r;
+        }
+
+        #region Meta
+        public bool guardarMeta(tblRH_ED_DetMetas meta)
+        {
+            meta.idUsuario = vSesiones.sesionUsuarioDTO.id;
+            var esGuardado = false;
+            using(var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    var bd = _context.tblRH_ED_DetMetas.FirstOrDefault(m => m.id == meta.id);
+                    if(bd == null)
+                    {
+                        meta.fechaRegistro = DateTime.Now;
+                    }
+                    else
+                    {
+                        meta.id = bd.id;
+                        meta.fechaRegistro = bd.fechaRegistro;
+                    }
+                    meta.esActivo = true;
+                    _context.tblRH_ED_DetMetas.AddOrUpdate(meta);
+                    _context.SaveChanges();
+                    dbTransaction.Commit();
+                    esGuardado = meta.id > 0;
+                }
+                catch(Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "guardarMeta", o_O, AccionEnum.ACTUALIZAR, meta.id, meta);
+                }
+            return esGuardado;
+        }
+        public bool guardarMeta(List<tblRH_ED_DetMetas> lst)
+        {
+            var esGuardado = false;
+            using(var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    lst.ForEach(meta =>
+                    {
+                        var bd = _context.tblRH_ED_DetMetas.FirstOrDefault(m => m.id == meta.id);
+                        if(bd == null)
+                        {
+                            meta.fechaRegistro = DateTime.Now;
+                        }
+                        else
+                        {
+                            meta.id = bd.id;
+                            meta.fechaRegistro = bd.fechaRegistro;
+                        }
+                        meta.esActivo = true;
+                        _context.tblRH_ED_DetMetas.AddOrUpdate(meta);
+                        _context.SaveChanges();
+                    });
+                    dbTransaction.Commit();
+                    esGuardado = lst.All(a => a.id > 0);
+                }
+                catch(Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "guardarMeta", o_O, AccionEnum.ACTUALIZAR, lst.FirstOrDefault().id, lst.FirstOrDefault());
+                }
+            return esGuardado;
+        }
+        public bool eliminarMeta(int id)
+        {
+            var esEliminado = false;
+            using(var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    var bd = _context.tblRH_ED_DetMetas.FirstOrDefault(m => m.id == id);
+                    esEliminado = bd != null;
+                    if(esEliminado)
+                    {
+                        bd.esActivo = false;
+                        _context.tblRH_ED_DetMetas.AddOrUpdate(bd);
+                        _context.SaveChanges();
+                        dbTransaction.Commit();
+                    }
+                    else
+                    {
+                        throw new System.InvalidOperationException("La meta no existe. Verifique su información");
+                    }
+                }
+                catch(Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "eliminarMeta", o_O, AccionEnum.ELIMINAR, id, id);
+                }
+            return esEliminado;
+        }
+        public List<tblRH_ED_DetMetas> getLstMetaPorProceso(int idProceso, int usuarioID)
+        {
+            var data =_context.tblRH_ED_DetMetas.ToList().Where(w => w.esActivo && w.idProceso == idProceso && (w.usuario == null ? false : w.usuario.usuario.id == usuarioID)).ToList();
+            return data;
+        }
+        public tblRH_ED_DetMetas getMeta(int idMeta)
+        {
+            return _context.tblRH_ED_DetMetas.FirstOrDefault(m => m.id == idMeta);
+        }
+        #endregion
+        #region Observacion
+        public tblRH_ED_DetObservacion getObservacion(int idMeta, int idEvaluacion)
+        {
+            var observacion = _context.tblRH_ED_DetObservacion.FirstOrDefault(o => o.idEvaluacion == idEvaluacion && o.idMeta == idMeta)
+             ?? new tblRH_ED_DetObservacion();
+            if(observacion.id == 0)
+            {
+                observacion.idMeta = idMeta;
+                observacion.meta = getMeta(idMeta);
+                observacion.idUsuario = vSesiones.sesionUsuarioDTO.id;
+                observacion.usuario = _context.tblP_Usuario.FirstOrDefault(u => u.id == observacion.idUsuario);
+                observacion.lstEvidencia = new List<tblRH_ED_DetObservacionEvidencia>();
+            }
+            return observacion;
+        }
+        public bool eliminarEvidencia(int id)
+        {
+            var esEliminado = false;
+            using(var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    var bd = _context.tblRH_ED_DetObservacionEvidencia.FirstOrDefault(m => m.id == id);
+                    esEliminado = bd != null;
+                    if(esEliminado)
+                    {
+                        bd.esActivo = false;
+                        _context.tblRH_ED_DetObservacionEvidencia.AddOrUpdate(bd);
+                        _context.SaveChanges();
+                        dbTransaction.Commit();
+                    }
+                    else
+                    {
+                        throw new System.InvalidOperationException("La evidencia no existe. Verifique su información");
+                    }
+                }
+                catch(Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "eliminarEvidencia", o_O, AccionEnum.ELIMINAR, id, id);
+                }
+            return esEliminado;
+        }
+        #endregion
+        #region Semaforo
+        public List<tblRH_ED_CatSemaforo> getLstSemaforo(int idProceso)
+        {
+            return _context.tblRH_ED_CatSemaforo.ToList().Where(w => w.idProceso == idProceso).ToList();
+        }
+        #endregion
+        #region Empleados
+        public List<tblRH_ED_Empleado> CargarTblEmpleados(bool estatus) 
+        {
+            return _context.tblRH_ED_Empleado.Where(x => x.estatus == estatus).ToList();
+        }
+        public List<tblP_Usuario> getEmpleados(string term)
+        {
+            return _context.tblP_Usuario.Where(x => (x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno).Contains(term)).ToList();
+        }
+        public List<tblRH_ED_Empleado> getEmpleadosDesempeno(string term)
+        {
+            return _context.tblRH_ED_Empleado.Where(x => (x.usuario.nombre + " " + x.usuario.apellidoPaterno + " " + x.usuario.apellidoMaterno).Contains(term)).ToList();
+        }
+        public bool GuardarEmpleado(int empleadoID, int jefeID, int tipo) 
+        {
+            var exito = false;
+            tblRH_ED_Empleado bd = new tblRH_ED_Empleado();
+            using (var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    bd = _context.tblRH_ED_Empleado.FirstOrDefault(e => e.empleadoID == empleadoID);
+                    if (bd == null)
+                    {
+                        bd = new tblRH_ED_Empleado();
+                        bd.empleadoID = empleadoID;
+                        bd.estatus = true;
+                        bd.jefeID = jefeID;
+                        bd.tipo = (ED_TipoEmpleado)tipo;
+                    }
+                    else
+                    {
+                        bd.jefeID = jefeID;
+                        bd.tipo = (ED_TipoEmpleado)tipo;
+                    }
+                    _context.tblRH_ED_Empleado.AddOrUpdate(bd);
+                    _context.SaveChanges();
+                    dbTransaction.Commit();
+                    exito = bd.id > 0;
+                }
+                catch (Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "guardarMeta", o_O, AccionEnum.ACTUALIZAR, bd.id, bd);
+                }
+            return exito;
+        }
+        public Respuesta VerComo(int idUsuario)
+        {
+            var r = new Respuesta();
+
+            try
+            {
+                var admin = _context.tblRH_ED_Empleado.FirstOrDefault(x => x.empleadoID == vSesiones.sesionUsuarioDTO.id && x.estatus);
+                var usuario = _context.tblRH_ED_Empleado.FirstOrDefault(x => x.id == idUsuario && x.estatus);
+
+                if (admin != null && admin.tipo == ED_TipoEmpleado.ADMIN)
+                {
+                    if (usuario != null)
+                    {
+                        var usuarioVirtual = new UsuarioDTO();
+                        usuarioVirtual.EmpleadoId = usuario.empleadoID;
+                        usuarioVirtual.Id = usuario.id;
+                        usuarioVirtual.JefeId = usuario.jefeID;
+                        usuarioVirtual.Nombre = usuario.usuario.nombre + " " + usuario.usuario.apellidoPaterno + " " + usuario.usuario.apellidoMaterno;
+                        usuarioVirtual.TipoUsuario = (int)usuario.tipo;
+                        usuarioVirtual.esAdmin = true;
+                        usuarioVirtual.VerComoActivado = true;
+
+                        r.Success = true;
+                        r.Message = "Ok";
+                        r.Value = usuarioVirtual;
+                    }
+                    else
+                    {
+                        r.Message = "El usuario a visualizar no existe";
+                    }
+                }
+                else
+                {
+                    r.Message = "No eres administrador, no puedes realizar esta acción";
+                }
+            }
+            catch (Exception ex)
+            {
+                r.Message += ex.Message;
+            }
+
+            return r;
+        }
+        public Respuesta ModificarProcesoEmpleado(List<int> idProceso, int idEmpleado)
+        {
+            var r = new Respuesta();
+
+            try
+            {
+                var proceso = _context.tblRH_ED_RelacionesEmpleadoProceso.Where(x => x.Empleado.id == idEmpleado).ToList();
+                proceso = proceso == null ? new List<tblRH_ED_RelacionEmpleadoProceso>() : proceso;
+                foreach (var item in idProceso)
+                {
+                    if (proceso.Select(m => m.ProcesoId).Contains(item))
+                    {
+                        proceso.First(x => x.ProcesoId == item).Estatus = proceso.First(x => x.ProcesoId == item).Estatus ? false : true;
+                    }
+                    else
+                    {
+                        var nuevaRelacion = new tblRH_ED_RelacionEmpleadoProceso();
+                        nuevaRelacion.ProcesoId = item;
+                        nuevaRelacion.EmpleadoId = idEmpleado;
+                        nuevaRelacion.Estatus = true;
+                        _context.tblRH_ED_RelacionesEmpleadoProceso.Add(nuevaRelacion);
+                    }
+                }
+                _context.SaveChanges();
+
+                r.Success = true;
+                r.Message = "Ok";
+            }
+            catch (Exception ex)
+            {
+                r.Message += ex.Message;
+            }
+
+            return r;
+        }
+        #endregion
+        #region Observacion
+        public bool metaEvidenciaGuardar(tblRH_ED_DetObservacion eva, List<HttpPostedFileBase> lstArchivo)
+        {
+            var esGuardado = false;
+            using(var dbTransaction = _context.Database.BeginTransaction())
+                try
+                {
+                    var ahora = DateTime.Now;
+                    var bd = _context.tblRH_ED_DetObservacion.FirstOrDefault(m => m.id == eva.id) ?? new tblRH_ED_DetObservacion() 
+                        {
+                            lstEvidencia = new List<tblRH_ED_DetObservacionEvidencia>(),
+                            fechaRegistro = ahora,
+                            esActivo = true
+                        };
+                    var dirArchivos = new DirArchivosDAO().getRegistro(1020);
+                    if(bd.id == 0)
+                    {
+                        eva.fechaRegistro = DateTime.Now;
+                    }
+                    if(eva.evaluacion == null || eva.evaluacion.id == 0)
+                    {
+                        eva.evaluacion = _context.tblRH_ED_CatEvaluacion.FirstOrDefault(e => e.id == eva.idEvaluacion);
+                    }
+                    if(eva.meta == null || eva.meta.id == 0)
+                    {
+                        eva.meta = getMeta(eva.idMeta);
+                    }
+                    if(eva.lstEvidencia == null)
+                    {
+                        eva.lstEvidencia = new List<tblRH_ED_DetObservacionEvidencia>();
+                    }
+                    eva.id = bd.id;
+                    eva.fechaRegistro = bd.fechaRegistro;
+                    eva.esActivo = bd.esActivo;
+                    var i = 0;
+                    eva.lstEvidencia.ToList().ForEach(evidencia =>
+                    {
+                        var archivo = lstArchivo[i];
+                        var nombreEvidenca = string.Format("{0} - Evidencia {1}{2}", eva.meta.idProceso, ++i, GlobalUtils.getExtencionArchivo(archivo.ContentType));
+                        evidencia.fechaRegistro = ahora;
+                        evidencia.idObservacion = eva.id;
+                        evidencia.nombre = nombreEvidenca;
+                        evidencia.observacion = eva;
+                        evidencia.esActivo = true;
+                        var evidenciaBD = bd.lstEvidencia.FirstOrDefault(e => e.nombre == nombreEvidenca) ?? new tblRH_ED_DetObservacionEvidencia();
+                        evidencia.id = evidenciaBD.id;
+#if DEBUG
+                        evidencia.ruta = dirArchivos.dirFisico;
+#else
+                        evidencia.ruta = dirArchivos.dirVirtual;
+#endif
+
+                        GlobalUtils.SaveArchivo(archivo, evidencia.ruta, evidencia.nombre);
+                        evidencia.ruta += "\\" + evidencia.nombre;
+
+                        _context.tblRH_ED_DetObservacionEvidencia.AddOrUpdate(evidencia);
+                        _context.SaveChanges();
+                    });
+                    _context.tblRH_ED_DetObservacion.AddOrUpdate(eva);
+                    _context.SaveChanges();
+                    dbTransaction.Commit();
+                    esGuardado = eva.id > 0;
+                }
+                catch(Exception o_O)
+                {
+                    dbTransaction.Rollback();
+                    LogError(vSesiones.sesionSistemaActual, vSesiones.sesionCurrentView, nombreControlador, "metaEvidenciaGuardar", o_O, AccionEnum.ACTUALIZAR, eva.id, eva);
+                }
+            return esGuardado;
+        }
+        #endregion
+        #region Combobox
+        public List<ComboDTO> getCboProceso(int idEmpleado)
+        {
+<<<<<<< Updated upstream
+            var usuario = _context.tblRH_ED_Empleado.FirstOrDefault(x => x.empleadoID == idEmpleado && x.estatus);
+            var lst = new List<tblRH_ED_CatProceso>();
+            if (usuario != null)
+            {
+                var procesos = _context.tblRH_ED_RelacionesEmpleadoProceso.Where(x => x.EmpleadoId == usuario.id && x.Estatus).ToList();
+                if (procesos != null)
+                {
+                    foreach (var item in procesos)
+                    {
+                        lst.Add(item.Proceso);
+                    }
+                }
+            }
+            //lst = _context.tblRH_ED_CatProceso.Where(x => x.esActivo).ToList();
+=======
+            var relEmplProceso = _context.tblRH_ED_RelacionesEmpleadoProceso.ToList();
+            var lst = _context.tblRH_ED_CatProceso.ToList();
+>>>>>>> Stashed changes
+            var cbo = lst.Select(s => new ComboDTO()
+            {
+                Text = s.proceso,
+                Value = s.id.ToString(),
+                Prefijo = relEmplProceso.Where(w => w.ProcesoId == s.id).Select(r => r.EmpleadoId).ToList().ToString()
+            }).ToList();
+            return cbo;
+        }
+        public List<ComboDTO> getCboEvaluacionPorProceso(int idProceso)
+        {
+            var lst = _context.tblRH_ED_CatEvaluacion.ToList().Where(w => w.esActivo && w.idProceso == idProceso).ToList();
+            var cbo = lst.Select(s => new ComboDTO()
+            {
+                Text = s.descripcion,
+                Value = s.id.ToString()
+            }).ToList();
+            return cbo;
+        }
+        public List<ComboDTO> getCboMetaPorProceso(int idProceso, int idEmpleado)
+        {
+            var lst = _context.tblRH_ED_DetMetas.Where(w => w.esActivo && w.idProceso == idProceso && w.idUsuario == idEmpleado).ToList();
+            var cbo = lst.Select(s => new ComboDTO()
+            {
+                Text = s.descripcion,
+                Value = s.id.ToString()
+            }).ToList();
+            return cbo;
+        }
+        public List<ComboDTO> getCboEstrategias()
+        {
+            var lst = _context.tblRH_ED_CatEstrategia.ToList();
+            var cbo = lst.Select(s => new ComboDTO()
+            {
+                Text = s.descripcion,
+                Value = s.id.ToString()
+            }).ToList();
+            return cbo;
+        }
+
+        public List<ComboDTO> getCboTodosLosProcesos()
+        {
+            return _context.tblRH_ED_CatProceso.Where(x => x.esActivo).Select(m => new ComboDTO
+            {
+                Text = m.proceso,
+                Value = m.id.ToString()
+            }).ToList();
+        }
+        #endregion
+        #region Calendario
+        public Respuesta GetEvaluaciones(int? idUsuarioVerComo)
+        {
+            var r = new Respuesta();
+
+            var fechaActual = DateTime.Now;
+
+            try
+            {
+                var eventos = new List<EventoCalendarioDTO>();
+
+                var procesos = _context.tblRH_ED_RelacionesEmpleadoProceso.Where(x => x.Empleado.empleadoID == idUsuarioVerComo.Value && x.Proceso.esActivo && x.Estatus).ToList();
+                
+                foreach (var proceso in procesos)
+                {
+                    var fechaInicio = proceso.Proceso.lstEvaluacion.Where(x => x.esActivo).OrderBy(o => o.fechaInicio).FirstOrDefault().fechaInicio;
+                    var fechaFin = proceso.Proceso.lstEvaluacion.Where(x => x.esActivo).OrderByDescending(o => o.fechaFin).FirstOrDefault().fechaFin;
+
+                    var eventoProceso = new EventoCalendarioDTO();
+                    eventoProceso.title = "Inicio: " + proceso.Proceso.proceso;
+                    eventoProceso.start = fechaInicio.ToString("yyyy-MM-dd");
+                    eventoProceso.classNames = "procesoStart";
+                    eventoProceso.backgroundColor = colorProceso;
+                    eventoProceso.inicio = true;
+
+                    eventos.Add(eventoProceso);
+
+                    eventoProceso = new EventoCalendarioDTO();
+                    eventoProceso.title = "Fin: " + proceso.Proceso.proceso;
+                    eventoProceso.start = fechaFin.ToString("yyyy-MM-dd");
+                    eventoProceso.classNames = "procesoEnd";
+                    eventoProceso.backgroundColor = (fechaFin.Date - fechaActual.Date).Days > 5 ? colorProceso : (fechaFin.Date - fechaActual.Date).Days > 1 ? colorWarning : colorDanger;
+
+                    eventos.Add(eventoProceso);
+
+                    foreach (var evaluacion in proceso.Proceso.lstEvaluacion)
+                    {
+                        var eventoEvaluacion = new EventoCalendarioDTO();
+
+                        var evaFechaInicio = evaluacion.fechaInicio;
+                        var evaFechaFin = evaluacion.fechaFin;
+
+                        eventoEvaluacion.title = "Inicio: evaluación " + evaluacion.descripcion;
+                        eventoEvaluacion.start = evaFechaInicio.ToString("yyyy-MM-dd");
+                        eventoEvaluacion.classNames = "evaluacionStart";
+                        eventoEvaluacion.backgroundColor = colorEvaluacion;
+                        eventoEvaluacion.inicio = true;
+
+                        eventos.Add(eventoEvaluacion);
+
+                        eventoEvaluacion = new EventoCalendarioDTO();
+                        eventoEvaluacion.title = "Fin: evaluación " + evaluacion.descripcion;
+                        eventoEvaluacion.start = evaFechaFin.ToString("yyyy-MM-dd");
+                        eventoEvaluacion.classNames = "evaluacionEnd";
+                        eventoEvaluacion.backgroundColor = (evaFechaFin.Date - fechaActual.Date).Days > 5 ? colorEvaluacion : (evaFechaFin.Date - fechaActual.Date).Days > 1 ? colorWarning : colorDanger;
+
+                        eventos.Add(eventoEvaluacion);
+                    }
+                }
+
+                r.Success = true;
+                r.Message = "Ok";
+                r.Value = eventos;
+            }
+            catch (Exception ex)
+            {
+                r.Message += ex.Message + ". " + ex.TargetSite;
+            }
+
+            return r;
+        }
+        #endregion
+        #region Procesos
+        public Respuesta RegistrarProceso(RegistrarProcesoDTO objProceso)
+        {
+            var r = new Respuesta();
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var proceso = new tblRH_ED_CatProceso();
+                    proceso.esActivo = true;
+                    proceso.fechaRegistro = DateTime.Now;
+                    proceso.proceso = objProceso.Proceso;
+
+                    _context.tblRH_ED_CatProceso.Add(proceso);
+                    _context.SaveChanges();
+
+                    var semaforos = new List<tblRH_ED_CatSemaforo>();
+                    foreach (var item in objProceso.Semaforos)
+                    {
+                        var semaforo = new tblRH_ED_CatSemaforo();
+                        semaforo.color = item.Color;
+                        semaforo.descripcion = null;
+                        semaforo.esActivo = true;
+                        semaforo.fechaRegistro = proceso.fechaRegistro;
+                        semaforo.idProceso = proceso.id;
+                        semaforo.minimo = item.Minimo;
+                        semaforo.maximo = item.Maximo;
+                        semaforos.Add(semaforo);
+                    }
+
+                    _context.tblRH_ED_CatSemaforo.AddRange(semaforos);
+                    _context.SaveChanges();
+
+                    transaction.Commit();
+
+                    r.Success = true;
+                    r.Message = "Ok";
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    r.Message += ex.Message + ex.TargetSite;
+                }
+            }
+
+            return r;
+        }
+
+        public Respuesta EditarProceso(RegistrarProcesoDTO objProceso)
+        {
+            var r = new Respuesta();
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var proceso = _context.tblRH_ED_CatProceso.FirstOrDefault(x => x.esActivo && x.id == objProceso.IdProceso);
+
+                    if (proceso == null)
+                    {
+                        r.Message = "El proceso no existe";
+                    }
+                    else
+                    {
+                        proceso.proceso = objProceso.Proceso;
+
+                        foreach (var item in proceso.lstSemaforo)
+                        {
+                            item.esActivo = false;
+                        }
+
+                        _context.SaveChanges();
+
+                        var semaforos = new List<tblRH_ED_CatSemaforo>();
+                        foreach (var item in objProceso.Semaforos)
+                        {
+                            var semaforo = new tblRH_ED_CatSemaforo();
+                            semaforo.color = item.Color;
+                            semaforo.descripcion = null;
+                            semaforo.esActivo = true;
+                            semaforo.fechaRegistro = DateTime.Now;
+                            semaforo.idProceso = proceso.id;
+                            semaforo.minimo = item.Minimo;
+                            semaforo.maximo = item.Maximo;
+                            semaforos.Add(semaforo);
+                        }
+                        _context.tblRH_ED_CatSemaforo.AddRange(semaforos);
+                        _context.SaveChanges();
+
+                        transaction.Commit();
+
+                        r.Success = true;
+                        r.Message = "Ok";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    r.Message += ex.Message;
+                }
+            }
+
+            return r;
+        }
+
+        public Respuesta ObtenerProceso(int idProceso)
+        {
+            var r = new Respuesta();
+
+            try
+            {
+                var proceso = _context.tblRH_ED_CatProceso.FirstOrDefault(x => x.id == idProceso && x.esActivo);
+
+                if (proceso == null)
+                {
+                    r.Message = "No existe el proceso";
+                }
+                else
+                {
+                    var procesoDTO = new RegistrarProcesoDTO();
+                    procesoDTO.IdProceso = proceso.id;
+                    procesoDTO.Proceso = proceso.proceso;
+
+                    foreach (var item in proceso.lstSemaforo.Where(x => x.esActivo))
+                    {
+                        var semaforo = new SemaforoDTO();
+                        semaforo.Color = item.color;
+                        semaforo.Minimo = item.minimo;
+                        semaforo.Maximo = item.maximo;
+
+                        procesoDTO.Semaforos.Add(semaforo);
+                    }
+
+                    r.Success = true;
+                    r.Message = "Ok";
+                    r.Value = procesoDTO;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                r.Message += ex.Message;
+            }
+
+            return r;
+        }
+
+        public Respuesta EliminarProceso(int idProceso)
+        {
+            var r = new Respuesta();
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var proceso = _context.tblRH_ED_CatProceso.FirstOrDefault(x => x.id == idProceso);
+
+                    if (proceso == null)
+                    {
+                        r.Message = "No existe el proceso";
+                    }
+                    else
+                    {
+                        proceso.esActivo = false;
+
+                        foreach (var item in proceso.lstSemaforo)
+                        {
+                            item.esActivo = false;
+                        }
+
+                        _context.SaveChanges();
+                        transaction.Commit();
+
+                        r.Success = true;
+                        r.Message = "Ok";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    r.Message += ex.Message;
+                }
+            }
+
+            return r;
+        }
+        #endregion
+        #region Empleados Metas
+        public List<tblRH_ED_Empleado> getLstEmpleadoJefe()
+        {
+            var idJefe = vSesiones.sesionUsuarioDTO.id;
+            var jefe = _context.tblRH_ED_Empleado.FirstOrDefault(w => w.empleadoID == idJefe);
+            var lstEmpl = _context.tblRH_ED_Empleado.Where(w => w.jefeID == jefe.id).ToList();
+            return lstEmpl;
+        }
+        #endregion
+    }
+}

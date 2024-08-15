@@ -1,0 +1,424 @@
+﻿@{
+    ViewBag.Title = "CuadroComparativo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var empresa = (int)ViewBag.empresa;
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/OrdenCompra/CuadroComparativo.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+@if (empresa == 6) {
+    <input style="display: none;" id="empresaActual" value = "6">;
+
+}else if (empresa == 3){
+    <input style="display: none;" id="empresaActual" value = "3">;
+
+}
+
+<label id="labelRequisicionesPendientes"></label>
+
+<h2 class="text-center">Cuadro Comparativo</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Captura</legend>
+    <div class="col-md-3 col-lg-3 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Centro Costo</span>
+            <select id="selectCC" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Inicial</span>
+            <input id='inputFechaInicial' class='form-control'>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Req. Inicial</span>
+            <input id='inputReqInicial' class='form-control'>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+        <div class="input-group">
+            <span class="input-group-addon">Tipo</span>
+            <select id="selectTipo" class="form-control">
+                <option value="">Todos</option>
+                <option value="1">Normal</option>
+                <option value="2">Urgente</option>
+                <option value="3">Crítico</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Solicita</span>
+            <input id='inputSolicita' class='form-control'>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Final</span>
+            <input id='inputFechaFinal' class='form-control'>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Req. Final</span>
+            <input id='inputReqFinal' class='form-control'>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft noPadRight mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Cuadro</span>
+            <input id='inputFechaCuadro' class='form-control'>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6 noPadLeft mrgTop">
+        <fieldset class="fieldset-custm">
+            <div class="input-group">
+                <label style="font-weight: bold; cursor: pointer;">
+                    <input style="margin-right: 5px; height: 15px; width: 15px; cursor: pointer;" id="checkInsumosLicitados" type="checkbox">Insumos Licitados
+                </label>
+            </div>
+            <div id="divInsumoLicitadoInicial" class="input-group hidden">
+                <span class="input-group-addon">Fecha Inicial</span>
+                <input id='inputFechaInicialInsumosLicitados' class='form-control'>
+            </div>
+            <div id="divInsumoLicitadoFinal" class="input-group mrgTop hidden">
+                <span class="input-group-addon">Fecha Final</span>
+                <input id='inputFechaFinalInsumosLicitados' class='form-control'>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-md-6 col-lg-6 noPadLeft noPadRight mrgTop">
+        <button id='btnBuscarCuadro' type='button' class='btn btn-primary'><i class='fa fa-search'></i> Buscar</button>
+        <button id='btnGuardarCuadro' type='button' class='btn btn-success' disabled><i class='fa fa-save'></i> Guardar Cuadro</button>
+        <button id='btnImprimirCuadro' type='button' class='btn btn-default pull-right' disabled><i class="fa fa-print"></i> Imprimir Cuadro</button>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm mrgTop">
+    <div class="col-md-6 col-lg-6 noPadLeft">
+        <div class="container col-lg-12 mrgTop noPadLeft">
+            <table id="tblRequisiciones" class="compact hover" style="width: 100%;"></table>
+            <button id="btnAgregarRenglonCuadro" class="btn btn-primary mrgTop" disabled>
+                <i class='fa fa-plus'></i> Agregar Cuadro
+            </button>
+        </div>
+    </div>
+    <div id="divPanelDerecho" class="col-md-6 col-lg-6 noPadRight">
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight mrgTop" @(empresa == 6 ? "style=display:block;" : "style=display:none;")>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Tipo Moneda:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <div class="col-lg-6" style="padding-left: 0px;">
+                    <select id="cboTipoMonedaProv1" >
+                        <option value="4" selected>SOL</option>
+                        <option value="2">DLS</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <div class="col-lg-6" style="padding-left: 0px;">
+                    <select id="cboTipoMonedaProv2">
+                        <option value="4" selected>SOL</option>
+                        <option value="2">DLS</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <div class="col-lg-6" style="padding-left: 0px;">
+                    <select id="cboTipoMonedaProv3">
+                        <option value="4" selected>SOL</option>
+                        <option value="2">DLS</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight mrgTop">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Proveedores:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputProv1Num" class="inputInfoProv inputWidth25">
+                <input id="inputProv1Desc" class="inputInfoProv inputWidth70">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputProv2Num" class="inputInfoProv inputWidth25">
+                <input id="inputProv2Desc" class="inputInfoProv inputWidth70">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputProv3Num" class="inputInfoProv inputWidth25">
+                <input id="inputProv3Desc" class="inputInfoProv inputWidth70">
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Sub Total:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputPrimerSubtotalProv1Num" class="inputInfoProv inputMayor70 calculoProv1" disabled>
+                <input id="inputPrimerSubtotalProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputPrimerSubtotalProv2Num" class="inputInfoProv inputMayor70 calculoProv2" disabled>
+                <input id="inputPrimerSubtotalProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputPrimerSubtotalProv3Num" class="inputInfoProv inputMayor70 calculoProv3" disabled>
+                <input id="inputPrimerSubtotalProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Descuento:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputDescuentoProv1" class="inputInfoProv inputMayor70 calculoProv1"> %
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputDescuentoProv2" class="inputInfoProv inputMayor70 calculoProv2"> %
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputDescuentoProv3" class="inputInfoProv inputMayor70 calculoProv3"> %
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Sub Total:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputSegundoSubtotalProv1Num" class="inputInfoProv inputMayor70 calculoProv1" disabled>
+                <input id="inputSegundoSubtotalProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputSegundoSubtotalProv2Num" class="inputInfoProv inputMayor70 calculoProv2" disabled>
+                <input id="inputSegundoSubtotalProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputSegundoSubtotalProv3Num" class="inputInfoProv inputMayor70 calculoProv3" disabled>
+                <input id="inputSegundoSubtotalProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right labelIVA">I.V.A.:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputIVAProv1" class="inputInfoProv inputMayor70 calculoProv1"> %
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputIVAProv2" class="inputInfoProv inputMayor70 calculoProv2"> %
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputIVAProv3" class="inputInfoProv inputMayor70 calculoProv3"> %
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Total:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTotalProv1Num" class="inputInfoProv inputMayor70 calculoProv1" disabled>
+                <input id="inputTotalProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTotalProv2Num" class="inputInfoProv inputMayor70 calculoProv2" disabled>
+                <input id="inputTotalProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTotalProv3Num" class="inputInfoProv inputMayor70 calculoProv3" disabled>
+                <input id="inputTotalProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Fletes:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFletesProv1Num" class="inputInfoProv inputMayor70 calculoProv1">
+                <input id="inputFletesProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFletesProv2Num" class="inputInfoProv inputMayor70 calculoProv2">
+                <input id="inputFletesProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFletesProv3Num" class="inputInfoProv inputMayor70 calculoProv3">
+                <input id="inputFletesProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Gtos. Importación:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputImportacionProv1Num" class="inputInfoProv inputMayor70 calculoProv1">
+                <input id="inputImportacionProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputImportacionProv2Num" class="inputInfoProv inputMayor70 calculoProv2">
+                <input id="inputImportacionProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputImportacionProv3Num" class="inputInfoProv inputMayor70 calculoProv3">
+                <input id="inputImportacionProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Gran Total:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv1Num" class="inputInfoProv inputMayor70 calculoProv1" disabled>
+                <input id="inputGranTotalProv1Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv2Num" class="inputInfoProv inputMayor70 calculoProv2" disabled>
+                <input id="inputGranTotalProv2Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv3Num" class="inputInfoProv inputMayor70 calculoProv3" disabled>
+                <input id="inputGranTotalProv3Moneda" class="inputInfoProv inputWidth25" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight" @(empresa == 6 ? "style=display:block;" : "style=display:none;")>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Gran Total (SOLES):</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv1NumPERU" class="inputInfoProv inputMayor70 PERU_calculoProv1" disabled>
+                <input id="inputGranTotalProv1MonedaPERU" class="inputInfoProv inputWidth25" value="SOL" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv2NumPERU" class="inputInfoProv inputMayor70 PERU_calculoProv2" disabled>
+                <input id="inputGranTotalProv2MonedaPERU" class="inputInfoProv inputWidth25" value="SOL" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputGranTotalProv3NumPERU" class="inputInfoProv inputMayor70 PERU_calculoProv3" disabled>
+                <input id="inputGranTotalProv3MonedaPERU" class="inputInfoProv inputWidth25" value="SOL" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Tipo Cambio:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTipoCambioProv1" class="inputInfoProv inputMayor70 calculoProv1">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTipoCambioProv2" class="inputInfoProv inputMayor70 calculoProv2">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputTipoCambioProv3" class="inputInfoProv inputMayor70 calculoProv3">
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Fecha Entrega:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFechaEntregaProv1" class="inputInfoProv inputFecha70">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFechaEntregaProv2" class="inputInfoProv inputFecha70">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputFechaEntregaProv3" class="inputInfoProv inputFecha70">
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">L.A.B.:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputLABProv1Num" class="inputInfoProv inputMenor25">
+                <input id="inputLABProv1Desc" class="inputInfoProv inputWidth70" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputLABProv2Num" class="inputInfoProv inputMenor25">
+                <input id="inputLABProv2Desc" class="inputInfoProv inputWidth70" disabled>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputLABProv3Num" class="inputInfoProv inputMenor25">
+                <input id="inputLABProv3Desc" class="inputInfoProv inputWidth70" disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Cond. de Pago:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputCondPagoProv1" class="inputInfoProv inputMenor25">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputCondPagoProv2" class="inputInfoProv inputMenor25">
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <input id="inputCondPagoProv3" class="inputInfoProv inputMenor25">
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <label class="pull-right">Comentario:</label>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <!-- <input id="inputComentarioProv1" class="inputInfoProv inputWidth70"> -->
+                <textarea id="textAreaComentarioProv1" class="inputInfoProv" rows="3" style="width: 97%;"></textarea>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <!-- <input id="inputComentarioProv2" class="inputInfoProv inputWidth70"> -->
+                <textarea id="textAreaComentarioProv2" class="inputInfoProv" rows="3" style="width: 97%;"></textarea>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <!-- <input id="inputComentarioProv3" class="inputInfoProv inputWidth70"> -->
+                <textarea id="textAreaComentarioProv3" class="inputInfoProv" rows="3" style="width: 97%;"></textarea>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+            <div class="col-md-3 col-lg-3 noPadLeft"></div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <button id="botonDescargarArchivo1" class="btn btn-xs btn-default" style="width: 100%; display: none;"><i class="fa fa-download"></i>&nbsp;Archivo Cotización</button>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <button id="botonDescargarArchivo2" class="btn btn-xs btn-default" style="width: 100%; display: none;"><i class="fa fa-download"></i>&nbsp;Archivo Cotización</button>
+            </div>
+            <div class="col-md-3 col-lg-3 noPadLeft">
+                <button id="botonDescargarArchivo3" class="btn btn-xs btn-default" style="width: 100%; display: none;"><i class="fa fa-download"></i>&nbsp;Archivo Cotización</button>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class='fieldset-custm mrgTop'>
+    <div class="container col-lg-12 noPadLeft noPadRight mrgTop">
+        <table id="tblPartidas" style="width: 100%;"></table>
+    </div>
+</fieldset>
+
+<fieldset class='fieldset-custm mrgTop'>
+    <div class="container col-lg-12 noPadLeft noPadRight mrgTop">
+        <table id="tblUltimaCompra" style="width: 100%;"></table>
+    </div>
+</fieldset>
+
+<div id="dialogListaCompras" title="Lista Órdenes de Compra" style="display: none; text-align: center;"></div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/OrdenCompra/CuadroComparativo.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,318 @@
+﻿@{
+    ViewBag.Title = "Incidencias";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var empresa = (int)ViewBag.Empresa;
+}
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Bono/Incidencias.css" rel="stylesheet" />
+<link href="~/Content/style/select2/select2.min.css" rel="stylesheet" />
+<style type="text/css"> 
+    .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 3px !important;
+    padding-left: 3px !important;
+}
+    select.form-control.totalAsist {
+        padding:0;
+    }
+    table.dataTable thead th {
+  white-space: normal;
+}
+    table.dataTable{
+        font-size:9px !important;
+    }
+    .totalAsist {
+        font-size:9px !important;
+        width:48px !important;
+    }
+    .inputPeru{
+        font-size:9px !important;
+        width:48px !important;
+    }
+    .bonoDP , .bonoDM, .bonoCuadrado , .bonoPE , .totalAsistTotal , .totalHrsExtraTotal {
+        font-size:9px !important;
+        width:66px !important;
+    }
+    .extraTemp{
+        font-size:9px !important;
+        width:48px !important;
+    }
+    .dataTables tbody tr {
+min-height: 35px; /* or whatever height you need to make them all consistent */
+}
+    .capturaPendiente {
+        color:white;
+        background-color:red;
+    }
+
+    .totalAsist :disabled
+    {
+        background-color: dimgrey;
+        color: linen;
+    }
+</style>
+
+@if (empresa == 6) {
+    <input id="txtEmpresa" style="display: none;" value="6">;
+}else if (empresa == 3){
+    <input id="txtEmpresa" style="display: none;" value="3">;
+}else if (empresa == 2){
+    <input id="txtEmpresa" style="display: none;" value="2">;
+}else{
+    <input id="txtEmpresa" style="display: none;" value="1">;
+}
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class='fa fa-info'></i> Información de incidencias</legend>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>incidencia</span>
+            <input type='text' id='inpBonIncId' class='form-control' disabled value="0">
+            <span class='input-group-addon'>Estado</span>
+            <input type='text' id='inpBonIncEstatus' class='form-control' disabled>
+        </div>
+    </div>  
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Empleado Modifica</span>
+            <input type='text' id='inpBonIncEmpMod' class='form-control' disabled>
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Fecha Modifica</span>
+            <input type='text' id='inpBonIncFechaMod' class='form-control'disabled>
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <button id='btnBonIncAuth' style="display:none;" type='button' class='btn btn-primary'><i class='fa fa-user'></i> Autorizar</button>
+    </div>
+    
+    <div class='col-md-4'>
+        <div class='input-group'>
+            <span class='input-group-addon'>CC</span>
+            <select id='selBonIncCc' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Depto</span>
+            <select id='selBonIncDepto' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Tipo Nomina</span>
+            <select id='selBonIncTipoNomina' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Año</span>
+            <input type='text' id='inpBonIncAnio' class='form-control'>
+        </div>
+    </div>
+    <div class='col-md-4'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Periodo</span>
+            <select id='inpBonIncPeriodo' class='form-control'></select>
+            <span id="spnBonIncPeriodoFechas" class='input-group-addon hidden'>Del - Al -</span>
+        </div>
+    </div>
+    <div class='col-md-1'>
+        <button id='btnBonIncBuscar' type='button' class='btn btn-default'><i class='fa fa-search'></i> Búscar</button>
+    </div>
+    <div class='col-md-2 pull-right'>
+        <button id='btnGuardar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Guardar Incidencia</button>
+    </div>
+    <div class='col-md-2 pull-right'>
+        <button id='btnModalDesautorizar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Desautorizar Incidencia</button>
+    </div>
+
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class='fa fa-table'></i> Incidencias</legend>
+    <table id='tblBonIncidencias' class='display compact' style="width:100%"></table>
+</fieldset>
+
+<div class="modal fade" id="modalObservaciones" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Observaciones</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea id="txtObservacion" style="width:100%;" rows="10" placeholder="Escriba su observación aqui"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnSetObervacion" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Confirmar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalObservacionesBono" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Observaciones Bono Desempeño Mensual</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea id="txtObservacionBono" style="width:100%;" rows="10" placeholder="Escriba su observación aqui"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnSetObervacionBono" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Confirmar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAuthIncidencia" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:90%;">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Autorizacion de Incidencias</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Nota: Solo se puede autorizar una incidencia si tienen todas las incidencias de sus departamentos completas</p>
+                        <table id='tblAuth' class='display compact' style="width:100%;display:block;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+                <a id="btnAuth" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Autorizar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalDesAuthIncidencia" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Desautorizacion de Incidencias</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>¿Desea desautorizar la incidencia?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+                <a id="btnDesAuth" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Desautorizar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAuthIncidencia_evPendiente" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Autorizacion de Incidencias con Evaluación de Bonos Pendiente</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            ¡Esta incidencia tiene una evaluación de Bonos de Desempeño Mensual pendiente de autorizar, 
+                            si se autoriza la incidencia el bono de desempeño mensual se aplicara hasta la siguiente 
+                            incidencia si la evaluación ya fue autorizada!
+                        </p>
+                        <br />
+                        <p>
+                            ¿Desea continuar con la autorización de la indicencia?
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+                <a id="btnAuth_evPendiente" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Autorizar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="mdlExtraTemp" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Ausencias</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tblExtraTemp" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Bono/Incidencias.js"></script>
+<script src="~/Scripts/Utilities/select2/select2.min.js"></script>

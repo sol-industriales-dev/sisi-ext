@@ -1,0 +1,228 @@
+﻿@{
+    ViewBag.Title = "Reporte Contable";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/Index.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>PRESUPUESTOS - GASTOS</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label for="Empresa">Empresa</label>
+                            <select id="cboFiltroEmpresa" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Año</label>
+                            <select id="cboFiltroAnio" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>CC</label>
+                            <select id="cboFiltroCC" class="form-control select2"></select>
+                        </div>
+                        <div class="pull-right" style="margin-top: 25px;">
+                            <button type="button" class="btn btn-primary marginRight" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div @*style="max-height: 45vh; overflow-y: auto;"*@>
+                                <table id="tblCapturas" class="table table-hover table-bordered compact" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" rowspan="2">CONCEPTO</th>
+                                            <th class="text-center" colspan="2">ENERO</th>
+                                            <th class="text-center" colspan="2">FEBRERO</th>
+                                            <th class="text-center" colspan="2">MARZO</th>
+                                            <th class="text-center" colspan="2">ABRIL</th>
+                                            <th class="text-center" colspan="2">MAYO</th>
+                                            <th class="text-center" colspan="2">JUNIO</th>
+                                            <th class="text-center" colspan="2">JULIO</th>
+                                            <th class="text-center" colspan="2">AGOSTO</th>
+                                            <th class="text-center" colspan="2">SEPTIEMBRE</th>
+                                            <th class="text-center" colspan="2">OCTUBRE</th>
+                                            <th class="text-center" colspan="2">NOVIEMBRE</th>
+                                            <th class="text-center" colspan="2">DICIEMBRE</th>
+                                            <th class="text-center" colspan="2">TOTAL</th>
+                                        </tr>
+                                        <tr>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                            <th>ppto</th>
+                                            <th>cont</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div id="graficaPresuestoGasto"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL DETALLE CAPTURA -->
+<div id='mdlDetCaptura' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CAPTURA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblDetCapturas" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA -->
+
+<!-- MODAL DETALLE CAPTURA POR MES -->
+<div id='mdlDetCapturaMes' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CAPTURA <span id="lblTitlePorMes"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblDetCapturasMes" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA POR MES -->
+
+<div id='modalMesContable' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CONTABLE</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tablaMesContable" class="table table-hover table-bordered compact" width="100%">
+                            <tfoot>
+                                <tr>
+                                    <th colspan="6" style="text-align:right">Total:</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalTotalContable' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>DETALLE CONTABLE</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tablaTotalContable" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/ReporteCont.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.responsive.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.fixedHeader.min.js"></script>

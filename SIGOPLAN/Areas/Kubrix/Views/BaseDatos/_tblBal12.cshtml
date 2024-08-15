@@ -1,0 +1,111 @@
+﻿@{
+    var Controlador = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController();
+    System.Threading.Tasks.Task<Dictionary<string, object>> tsk = Controlador.lstSalContCC(Session["cc"].ToString(), Convert.ToInt32(Session["anio"]));
+    var res = tsk.Result;
+    List<Core.DTO.Kubrix.SalContCCDTO> lst = (List<Core.DTO.Kubrix.SalContCCDTO>)res["lst"];
+    List<Core.DTO.Contabilidad.CcDTO> lstCc = (List<Core.DTO.Contabilidad.CcDTO>)res["lstCC"];
+    List<Core.DTO.Contabilidad.Poliza.CatctaDTO> lstCta = (List<Core.DTO.Contabilidad.Poliza.CatctaDTO>)res["lstCta"];
+}
+<div class="table-responsive">
+    <table id="tblBal12" class="table table-condensed table-hover table-striped text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>CTA</th>
+                <th>DESCRIPCION CONTABLE</th>
+                <th>ACTUAL</th>
+                <th>INICIAL</th>
+                <th>ENERO</th>
+                <th>FEBRERO</th>
+                <th>MARZO</th>
+                <th>ABRIL</th>
+                <th>MAYO</th>
+                <th>JUNIO</th>
+                <th>JULIO</th>
+                <th>AGOSTO</th>
+                <th>SEPT</th>
+                <th>OCTUBRE</th>
+                <th>NOVIEMBRE</th>
+                <th>DICIEMBRE</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lst.Count == 0)
+            {
+                <tr><td colspan="16" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                var lstG = lst.GroupBy(g => new { g.cc }, (k, g) => new
+                {
+                    cc = string.Format("{0} {1}",k.cc, lstCc.FirstOrDefault(w => w.cc.Equals(k.cc)).descripcion),
+                    lst = g.GroupBy(gg => new { gg.cta, gg.scta, gg.sscta }, (kk, gg) => new
+                    {
+                        cta = string.Format("{0}-{1}-{2}-{3}", k.cc, kk.cta, kk.scta, kk.sscta),
+                        desc = lstCta.FirstOrDefault(w => w.cta == kk.cta && w.scta == kk.scta && w.sscta == kk.sscta).descripcion,
+                        actual = 0,
+                        ini = gg.FirstOrDefault().salini,
+                        ene = gg.FirstOrDefault().salini + gg.FirstOrDefault().enecargos + gg.FirstOrDefault().eneabonos,
+                        feb = gg.FirstOrDefault().salini + gg.FirstOrDefault().febcargos + gg.FirstOrDefault().febabonos,
+                        mar = gg.FirstOrDefault().salini + gg.FirstOrDefault().marcargos + gg.FirstOrDefault().marabonos,
+                        abr = gg.FirstOrDefault().salini + gg.FirstOrDefault().abrcargos + gg.FirstOrDefault().abrcargos,
+                        may = gg.FirstOrDefault().salini + gg.FirstOrDefault().maycargos + gg.FirstOrDefault().mayabonos,
+                        jun = gg.FirstOrDefault().salini + gg.FirstOrDefault().juncargos + gg.FirstOrDefault().junabonos,
+                        jul = gg.FirstOrDefault().salini + gg.FirstOrDefault().julcargos + gg.FirstOrDefault().julabonos,
+                        ago = gg.FirstOrDefault().salini + gg.FirstOrDefault().agocargos + gg.FirstOrDefault().agoabonos,
+                        sep = gg.FirstOrDefault().salini + gg.FirstOrDefault().sepcargos + gg.FirstOrDefault().sepcargos,
+                        oct = gg.FirstOrDefault().salini + gg.FirstOrDefault().octcargos + gg.FirstOrDefault().octabonos,
+                        nov = gg.FirstOrDefault().salini + gg.FirstOrDefault().novcargos + gg.FirstOrDefault().novabonos,
+                        dic = gg.FirstOrDefault().salini + gg.FirstOrDefault().diccargos + gg.FirstOrDefault().dicabonos,
+                    }).ToList(),
+                }).ToList();
+                foreach (var g in lstG)
+                {
+                    <tr><td colspan="16" class="text-center">@g.cc</td></tr>
+                        foreach (var x in g.lst)
+                        {
+                            decimal saldo = 0;
+                        switch (DateTime.Now.Month)
+                        {
+                        case 1: { saldo = x.ene; break; }
+                        case 2: { saldo = x.feb; break; }
+                        case 3: { saldo = x.mar; break; }
+                        case 4: { saldo = x.abr; break; }
+                        case 5: { saldo = x.may; break; }
+                        case 6: { saldo = x.jun; break; }
+                        case 7: { saldo = x.jul; break; }
+                        case 8: { saldo = x.ago; break; }
+                        case 9: { saldo = x.sep; break; }
+                        case 10: { saldo = x.oct; break; }
+                        case 11: { saldo = x.nov; break; }
+                        case 12: { saldo = x.dic; break; }
+                        default: saldo = 0; break;
+                        }
+                            <tr>
+                                <td>@x.cta</td>
+                                <td>@x.desc</td>
+                                <td class="text-right">@saldo.ToString("C2")</td>
+                                <td class="text-right">@x.ini.ToString("C2")</td>
+                                <td class="text-right">@x.ene.ToString("C2")</td>
+                                <td class="text-right">@x.feb.ToString("C2")</td>
+                                <td class="text-right">@x.mar.ToString("C2")</td>
+                                <td class="text-right">@x.abr.ToString("C2")</td>
+                                <td class="text-right">@x.may.ToString("C2")</td>
+                                <td class="text-right">@x.jun.ToString("C2")</td>
+                                <td class="text-right">@x.jul.ToString("C2")</td>
+                                <td class="text-right">@x.ago.ToString("C2")</td>
+                                <td class="text-right">@x.sep.ToString("C2")</td>
+                                <td class="text-right">@x.oct.ToString("C2")</td>
+                                <td class="text-right">@x.nov.ToString("C2")</td>
+                                <td class="text-right">@x.dic.ToString("C2")</td>
+                            </tr>
+                        }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="col-md-12 text-center">
+    <ul class="pagination" id="lstPaginador" data-showprevnext="true" data-hidepagenumbers="false" data-perpage="10"></ul>
+</div>
+<script src="~/Scripts/Utilities/pageMe.js"></script>
+<script src="~/Scripts/js/Kubrix/BaseDatos/_tblBal12.js"></script>

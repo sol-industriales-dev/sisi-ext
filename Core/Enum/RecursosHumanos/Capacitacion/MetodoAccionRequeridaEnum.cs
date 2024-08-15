@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Enum.RecursosHumanos.Capacitacion
+{
+    public enum MetodoAccionRequeridaEnum
+    {
+        [DescriptionAttribute("")]
+        noEspecificado = 0,
+        [DescriptionAttribute("Capacitación")]
+        capacitacion = 1,
+        [DescriptionAttribute("Adiestramiento")]
+        adiestramiento = 2,
+        [DescriptionAttribute("Monitoreo")]
+        monitoreo = 3
+    }
+}

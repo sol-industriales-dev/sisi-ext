@@ -1,0 +1,249 @@
+﻿
+@{
+    ViewBag.Title = "ReportesPlaneacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/rowgroup/1.1.1/css/rowGroup.dataTables.min.css" rel="stylesheet" />
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/ReportesPlaneacionJS.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<style>
+    .bootgrid-table th:active, .bootgrid-table td {
+        white-space: normal;
+    }
+    .column-header-anchor {
+        white-space: normal !important;
+    }
+    .tabla {
+        overflow-y: auto;
+        height: 500px;
+    }
+    .tabla th {
+        position: sticky;
+        top: 0;
+        background-color: #81bd72 !important;
+        text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000;
+    }
+    td {
+        vertical-align: middle !important;
+    }
+    .tabla .infoBar {
+        position: sticky;
+        top: 0;
+    }
+    .ui-autocomplete {
+        z-index: 2147483647;
+    }
+    .divider {
+        width: 5px;
+        height: auto;
+        display: inline-block;
+    }
+    .bg-table-header{
+        font-size:15px;
+        border: none !important;
+    }
+</style>
+
+<h2 class ="text-center">Reportes Planeación</h2>
+
+<legend class="legend-custm">Tipo de reportes</legend>
+<div class="container-fluid">
+    <ul class="nav nav-tabs" id="ulNuevo">
+        <li class="active"><a id="tabInversion" data-toggle="tab" href="#inversion">Programa de cambio de componentes</a></li>
+        <li><a id="tabCalendario" data-toggle="tab" href="#calendario" style="display:none">Calendario Ejecutados</a></li>
+        <li><a id="tabDisponibilidad" data-toggle="tab" href="#disponibilidad" style="display:none">Disponibilidad</a></li>
+        <li><a id="tabPrecision" data-toggle="tab" href="#precision" >Precisión</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="inversion" class="tab-pane fade in active">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Año:</label>
+                            <select class="form-control" id="cboAnio">
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023" selected>2023</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Calendario:</label>
+                            <select class="form-control" id="cboCalendarioInversion"></select>
+                        </div>
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarInversion">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteInversion">
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Detalles Calendario:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="tblInversion" class="table table hover row-border compact">
+                            <thead class="bg-table-header"></thead>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteInversion">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="calendario" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Obra:</label>
+                            <select class="form-control" id="cboCCCalendario"></select>
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Año:</label>
+                            <select class="form-control" id="cboAnioCalendario"></select>
+                        </div>
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarCalendario">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteCalendario">
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes Remoción:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="tblCalendario" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="id" class="text-center" style="" data-formatter="id" data-identifier="true" data-visible="false"></th>
+                                    <th data-column-id="calendario" class="text-center" style="" data-formatter="calendario">CALENDARIO</th>
+                                    <th data-column-id="estatus" class="text-center" style="" data-formatter="estatus">ESTADO</th>
+                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                    <th data-column-id="reporte" class="text-center" style="" data-formatter="reporte">REPORTE</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteCalendario">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="disponibilidad" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Obra:</label>
+                            <select class="form-control" id="cboCCKpi"></select>
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Año:</label>
+                            <select class="form-control" id="cboAnioKpi"></select>
+                        </div>
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarKpi">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteKpi">
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes Remoción:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="tblKpi" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="id" class="text-center" style="" data-formatter="id" data-identifier="true" data-visible="false"></th>
+                                    <th data-column-id="maquina" class="text-center" style="" data-formatter="maquina">MÁQUINA</th>
+                                    <th data-column-id="enero" class="text-center" style="" data-formatter="enero">ENERO</th>
+                                    <th data-column-id="febrero" class="text-center" style="" data-formatter="febrero">FEBRERO</th>
+                                    <th data-column-id="marzo" class="text-center" style="" data-formatter="marzo">MARZO</th>
+                                    <th data-column-id="abril" class="text-center" style="" data-formatter="abril">ABRIL</th>
+                                    <th data-column-id="mayo" class="text-center" style="" data-formatter="mayo">MAYO</th>
+                                    <th data-column-id="junio" class="text-center" style="" data-formatter="junio">JUNIO</th>
+                                    <th data-column-id="julio" class="text-center" style="" data-formatter="julio">JULIO</th>
+                                    <th data-column-id="agosto" class="text-center" style="" data-formatter="agosto">AGOSTO</th>
+                                    <th data-column-id="septiembre" class="text-center" style="" data-formatter="septiembre">SEPTIEMBRE</th>
+                                    <th data-column-id="octubre" class="text-center" style="" data-formatter="osctubre">OCTUBRE</th>
+                                    <th data-column-id="noviembre" class="text-center" style="" data-formatter="noviembre">NOVIEMBRE</th>
+                                    <th data-column-id="diciembre" class="text-center" style="" data-formatter="diciembre">DICIEMBRE</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteDisponibilidad">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="precision" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Fecha inicial:</label>
+                            <input class="form-control" id="txtFechaInicio">
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                            <label>Fecha final:</label>
+                            <input class="form-control" id="txtFechaFin">
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                <label>Tipo:</label>
+                                <select class="form-control" id="cboTipo">      
+                                    <option value="">--Seleccione--</option>                             
+                                    <option value="0">Overhaul General</option>
+                                    <option value="1">Cambio de motor</option>
+                                    <option value="2">Componente desfasados</option>
+                                    <option value="3">Fallo</option>
+                                </select>
+                            </div>
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarPrecision">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReportePrecision">
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+
+                 <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'>Reportes Remoción:</legend>
+                    <div class="row">
+                        <div class="col-lg-12 table-responsive table-bordered" style="width: 100%;">
+                            <br />
+                            <table id="tblPrecision" class="table-bordered hover stripe order-column" style="width: 100%;">
+                                <thead class="bg-table-header"></thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset><br><br>
+                
+            </div>
+            <div id="reportePrecision">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+    </div>
+
+</div>

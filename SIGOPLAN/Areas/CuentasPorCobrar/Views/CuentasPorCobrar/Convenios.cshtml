@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "Convenios";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- PUESTOS -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>Gestión de Acuerdos</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row marginBottom">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" ></select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select class="form-control" id="cboFiltroEstatus" >
+                                    <option value="1">Pendientes</option>
+                                    <option value="2">Autorizadas</option>
+                                    <option value="3">Rechazadas</option>
+                                </select>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row marginBottom">
+                        <div class="col-sm-2 pull-right">
+                            <div class="col pull-right">
+
+                                <!-- <button type="button" class="btn btn-primary" id="btnFiltroExportarCR">Exportar</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroExportar"><i class="far fa-file-excel"></i> Descargar</button> -->
+                                <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
+                                <!-- <button type="button" class="btn btn-success" id="btnFiltroNuevo">Nuevo</button> -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE PUESTOS -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblConvenios" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE PUESTOS -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<div id='mdlCarousel' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1><i class="fas fa-exclamation-triangle"></i></h1>
+            </div> 
+            <div class='modal-body'>
+                    <!-- <h2>Carousel</h2> -->
+                <div id="carouselNotis" class="carousel slide" >
+                    <!-- Indicators -->
+                    <!-- <ol class="carousel-indicators">
+                        <li data-target="#carouselNotis" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselNotis" data-slide-to="1"></li>
+                        <li data-target="#carouselNotis" data-slide-to="2"></li>
+                        <li data-target="#carouselNotis" data-slide-to="3"><span>21645</span></li>
+                    </ol> -->
+
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner" id ="carouselNotisInner">
+                        
+                    </div>
+
+                    <!-- Left and right controls -->
+                    <a class="left carousel-control" href="#carouselNotis" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carouselNotis" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ADD PUESTO -->
+<div id='mdlCEConvenio' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="txtCEConvenioTitulo"></span> DE CONVENIO</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row marginBottom'>
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">No. Cliente</span>
+                            <input type="text" id="txtCEConvenioNumcte" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre</span>
+                            <input type="text" id="txtCEConvenioNombrecliente" class="form-control" placeholder="Ingrese el nombre del cliente...">
+                        </div>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Factura</span>
+                            <select type="text" id="cboCEConvenioFactura" class="form-control" ></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <select id="cboCEConvenioCC" class="form-control" disabled></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row marginBottom">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha vencimiento</span>
+                            <input type="date" id="txtCEConvenioFechaoriginal" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="text" id="txtCEConvenioMonto" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <!-- <div class="col-sm-6" id="divCEConvenioAutoriza">
+                        <div class="input-group" >
+                            <span class="input-group-addon">Autoriza</span>
+                            <select type="text" id="cboCEConvenioAutoriza" class="form-control"></select>
+                        </div>
+                    </div> -->
+                </div>
+                <!-- <div class="row marginBottom">
+                    <div class="col-sm-2">
+                        <button type='button' class='btn btn-success' id="btnCEAcuerdoAddBono"><i class="fas fa-plus"></i>&nbsp;Abono</button>
+                    </div>
+                </div> -->
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="table-responsive">
+                            <table id="tblAbonos" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <fieldset class='fieldset-custm '>
+                            <legend class='legend-custm'>Comentarios</legend>
+                            <textarea class="inputTextArea" id="txtCEConvenioComentarios" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <!-- <button type='button' class='btn btn-success' id="btnCEConvenio"><i class="far fa-edit"></i>&nbsp;Añadir</button> -->
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD PUESTO -->
+
+
+
+<!-- END: MODALES -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/CuentasPorCobrar/Convenios.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

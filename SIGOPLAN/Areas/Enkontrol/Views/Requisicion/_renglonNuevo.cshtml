@@ -1,0 +1,74 @@
+﻿@{
+    var partida = ViewBag.partida;
+    var nuevo = ViewBag.nuevo;
+    var cancelado = ViewBag.cancelado;
+    var vistaAutorizar = ViewBag.vistaAutorizar;
+    var vistaSurtido = ViewBag.vistaSurtido;
+    var baseObj = new SIGOPLAN.Controllers.BaseController();
+    var esPeru = baseObj.getEmpresaID();
+}
+<tr>
+    <td class="text-center" style="vertical-align: middle;">@partida</td>
+    <td><input class="form-control insumo" @(vistaAutorizar || vistaSurtido ? "readonly" : "" ) /></td>
+    <td><input class="form-control insumoDesc" @(vistaAutorizar || vistaSurtido ? "readonly" : "" ) /></td>
+
+    @if (!vistaAutorizar)
+    {
+        <td class="text-center" style="vertical-align: middle;">
+            <label class="existencia"></label>
+            <button class="btn btn-xs btn-default existenciaBoton hidden" tabIndex="-1"><i class="fa fa-caret-down"></i></button>
+        </td>
+    }
+    <td class="@(vistaSurtido ? " hidden" : "" )"><select class="form-control select2 areaCuenta" @(vistaAutorizar ? "readonly" : "" )></select></td>
+    <td><input class="form-control text-center unidad" readonly tabIndex="-1"></td>
+    <td><input class="form-control text-center cantidad" @(vistaAutorizar || vistaSurtido ? "readonly" : "" ) /></td>
+    @if (!vistaAutorizar && !vistaSurtido)
+    {
+        <td class="celdaPrecio" style="vertical-align: middle; display: none;"></td>
+    }
+    else if (vistaAutorizar)
+    {
+        <td class="celdaPrecio" style="vertical-align: middle;"></td>
+    }
+    @if (vistaSurtido)
+    {
+        <td><input class="form-control text-center cantidadCapturada" readonly value="0" /></td>
+        <td class="text-center" style="vertical-align: middle;">
+            <label class="capturarSurtido">0</label>
+            <button class="btn btn-xs btn-default surtidoBoton"><i class="fa fa-plus"></i></button>
+        </td>
+    }
+    @if (vistaAutorizar)
+    {
+        <td class="text-center celdaExistencia" style="vertical-align: middle;">
+
+        </td>
+    }
+    <td class="text-center @(vistaSurtido ? " hidden" : "" )" style="vertical-align: middle;">
+        @if (nuevo || !cancelado)
+        {
+            <button class="btn btn-success btn-estatus btn-estatus-activo" data-cancelado="false" data-observaciones="" disabled><i class="fa fa-check"></i></button>
+            <button class="btn btn-danger btn-estatus btn-estatus-inactivo" data-cancelado="true" data-observaciones="" style="width: 40px; display: none;">
+                <i class="fa fa-exclamation"></i>
+            </button>
+        }
+        else
+        {
+            if (cancelado)
+            {
+                <button class="btn btn-success btn-estatus btn-estatus-activo" data-cancelado="false" data-observaciones="" disabled style="display: none;">
+                    <i class="fa fa-check"></i>
+                </button>
+                <button class="btn btn-danger btn-estatus btn-estatus-inactivo" data-cancelado="true" data-observaciones="" style="width: 40px;">
+                    <i class="fa fa-exclamation"></i>
+                </button>
+            }
+        }
+    </td>
+    @if (vistaSurtido)
+    {
+        <td class="text-center" style="vertical-align: middle;">
+            <button class="btn btn-xs btn-default btn-quitar-insumo" data-quitar="false"><i class="fa fa-times"></i></button>
+        </td>
+    }
+</tr>

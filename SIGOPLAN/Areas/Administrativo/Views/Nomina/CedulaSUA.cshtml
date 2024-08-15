@@ -1,0 +1,154 @@
+﻿@{
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+ViewBag.Title = "Cedula SUA";
+
+var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/CedulaSUA.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">CEDULA SUA</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelGeneral" class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <div class="input-group-addon">Tipo</div>
+                                <select id="cboTipoNomina" class="form-control">
+                                    <option value="1">Nomina Semanal</option>
+                                    <option value="4">Nomina Quincenal</option>
+                                    <option value="10">Aguinaldo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <div class="input-group-addon">Período</div>
+                                <select id="cboxPeriodoFiltro" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <div class="input-group-addon">Tipo Documento</div>
+                                <select id="cboxTipoDocumentoFiltro" class="form-control">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1" name="undefined" data-prefijo="undefined" data-comboid="undefined">SUA IMSS</option>
+                                    <option value="2" name="undefined" data-prefijo="undefined" data-comboid="undefined">SUA INFONAVIT</option>
+                                    <option value="3" name="undefined" data-prefijo="undefined" data-comboid="undefined">CÉDULA PAGO MENSUAL</option>
+                                    <option value="4" name="undefined" data-prefijo="undefined" data-comboid="undefined">CÉDULA PAGO ISN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button id="btnPoliza" class="btn btn-success" style="margin-top: 5px;"><i class="far fa-save"></i> Generar póliza</button>
+                            <button id="btnExcel" class="btn btn-default" style="margin-top: 5px;" disabled><i class="far fa-file"></i> Relación de órdenes de compras generadas</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblCedula" class="hover stripe order-column compact" style="width:100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+
+                </div>
+            </div>
+
+            <div id="panelPoliza" class="panel panel-default" style="display:none;">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h4 id="periodoPoliza"></h4>
+                        </div>
+                        <div class="col-sm-2 pull-right">
+                            <button type="button" class="btn btn-default regresarPanel pull-right"><i class="fas fa-arrow-left"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblPoliza" class="hover stripe order-column compact" style="width:100%;">
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="9">Total</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-sm-2 pull-right">
+                            <button id="btnRegistrarPoliza" class="btn btn-success pull-right" style="display:none;"><i class="far fa-save"></i> Registrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalFechaPoliza" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Fecha de póliza</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label for="inputFechaPoliza">Fecha:</label>
+                        <input id="inputFechaPoliza" type="text" class="form-control" autocomplete="off">
+                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button id="btnGenerarPoliza" class="btn btn-success"><i class="far fa-save"></i> Generar póliza</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/CedulaSUA.js"></script>
+
+@Html.Action("_menuClick", "Mouse", new { area = "" })
+@Html.Action("_visorGrid", "Visor", new { area = "" })

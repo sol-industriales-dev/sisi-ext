@@ -1,0 +1,473 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/RecursosHumanos/DemandaCH/General.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/DemandaCH/Captura.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2><span id="tipoVista"></span></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div id="divBotonesFiltro" class='pull-right'>
+                            <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                            <button type='button' class='btn btn-primary' id='btnFiltroNuevo' title="Nuevo registro."><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY CONTAINER -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tblCapturas" class="table"></table> <!-- table-hover table-bordered compact table-striped -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY CONTAINER -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR CAPTURA -->
+<div id='mdlCECaptura' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class='row'>
+                        <div class='col-lg-2'>
+                            <label for="txtCE_ClaveEmpleado">Clave empleado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-id-card"></i></span>
+                                <input type="text" id="txtCE_ClaveEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-5'>
+                            <label for="txtCE_NombreEmpleado">Nombre:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-id-card"></i></span>
+                                <input type="text" id="txtCE_NombreEmpleado" class="form-control">
+                                <div id="divOcultarMostrarCboCE_NombreEmpleado">
+                                    <select id="cboCE_NombreEmpleado" class="form-control select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_Puesto">Puesto:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-id-card"></i></span>
+                                <input type="text" id="txtCE_Puesto" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for="chkCE_EmpleadoCP">Fue empleado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-id-card"></i></span>
+                                <input type="checkbox" id="chkCE_EmpleadoCP" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-8'>
+                            <label for="cboCE_CC">CC:</label>
+                            <div id="div_cboCE_CC">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fas fa-building"></i></span>
+                                    <select id="cboCE_CC" class="form-control select2"></select>
+                                </div>
+                            </div>
+                            <div id="div_txtCE_CC">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fas fa-building"></i></span>
+                                    <input type="text" class="form-control" id="txtCE_CC">
+                                    <span class="input-group-addon btn_txtCE_CC_Cancelar"><i class="fas fa-window-close"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for="txtCE_FechaIngreso">Fecha de ingreso:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="date" id="txtCE_FechaIngreso" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for="txtCE_FechaBaja">Fecha de baja:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="date" id="txtCE_FechaBaja" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-8'>
+                            <label for="txtCE_MotivoSalida">Motivo de salida:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-door-open"></i></span>
+                                <input type="text" id="txtCE_MotivoSalida" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for="txtCE_SueldoDiario">Sueldo diario:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_SueldoDiario" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for="txtCE_Antiguedad">Antigüedad:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="text" id="txtCE_Antiguedad" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divDocumentosAdjuntos"><br>
+                        <div class="col-lg-4">
+                            <button id="btnCE_Expediente" class="btn btn-primary form-control">Expediente</button>
+                            <div id="btnCE_PorcentajeExpediente"></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <button id="btnCE_Finiquito" class="btn btn-primary form-control">Finiquito</button>
+                            <div id="btnCE_PorcentajeFiniquito"></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <button id="btnCE_DocumentoLegal" class="btn btn-primary form-control">Documento legal</button>
+                            <div id="btnCE_PorcentajeDocumentoLegal"></div>
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-lg-10"></div>
+                        <div class="col-lg-2">
+                            <button type='button' class='btn btn-danger form-control' id="btnCerrarDemanda"><i class="far fa-calendar-times"></i>&nbsp;Cerrar demanda</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="seccion">
+                    <div class="row">
+                        <div class='col-lg-3'>
+                            <label for="txtCE_FechaRecibioDemanda">Notificación de la demanda:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="date" id="txtCE_FechaRecibioDemanda" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_FechaDemanda">Contestación de la demanda:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="date" id="txtCE_FechaDemanda" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_NumExpediente">Número de expediente:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-list-ol"></i></span>
+                                <input type="text" id="txtCE_NumExpediente" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="cboCE_Juzgado">Juzgado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <select id="cboCE_Juzgado" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="cboCE_TipoDemanda">Tipo de demanda:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <select id="cboCE_TipoDemanda" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for="cboCE_EstadoDemanda">Estado de la demanda:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <select id="cboCE_EstadoDemanda" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="txtCE_AQuienDemanda">Demandado</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <input type="text" id="txtCE_AQuienDemanda" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3' style="display:none">
+                            <label for="txtCE_SalarioDiario">Salario diario:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_SalarioDiario" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="txtCE_Hechos">Hechos</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <textarea id="txtCE_Hechos" rows="5" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for="txtCE_Peticiones">Peticiones</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <textarea id="txtCE_Peticiones" rows="5" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="txtCE_EstadoActual">Estado actual:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <input type="text" id="txtCE_EstadoActual" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_FechaAudencia">Fecha de Audiencia:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                <input type="date" id="txtCE_FechaAudencia" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="cboCE_Semaforo">Semaforo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <select id="cboCE_Semaforo" class="form-control select2"></select>
+                                <span class="input-group-addon"><label id="divSemaforo"></label></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="txtCE_AbogadoDemandante">Abogado del demandante:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                <input type="text" id="txtCE_AbogadoDemandante" class="form-control">
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for="txtCE_CuantiaTotal">Comentario fecha audiencia:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <input type="text" id="txtCE_ComentarioFechaAudiencia" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-3'>
+                            <label for="txtCE_OfertaInicial">Oferta inicial:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_OfertaInicial" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_CuantiaTotal">Cuantia total/Peor de los escenarios:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_CuantiaTotal" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_NegociadoCerrado">Negociación cerrada:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_NegociadoCerrado" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                        <div class='col-lg-3' style="display:none">
+                            <label for="txtCE_Finiquito">Finiquito al 100%:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_Finiquito" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for="txtCE_Diferencia">Diferencia:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                <input type="text" id="txtCE_Diferencia" class="form-control" onclick="this.select()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for="txtCE_ResolucionLaudo">Resolución/Laudo</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <textarea id="txtCE_ResolucionLaudo" rows="5" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class='pull-right'>
+                            <button type='button' class='btn btn-primary' id='btNuevo_Seguimiento' title="Nuevo seguimiento."><i class="fas fa-plus"></i>&nbsp;Nuevo seguimiento</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="divSeguimiento" class="seccion">
+                    <fieldset class='fieldset-custm'>
+                        <legend class='legend-custm'>Nuevo seguimiento</legend>
+                        <div class="row">
+                            <div class='col-lg-2'>
+                                <label for="txtCE_Seguimiento_Cuantia">Cuantia:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fas fa-money-check-alt"></i></span>
+                                    <input type="text" id="txtCE_Seguimiento_Cuantia" class="form-control">
+                                </div>
+                            </div>
+                            <div class='col-lg-4'>
+                                <label for="txtCE_Seguimiento_AbogadoDemandante">Abogado demandante:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fas fa-gavel"></i></span>
+                                    <input type="text" id="txtCE_Seguimiento_AbogadoDemandante" class="form-control">
+                                </div>
+                            </div>
+                            <div class='col-lg-2'>
+                                <label for="txtCE_Seguimiento_FechaAudiencia">Fecha audiencia:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                    <input type="date" id="txtCE_Seguimiento_FechaAudiencia" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <label for="cboCE_Seguimiento_Semaforo">Semaforo:</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                    <select id="cboCE_Seguimiento_Semaforo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class='col-lg-12'>
+                                <label for="txtCE_AQuienDemanda">Estado actual</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="far fa-calendar-alt"></i></span>
+                                    <textarea id="txtCE_Seguimiento_EstadoActual" rows="5" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class=' modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal' id="btnCerrarMdlCECaptura"><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCECaptura'></button>
+                <button type='button' class='btn btn-success' id='btnCESeguimiento'><i class='fas fa-save'></i>&nbsp;Guardar seguimiento</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA -->
+
+<!-- MODAL CREAR/EDITAR ARCHIVO ADJUNTO -->
+<div id='mdlCEArchivoAdjuntos' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="btnExaminarArchivo">Seleccionar archivo:</label>
+                            <div class="input-group">
+                                <button id="btnExaminarArchivo" class="btn btn-primary"><i class="far fa-file-image"></i>&nbsp;Examinar</button>
+                                <label id="lblFileName"></label>
+                                <input type="file" id="txtArchivoAdjunto" name="attachment" style="display:none">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="cboCE_TipoArchivo">Tipo de archivo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="cboCE_TipoArchivo" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type='button' class='btn btn-success' id='btnCEArchivoAdjunto'></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table id="tblArchivosAdjuntos" class="table table-hover table-bordered compact table-striped" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class=' modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR ARCHIVO ADJUNTO -->
+
+<!-- MODAL ESTATUS FINIQUITO -->
+<div id='mdlEstatusFiniquito' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblEstatusFiniquito"></table>
+                    </div>
+                </div>
+            </div>
+            <div class=' modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ESTATUS FINIQUITO -->
+
+@Html.Action("_visorGrid")
+
+<!-- SCRIPT -->
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/DemandaCH/Captura.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/moment-with-locales.min.js'></script>
+<!-- END: SCRIPT -->

@@ -1,0 +1,400 @@
+﻿@{
+ViewBag.Title = "Reporte";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Captura/AceitesLubricantes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Reporte/RepConsumoLubricante.js"></script>
+
+
+<style>
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    table.dataTable tbody tr td,
+    table thead tr th,
+    table.dataTable,
+    .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .responsiveDT {
+        padding-right: 10px;
+        border: 1px solid #3F4;
+        display: inline-block;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Reporte de Consumo de Aceites y Lubricantes</h2>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtro búsqueda</legend>
+            <div class=" row">
+                <div class="col-lg-5">
+                    <label>AC:</label>
+                    <select class="form-control" id="cboBusqCC"></select>
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2 hide">
+                    <label>Turno:</label>
+                    <select class="form-control hide" id="cboBusqTurno">
+                        <option value="0">Todos</option>
+                        <option value="1">Turno 1</option>
+                        <option value="2">Turno 2 </option>
+                        <option value="3">Turno 3 </option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Inicio:</label>
+                            <input type="text" id="dpBusqInicio" class="form-control" />
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Fin:</label>
+                            <input type="text" id="dpBusqFin" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                    <button type="button" class="btn btn-info margin-top" title="Busqueda" id="btnBuscar">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    <button type="button" class="btn btn-primary margin-top" title="Impresion de reporte" id="btnImprimir">
+                        <span class="glyphicon glyphicon-print"></span>
+                    </button>
+                    <button type="button" class="btn btn-primary margin-top" title="Totales" id="btnLubricantesTotales">
+                        <span class="glyphicon glyphicon-list">&nbsp;Totales</span>
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>No Economico</label>
+                    <select class="form-control" id="cboBusqEconomico"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 hide">
+                    <label>Lubricantes:</label>
+                    <select class="form-control" id="cboTiposLubricantes"></select>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">
+                Resultado de búsqueda
+            </legend>
+
+
+            <table id="tblLubricante" class="table table-condensed table-hover table-striped table-fixed">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="VerDetalle" data-formatter="VerDetalle" data-sortable="false" data-width="25px">Detalle</th>
+                        <th data-column-id="ECONOMICO" data-formatter="ECONOMICO">No. Economico</th>
+                        <th data-column-id="HOROMETRO" data-formatter="HOROMETRO">Horas Trabajadas</th>
+                        <th data-column-id="Antifreeze" data-formatter="Antifreeze">ANTIFREEZE</th>
+                        <th data-column-id="MOTOR" data-formatter="MOTOR">Motor</th>
+                        <th data-column-id="MOTOR2" data-formatter="MOTOR2">Motor 2</th>
+                        <th data-column-id="TRANS" data-formatter="TRANS">Transmision</th>
+                        <th data-column-id="HCO" data-formatter="HCO">HCO</th>
+                        <th data-column-id="DIF" data-formatter="DIF">DIF</th>
+                        <th data-column-id="MF" data-formatter="MF">MF</th>
+                        <th data-column-id="DIR" data-formatter="DIR">DIR</th>
+                        <th data-column-id="GRASA" data-formatter="GRASA">GRASA</th>
+                        <th data-column-id="OTROS1" data-formatter="OTROS1">OTROS</th>
+                        <th data-column-id="OTROS2" data-formatter="OTROS2">OTROS</th>
+                        <th data-column-id="OTROS3" data-formatter="OTROS3">OTROS</th>
+                        <th data-column-id="OTROS4" data-formatter="OTROS4">OTROS</th>
+
+                    </tr>
+                </thead>
+            </table>
+        </fieldset>
+
+        @* <table id="tblExistencias" class="hover stripe order-column"></table> *@
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+
+<div class="modal fade" id="mdlLubricante" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-md">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Totales </label></h3>
+
+                </div>
+            </div>
+            <div class="modal-body ">
+                <table id="tblCanLubricates" style="width:100%" class="table table-hover table-fixed table-bordered compact table-responsive responsiveDT">
+                    <thead></thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Totales:</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-lg-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Detalle de Lubricantes </h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <button type="button" class="btn btn-primary pull-right " id="btnImprimirDetalle">
+                            <span class="glyphicon glyphicon-print"></span> Imprimir
+                        </button>
+                    </div>
+                    <div class="row">
+                        <table id="tblDetalleLubricantes" class="table table-condensed table-hover table-striped table-fixed ">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="FECHA">FECHA</th>
+                                    <th data-column-id="HOROMETRO" data-formatter="HOROMETRO">HOROMETRO</th>
+                                    <th data-column-id="Antifreeze" data-formatter="Antifreeze">ANTIFREEZE</th>
+                                    <th data-column-id="MOTOR" data-formatter="MOTOR">Motor</th>
+                                    <th data-column-id="TRANS" data-formatter="TRANS">Transmision</th>
+                                    <th data-column-id="HCO" data-formatter="HCO">HCO</th>
+                                    <th data-column-id="DIF" data-formatter="DIF">DIF</th>
+                                    <th data-column-id="MF" data-formatter="MF">MF</th>
+                                    <th data-column-id="DIR" data-formatter="DIR">DIR</th>
+                                    <th data-column-id="GRASA" data-formatter="GRASA">GRASA</th>
+                                    <th data-column-id="otros1" data-formatter="otros1">OTROS</th>
+                                    <th data-column-id="otros2" data-formatter="otros2">OTROS</th>
+                                    <th data-column-id="otros3" data-formatter="otros3">OTROS</th>
+                                    <th data-column-id="otros4" data-formatter="otros4">OTROS</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-lg-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Detalle de Lubricantes </h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <button type="button" class="btn btn-primary pull-right " id="btnImprimirDetalle" disabled>
+                            <span class="glyphicon glyphicon-print"></span> Imprimir
+                        </button>
+                    </div>
+                    <div class="row container-fluid">
+                        <div class="col-lg-12">
+                            <fieldset class="fieldset-custm fielset-Filtros">
+                                <legend class="legend-custm text-center"><label id="tituloLegend"></label></legend>
+                                <div class="col-lg-10 text-left" id="divGrafica">
+                                    <canvas id="skills" width="140" height="140"></canvas>
+                                </div>
+                                <div class="col-lg-2 text-left form-group margin-top">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading ">Totales Lubricantes:</div>
+                                        <div class="panel-body">
+                                            <table class="table" id="infoLubricantes"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+<div class="modal fade" id="modalLubricantes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-lg-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Detalle de Lubricantes </h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="col-lg-5">
+                                <div class="col-lg-6 no-padding">
+                                    <label for="fechaIni">Fecha Inicio:</label>
+                                    <input type="text" id="fechaIni" class="form-control" />
+                                </div>
+                                <div class="col-lg-6 no-padding-right">
+                                    <label for="fechaFin">Fecha Fin:</label>
+                                    <input type="text" id="fechaFin" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-lg-3 form-group">
+                                <label>Lubricante:</label>
+                                <select class="form-control" id="cboLubricantes" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2 form-group">
+                                <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarLubricantes">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm text-center"><label id="tituloLegend"></label></legend>
+                            <div class="col-lg-10 text-left" id="divGrafica">
+                                <canvas id="skills" width="140" height="140"></canvas>
+                            </div>
+                            <div class="col-lg-2 text-left form-group  margin-top">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading ">Datos Generales:</div>
+                                    <div class="panel-body">
+                                        <table class="table" id="infoMaquina">
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <label>Alerta:</label>
+                                                    </div>
+                                                    <div>
+                                                        <label id="lblAlerta" class="labelFont"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <label>Precaución:</label>
+                                                    </div>
+                                                    <div>
+                                                        <label id="lblPrecacion" class="labelFont"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <label>Normal:</label>
+                                                    </div>
+                                                    <div>
+                                                        <label id="lblNormal" class="labelFont"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

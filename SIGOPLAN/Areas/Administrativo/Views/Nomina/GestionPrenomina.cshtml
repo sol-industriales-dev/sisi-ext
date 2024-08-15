@@ -1,0 +1,257 @@
+﻿@{
+    ViewBag.Title = "Gestion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Page.uiCulture = "es-ES";
+    Page.culture = "es-ES";
+    var idSession = (int)ViewBag.idEmpresa;
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Contabilidad/Nomina/Prenomina.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+
+<style>
+    div.flex-container {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    div.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons {
+        z-index: 9000 !important;
+    }
+
+    .panelAutorizado {
+        background-color: #dff0d8;
+    }
+
+
+    .panelPendiente {
+        background-color: #fcf8e3;
+    }
+
+    .panel-body {
+        height: 100px;
+        width: 300px !important;
+    }
+
+    #legendHome:hover {
+        cursor: pointer;
+    }
+
+    #legendHome {
+        font-size: 2em;
+    }
+
+    #textAreaRechazo {
+        height: 8em;
+        width: 90%;
+    }
+
+    table.tablaComparativa tr.modificado {
+        background-color: yellow;
+    }
+
+    table.tablaComparativa tr.nuevo {
+        background-color: green;
+    }
+
+    table.tablaComparativa tr.normal {
+        background-color: white;
+    }
+
+    table.tablaComparativa tr.eliminado {
+        background-color: red;
+    }
+</style>
+
+<h2 class="text-center">Gestion</h2>
+
+<div id="divFiltros" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding" style="margin-bottom: 5px;">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Filtros</legend>
+        <div class="margin-bottom10 col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding">
+            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2 padding2">
+                <label>Tipo:</label>
+                <select id="cboTipoNomina" class="form-control">
+                    <option value="1" style=@(idSession == 3 ? "display:none;" : "")>Nomina Semanal</option>
+                    <option value="4" selected="">Nomina Quincenal</option>
+                    <option value="10" style=@(idSession == 3 ? "display:none;" : "")>Aguinaldo</option>
+                    <option value="13" style="display:none;">Liquidaciones (S)</option>
+                    <option value="14" style=@(idSession != 3 ? "display:none;" : "")>Liquidaciones (Q)</option>
+                </select>
+            </div> 
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 padding2">
+                <label>Fecha</label>
+                <select id="comboNomina" class="form-control buscar"></select>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 padding2">
+                <label>Centro Costos</label>
+                <select id="comboCC" class="form-control buscar"></select>
+            </div>
+            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2 padding2">
+                <label>Estado</label>
+                <select id='comboEstado' class='form-control buscar'></select>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+@*<div class="col-sm-12" style="padding-right: 0px;">
+    <button id="botonSolicitudCheque" class="btn btn-xs btn-primary pull-right"><i class="fa fa-file"></i>&nbsp;Solicitud Cheque</button>
+</div>*@
+
+<div id="divPrenominas">
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><i class="fas fa-hand-holding-usd"></i> Prenominas</legend>
+        <div class='table-responsive'>
+            <table id='tablaGestion' class="tabla table-bordered compact hover" style="width: 100%;"></table>
+        </div>
+    </fieldset>
+</div>
+
+
+<div class="row" id="divAutorizacion">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top">
+        <button type="button" id="botonExcelDetalle" class="btn btn-success pull-right">
+            <i class='fa fa-file-excel'></i> Descargar Detalle
+        </button>
+        <button type="button" id="botonAtras" class="btn btn-warning pull-right">
+            <i class='fa fa-arrow-left'></i> Atrás
+        </button>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="divTabs">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tabReporte" aria-controls="tabReporte" role="tab" data-toggle="tab">Reporte</a>
+                </li>
+                @*<li role="presentation">
+                    <a href="#tabComparacion" aria-controls="tabComparacion" role="tab"
+                    data-toggle="tab">Comparación</a>
+                    </li>*@
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <!-- tab reporte -->
+                <div role="tabpanel" class="tab-pane fade in active" id="tabReporte">
+
+                    <fieldset id="fieldsetReporte" hidden class="fieldset-custm text-center">
+                        <legend id="legendHome" class="legend-custm">
+                            <i class="fa fa-home"></i> Reporte
+                        </legend>
+                        <iframe id="report2" align="middle" height="200" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+
+                <!-- tab comparación -->
+                @*<div role="tabpanel" class="tab-pane fade" id="tabComparacion">
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                    <h3>Antes</h3>
+                    <table id='tablaPlantillaActual' class='table table-hover text-center tablaComparativa'>
+                    <thead class='bg-table-header'></thead>
+                    </table>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                    <h3>Después</h3>
+                    <table id='tablaPlantillaNueva' class='table table-hover text-center tablaComparativa'>
+                    <thead class='bg-table-header'></thead>
+                    </table>
+                    </div>
+
+                    </div>*@
+
+            </div>
+
+            <fieldset id="fieldsetAutorizacion" hidden class="fieldset-custm text-center margin-top">
+                <legend class="legend-custm"><i class="fa fa-user"></i> Autorizantes</legend>
+                <div id="divAutorizantes" class="flex-container"></div>
+            </fieldset>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal" id="modalAutorizar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea autorizar la prenomina?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modalAutorizarbtnAutorizar">
+                    <i class='fa fa-check'></i> Autorizar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal text-center" id="modalRechazar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea rechazar la prenomina?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modalAvisoCuerpo"><strong>Justifique el rechazo:</strong></p>
+                <textarea id="textAreaRechazo" required placeholder="Describa su rechazo en un mínimo de 10 caracteres" minlength="10" maxlength="450"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modalAutorizarbtnRechazar">
+                    <i class='fa fa-ban'></i> Rechazar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="modal fade" id="modalSolicitudCheque">
+    <div class="modal-dialog modal-lg" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Solicitud de Cheque</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label>Banco:</label>
+                        <select id="selectBanco" class="form-control">
+                            <option value="1">BANAMEX</option>
+                            <option value="2">SANTANDER</option>
+                            <option value="3">EICI</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGenerarSolicitudCheque">
+                    <i class="fas fa-file"></i> Generar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+@Html.Partial("reportViewerView", false)
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/GestionPrenomina.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>

@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "Cargar Prenomina";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/PrenominaPeru.css" rel="stylesheet" />
+<link href="~/Content/style/select2/select2.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedColumns.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Nomina/DatePickerSemanalQuincenal.css" rel='stylesheet' />
+
+<div class="row text-center">
+    <h2>Captura Pre-Nomina</h2>
+</div>
+
+<div id="divFiltros" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group no-padding">
+    <div class="margin-bottom10 col-xs-10 col-sm-10 col-md-10 col-lg-10 no-padding">
+        <fieldset class="fieldset-custm" style="height:100px;">
+            <legend class="legend-custm">Filtros</legend>
+            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2 padding2">
+                <label>Tipo:</label>
+                <select id="cboTipoNomina" class="form-control">
+                    <option value="20">REGIMEN OBRERO</option>
+                    <option value="21">REGIMEN EMPLEADO</option>
+                    <option value="27">REGIMEN CONSTRUCCION CIVIL</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding2">
+                <label>Fecha</label>
+                <select id="comboNomina" class="form-control"></select>
+            </div>
+            @*<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 padding2">
+            <label>Fecha</label>
+            <input type='text' id='txtFecha' class='form-control' readonly>
+            </div>*@
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding2">
+                <label>Centro Costos</label>
+                <select id="comboCC" class="form-control"></select>
+            </div>
+            <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                <button id="botonBuscar" class="btn btn-sm btn-primary" style="margin-top: 29px;"><i class="fa fa-search"></i> Buscar</button>
+                <button id="botonDesValidar" class="btn btn-sm btn-danger" style="margin-top: 29px; display: none;"><i class="fa fa-trash"></i> Quitar Validación</button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="margin-bottom10 col-xs-2 col-sm-2 col-md-2 col-lg-2 no-padding">
+        <fieldset class="fieldset-custm" style="height:100px;">
+            <legend class="legend-custm">Reportes</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="padding-right: 0px; margin-bottom: 3px;">
+                <button id="botonSolicitudCheque" class="btn btn-sm btn-info"><i class="fa fa-file"></i>&nbsp;Solicitud Cheque</button>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="padding-right: 0px;">
+                <button id="botonCorreoDespacho" class="btn btn-sm btn-primary"><i class="fa fa-envelope"></i>&nbsp;Enviar Correo</button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+
+<div id="divTablaPrenomina" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group no-padding">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Carga Descuentos</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="col-sm-2 margin-top">
+                <div class="input-group">
+                    <span class="input-group-addon" style="background: indianred; color: white;"># Empleados</span>
+                    <input id="inputNumEmpleados" class="form-control" style="width:50px !important;" disabled>
+                </div>
+            </div>
+            <button id="botonGuardar" class="btn btn-success margin-top pull-right" style="margin-right: 5px !important; display:none;"> <i class="glyphicon glyphicon-floppy-save"></i> Guardar</button>
+            <button id="botonValidar" class="btn btn-info margin-top pull-right" style="margin-right: 5px !important; display:none;"><i class="fa fa-check"></i> Validar</button>
+            <button id="botonReporte" class="btn btn-primary margin-top pull-right" style="margin-right: 5px !important; display:none;"><i class="fas fa-file-excel"></i> Descargar</button>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+            <table id="tablaPrenomina" class="tabla table-bordered compact hover" style="width: 100%;"></table>
+        </div>
+    </fieldset>
+</div>
+
+<div id="divTablaAutorizantes" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group no-padding" style="padding-bottom: 60px !important;">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Autorizantes</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+            <table id="tablaAutorizantes" class="tabla table-bordered compact hover" style="width: 100%;"></table>
+        </div>
+    </fieldset>
+</div>
+
+<div class="modal fade" id="modalAgregarAutorizante" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Agregar Autorizante</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Formulario</legend>
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 padding2">
+                        <label>Nombre Autorizante:</label>
+                        <select id="comboAutorizante" class="form-control"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 padding2">
+                        <label>Puesto:</label>
+                        <input id="inputPuestoAutorizante" class="form-control" disabled />
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 ">
+                        <button id="botonGuardarAutorizante" class="btn btn-primary margin-top"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSolicitudCheque">
+    <div class="modal-dialog modal-lg" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Solicitud de Cheque</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <label>Banco:</label>
+                        <select id="selectBanco" class="form-control">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGenerarSolicitudCheque">
+                    <i class="fas fa-file"></i> Solicitud
+                </button>
+                <button type="button" class="btn btn-primary" id="botonGenerarCedulaCostos">
+                    <i class="fas fa-file"></i> Cédula
+                </button>
+                <button type="button" class="btn btn-primary" id="botonGenerarPolizaOCSI">
+                    <i class="fas fa-file"></i> OCSI
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/PrenominaPeru.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/select2/select2.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.fixedColumns.min.js"></script>

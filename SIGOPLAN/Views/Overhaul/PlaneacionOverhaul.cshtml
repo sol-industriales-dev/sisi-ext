@@ -1,0 +1,236 @@
+﻿@{
+    ViewBag.Title = "PlaneacionOverhaul";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+
+<!--CSS-->
+<link href="~/Content/style/css/Maquinaria/Overhaul/PlaneacionOverhaul.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+
+<!---->
+<input type="hide" id="esPlaneacionNueva" value="false" hidden>
+
+<h2 class="text-center">Calendarios Activos</h2>
+<ul class='custom-menu'>
+    <li data-action="1" id="cmFecha"><span class="glyphicon glyphicon-calendar"></span>&nbsp;&nbsp;&nbsp;Cambiar Fecha</li>
+</ul>
+
+<div class="col-lg-3 col-md-6 col-sm-12 text-center" style="margin-top:15px;">
+    <div class=" row">
+        <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Calendarios Guardados:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding">
+                    <label>Calendarios:</label>
+                    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 no-padding">
+                        <select class="form-control" id="cboAnio">
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023" selected>2023</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 no-padding">
+                        <button id="btnRecargarCalendario" class="btn btn-primary pull-right">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding">
+                        <select class="form-control" id="cboCalendarioGuardado"></select>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-left: 0;">
+                    <button class="btn btn-block btn-social btn-success margin-top" id="btnAgregParo" style="cursor: auto;">
+                        <i class="glyphicon glyphicon-plus"></i>  Agregar Paro
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 no-padding-right">
+                    <button class="btn btn-block btn-social btn-success margin-top" id="btnGuardarCalendario" style="cursor: auto;">
+                        <i class="glyphicon glyphicon-calendar"></i>  Guardar
+                    </button>
+                </div>
+            </fieldset>
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Acotaciones:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                    <span class="dot" style="background-color:#5cb85c;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Overhaul General</b>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                    <span class="dot" style="background-color:#204d74;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Cambio de Motor</b>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                    <span class="dot" style="background-color:#ff8c1a;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Componentes Desfasados</b>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+                    <span class="dot" style="background-color:#696969;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;Overhaul Ejecutado</b>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalListadoMaestro" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-maestro"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmDetalleOHMaestro" novalidate="novalidate">
+
+                        <div class="row">
+                            <fieldset class="fieldset-custm">
+                                <legend id="lgModalLM" class="legend-custm">DETALLES LISTADO MAESTRO:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                    <table id="gridDetallesModalMaestro" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                        <thead class="bg-table-header" style="color:white">
+                                            <tr>
+                                                <th data-column-id="Text" class="text-center" style="" data-formatter="Text">
+                                                    <a href="javascript:void(0);" class="column-header-anchor " style="color:white">
+                                                        <span class="text">Estatus</span><span class="icon glyphicon "></span>
+                                                    </a>
+                                                </th>
+                                                <th data-column-id="Prefijo" class="text-center" style="" data-formatter="Prefijo">
+                                                    <a href="javascript:void(0);" class="column-header-anchor " style="color:white">
+                                                        <span class="text">Descripcion</span><span class="icon glyphicon "></span>
+                                                    </a>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDiagramaGantt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-gantt"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmModalGantt" novalidate="novalidate">
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-9 col-md-6 col-sm-12 pull-right" style="margin-top:15px;padding-bottom: 50px;">
+    <div id="calendar"></div>
+</div>
+
+<div class="modal fade" id="modalFecha" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-gantt">CAMBIO FECHA EVENTO</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend id="lgModalGantt" class="legend-custm">Fecha:</legend>
+                            <div class="center-block" style="width:70%">
+                                <input type="text" id="txtModalFecha" class="form-control">
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group pull-right">
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalFechaGuardar">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalOverhaulFalla" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-falla"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"></legend>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <label>Económico:</label>
+                                <select class="form-control" id="cboEconomicoFalla"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                                <label>Fecha:</label>
+                                <input class="form-control text-center" id="txtFechaNuevoParo" />
+                            </div>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Componentes:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="gridOHFalla" class="display nowrap">
+                                        <thead class="bg-table-header"></thead>
+                                    </table>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                    <div>
+                                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalOverhaulFalla" disabled>
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarOHFalla" data-dismiss="modal">
+                                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Scripts-->
+<script src="~/Scripts/js/Maquinaria/Overhaul/PlaneacionOverhaulJS.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/fullcalendar.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/lang-all.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/UtilsOverhaul/date.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>

@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "Liberacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+
+<script>
+    var centro_costos = @Base.getUsuario().cc;
+</script>
+<script src="~/Scripts/js/Maquinaria/Inventario/Liberacion.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h2>
+                Control de Maquinaria Asignada en obra
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        @*<div class="row">
+                <select id="cboCentroCostos"></select>
+            </div>*@
+        <div class="row table-responsive">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Listado de Equipos Asignados en Obra:</label></legend>
+                    <table id="tblEquiposAsignadosObra" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-width="25%">Economico</th>
+                                <th data-column-id="FechaFin" data-width="25%">Fecha Finalizacion</th>
+                                @*<th data-column-id="Horas" data-width="25%">Horas En Obra</th>*@
+                                <th data-column-id="EstadoMaquina" data-width="60px">Estatus Maquina</th>
+                                <th data-column-id="Comentario" data-width="60px">Motivo Stand By</th>
+                                <th data-column-id="SetStandBy" data-formatter="SetStandBy" data-sortable="false" data-width="25px">Stand By</th>
+                                <th data-column-id="Liberar" data-formatter="Liberar" data-sortable="false" data-width="25px">Liberar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalStandBy">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <h3 class="modal-title text-center">Colocar Equipo Stand By</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label id="lblComentario">Comentario de paro maquina.</label>
+                        <textarea id="tbComentario" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <label id="txtvalid"></label>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" id="btnGuardarModal">Guardar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalliberacion">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title text-center">Liberar Equipo Asignado</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>La maquinara seleccionada sera liberada de su cargo, una vez confirmada esta accion no podra capturar Horometros y Combustibles en este centro de costos.</label>
+                       
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <label style="font-size: x-large;">¿Desea Continuar?</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarLiberacion">Aceptar</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

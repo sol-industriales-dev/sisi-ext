@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "PropuestaPagos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Propuesta/ValidacionFacturas.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script>
+    var _gpGuardar = @ViewBag.Guardar;
+    var _gpEmpresa = @ViewBag.Empresa;
+</script>
+
+<div class="row">
+    <div class="col-sm-12 no-gutter">
+        <div class="seccion">
+            <h3 class="col-sm-12 text-center tituloVista">VALIDACIÓN FACTURAS</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12 no-gutter">
+        <div class="seccion">
+            <h4 class="tituloFiltro"><i class='fas fa-filter'></i>&nbsp;&nbsp;&nbsp;Filtros</h4>
+            <button id='btnBuscar' type='button' class='btn btn-primary pull-right botonTitulo'><i class='fa fa-search'></i> Buscar</button>
+            <hr style="margin-bottom:5px" />
+            <div class="col-sm-3 elementoFiltro">
+                <div class="col-sm-12 no-gutter text-align-center">
+                    <label>Proveedor:</label>
+                    <hr class="hrFiltro" />
+                </div>
+                <div class="col-sm-6 no-gutter" style="display:inline-flex;">
+                    <b class="textoFiltro">De:&nbsp;&nbsp;</b><input type="text" class="form-control" id="txtProvMin" />
+                </div>
+                <div class="col-sm-6 no-gutter" style="display:inline-flex;">
+                    <b class="textoFiltro">&nbsp;&nbsp;A:&nbsp;&nbsp;</b><input type="text" class="form-control" id="txtProvMax" />
+                </div>
+            </div>
+            <div class="col-sm-2 elementoFiltro">
+                <div class="col-sm-12 no-gutter text-align-center">
+                    <label>Estatus:</label>
+                    <hr class="hrFiltro" />
+                </div>
+                <div class="col-sm-12 no-gutter" style="display:inline-flex;">
+                    <select class="form-control" id="inputTipo">
+                        <option value="1" selected>Validación Pendiente</option>
+                        <option value="2">Autorización Pendiente</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-7 elementoFiltro">
+                <div class="col-sm-12 no-gutter text-align-center">
+                    <label>CC:</label>
+                    <hr class="hrFiltro" />
+                </div>
+                <div class="col-sm-12 no-gutter" style="display:inline-flex;">
+                    <select class="form-control" id="cboCC" multiple="multiple"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-12 no-gutter">
+        <div class="seccion">
+            <h4 class="tituloFiltro"><i class='fas fa-file'></i>&nbsp;&nbsp;&nbsp;Facturas</h4>
+            <button id='btnFiltroValidar' type='button' class='btn btn-success pull-right botonTitulo btn-validar'><i class='fa fa-user'></i> Validar</button>
+            <button id='btnFiltroRechazar' type='button' class='btn btn-danger pull-right botonTitulo btn-validar'><i class='fa fa-user'></i> Rechazar</button>
+            <button id='btnModalAutorizar' type='button' class='btn btn-success pull-right botonTitulo btn-validar' style="display: none;"><i class='fa fa-user'></i> Autorizar</button>
+            <hr />
+            <table id='tblData' class='display'></table>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+@Html.Action("_menuClick", "Mouse", new { area = "" })
+@Html.Action("_visorGrid", "Visor", new { area = "" })
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Propuesta/ValidacionFacturas.js"></script>
+<script src="~/Scripts/select2.js"></script>

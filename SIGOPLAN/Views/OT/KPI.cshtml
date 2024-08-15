@@ -1,0 +1,360 @@
+﻿@{
+    ViewBag.Title = "KPI";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<link href="~/Content/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/js/Maquinaria/Captura/OT/KPIJS.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    <label>Filtros:</label>
+                </legend>
+                <div class="row">
+                    <div class="col-lg-3" id="divNoCC">
+                        <div class="input-group">
+                            <span class="input-group-addon">Division:</span>
+                            <select class="form-control" id="txtDivision"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 id=" divNoCC">
+                        <div class="input-group">
+                            <span class="input-group-addon">AC:</span>
+                            <select class="form-control" id="txtCC"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 hide" id="divNombCC">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre:</span>
+                            <input type="text" id="txtNombreCC" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Grupo:</span>
+                            <select class="form-control" id="cboGrupo"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Modelo:</span>
+                            <select class="form-control" id="cboModelo"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Inicio:</span>
+                            <input type="text" id="fechaIni" class="form-control" />
+                            <select class="form-control hide" id="cboMes">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Fin:</span>
+                            <input type="text" id="fechaFin" class="form-control" />
+                            <select class="form-control hide" id="cboAnio">
+                                <option value="2018">2018</option>
+                                <option value="2017">2017</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" id="btnRepMensual" class="btn btn-default btn-block">
+                            Rep. Mensual
+                        </button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" id="btnRepMetricas" class="btn btn-default btn-block">
+                            Rep. Metricas
+                        </button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" id="btnRepGraficas" class="btn btn-default btn-block" disabled>
+                            Rep. Frecuencias
+                        </button>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="button" id="btnCargar" class="btn btn-default btn-block">
+                            Cargar
+                        </button>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    <label>Lista de Equipos:</label>
+                </legend>
+                @*<div class="row">
+                    <div class="col-md-2">
+                    <button class="btn btn-primary btn-block btnDisp" disabled>Inf. General</button>
+                    </div>
+                    <div class="col-md-2">
+                    <button class="btn btn-primary btn-block btnDisp" disabled>Tipo Mantenimiento</button>
+                    </div>
+                    <div class="col-md-2">
+                    <button class="btn btn-primary btn-block btnDisp" disabled>Frec. Paro</button>
+                    </div>
+                    <div class="col-md-2">
+                    <button class="btn btn-primary btn-block btnDisp" disabled>Mtto y Paros</button>
+                    </div>
+                    </div>*@
+                <table id="tblData" class="display" cellspacing="0" width="100%">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th rowspan="2">ID</th>
+                            <th rowspan="2">ANALISIS</th>
+                            <th rowspan="2">MAQUINA</th>
+                            <th rowspan="2">% DISPONIBILIDAD</th>
+                            <th rowspan="2">HORAS TRABAJADAS</th>
+                            <th rowspan="2">HORAS DE PAROS</th>
+                            <th rowspan="2">% DE UTILIZACIONd</th>
+                            <th rowspan="2">% MTTO PROGRAMADO (TIEMPO)</th>
+                            <th rowspan="2">MTTO PREVENTIVO (HORAS)</th>
+                            <th rowspan="2">MTTO CORRECTIVO (HORAS)</th>
+                            <th rowspan="2">MTTO PREDICTIVO (HORAS)</th>
+                            <th rowspan="2">HORAS HOMBRE</th>
+                            <th rowspan="2">MTBS</th>
+                            <th rowspan="2">MTTR</th>
+                            <th colspan="3">PAROS PRINCIPALES</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr></tr>
+                    </tfoot>
+
+                </table>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalInfoGeneral" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Información General</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblInfoGeneral" class="display" cellspacing="0" width="100%">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th colspan="3">Información General</th>
+                                </tr>
+                                <tr>
+                                    <th># Economico</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="9" id="tdIGEconomico"></td>
+                                    <td>Horometro Inicial</td>
+                                    <td id="tdIGHorometroInicial" style="width:100px;">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Horometro Final</td>
+                                    <td id="tdIGHorometroFinal">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Horas Trabajadas</td>
+                                    <td id="tdIGHorasTrabajadas">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Disponibilidad</td>
+                                    <td id="tdIGDisponibilidad">0</td>
+                                </tr>
+                                <tr>
+                                    <td>MTBS</td>
+                                    <td id="tdIGMTBS">0</td>
+                                </tr>
+                                <tr>
+                                    <td>MTTR</td>
+                                    <td id="tdIGMTTR">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Horas Hombre</td>
+                                    <td id="tdIGHorasHombre">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Horas de Paro</td>
+                                    <td id="tdIGHorasParo">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Ratio de Mantenimiento</td>
+                                    <td id="tdIGRatioMantenimiento">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalTipoMantenimiento" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Tipo Mantenimiento</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblTipoMantenimiento" style="width:100%;">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th colspan="7">Tipo de Mantenimiento</th>
+                                </tr>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Tiempo</th>
+                                    <th>Cantidad</th>
+                                    <th>% Tiempo</th>
+                                    <th>% Cantidad</th>
+                                    <th>Total</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PROGRAMADO</td>
+                                    <td id="tdTPTiempo">0</td>
+                                    <td id="tdTPCantidad">0</td>
+                                    <td id="tdTPPTiempo">0%</td>
+                                    <td id="tdTPPCantidad">0%</td>
+                                    <td id="tdTPTotal" rowspan="2">0</td>
+                                    <td id="tdTPTotal2" rowspan="2">0</td>
+                                </tr>
+                                <tr>
+                                    <td>NO PROGRAMADO</td>
+                                    <td id="tdTNPTiempo">0</td>
+                                    <td id="tdTNPCantidad">0</td>
+                                    <td id="tdTNPPTiempo">0%</td>
+                                    <td id="tdTNPPCantidad">0%</td>
+                                </tr>
+                                <tr style="background-color:black;">
+                                    <td colspan="7"></td>
+                                </tr>
+                                <tr>
+                                    <td>PREVENTIVO</td>
+                                    <td id="tdPTiempo">0</td>
+                                    <td id="tdPCantidad">0</td>
+                                    <td id="tdPPTiempo">0%</td>
+                                    <td id="tdPPCantidad">0%</td>
+                                    <td id="tdPTotal" rowspan="3">0</td>
+                                    <td id="tdPTotal2" rowspan="3">0</td>
+                                </tr>
+                                <tr>
+                                    <td>CORRECTIVO</td>
+                                    <td id="tdCTiempo">0</td>
+                                    <td id="tdCCantidad">0</td>
+                                    <td id="tdCPTiempo">0%</td>
+                                    <td id="tdCPCantidad">0%</td>
+                                </tr>
+                                <tr>
+                                    <td>PREDICTIVO</td>
+                                    <td id="tdPrTiempo">0</td>
+                                    <td id="tdPrCantidad">0</td>
+                                    <td id="tdPrPTiempo">0%</td>
+                                    <td id="tdPrPCantidad">0%</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" style="background-color:black;color:white;text-align:center;">
+                                        Porcentaje en cantidad de mantenimiento programado
+                                    </td>
+                                    <td id="tdPTotalF">0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalMTTOyParo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblMTTOyParo" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th colspan="11">Mantenimientos y Paros</th>
+                                </tr>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Horometros</th>
+                                    <th>Falla</th>
+                                    <th>T. Util</th>
+                                    <th>T. Muerto</th>
+                                    <th>Programado?</th>
+                                    <th>Tipo</th>
+                                    <th>MTBS</th>
+                                    <th>MTTR</th>
+                                    <th>Personal</th>
+                                    <th>H. Hombre</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

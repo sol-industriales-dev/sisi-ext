@@ -1,0 +1,228 @@
+﻿@{
+    ViewBag.Title = "SubAreasCatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/EquiposCatalogo.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/RevisionCuadrilla.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/subAreasCatalogo.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Catálogo Subáreas</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <div class="container-fluid">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="input-group col-md-12">
+                                <div class="col-lg-3">
+                                    <label>Cuadrillas:</label>
+                                    <select class="form-control" id="multiSelectCuadrillas" multiple="multiple"></select>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <label>Areas:</label>
+                                    <select class="form-control" id="multiSelectArea" multiple="multiple"></select>
+                                </div>
+                                <div class="col-lg-4" style="padding-left: 0px;">
+                                    <button type="button" class="btn btn-primary" id="btnBuscarAubArea" style="margin-top: 24px; margin-right: 5px;">
+                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm"></legend>
+                                <button id="btnNuevaSubArea" class="btn btn-primary" style="margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-plus"></span> Nueva Subárea</button>
+                                <table id="tblSubArea"></table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogSubArea" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Nueva Subárea</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subárea:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtSubAreaNuevo" class="form-control" placeholder="Subárea" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectCuadrillaNuevo" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Área:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectAreaNuevo" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12" id="divGaleriaSubArea"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-4">
+                        <div class="custom-file-upload" style="text-align: left;">
+                            <label for="inputReferencia" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Referencia
+                            </label>
+                            <input type="file" id="inputReferencia" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <a id="btnGuardarSubArea" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogSubAreaEdit" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Editar Subárea</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subárea:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtSubAreaEdit" class="form-control" placeholder="Subárea" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectCuadrillaEdit" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Área:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectAreaEdit" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btnEditarSubArea" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogBajaSubArea" title="Eliminar Subárea" style="display: none;">
+        <text id="txtElimSubArea">¿Está seguro que desea eliminar esta Subárea?</text>
+    </div>
+
+    <div class="modal fade" id="mdlReferenciaEditar">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3><label><i class="fa fa-photo"></i> Referencia</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12" id="divGaleriaReferenciaEditar"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-lg-2">
+                            <div class="custom-file-upload">
+                                <label for="inputReferenciaEditar" class="custom-file-upload">
+                                    <i class="fa fa-photo"></i> Agregar
+                                </label>
+                                <input id="inputEditarSubareaReferencia" style="display: none;" />
+                                <input type="file" id="inputReferenciaEditar" accept="image/*" multiple>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btnEditarReferencia"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Referencia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

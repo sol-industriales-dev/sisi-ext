@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Envio";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+        .bg-table-header tr {
+        background: #da6a1a !important;
+    } 
+    .webix_popup {
+        z-index: 1051 !important;
+    }
+    select {
+        color: black !important;
+    }
+</style>
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+
+<link href="~/Content/style/css/FileManager/Webix.css" rel="stylesheet" />
+<link href="~/Content/style/css/FileManager/FileManager.css" rel="stylesheet" />
+
+<script src="~/Scripts/js/FileManager/FileManager/WebixCore.js"></script>
+<script src="~/Scripts/js/FileManager/GuardadoParcial/GuardadoParcial.js"></script>
+
+<script src="~/Scripts/js/FileManager/Envio/EnvioDocumento.js"></script>
+<h2 class="text-center">Documentos Pendientes</h2>
+
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros</legend>
+
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                <label>Tipo Documento:</label>
+                <select class="form-control" id="cboDocumento"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                <label>Descripción:</label>
+                <input class="form-control" id="txtDescripcion" type="text" maxlength="100">
+            </div>            
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar_Envio">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Documentos Pendientes</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="tblEnvios" class="table table-condensed text-center" style="background-color: #da6a1a !important;" aria-busy="false"></table>
+            </div>
+        </fieldset>        
+    </div>
+</div>
+
+<div class="modal fade" id="modalGestor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Seleccionar carpeta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div hidden id="noAcceso" class="row text-center">
+                    <h2 class="label label-danger">Sin acceso</h2>
+                    <p>Este usuario no cuenta con los permisos suficientes para utilizar el gestor de archivos.</p>
+                </div>
+                <div id="webix-area">
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 footer">
+                    <div>
+                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar_Gestor">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,147 @@
+﻿@{
+    ViewBag.Title = "Expediciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- PUESTOS -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>EXPEDICIONES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo Reporte</span>
+                                <select class="form-control" id="cboFiltroTipoFormato">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="0">Fonacot</option>
+                                    <option value="1">Guarderia</option>
+                                    <option value="2">Laboral</option>
+                                    <option value="3">Lactancia</option>
+                                    <option value="4">Liberacion</option>
+                                    <option value="5">Pagare</option>
+                                    <option value="6">Prestamos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pull-right marginRight">
+                            <div class="col-sm-1">
+                                <!-- <button type="button" class="btn btn-primary" id="btnFiltroExportarCR">Exportar</button> -->
+                                <!-- <button type="button" class="btn btn-success" id="btnFiltroExportar"><i class="far fa-file-excel"></i> Descargar</button> -->
+                                <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
+                                <!-- <button type="button" class="btn btn-success" id="btnFiltroNuevo">Nuevo</button> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon"># Emp.</span>
+                                <input id="txtFiltroClaveEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="txtFiltroNombreEmpleado" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE PUESTOS -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblExpediciones" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE PUESTOS -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<!-- MODAL ADD PUESTO -->
+<div id='mdlCETabulador' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Añadir tabulador</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Puesto</span>
+                            <select class="form-control" id="cboCETabPuesto" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Sueldo Base</span>
+                            <input type="text" id="txtCETabSueldoBase" class="form-control" placeholder="$0.0">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Complemento</span>
+                            <input type="text" id="txtCETabComplemento" class="form-control" placeholder="$0.0">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Bono en Sistema</span>
+                            <input type="text" id="txtCETabBono" class="form-control" placeholder="$0.0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' data-dismiss='modal' id="btnCETabulador"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD PUESTO -->
+
+<!-- END: MODALES -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/ReportesRH/Expediciones.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>

@@ -1,0 +1,81 @@
+﻿@{
+    List<Core.DTO.Kubrix.VencimientoDTO> lst = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController().lstVencimiento();
+    var total = lst.Sum(s => s.saldo_factura);
+    var lstP = lst.Where(w => w.cc.Equals(Session["cc"])).ToList();
+    var lstG = lstP.GroupBy(g => new { g.numpro }, (k, g) => new
+    {
+        prov = g.FirstOrDefault().nombre,
+        vencer = g.Where(w => w.fechavenc >= DateTime.Now).Sum(s => s.saldo_factura),
+        D15 = g.Where(w => w.fechavenc < DateTime.Now && w.fechavenc > DateTime.Now.AddDays(-15)).Sum(s => s.saldo_factura),
+        D30 = g.Where(w => w.fechavenc < DateTime.Now.AddDays(-15) && w.fechavenc > DateTime.Now.AddDays(-30)).Sum(s => s.saldo_factura),
+        D60 = g.Where(w => w.fechavenc < DateTime.Now.AddDays(-30) && w.fechavenc > DateTime.Now.AddDays(-60)).Sum(s => s.saldo_factura),
+        D90 = g.Where(w => w.fechavenc < DateTime.Now.AddDays(-60) && w.fechavenc > DateTime.Now.AddDays(-90)).Sum(s => s.saldo_factura),
+        D90mas = g.Where(w => w.fechavenc <= DateTime.Now.AddDays(-90)).Sum(s => s.saldo_factura),
+        saldo = g.Sum(s => s.saldo_factura)
+    }).ToList();
+}
+<div class="table-responsive">
+    <table id="tblCxpDet" class="table table-condensed table-hover text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>NOMBRE PROVEEDOR</th>
+                <th>VENCER</th>
+                <th>15 DIAS</th>
+                <th>30 DIAS</th>
+                <th>60 DIAS</th>
+                <th>90 DIAS</th>
+                <th>+ 90 DIAS</th>
+                <th>SALDO</th>
+                <th>%</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lstP.Count == 0)
+            {
+                <tr><td colspan="9" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {  
+                int i = 0;
+                <tr>
+                    <td>General</td>
+                    <td class="text-right">@lstG.Sum(s => s.vencer).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.D15).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.D30).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.D60).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.D90).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.D90mas).ToString("C2")</td>
+                    <td class="text-right">@lstG.Sum(s => s.saldo).ToString("C2")</td>
+                    <td class="text-right">@(1.ToString("P2"))</td>
+                </tr>
+                foreach (var g in lstG)
+                {
+                    i++;
+                    <tr>
+                        <td>@i .- @g.prov</td>
+                        <td class="text-right">@g.vencer.ToString("C2")</td>
+                        <td class="text-right">@g.D15.ToString("C2")</td>
+                        <td class="text-right">@g.D30.ToString("C2")</td>
+                        <td class="text-right">@g.D60.ToString("C2")</td>
+                        <td class="text-right">@g.D90.ToString("C2")</td>
+                        <td class="text-right">@g.D90mas.ToString("C2")</td>
+                        <td class="text-right">@g.saldo.ToString("C2")</td>
+                        <td class="text-right">@((g.saldo / lstG.Sum(s => s.saldo)).ToString("P2"))</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="col-md-3 col-lg-3">
+    <label>TOTAL CXP COMPAÑÍA</label>
+    <input class="form-control text-right" value="@total.ToString("C2")" readonly />
+</div>
+<div class="col-md-3 col-lg-3">
+    <label>PORCENTAJE DEL TOTAL DE CXP CIA.</label>
+    <input class="form-control text-right" value="@((lstG.Sum(s => s.saldo) / total).ToString("P2"))" readonly />
+</div>
+<div class="col-md-3 col-lg-3">
+    <label>MAYOR QUE CERO SI HAY PROVEEDORES EN LA OBRA</label>
+    <input class="form-control text-right" value="@lstG.Count" readonly />
+</div>

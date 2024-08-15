@@ -1,0 +1,689 @@
+﻿
+@{
+    ViewBag.Title = "CapturaCaratulas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Caratulas/Caratula.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<script>
+    $(document).ready(function () {
+        $('#cboModelo').select2();
+    });
+    $(document).ready(function () {
+        $('#cboGrupo').select2();
+    });
+</script>
+<!-- STYLE -->
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+  
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+
+        .btn-primary:hover {
+            background-color: #624de2 !important;
+            border-color: #624de2 !important;
+        }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+        .modal-header .titleHeader {
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .modal-header .modal-title {
+            font-weight: bold;
+        }
+
+        .modal-header .modal-subtitle {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+
+
+
+<div class="col-sm-12">
+
+    <div class="row">
+
+        <div class="text-center">
+            <h2>Carátula Arrendadora</h2>
+        </div>
+    </div>
+    <br>
+<fieldset class='fieldset-custm text-center'>
+    <legend class='legend-custm'>Datos</legend>
+    <div class="row">
+
+        <div class="col-lg-3">
+            <label for="">Tipo de cambio</label>
+            <input type="number" id="TipoCambio" class="form-control">
+        </div>
+        <div class="col-lg-4">
+            <label for="">Costo por</label>
+            <select id="cboCostoPor" multiple="multiple">
+                <option value="1" selected>Hora</option>
+                <option value="2" selected>Día</option>
+            </select>
+        </div>
+
+        <div class="pull-right">
+            <button class="btn btn-default" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+            <button class="btn btn-success" id="btnGuardarCaratula"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+            <button class="btn btn-primary marginRight" data-toggle="modal" data-target="#mdlNuevaModelo" id="btnNuevo2"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+            <button class="btn btn-info hidden" id="btnMostrar"><i class="fas fa-list"></i>&nbsp;Mostrar archivo</button>
+        </div>
+
+        <div class="col-sm-2 pull-left" style="display:none;">
+            <input type="file" id="archivoxls" class="input-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+        </div>
+    </div>
+
+</fieldset>
+    
+    <div id="mdlNuevoModelo" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h1 class="modal-title"><i class="fa fa-dollar"></i>Nuevo Costo Horario</h1>
+                </div>
+                <div class="modal-body">
+                    <!-- SECCION DE CONTROLES -->
+                    <div class="seccion">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class=" col-lg-5">
+                                    <label for="cboGrupo2">Grupo: </label>
+                                    <select id="cboGrupo2" class="form-control" style="width:100%"></select>
+                                </div>
+                                <div class=" col-lg-5">
+                                    <label for="cboModelo2">Modelo: </label>
+                                    <select id="cboModelo2" class="form-control" style="width:100%"></select>
+                                </div>
+                                <div class=" col-lg-2">
+                                    <label for="tipoDeCambioModal">Tipo de cambio: </label>
+                                    <input type="text" id="tipoDeCambioModal" class="form-control" disabled />
+                                </div>
+                                 <div class=" col-lg-5">
+                                    <label for="cboAgrupaciones">Agrupaciones: </label>
+                                    <select id="cboAgrupaciones" class="form-control" style="width:100%"></select>
+                                </div>
+                                 <div class=" col-lg-5">
+                                </div>
+                                 <div class=" col-lg-2">
+                                    <button  type="button" data-toggle="modal" data-target="#mdlAgrupacionCaratulas" class="btn btn-primary" id="btnNuevoAgrup">
+                                        <i class="fas fa-plus"></i> Agregar nueva Agrupacion
+                                        </button>
+                                </div>
+                                <br>
+                            <div id='contenidoNuevo'>
+                             
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Depreciacion ($/HR)</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtDepreciacionDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtDepreciacionMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Inversion ($/HR)</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtInversionDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtInversionMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Seguro ($/HR)</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtSeguroDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtSeguroMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Filtros ($/HR)</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtFiltroDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtFiltroMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Mtto. Correctivo ($/HR)</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtMantenimientoDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtMantenimientoMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Mano de obra</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtManoObraDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtManoObraMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Eq. Auxiliar y otros</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtAuxiliarDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtAuxiliarMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Indirectos matriz</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtIndirectosDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtIndirectosMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Depreciacion OH</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtDepreciacionOHDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtDepreciacionOHMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Aceite</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtAceiteDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtAceiteMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Carilleria</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtCarilleriaDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtCarilleriaMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>ANSUL</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtAnsulDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtAnsulMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Utilidad</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtUtilidadDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtUtilidadMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Costo Renta</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;DLLS:</span>
+                                                <input id="txtTotalDLLS" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;&nbsp;&nbsp;MXN:</span>
+                                                <input id="txtTotalMXN" class="form-control nuevoModelo">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                   <div class=" col-lg-3">
+                                    <fieldset class='fieldset-custm text-center'>
+                                        <legend class='legend-custm'>Costo por HORA/DIA</legend>
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="input-group">
+                                                <span class="input-group-addon no-padding">&nbsp;Hora/Dia:</span>
+                                                <select  id="cboHoraDia" class="form-control">
+                                                    <option value='--SELECCIONE--'>--SELECCIONE--</option>
+                                                    <option value='1'>HORA</option>
+                                                    <option value='2'>DIA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    
+                                    </fieldset>
+                                </div>
+</div>
+                              
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Regresar</button>
+                        <button type="button" id="btnGuardarNuevoModelo" class="btn btn-primary obtenerId"><i class="fas fa-save"></i> Guardar modelo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <fieldset class='fieldset-custm text-center' style="height: 620px; !important">
+        <legend class='legend-custm'>Carátula</legend>
+        <div class="col-sm-12" >
+            <div class="table-responsive"  style="height: 580px; !important">
+                <table id="tblCaratula" class="tabla table-bordered compact hover table-responsive" style="width: 100% !important;height: 580px; !important">
+                    <thead>
+                        @*<tr>
+                            <th colspan="7" class="text-center"></th>
+                            <th colspan="5" class="text-center">Mantenimiento</th>
+                            <th colspan="6" class="text-center"></th>
+                        </tr>*@
+                        <tr>
+                            <th colspan="9" class="text-center"></th>
+                            <th colspan="2" class="text-center"></th>
+                            <th colspan="2" class="text-center indirectos">Indirectos de Campo</th>
+                            <th colspan="1" class="text-center"></th>
+                            <th colspan="6" class="text-center"></th>
+                        </tr>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center indirectos"></th>
+                            <th class="text-center indirectos"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                            <th class="text-center"></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </fieldset>
+
+    <br>
+
+    <div id="reporteCaratula">
+        @Html.Partial("reportViewerView")
+    </div>
+    <fieldset class='fieldset-custm asd text-center' style="margin-bottom: 40px;">
+        <legend class='legend-custm'>Autorizantes</legend>
+        <div class="col-md-6">
+            <label for="cboNombreTecnica">Nombre: </label>
+            <input class="form-control autoriza" id="DireccionTecnica" data-puesto="DIRECTOR TECNICO" data-orden="1" placeholder="*" disabled>
+            <div class="text-center">
+                <h6>DIRECTOR TECNICO</h6>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="cboNombreServicio">Nombre: </label>
+            <input class="form-control autoriza" id="SubdireccionMaquinaria" data-puesto="DIRECTOR DE MAQUINARIA Y EQUIPO" data-orden="2" placeholder="*" disabled>
+            <div class="text-center">
+                <h6>Subdirección de maquinaria</h6>
+            </div>
+        </div>
+        
+        @*<div class="col-md-4">
+            <label for="cboNombreConstruccion">Nombre: </label>
+            <input class="form-control autoriza" id="DireccionConstruccion" data-puesto="Direccion de construccion" data-orden="1" placeholder="*">
+
+            <div class="text-center">
+                <h6>Direccion de construcción</h6>
+            </div>
+        </div>*@
+
+
+
+    </fieldset>
+
+@* <div class=" col-md-3" style="width: 200px">
+        <label for="cboNombreTecnica">Moneda: </label>
+        <input type="checkbox" id="chkMoneda" data-toggle="toggle" data-off="Dolares" data-on="MXN" >
+    </div>
+
+        &nbsp;
+
+    <div class=" col-md-3" style="width: 250px">
+        <label for="cboNombreServicio">Mano de obra: </label>
+        <input type="checkbox" id="chkManoObra" data-toggle="toggle" data-off="C/MO" data-on="S/MO" >
+    </div> *@
+
+
+    @* <fieldset class='fieldset-custm col-md-6 asd pull-right'>
+            <legend class='legend-custm'>Tipo de cambio</legend>
+            <br>
+            <div class="col-md-3">
+                    <label>Moneda: </label>
+                    <input type="checkbox" id="chkMoneda" data-toggle="toggle" data-off="Dolares" data-on="MXN" >
+            </div>
+
+            <div class=" col-md-3">
+                    <label>Mano de obra: </label>
+                    <input type="checkbox" id="chkManoObra" data-toggle="toggle" data-off="C/MO" data-on="S/MO" >
+            </div>
+            &nbsp;
+            <div class="col-md-3 pull-right">
+                <label >Tipo de cambio: </label>
+                <input type="text" id="TipoCambio" class="form-control pull-right" style="width: 170px;" >
+            </div>
+        </fieldset> *@
+    <br>
+    @* <div class="conteiner">
+            <div class="row">
+                 <div class="col-lg-1 pull-right">
+                    <button class="btn btn-primary" id="btnGuardarCaratula"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                </div>
+            </div>
+        </div> *@
+</div>
+       
+<div id='mdlAgrupacionCaratulas' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-xl'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Agrupacion Caratulas</h1>
+            </div>
+            <div class='modal-body'>
+               
+
+                <div class="col-sm-12">
+                    <br />
+                    <!-- CONTROLES DE FILTRO -->
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"></legend>
+                        <div class="row">
+                            <br />
+                            <div class="col-lg-4">
+                            </div>
+                            <div class="col-lg-6"></div>
+                            <div class="col-lg-2">
+                                <button type='button' class="btn btn-primary" id="btnLimpiar" style="display:none;"><i class="fa fa-brush"></i> Limpiar</button>
+                                <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
+                                <button type="button" data-toggle="modal" data-target="#mdlCrearAgrupacion" class="btn btn-primary" id="btnNuevo">
+                                    <i class="fas fa-plus"></i> Nuevo
+                                </button>
+                            </div>
+                        </div><br>
+                    </fieldset>
+                    <br />
+                    <!-- END: CONTROLES DE FILTRO -->
+
+                    <!-- LISTADO -->
+                    <fieldset class='fieldset-custm'>
+                        <legend class='legend-custm'></legend>
+                        <div class="row">
+                            <div class="col-lg-12 table-responsive table-bordered">
+                                <br />
+                                <table id="tblAgrupacionCaratulas" class="table-bordered hover stripe order-column"></table>
+                            </div>
+                        </div>
+                    </fieldset><br><br>
+                    <!-- END: LISTADO -->
+                </div>
+
+
+
+
+
+
+
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div id="mdlCrearAgrupacion" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Nueva agrupación</h1>
+            </div>
+            <div class="modal-body">
+                <!-- SECCION DE CONTROLES -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoClaveDepto">Nombre Agrupación: </label>
+                                <input id="txtNombreAgrupacion" class="form-control"/>
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboGrupo2">Seleccionar Grupo : </label>
+                                <select id="cboGrupo">
+                                </select>
+                            </div>
+                            <div class="col-lg-12">
+                                <label class="text-color" for="cboModelo">Seleccionar Modelo : </label>
+                                <select id="cboModelo" class="js-example-basic-multiple" name="states[]" multiple="multiple">
+                                </select>
+                            </div>
+                        </div>
+                    </div><br>
+
+                </div>
+                <!-- END: SECCION DE CONTROLES -->
+            </div>
+            <div class="modal-footer">
+                <button type='button' class="btn btn-primary" id="btnNuevoLimpiar" style="display:none;"><i class="fa fa-brush"></i> Limpiar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Regresar</button>
+                <button type="button" id="btnCrearEditar" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/Scripts/js/Maquinaria/_Caratulas/CaratulaJS_.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/_Caratulas/AgrupacionCaratulas.js"></script>
+<script src='~/Scripts/select2.js'></script>

@@ -1,0 +1,332 @@
+﻿@{
+    ViewBag.Title = "EvaluadorSubContratista";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/EvaluadorSubContratista.css" rel="stylesheet" />
+<link href="~/Content/style/starrr.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+        $('#cboProyecto').select2();
+    });
+    $(document).ready(function () {
+        $('#cboSubContratista').select2();
+    });
+    $(document).ready(function () {
+        $('#cboEstatus').select2();
+    });
+</script>
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>PROCESO DE CALIFICACIÓN</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Proyecto</span>
+                                <select name="" id="cboProyecto" class="form-control comboChange"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcontratista</span>
+                                <select name="" id="cboSubContratista" class="form-control comboChange"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-3" id="contenedorEstatus">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select name="" id="cboEstatus" class="form-control comboChange"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-1">
+                            <button id="btnBuscar" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="contenido" style='width: 100% !important;'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<div id='mdlComentario' class='modal fade' role='dialog' style="z-index: 999999999 !important;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'>
+                    <i class='fa fa-dollar'></i>PROCESO DE RETROALIMENTACIÓN <br>
+                    <h5><label id="txtTituloClick" for=""></label></h5>
+                </h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div class='row'>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentario : </span>
+                                    <textarea name="" id="inpComentario" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Plan De Accion : </span>
+                                    <textarea name="" id="inpPlanDeAccion" class="form-control" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Responsable : </span>
+                                    <input name="" id="inpResponsable" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Compromiso : </span>
+                                    <input name="" id="inpFechaCompromiso" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            @* <div class="col-md-12">
+                                <label >Calificacion : </label>
+                                <select id="inpEvaluacion" class="form-control" name="select">
+                                <option style="color: white;font-weight:bold;" class="boton-pesimo" value="25" selected>Pesimo</option>
+                                <option style="color: white;font-weight:bold;" class="boton-malo" value="50">Malo</option>
+                                <option style="color: black;font-weight:bold;" class="boton-regular" value="70">Regular</option>
+                                <option style="color: white;font-weight:bold;" class="boton-aceptable" value="90">Aceptable</option>
+                                <option style="color: white;font-weight:bold;" class="boton-excediendo" value="100">Excediendo las espectativas</option>
+                                </select>
+                                </div> *@
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Calificacion : </span>
+                                    <div style="border:1px dotted gray;height: 32px;">
+                                        <div class="starrr" data-calificacion="0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-primary' id='btnGuardar'><i class='fa fa-save'></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='mdlPreguntarPrimero' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Preguntar Primero</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div id='containerPreguntarPrimero'>
+
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-primary' id='btnGuardarPreguntarPrimero'><i class='fa fa-save'></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='mdlFormulario' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivos de subcontratistas</h1>
+                <h4 id='txtUsuario'></h4>
+                <h4 id='txtPeriodoDeFechas'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="container-fluid" id="ContenidoSubirArchivos">
+
+                        <fieldset class="fieldset-custm">
+
+                            <!-- MENU Y LISTADO DE ESTATUS -->
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div id="contenido23">
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='mdlGraficasPorSubcontratista' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Graficas por SubContratista</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title text-center">
+                                            <a data-toggle="collapse" href="#panel3">
+                                                Grafica de subcontratista por Calificacion en cada Evaluacion
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panel3" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="col-lg-12">
+                                                <div style="margin-left: auto; margin-right: auto">
+                                                    <figure class="highcharts-figure">
+                                                        <div id="gpxSubPorCalificacionMensual" style="margin-left:auto; margin-right:auto;"></div>
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title text-center">
+                                            <a data-toggle="collapse" href="#panel4">
+                                                Grafica de totalizador por elementos
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panel4" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="col-lg-12">
+                                                <div style="margin-left: auto; margin-right: auto">
+                                                    <figure class="highcharts-figure">
+                                                        <div id="gpxGraficaSubxCalificacion" style="margin-left:auto; margin-right:auto;"></div>
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlPlantillas' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Previsualizador de plantilla asignada</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/starrr.js"></script>
+<script src="~/Scripts/js/SubContratistas/Evaluacion/EvaluacionSubContratista.js"></script>

@@ -1,0 +1,359 @@
+﻿@{
+    ViewBag.Title = "ReporteFallaVista";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<style>
+    .form-group input[type="checkbox"] {
+        display: none;
+    }
+
+    .form-group input[type="checkbox"]+.btn-group>label span:first-child {
+        display: none;
+    }
+
+    .form-group input[type="checkbox"]+.btn-group>label span:last-child {
+        display: inline-block;
+    }
+
+    .form-group input[type="checkbox"]:checked+.btn-group>label span:first-child {
+        display: inline-block;
+    }
+
+    .form-group input[type="checkbox"]:checked+.btn-group>label span:last-child {
+        display: none;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .bootgrid-table th:active,
+    .bootgrid-table td {
+        white-space: normal;
+    }
+
+    .column-header-anchor {
+        white-space: normal !important;
+    }
+
+    .tabla {
+        overflow-y: auto;
+        height: 100px;
+    }
+
+    .tabla th {
+        position: sticky;
+        top: 0;
+        background-color: #81bd72 !important;
+        text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000;
+    }
+
+    td {
+        vertical-align: middle !important;
+    }
+
+    .tabla .infoBar {
+        position: sticky;
+        top: 0;
+    }
+
+    .panel-group {
+        text-align: center;
+    }
+
+    .panel-heading {
+        text-align: left;
+    }
+
+    .form-control {
+        text-align: center;
+    }
+
+    .select2-selection--single {
+        height: 34px !important;
+        border: 1px solid #ccc !important;
+        color: #555 !important;
+    }
+
+    .select2 {
+        width: 100% !important;
+    }
+
+    #divImagen>img {
+        max-width: 280px;
+    }
+</style>
+<div class="container-fluid">
+
+    <div class="row text-center">
+        <h2>Reporte de Falla <i class="fas fa-exclamation-triangle" style="color:red"></i></h2>
+        <button type="button" class="btn btn-success margin-top pull-right" style="margin-bottom:15px;margin-right:15px;" id="btnGuardarReporte">
+            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+        </button>
+    </div>
+
+    <div class="panel-group">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#datosGenerales">
+                        <i class="fas fa-user-edit"></i>
+                        Datos Generales
+                    </a>
+                </h4>
+            </div>
+            <div id="datosGenerales" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3" id="divContratista">
+                            <label for="cboCC" class="form-label">AC:</label>
+                            <select type="text" name="cboCC" id="cboCC" class="form-control select2"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Fecha Reporte:</label>
+                            <input class="form-control" id="tbFechaReporte" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Fecha de Falla:</label>
+                            <input class="form-control" id="tbFechaParo" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Horometro Falla:</label>
+                            <input class="form-control" id="tbHorometros" />
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label for="cboEconomico" class="form-label">CC:</label>
+                            <select type="text" name="cboEconomico" id="cboEconomico" class="form-control select2"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Descripción:</label>
+                            <input class="form-control" id="tbDescripcion" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Marca:</label>
+                            <input class="form-control" id="tbMarca" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Modelo:</label>
+                            <input class="form-control" id="tbModelo" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>No. Serie:</label>
+                            <input class="form-control" id="tbSerie" disabled />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#datosFalla">
+                        <i class="fas fa-user-edit"></i>
+                        Datos de Falla
+                    </a>
+                </h4>
+            </div>
+            <div id="datosFalla" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Descripción de la Falla:</label>
+                            <textarea class="form-control" id="tbDesFalla" title="Introducir descripcion falla" style="height:100px; width:97%;" placeholder="Escribe una descripción de falla"></textarea>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-sm-12 col-xs-12 form-group">
+                            <label>Falla en:</label>
+                            <select class="form-control" id="cboMotivoFalla">
+                                <option value="1">COMPONENTE</option>
+                                <option value="0">REFACCION</option>
+                            </select>
+                        </div>
+                        <div class=" col-lg-8" id="divTiposFallaComponentes" style="display:block">
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label>Conjunto Averiado:</label>
+                                <select class="form-control" id="cboConjuntoAveriado"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label>Subconjunto Averiado:</label>
+                                <select class="form-control" id="cboSubConjuntoAveriado" disabled></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label>Componente Averiado:</label>
+                                <select class="form-control" id="cboComponenteAveriado" disabled></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-8" id="divTiposRefacciones" style="display:none">
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                                <label>Tipo:</label>
+                                <select class="form-control" id="cboTipoRefacciones"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                                <label>Grupo:</label>
+                                <select class="form-control" id="cboGrupoRefacciones" disabled></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                                <label>Insumo:</label>
+                                <select class="form-control" id="cboRefacciones" disabled></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#datosCausa">
+                        <i class="fas fa-user-edit"></i>
+                        Datos Causa
+                    </a>
+                </h4>
+            </div>
+            <div id="datosCausa" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>Causa de la falla:</label>
+                            <textarea class="form-control" id="tbcausaFalla" title="Introducir causa" style="height:250px; width:97%;" placeholder="Escribe la causa de falla"></textarea>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>Diagnósticos aplicados en la determinación de la falla</label>
+                            <textarea class="form-control" id="tbDiagnosticosAplicados" cols="20" title="Introducir comentario" style="height:250px; width:97%;" placeholder="Escribe las reparaciones"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#datosReparacion">
+                        <i class="fas fa-user-edit"></i>
+                        Datos de Reparación
+                    </a>
+                </h4>
+            </div>
+            <div id="datosReparacion" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div id="blockAplica" class="col-lg-6 col-md-6 col-sm-6 col-xs-6 form-group margin-top pull-left">
+                            <input type="checkbox" name="fancy-checkbox-danger-custom-icons" id="ckAplica" autocomplete="off" />
+                            <div class="btn-group">
+                                <label for="ckAplica" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                    <span class="glyphicon glyphicon-remove"></span>
+
+                                </label>
+                                <label for="ckAplica" class="btn btn-default active">
+                                    Aplica Remoción de Componente
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <label>Tipo Reparación:</label>
+                            <textarea class="form-control" id="tbTipoReparacion" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe el tipo de reparación"></textarea>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="display:none" id="divReparacionesAnt">
+                            <label>Reparación (es) anterior (es) realizadas al conjunto: (archivo de bitacora)</label>
+                            <textarea class="form-control" id="tbReparacionDescripcion" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe las reparaciones anteriores"></textarea>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="display:block" id="divDiagComponente">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Reparación (es) anterior (es) realizadas al conjunto: (archivo de bitacora)</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                                    <label>Fecha de instalación:</label>
+                                    <input class="form-control" id="tbfechaInstalacionComponente" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                                    <label>Horas de uso:</label>
+                                    <input class="form-control" id="tbHorasComponente" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                                    <label># de parte:</label>
+                                    <input class="form-control" id="tbNumParteComponente" disabled />
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Revisión</legend>
+                                <div class="form-group" style="text-align: center">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <label>Destino del cargo:</label>
+                                        <select class="form-control" id="cboDestino"></select>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <label for="cboVistoBueno" class="form-label">Autoriza:</label>
+                                        <select type="text" name="cboVistoBueno" id="cboVistoBueno" class="form-control select2"></select>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#evidencia">
+                        <i class="fas fa-user-edit"></i>
+                        Evidencia
+                    </a>
+                </h4>
+            </div>
+            <div id="evidencia" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-10">
+                            <div class='input-group form-group'>
+                                <span class='input-group-addon'>Tipo Archivo</span>
+                                <select id='cboTipoArchivo' class='form-control'></select>
+                                <span class='input-group-btn'>
+                                    <button id="btnCargarImgEvidencia" class="btn btn-default"> <i class="fa fa-upload"></i> Seleccionar</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                            <input type="file" class="form-control btn btn-info pull-left" id="inCargarImgEvidencia">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id='tblEvidencia' class='table table-striped' width="100%">
+                                <thead class='bg-table-header'>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Eliminar</th>
+                                        <th>Visualización</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="divImagen" class="col-xs-12 col-sm-12 col-md-6 col-lg-8"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/i18n/es.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/ReporteFallaJS.js"></script>
+<script src='~/Scripts/select2.js'></script>

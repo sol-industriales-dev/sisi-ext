@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "RendimientoCombustible";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+}
+
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Captura/Diarias/RendimientoCombustibleJS.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="text-center">Reporte de Rendimiento de Combustibles </h2>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Filtros:</legend>
+
+                <div class="col-xs-12 col-md-12 col-lg-3">
+                    <label> CC</label>
+                    <select class="form-control" id="txtCCFiltro"></select>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="col-lg-6 no-padding">
+                        <label for="fechaIni">Fecha Inicio:</label>
+                        <input type="text" id="fechaIni" class="form-control" />
+                    </div>
+                    <div class="col-lg-6 no-padding-right">
+                        <label for="fechaFin">Fecha Fin:</label>
+                        <input type="text" id="fechaFin" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-4 form-group">
+                    <div class="col-lg-6">
+                        <button type="button" class="btn btn-info margin-top pull-right" id="btnAplicarFiltros">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                    </div>
+                    <div class="col-lg-6">
+                        <button class="btn btn-info margin-top pull-left" id="btnReporte">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            Imprimir
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divFilstroBusqueda">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados Búsqueda:</legend>
+                <div id="divGridContainer" class="divPadding">
+                    <table id="grid_RendimientoCombustible"
+                        class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Economico</th>
+                                <th data-column-id="Descripcion" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Descripción</th>
+                                <th data-column-id="Marca" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Marca</th>
+                                <th data-column-id="Modelo" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Modelo</th>
+                                <th data-column-id="HInicial" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Horometro Inicial</th>
+                                <th data-column-id="Hfinal" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%"><label>Horometro Final</label> </th>
+                                <th data-column-id="HTrabajadas" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Horas Trabajadas <br /></th>
+                                <th data-column-id="ConsumoLTS" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Consumo Combustible @(idEmpresa.getEmpresaID()
+                                    == 6 ?
+                                    "GAL" : "LTS")</th>
+                                <th data-column-id="RendimientoLTS" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Rendimiento @(idEmpresa.getEmpresaID() == 6 ?
+                                    "GAL/HRS" : "LTS/HRS")</th>
+                                <th data-column-id="bajo" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Bajo</th>
+                                <th data-column-id="medio" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Medio</th>
+                                <th data-column-id="alto" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Alto</th>
+                                <th data-column-id="Capacidad" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Capacidad del Tanque</th>
+                                <th data-column-id="Observaciones" data-align="center" data-header-align="center"
+                                    data-sortable="false" data-width="6%">Observaciones</th>
+
+                            </tr>
+                        </thead>
+
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

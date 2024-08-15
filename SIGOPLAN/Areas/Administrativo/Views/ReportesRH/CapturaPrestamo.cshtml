@@ -1,0 +1,384 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@* <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/default/easyui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" /> *@
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/RecursosHumanos/Prestamos/Generales.css" rel="stylesheet" />
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>CAPTURA</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>CC:</label>
+                            <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                            <button class="btn btn-info margin-top" id="btnBuscar"><i
+                                    class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblConstancias"
+                                class="table table-condensed table-hover table-striped text-center"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL PRESTAMO -->
+<div id="ModalPrestamo" class='modal fade' role='dialog' data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>NUEVO PRESTAMO</h4>
+            </div>
+            <div class="modal-body">
+                <div class="seccion">
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>CC:</label>
+                            <input class="form-control" id="inputCC" readonly>
+                            <input type="hidden" id="CC" />
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="">Puesto:</label>
+                            <input type="text" class="form-control" id="inputPuesto" readonly><input type="hidden"
+                                id="puesto" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label class="">Nombre Trabajador:</label>
+                            <input type="text" class="form-control" id="inputTrabajador" readonly><input type="hidden"
+                                id="inputClaveEmp" readonly>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="">Empresa:</label>
+                            <input type="text" class="form-control" id="inputEmpresa" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="">Nomina:</label>
+                            <input class="form-control" id="inputNomina" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Fecha de Ingreso:</label>
+                            <input class="form-control" id="inputFechaIngreso" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label> Tipo de Puesto:</label>
+                            <select class="form-control select2" id="tipoPuesto" disabled>
+                                <option value="">--Seleccione--</option>
+                                <option value="SINDICALIZADO">SINDICALIZADO</option>
+                                <option value="NO SINDICALIZADO">NO SINDICALIZADO</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Sueldo Base:</label>
+                            <input class="form-control" id="inputSueldoBase" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="">Complemento:</label>
+                            <input class="form-control" id="inputComplemento" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Bono:</label>
+                            <input class="form-control" id="inputBono" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Total Neto:</label>
+                            <input class="form-control" id="inputTotalN" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Total Mensual:</label>
+                            <input class="form-control" id="inputTotalM" readonly>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="">Otros Descuentos:</label>
+                            <input class="form-control , validar" id="inputOtrosDesc">
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Cantidad Maxima a prestar:</label>
+                            <input class="form-control , validar" id="inputCantMax" readonly>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Cantidad Solicitada:</label>
+                            <input class="form-control , validar" id="inputCantSoli" autocomplete="off" />
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label> Plazo de pago:</label>
+                            <select class="form-control select2" id="tipoPago" name="Plazo a pagar.." disabled>
+                                <option value="">--Seleccione--</option>
+                                <option value="12 Quincenas">12 Quincenas</option>
+                                <option value="24 Semanas">24 Semanas</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Cantidad a Descontar :</label>
+                            <input class="form-control , validar" id="inputCantDescontar" readonly>
+                        </div>
+                        <div class="col-lg-6">
+                            <label> Motivo del prestamo:</label>
+                            <select class="form-control select2" id="MotivoPres" name="Motivo de prestamo..">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">Salud</option>
+                                <option value="2">Defunción</option>
+                                <option value="3">Daños Vivienda</option>
+                                <option value="4">Apoyo economico escolar</option>
+                                <option value="5">Sindicato</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label> Solicitud de Prestamo de:</label>
+                            <select class="form-control select2" id="tipoSolicitud">
+                                <option value="">--Seleccione--</option>
+                                <option value="CHEQUE FAUSTINO RAYGOZA TIRADO">CHEQUE FAUSTINO RAYGOZA TIRADO</option>
+                                <option value="TRANSFERENCIA/CUENTA DE NOMINA">TRANSFERENCIA/CUENTA DE NOMINA </option>
+                                <option value="CHEQUE COLABORADOR">CHEQUE COLABORADOR</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6">
+                            <label>Tipo prestamo:</label>
+                            <select id="tipoPrestamo" class="form-control select2">
+                                <option value="">--Seleccione--</option>
+                                <option value="MayorIgualA10">MAYOR O IGUAL A $10,000.00</option>
+                                <option value="MenorA10">MENOR A $10,000.00</option>
+                            </select>
+                        </div>
+                        @* <div class="col-lg-3">
+                        <label> Tipo de Prestamo:</label>
+                        <select class="form-control select2" id="tipoPrestamo">
+                        <option value="">--Seleccione--</option>
+                        <option value="SINDICATO">SINDICATO</option>
+                        <option value="EMPRESA">EMPRESA</option>
+                        </select>
+                        </div> *@
+
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <button id='btnSubirEvidencia' type='button' class='btn btn-primary'><i
+                                    class='fa fa-upload'></i>&nbsp;Subir
+                                Evidencias</button>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-lg-12">
+                            <label class="">Justificacion del prestamo:</label>
+                            <textarea class="form-control" id="inputJustificacion" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" id="divAutorizantes">
+                        <div class="col-lg-4">
+                            <label class="">RESPONSABLE DEL CC:</label>
+                            <select class="form-control select2" id="idResponsableCC"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="">GERENTE/DIRECTOR DE CAPITAL HUMANO:</label>
+                            <select class="form-control select2" id="idCapitalHumano"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="">GERENTE DE AREA:</label>
+                            <select class="form-control select2" id="idGerenteOdirector"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="">DIRECTOR LINEA DE NEGOCIO:</label>
+                            <select class="form-control select2" id="idDirectorLineaN"></select>
+                        </div>
+                        <div class="col-lg-4" id="divDirectorGeneral">
+                            <label class="">DIRECTOR GENERAL:</label>
+                            <select class="form-control select2" id="idDirectorGeneral"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" id="btnPrestamo" class="btn btn-success"><i
+                        class="fas fa-save"></i>&nbsp;Solicitar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL PRESTAMO -->
+
+<!-- MODAL ARCHIVOS ADJUNTOS -->
+<div id='mdlArchivos' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>ARCHIVOS</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="pull-left">
+                        <input type="file" id="txtArchivoAdjunto">
+                    </div><br><br>
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tablaArchivosAdjuntos" class="table stripe compact nowrap" style="width:99%;">
+                            </table>
+                        </div><br><br>
+                    </div>
+                    <div class="pull-right">
+                        <button id="btnGuardarArchivoAdjunto" class="btn btn-primary"><i
+                                class="fas fa-save"></i>&nbsp;Guardar</button>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ARCHIVOS ADJUNTOS -->
+
+<!-- MODAL ARCHIVOS ADJUNTOS CAPTURA -->
+<div id='mdlArchivosCaptura' class='modal fade'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivos</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading" style="padding: 5px;">
+                                    <div class="panel-title" style="font-size: 11px;">
+                                        <center>INE/CUI</center>
+                                    </div>
+                                </div>
+                                <input type="file" id="txtArchivoAdjuntoIne">
+                                <label class="label labelNombre" id=""> Ningún
+                                    Archivo Seleccionado</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading" style="padding: 5px;">
+                                    <div class="panel-title" style="font-size: 11px;">
+                                        <center> Soporte de prestamo</center>
+                                    </div>
+                                </div>
+                                <input type="file" id="txtArchivoAdjuntoSoporte">
+                                <label class="label labelNombre" id=""> Ningún
+                                    Archivo Seleccionado</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading" style="padding: 5px;">
+                                    <div class="panel-title" style="font-size: 11px;">
+                                        <center>Pagare Firmado</center>
+                                    </div>
+                                </div>
+                                <input type="file" id="txtArchivoAdjuntoPagare">
+                                <label class="label labelNombre" id=""> Ningún
+                                    Archivo Seleccionado</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i>
+                    regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- END: MODAL ARCHIVOS ADJUNTOS -->
+
+@* @Html.Action("_visorGrid") *@
+@* @Html.Partial("reportViewerView", false) *@
+
+<!-- SCRIPTS -->
+@* <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script> *@
+<script src="~/Scripts/moment.min.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/ReportesRH/Prestamos.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<!-- END: SCRIPTS -->

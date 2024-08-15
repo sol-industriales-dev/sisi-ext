@@ -1,0 +1,319 @@
+﻿@{
+    ViewBag.Title = "Cotización";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var ud = new Data.DAO.Principal.Usuarios.UsuarioDAO();
+    var isSoloconsulta = ud.getViewAction(Core.DTO.vSesiones.sesionCurrentView, "SoloConsulta")?1:0;
+}
+
+<script type="text/javascript">
+    var _GEditar = @isSoloconsulta;
+</script>
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Acuerdo.css")" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="@Url.Content("~/Scripts/js/Administrativo/Cotizaciones/CapturaCotizacion.js")" type="text/javascript"></script>
+<!-- Content Header (Page header) -->
+
+<div class="row">
+    <h2 class="text-center">Tracking de Cotizaciones</h2>
+</div>
+<div class="col-md-12">
+    <div class="box box-primary">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title text-center" style="font-weight: bold;">
+                    FILTROS
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row form-group">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Folio</span>
+                            <input id="txtBFolio" type="text" class="form-control" placeholder="Folio" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <select id="cboBCC" type="text" class="form-control" placeholder="CC"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Cliente</span>
+                            <input id="txtBCliente" type="text" class="form-control" placeholder="Cliente" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Estatus</span>
+                            <select id="cboBEstatus" type="text" class="form-control" placeholder="Estatus">
+                                <option value="0">--Seleccionar--</option>
+                                <option value="1">En cotización</option>
+                                <option value="2">Entregada</option>
+                                <option value="3">Revisión</option>
+                                <option value="4">Ganado</option>
+                                <option value="5">Perdido</option>
+                                <option value="6">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Proyecto</span>
+                            <input id="txtBProyecto" type="text" class="form-control" placeholder="Proyecto" />
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="col-lg-6 no-padding">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio:</span>
+                                <input id="txtFechaI" type="text" class="form-control" placeholder="Proyecto" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6 no-padding-right">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Fin:</span>
+                                <input id="txtFechaF" type="text" class="form-control" placeholder="Proyecto" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <button id="btnBuscar" class="btn btn-default">Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <button id="btnAgregar" class="btn btn-primary" style="position:relative;float:left;top:-8px;">Nuevo</button>
+
+                <button id="btnImprimir" class="btn btn-default" style="position:relative;float:left;top:-8px;">Exportar</button>
+                <h3 class="panel-title text-center" style="font-weight: bold;">
+                    RESULTADOS
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tblData" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>Folio</th>
+                                    <th>CC</th>
+                                    <th>Cliente</th>
+                                    <th>Proyecto</th>
+                                    <th>Monto</th>
+                                    <th>Margen</th>
+                                    <th>Fecha Cotización</th>
+                                    <th>Fecha Fallo Probable</th>
+                                    <th>Contacto</th>
+                                    <th>Estatus</th>
+                                    <th>Tipo Moneda</th>
+                                    <th>Seguimiento</th>
+                                    <th>Actualizar</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="text-center">
+                            <h3><label>Cotización</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Folio</span>
+                                    <input id="txtFolio" type="text" class="form-control" placeholder="Folio" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">CC</span>
+                                    <select id="cboCC" type="text" class="form-control" placeholder="CC"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Cliente</span>
+                                    <input id="txtCliente" type="text" class="form-control" placeholder="Cliente" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Proyecto</span>
+                                    <input id="txtProyecto" type="text" class="form-control" placeholder="Proyecto" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Monto</span>
+                                    <input id="txtMonto" type="text" class="form-control" placeholder="Monto" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Estatus</span>
+                                    <select id="cboEstatus" type="text" class="form-control" placeholder="Estatus">
+                                        <option value="1">En cotización</option>
+                                        <option value="2">Enviada/Revisón</option>
+                                        <option value="3">Ganado</option>
+                                        <option value="4">Perdido</option>
+                                        <option value="5">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Margen(indirecto+utilidad)</span>
+                                    <input id="tbMargen" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Fecha Envió</span>
+                                    <input id="tbFechaStatus" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Tipo Moneda</span>
+                                    <select id="cboTipoMoneda" type="text" class="form-control" placeholder="Estatus">
+                                        <option value="1">Pesos</option>
+                                        <option value="2">USD</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">No. Revisión</span>
+                                    <input id="txtRevision" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Contacto</span>
+                                    <input id="tbContacto" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon fijo">Probable Fallo</span>
+                                    <input id="tbFechaProbableF" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="btnGuardarObj" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Guardar</a>
+                        <a data-dismiss="modal" id="btnCancelar" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialogEliminarObj" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    Eliminar
+                </h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class='row'>
+                    <div class='col-md-12'>
+                        <h3>¿Seguro que desea eliminar los registros seleccionados?</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnEliminarObj" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Confirmar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios">
+                                <!-- timeline time label -->
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-left:30px;">
+                    <div class="form-group">
+                        <input type="file" id="fupAdjunto" style="width:300px;">
+                    </div>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnAddComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,337 @@
+﻿
+@{
+    ViewBag.Title = "ActividadesCatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/ActividadesCatalogo.js"></script>
+
+<style>
+    #tblCuadrilla_wrapper thead > tr > th,
+    #tblArea_wrapper thead > tr > th,
+    #tblActividad_wrapper thead > tr > th,
+    #tblEquipo_wrapper thead > tr > th,
+    #tblUsuario_wrapper thead > tr > th {
+        background-color: #81bd72;
+        color: #fff;
+    }
+
+    #tblCuadrilla_wrapper .ui-widget-header,
+    #tblArea_wrapper .ui-widget-header,
+    #tblActividad_wrapper .ui-widget-header,
+    #tblEquipo_wrapper .ui-widget-header,
+    #tblUsuario_wrapper .ui-widget-header {
+        background-color: #81bd72;
+        color: #fff;
+    }
+
+    #tblCuadrilla_wrapper .ui-corner-tl,
+    #tblArea_wrapper .ui-corner-tl,
+    #tblActividad_wrapper .ui-corner-tl,
+    #tblEquipo_wrapper .ui-corner-tl,
+    #tblUsuario_wrapper .ui-corner-tl {
+        display: none;
+    }
+
+    #tblCuadrilla tbody > tr td,
+    #tblArea tbody > tr td,
+    #tblActividad tbody > tr td,
+    #tblEquipo tbody > tr td,
+    #tblUsuario tbody > tr td {
+        border-bottom: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
+
+    #dialogNuevaCuadrilla .input-group-addon,
+    #dialogEditarCuadrilla .input-group-addon,
+    #dialogNuevaArea .input-group-addon,
+    #dialogEditarArea .input-group-addon,
+    #dialogNuevaActividad .input-group-addon,
+    #dialogEditarActividad .input-group-addon,
+    #dialogNuevoEquipo .input-group-addon,
+    #dialogEditarEquipo .input-group-addon,
+    #dialogNuevoUsuario .input-group-addon,
+    #dialogEditarUsuario .input-group-addon {
+        background-color: #81bd72;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .ui-widget-header {
+        background: #81bd72;
+        border: 0;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    #tblPlanMaestro tbody tr td {
+        padding-top: 0px;
+        padding-bottom: 0px;
+        font-size: 12px;
+    }
+
+    #tblPlanMaestro tbody tr .cuadrillaText,
+    #tblPlanMaestro tbody tr .periodoText,
+    #tblPlanMaestro tbody tr .areaText {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <h2 class="text-center">Catálogo Actividades</h2>
+    </div>
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divPlanAct">
+            <fieldset id="fieldPlanAct" class="fieldset-custm">
+                <div class="container-fluid">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a id="tabTitle1" data-toggle="tab" href="#tabActividad">Actividades</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade in active" id="tabActividad">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                <fieldset id="fieldBusquedaActividad" class="fieldset-custm" style="border-radius: 0px !important;">
+                                    <legend class="legend-custm">Filtros:</legend>
+                                    <div class="input-group col-md-12">
+                                        <div class="col-lg-2">
+                                            <label>Cuadrilla:</label>
+                                            <select class="form-control" id="txtActividadCuadrilla" type="text"></select>
+                                        </div>
+                                        <div class="col-lg-2" style="padding-left: 0px;">
+                                            <label>Periodo:</label>
+                                            <select class="form-control" id="txtActividadPeriodo" type="text">
+                                                <option value="">--Seleccione--</option>
+                                                <option value="1">MENSUAL</option>
+                                                <option value="2">BIMESTRAL</option>
+                                                <option value="3">TRIMESTRAL</option>
+                                                <option value="4">SEMESTRAL</option>
+                                                <option value="5">ANUAL</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-2" style="padding-left: 0px;">
+                                            <label>Area:</label>
+                                            <input class="form-control" id="txtActividadArea" type="text">
+                                        </div>
+                                        <div class="col-lg-4" style="padding-left: 0px;">
+                                            <label>Actividad:</label>
+                                            <input class="form-control" id="txtActividad" type="text">
+                                        </div>
+                                        <div class="col-lg-2" id="containerbtnBuscarActividad" style="padding-left: 0px;">
+                                            <button type="button" class="btn btn-primary" id="btnBuscar_Actividad" style="margin-top: 24px; margin-right: 5px;">
+                                                <span class="glyphicon glyphicon-search"></span> Buscar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                        <legend class="legend-custm"></legend>
+                                        <button id="btnNuevaActividad" class="btn btn-primary" style="margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-plus"></span> Nueva Actividad</button>
+                                        <table id="tblActividad"></table>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogNuevaActividad" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Nueva Actividad</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Actividad:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtActividadDesc" class="form-control" style="height:50px;" placeholder="Actividad"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Descripción:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtActividadDescripcion" class="form-control" style="height:50px;" placeholder="Descripción"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectActividadCuadrilla" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Area:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectActividadArea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Periodo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectActividadPeriodo" class="form-control">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">MENSUAL</option>
+                                <option value="2">BIMESTRAL</option>
+                                <option value="3">TRIMESTRAL</option>
+                                <option value="4">SEMESTRAL</option>
+                                <option value="5">ANUAL</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btnGuardarActividad" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogEditarActividad" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label> Editar Actividad</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Actividad:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtEditActividadDesc" class="form-control" style="height:50px;" placeholder="Actividad"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Descripción:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtEditActividadDescripcion" class="form-control" style="height:50px;" placeholder="Descripción"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuadrilla:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEditActividadCuadrilla" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Area:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEditActividadArea" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Periodo:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectEditActividadPeriodo" class="form-control">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">MENSUAL</option>
+                                <option value="2">BIMESTRAL</option>
+                                <option value="3">TRIMESTRAL</option>
+                                <option value="4">SEMESTRAL</option>
+                                <option value="5">ANUAL</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="btnEditarActividad" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogBajaActividad" title="Eliminar Actividad" style="display: none;">
+        <text id="txtElimActividad">¿Está seguro que desea eliminar esta actividad?</text>
+    </div>
+</div>

@@ -1,0 +1,999 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- OCULTO -->
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+<!-- END: OCULTO -->
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/style/css/BackLogs/OBRA/General.css" rel="stylesheet" />
+<link href="~/Content/style/css/BackLogs/OBRA/RegistroBackLogsObra.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">REGISTRO DE BACKLOGS</h2>
+</fieldset>
+<!-- END: TITULO MODULO -->
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <!-- LISTADO DE PROYECTOS -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+        <div class="row">
+            <div class='col-lg-5'>
+                <label for='cboProyecto'>Área cuenta</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select class="form-control" id="cboProyecto"></select>
+                </div>
+            </div>
+            <div class='col-lg-2'>
+                <label for='cboAnio'>Año</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select id='cboAnio' class='form-control select2'>
+                        <option value="">--Seleccione--</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2" style="margin-top: 24px;">
+                <button type='button' class='btn btn-primary' id='btnFiltroBuscarBL'><i class='fas fa-search'></i>&nbsp;Buscar</button>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END: LISTADO DE PROYECTOS -->
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioObra">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Inspección
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnRegistroBackLogs">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Registro de BackLogs
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informe de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnReporteIndicadores">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Inspección (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Elaboración de Requisición (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Programación de BackLogs (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        Backlogs Instalado (100%)
+                    </button>
+                    <!-- END: ESTATUS -->
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <!-- END: MENU Y LISTADO DE ESTATUS -->
+
+    <!-- FORMULARIO REGISTRO DE BACKLOGS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><span class="badge">&nbsp;<label id="lblCantBL"></label>&nbsp;</span></legend>
+
+            <div class="row"><br>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3">
+                    <label for="cboCC">CC:</label>
+                    <select id="cboCC" class="form-control"></select>
+                </div>
+                <div class="col-lg-3">
+                    <label for="txtModelo">Modelo:</label>
+                    <input type="text" id="txtModelo" class="form-control">
+                </div>
+                <div class="col-lg-4">
+                    <label for="txtGrupo">Grupo:</label>
+                    <input type="text" id="txtGrupo" class="form-control">
+                </div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-2">
+                    <label for="txtFecha">Fecha:</label>
+                    <input type="text" id="txtFecha" class="form-control">
+                </div>
+                <div class="col-lg-2">
+                    <label for="txtHoras">Horas:</label>
+                    <input type="text" id="txtHoras" class="form-control">
+                </div>
+                <div class="col-lg-2">
+                    <label for="txtFolio">Folio:</label>
+                    <input type="text" id="txtFolio" class="form-control">
+                </div>
+                <div class="col-lg-4">
+                    <label for="txtFolio">Responsable:</label>
+                    <select id="cboUsuarioResponsable" class="form-control"></select>
+                </div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">
+                    <label for="txtDescripcion">Descripción:</label>
+                    <textarea type="text" id="txtDescripcion" class="form-control"></textarea>
+                </div>
+            </div><br>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">
+                    <legend class='legend-custm'>Recursos:</legend>
+                    <div class="col-lg-4">
+                        <label for="cboConjunto">Conjunto:</label><br>
+                        <select id="cboConjunto" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-1"><br>
+                        <button class="btn btn-primary" id="btnConjuntosCatConjuntos" title="Listado de conjuntos.">
+                            <i class="fas fa-plus"></i>&nbsp;Conjunto
+                        </button>
+                    </div>
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-4">
+                        <label for="cboSubconjunto">Subconjunto:</label><br>
+                        <select id="cboSubconjunto" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-1"><br>
+                        <button class="btn btn-primary" id="btnSubconjuntosCatSubconjuntos" title="Listado de subconjuntos.">
+                            <i class="fas fa-plus"></i>&nbsp;Subconjunto
+                        </button>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="row">
+                <!-- TABLA AGREGAR PARTE -->
+                <div class="col-lg-6">
+                    <fieldset class='fieldset-custm'>
+                        <legend class='legend-custm'>
+                            &nbsp;<input id="chkParte" type="checkbox" />&nbsp;Partes&nbsp;
+                        </legend>
+                        <div class="col-lg-12">
+                            <button type="button" id="btnModalAbrirParte" class="btn btn-primary form-control">
+                                <i class="fa fa-plus"></i>&nbsp;Agregar parte</button><br><br>
+                            <table id="tblBL_Partes" class="table table-hover table-fixed table-bordered compact table-responsive responsiveDT">
+                                <thead class="bg-table-header"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: TABLA AGREGAR PARTE -->
+
+                <!-- TABLA MANO DE OBRA -->
+                <div class="col-lg-6">
+                    <fieldset class='fieldset-custm'>
+                        <legend class='legend-custm'>
+                            &nbsp;<input id="chkMO" type="checkbox" />&nbsp;Manos de obra&nbsp;
+                        </legend>
+                        <div class="col-lg-12">
+                            <button type="button" id="btnModalAbrirManoObra" class="btn btn-primary form-control"><i class="fa fa-plus"></i>&nbsp;Agregar M.O</button><br /><br />
+                            <table id="tblBL_ManoObra" class="table table-hover table-fixed table-bordered compact table-responsive responsiveDT">
+                                <thead class="bg-table-header"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: TABLA MANO DE OBRA -->
+            </div><br>
+
+            <div class="row">
+                <div class="col-lg-9"></div>
+                <div class="col-lg-3 text-right">
+                    <button id="btnCrearEditarBackLog" class="btn btn-success" title="Registrar BackLog.">Guardar</button>
+                    <button id="btnLimpiarFormCrearEditarBackLog" class="btn btn-danger" title="Cancelar registro del BackLog."><i class="fas fa-ban"></i>&nbsp;Cancelar</button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: FORMULARIO REGISTRO DE BACKLOGS -->
+
+    <!-- TABLA BACKLOGS -->
+    <div class="col-lg-12 col-md-12 col-sm-12" style="margin-top:20px;">
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'><span class="badge">BackLogs</span></legend>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table id="tblBL_CatBackLogs" class="hover stripe order-column compact"></table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: TABLA BACKLOGS -->
+</fieldset>
+<!-- END: BODY -->
+
+<!-- MODAL CREAR PARTE -->
+<div class="modal fade disenioModal" id="modalCrearParte" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class="modal-title text-center">Crear Parte</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label for="txtInsumo">Insumo: </label>
+                            <input type="number" min="1" id="txtInsumo" class="form-control" />
+                        </div>
+                        <div class="col-lg-3">
+                            <label for="txtCantidad">Cantidad: </label>
+                            <input type="number" min="1" id="txtCantidad" class="form-control" />
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="txtParte">Parte: </label>
+                            <input type="text" id="txtParte" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <label for="txtArticulo">Artículo: </label>
+                            <input type="text" id="txtArticulo" class="form-control" />
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="txtUnidad">Unidad: </label>
+                            <input type="text" id="txtUnidad" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCatInsumos" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Insumos</button>
+                <button type="button" id="btnCrearEditarParte" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" id="btnCrearEditarCancelarParte" class="btn btn-default"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR PARTE -->
+
+<!-- MODAL AGREGAR MANO DE OBRA -->
+<div class="modal fade disenioModal" id="modalCrearManoObra" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 50%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class="modal-title text-center">Crear Mano de Obra</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <label for="txtDescripcionManoObra">Descripción: </label>
+                    <textarea id="txtDescripcionManoObra" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCrearEditarManoObra" class="btn btn-primary"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" id="btnCrearEditarCancelarManoObra" class="btn btn-default"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL AGREGAR MANO DE OBRA -->
+
+<!-- MODAL ELIMINAR PARTE -->
+<div class="modal fade disenioModal" id="modalEliminarParte" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class="modal-title text-center">Eliminar parte</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <h4>¿Desea eliminar el insumo <b><span id="lblEliminarParte"></span></b>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnEliminarParte" class="btn btn-danger"><i class="far fa-trash-alt"></i>&nbsp;Eliminar</button>
+                <button type="button" id="btnEliminarCancelarParte" class="btn btn-default"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ELIMINAR PARTE -->
+
+<!-- MODAL ELIMINAR MANO OBRA -->
+<div class="modal fade disenioModal" id="modalEliminarManoObra" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class="modal-title text-center">Eliminar mano de obra</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <h4>¿Desea eliminar la mano de obra <b><span id="lblEliminarManoObra"></span></b>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnEliminarManoObra" class="btn btn-danger"><i class="far fa-trash-alt"></i>&nbsp;Eliminar</button>
+                <button type="button" id="btnEliminarCancelarManoObra" class="btn btn-default"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ELIMINAR MANO OBRA -->
+
+<!-- MODAL ELIMINAR BACKLOG -->
+<div class="modal fade" id="modalEliminarBackLog" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class="modal-title text-center">Eliminar BackLog</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <h4>¿Desea eliminar el BackLog con folio: <span id="lblEliminarBackLog"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnEliminarBackLog" class="btn btn-danger"><i class="far fa-trash-alt"></i>&nbsp;Eliminar</button>
+                <button type="button" id="btnEliminarCancelarBackLog" class="btn btn-default"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR CONJUNTO -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarConjuntoCatConjuntos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Conjuntos</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="form-inline">
+                        <button class="btn btn-primary form-control" id="btnNuevoConjuntoCatConjuntos" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="false" aria-controls="divCrearEditarConjuntoCatConjuntos">
+                            <i class="fas fa-plus"></i>&nbsp;Conjunto
+                        </button>
+                        <button class="btn" id="btnCollapseConjuntosCatConjuntos" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="false" aria-controls="divCrearEditarConjuntoCatConjuntos" style="display:none;"></button>
+                    </div>
+                    <div id="divCrearEditarConjuntoCatConjuntos" class="collapse">
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label>Conjunto: </label>&nbsp;
+                                <input id="txtConjuntoCatConjuntos" placeholder="Ingresar nombre del conjunto." class="form-control" />
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Abreviación: </label>&nbsp;
+                                <input id="txtAbreviacionoCatConjuntos" placeholder="Ingresar nombre de la abreviación." class="form-control" />
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 text-right">
+                                    <button class="btn btn-default margin-top" id="btnCrearEditarCancelarConjunto" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="true" aria-controls="divCrearEditarConjuntoCatConjuntos">
+                                        <i class="fas fa-undo"></i>&nbsp;Cancelar
+                                    </button>
+                                    <button class="btn btn-success margin-top" id="btnCrearEditarConjuntoCatConjuntos"><i class="fas fa-check"></i>&nbsp;Guardar</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblConjuntosCatConjuntos" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CONJUNTO -->
+
+<!-- MODAL CREAR/EDITAR SUBCONJUNTO -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarSubconjuntoCatSubconjuntos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Subconjuntos</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="form-inline">
+                        <button class="btn btn-primary form-control" id="btnNuevoSubconjuntoCatSubconjuntos" data-toggle="collapse" data-target="#divCrearEditarSubconjuntoCatSubconjuntos" aria-expanded="false" aria-controls="divCrearEditarSubconjuntoCatSubconjuntos">
+                            <i class="fas fa-plus"></i>&nbsp;Subconjunto
+                        </button>
+                        <button class="btn" id="btnCollapseSubconjuntosCatSubconjuntos" data-toggle="collapse" data-target="#divCrearEditarSubconjuntoCatSubconjuntos" aria-expanded="false" aria-controls="divCrearEditarSubconjuntoCatSubconjuntos" style="display:none;"></button>
+                    </div>
+                    <div id="divCrearEditarSubconjuntoCatSubconjuntos" class="collapse">
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label for="cboConjuntoCatSubconjuntos">Conjunto: </label><br>
+                                <select id="cboConjuntoCatSubconjuntos" class="form-control"></select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Subconjunto: </label>&nbsp;
+                                <input id="txtSubconjuntoCatSubconjuntos" placeholder="Ingresar nombre del subconjunto." class="form-control" />
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Abreviación: </label>&nbsp;
+                                <input id="txtAbreviacionCatSubconjuntos" placeholder="Ingresar nombre de la abreviación." class="form-control" />
+                            </div>
+                            <div class="col-sm-12 text-right">
+                                <button class="btn btn-default margin-top" id="btnCrearEditarCancelarSubconjuntoCatSubconjuntos" data-toggle="collapse" data-target="#divCrearEditarSubconjuntoCatSubconjuntos" aria-expanded="true" aria-controls="divCrearEditarSubconjuntoCatSubconjuntos">
+                                    <i class="fas fa-undo"></i>&nbsp;Cancelar
+                                </button>
+                                <button class="btn btn-success margin-top" id="btnCrearEditarSubconjuntoCatSubconjuntos"><i class="fas fa-check"></i>&nbsp;Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblSubconjuntosCatSubconjuntos" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR SUBCONJUNTO -->
+
+<!-- MODAL CREAR/EDITAR NUMERO DE OC -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarNumOC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-center">Número OC</h3>
+            </div>
+
+            <div class="modal-body">
+                <div style="display: none;">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <button class="btn btn-primary form-control" id="btnVerificarOrdenesCompra"><i class="fas fa-search"></i>&nbsp;Ordenes de compra</button>
+                        </div>
+                    </div><br />
+                </div>
+
+                <div class="row seccion">
+                    <div class="pull-right" style="margin-right: 16px;">
+                        <button id="btnOCSurtidas" class="btn btn-primary"><i class="fas fa-tasks"></i>&nbsp;OC Surtidas</button>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_OrdenesCompra" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    @* <button type="button" id="btnCrearEditarOC" class="btn btn-success margin-top" hidden="hidden"><i class="fas fa-check"></i>&nbsp;Guardar</button> *@
+                    <button type="button" class="btn btn-default margin-top" data-dismiss="modal"><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR NUMERO DE OC -->
+
+<!-- MODAL LISTADO DE OC SURTIDAS -->
+<div class="modal fade-in disenioModal" id="mdlListadoOCSurtidas">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">OC Surtidas</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblListadoOCSurtidas" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-default margin-top" data-dismiss="modal"><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR NUMERO DE OC -->
+
+<!-- MODAL CREAR/EDITAR NUMERO DE REQUISICION -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarNumRequisicion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Requisiciones</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row seccion">
+                    <div class="col-lg-2">
+                        <button class="btn btn-primary form-control" id="btnCrearRequisicion"><i class="fas fa-plus"></i>&nbsp;Requisición</button>
+                    </div>
+                    <div class="col-lg-3">
+                        <button class="btn btn-primary form-control" id="btnAbrirModalRequisicionManual"><i class="fas fa-plus"></i>&nbsp;Requisición manual</button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-primary form-control" id="btnAbrirModalTraspaso"><i class="fas fa-exchange-alt"></i>&nbsp;Traspaso</button>
+                    </div>
+                    <div class="pull-right">
+                        <button class="btn btn-danger" id="btnCancelarRequisicion"><i class="far fa-window-close"></i>&nbsp;No se requiere requisición</button>
+                        <button class="btn btn-primary" id="btnMotivoCancelacion" style="margin-right: 17px;"><i class="fas fa-comment-dots"></i></button>
+                    </div>
+                </div><br />
+
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_Requisiciones" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+                <button id="btnCrearEditarNumRequisicion" hidden="hidden"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR NUMERO DE REQUISICION -->
+
+<!-- MODAL LISTADO FOLIO TRASPASO -->
+<div id='mdlCETraspaso' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title text-center'>Traspasos</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="pull-right">
+                        <button type="button" id="btnShowMdlCEFolioTraspaso" class="btn btn-success"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                    </div>
+                </div><br>
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <table id="tblBL_FoliosTraspasos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO FOLIO TRASPASO -->
+
+<!-- MODAL CREAR/EDITAR TRASPASO -->
+<div id='mdlCETraspasoFolio' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title text-center'><span id="lblTitleCETraspasoFolio"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row seccion'>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Almacen</span>
+                            <input type="text" id="txtCETraspasoFolioAlmacen" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="text" id="txtCETraspasoFolioAlmacenDescripcion" class="form-control" disabled style="margin-left: -30px;">
+                    </div>
+                </div>
+
+                <div class='row'>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Almacen destino</span>
+                            <input type="text" id="txtCETraspasoFolioAlmacenDestino" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="text" id="txtCETraspasoFolioAlmacenDescripcionDestino" class="form-control" disabled style="margin-left: -30px;">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">A.C</span>
+                            <input type="text" id="txtCETraspasoFolioCC" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">A.C destino</span>
+                            <input type="text" id="txtCETraspasoFolioCCDestino" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Folio traspaso</span>
+                            <input type="text" id="txtCETraspasoFolio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="display: none;">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Número</span>
+                            <input type="text" id="txtCETraspasoFolioNumero" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCETraspasoFolio"><i class="fas fa-save"></i>&nbsp;<span id="lblBtnCETraspasoFolio"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR TRASPASO -->
+
+<!-- MODAL CREAR/EDITAR NUMERO DE REQUISICION MANUALMENTE -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarNumRequisicionManual">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center"><span id="lblTitleCrearEditarNumRequisicionManual"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <label for="txtCrearEditarNumRequisicionManual">Requisición: </label>
+                        <input type="text" class="form-control" id="txtCrearEditarNumRequisicionManual">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnCrearEditarNumRequisicionManual">&nbsp;<span id="lblBtnCrearEditarNumRequisicionManual"></span></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR NUMERO DE REQUISICION MANUALMENTE -->
+
+<!-- MODAL CATALOGO INSUMOS -->
+<div class="modal fade-in disenioModal" id="mdlCatalogoInsumos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Catálogo de insumos</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-sm-4">
+                        <label for="txtFiltroInsumo">Insumo: </label><br>
+                        <input id="txtFiltroInsumo" placeholder="Ingresar insumos para filtrar resultados." class="form-control" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtFiltroDescripcion">Descripción: </label>&nbsp;
+                        <input id="txtFiltroDescripcion" placeholder="Ingresar descripción para filtrar resultados." class="form-control" />
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <button id="btnFiltroBuscar" class="btn btn-primary margin-top"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div><br>
+
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblCatInsumos" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CATALOGO INSUMOS -->
+
+<!-- MODAL REQUISICIONES EN BASE AL CC -->
+<div class="modal fade-in disenioModal" id="mdlLstReqCC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Requisiciones - CC</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstReqCC" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL REQUISICIONES EN BASE AL CC -->
+
+<!-- MODAL DETALLE REQUISICIONES EN BASE AL CC -->
+<div class="modal fade-in disenioModal" id="mdlLstDetReqCC">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Detalle de la requisición</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstDetReqCC" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE REQUISICIONES EN BASE AL CC -->
+
+<!-- MODAL ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+<div class="modal fade-in disenioModal" id="mdlLstOcReq">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">OC - Requisición</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstOcReq" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+
+<!-- MODAL DETALLE ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+<div class="modal fade-in disenioModal" id="mdlLstDetOcReq">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Detalle de la orden de compra</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblLstDetOcReq" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE ORDENES DE COMPRA EN BASE A LA REQUISICIÓN -->
+
+<!-- MODAL EVIDENCIAS -->
+<div class="modal fade-in disenioModal" id="mdlEvidencias">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Evidencias</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-1"></div>
+                    <div clas="col-lg-8">
+                        <div class="col-lg-4">
+                            <label class="inputs pointer" for='inputExamen'>
+                                <img src="https://byspel.com/wp-content/uploads/2017/01/upload-cloud.png" style="width:25%" />
+                            </label>
+
+                            <input id='inputExamen' type="file" style="display:none;" />
+                            <label id="lblTexto1" style="margin-left: -45px;">Ningún archivo seleccionado</label>
+                        </div>
+                        <input id='rowDataId' style="display:none;" />
+                    </div>
+                    <div class="col-lg-4" id="divCboMdlEvidenciasTipoEvidencias">
+                        <label for="cboMdlEvidenciasTipoEvidencia">Seleccionar tipo de evidencia:</label>
+                        <select id="cboMdlEvidenciasTipoEvidencia" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="3">Evidencia para OT vacía</option>
+                            <option value="1">Evidencia para OT</option>
+                            <option value="2">Evidencia de seguridad</option>
+                            <option value="4">Evidencia para liberar</option>
+                            <option value="5">Evidencia para Orden de BL</option>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblEvidencias" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" id="btnGuardarEvidencia"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL EVIDENCIAS -->
+
+<!-- MODAL MOTIVO CANCELACION REQUISICION -->
+<div class="modal fade-in disenioModal" id="mdlMotivosCancelacionReq">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-center">Motivos cancelación</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_MotivoCancelacionReq" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL MOTIVO CANCELACION REQUISICION -->
+
+<!-- MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+<div id='mdlDescripcionBL' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>Descripción del BL</h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row seccion'>
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcionBL" onkeypress="return false;" cols="30" rows="10" data-width="100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+
+@Html.Partial("reportViewerView", false)
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/BackLogs/BackLogsRegistroObra.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>

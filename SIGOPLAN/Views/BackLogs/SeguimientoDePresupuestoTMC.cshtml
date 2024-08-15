@@ -1,0 +1,357 @@
+﻿@{
+    ViewBag.Title = "Seguimiento de presupuesto TMC";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/SeguimientoDePresupuestoTMC.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/General.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">SEGUIMIENTO DE PRESUPUESTOS</h2>
+</fieldset>
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <!-- LISTADO DE PROYECTOS -->
+    <div class="row form-group" style="display: none">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-lg-3">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">PROYECTO<span id="lblErrorProyecto"></span></legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <select class="form-control" id="cboProyecto"></select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioTMC">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnPresupuestoRehabilitacion">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Presupuesto de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnSeguimientoPresupuestos">
+                        <i class="fas fa-file-invoice-dollar icono-menu"></i>&nbsp;Seguimiento a Presupuestos
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnFrenteBackLogs">
+                        <i class="fas fa-briefcase icono-menu"></i>&nbsp;Frentes de Trabajo
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informes de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnIndicadoresRehabilitacionTMC">
+                        <i class="fa fa-file-pdf icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Presupuesto (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Autorización de Presupuesto (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Rehabilitación Programada (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        BackLogs Instalados (100%)
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- encabezado-->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class="fieldset-custm">
+            <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+            <div class="row">
+                <br />
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Motivo</span>
+                        <select id="cboMotivo" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="0">Obra</option>
+                            <option value="1">Venta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">Estatus ppto</span>
+                        <select id="cboFiltroEstatusPpto" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="2" selected>Pendiente</option>
+                            <option value="1">Autorizado</option>
+                            <option value="0">Rechazado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-5"><br>
+                    <button id="btnBuscar" class="btn btn-primary"><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                </div><br>
+            </div>
+        </fieldset><br>
+
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'><span class="badge">Seguimientos</span></legend>
+            <!-- TABLA SEGUIMIENTOS -->
+                @* <div class="row">
+                    <div class="col-lg-12 no-padding"> *@
+            <div class="table-responsive text-align-center">
+                <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-top:40px;margin-bottom:30px;">
+                    <table id="tblSeguimientos" class="table-bordered compact hover text-center no-margin"></table>
+                </div>
+            </div>
+                @* </div>
+                    </div> *@
+            <!-- END: TABLA SEGUIMIENTOS -->
+
+            <!-- INDICADORES -->
+                @* <div class="table-responsive">
+                    <table>
+                    <tr>
+                    <td>
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                    </td>
+                    <td>Autorizado</td>
+                    </tr>
+                    <tr>
+                    <td>
+                    <i class="fa fa-exclamation" aria-hidden="true"></i>
+                    </td>
+                    <td>En espera</td>
+                    </tr>
+                    <tr>
+                    <td>
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                    </td>
+                    <td>Rechazado</td>
+                    </tr>
+                    </table>
+                    </div> *@
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="">Indicadores: </label>
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-success btn-xs"><i class="fa fa-check"></i></button>&nbsp;AUTORIZADO
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-warning btn-xs"><i class="fas fa-exclamation-circle"></i></button>&nbsp;EN ESPERA
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button>&nbsp;RECHAZADO
+                </div>
+            </div>
+            <!-- END: INDICADORES -->
+    </div>
+</fieldset>
+<br>
+
+<!-- MODAL LISTADO DE BACKLOGS -->
+<div class="modal fade-in disenioModal" id="mdlListadoBL">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">BackLogs</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_CatBackLogs" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btnMdlCerrarBL" type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE BACKLOGS -->
+
+<!-- MODAL LISTADO DE INSUMOS DEL BACKLOG -->
+<div class="modal fade-in disenioModal" id="mdlListadoInsumosBL">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Insumos - BackLogs</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_Partes" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE INSUMOS DEL BACKLOG -->
+
+<!-- MODAL ACTUALIZAR INSUMO -->
+<div class="modal fade disenioModal" id="mdlActualizarInsumo" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Crear Parte</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <label for="txtInsumo">Insumo: </label>
+                        <input type="number" min="1" id="txtInsumo" class="form-control" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="txtCantidad">Cantidad: </label>
+                        <input type="number" min="1" id="txtCantidad" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtParte">Parte: </label>
+                        <input type="text" id="txtParte" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label for="txtArticulo">Artículo: </label>
+                        <input type="text" id="txtArticulo" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2">
+                        <label for="txtUnidad">Unidad: </label>
+                        <input type="text" id="txtUnidad" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtCostoPromedio">Costo promedio: </label>
+                        <input type="text" id="txtCostoPromedio" class="form-control">
+                    </div>
+                    <div class="col-lg-3"><br>
+                        <button class="btn btn-primary" id="btnCostoPromedio"><i class="fas fa-calculator"></i>&nbsp;Costo promedio</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCatInsumos" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Insumos</button>
+                <button type="button" id="btnActualizarInsumo" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTUALIZAR INSUMO -->
+
+<!-- MODAL CATALOGO INSUMOS -->
+<div class="modal fade-in disenioModal" id="mdlCatalogoInsumos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Catálogo de insumos</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="txtFiltroInsumo">Insumo: </label><br>
+                        <input id="txtFiltroInsumo" placeholder="Ingresar insumos para filtrar resultados." class="form-control" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtFiltroDescripcion">Descripción: </label>&nbsp;
+                        <input id="txtFiltroDescripcion" placeholder="Ingresar descripción para filtrar resultados." class="form-control" />
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <button id="btnFiltroBuscar" class="btn btn-primary margin-top"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblCatInsumos" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CATALOGO INSUMOS -->
+
+<!-- MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+<div id='mdlDescripcionBL' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Descripción del BL</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcionBL" onkeypress="return false;" cols="30" rows="10" data-width="100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/export-data.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/exporting.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/SeguimientoDePresupuestoTMC.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>

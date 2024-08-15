@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "AtencionMedica";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/SaludOcupacional/SaludOcupacional.css" rel="stylesheet" />
+
+<div class="row text-center margin-top">
+    <h2>Atención Médica</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-sm-2">
+            <label>Clave Empleado:</label>
+            <input id="inputClaveEmpleadoFiltro" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 20px;">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm"></legend>
+    <div class="row mrgTop">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary pull-right" id="botonAgregar" style="margin-top: 5px;"><i class="fas fa-plus"></i> Agregar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaAtencionesMedicas" class="table compact" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalCaptura">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Atención Médica</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>Clave Empleado:</label>
+                        <input id="inputClaveEmpleadoAgregar" class="form-control">
+                    </div>
+                    <div class="col-sm-7" style="padding-left: 0px;">
+                        <input id="inputNombreEmpleado" class="form-control" disabled style="margin-top: 20px;">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Fecha Ingreso:</label>
+                        <input id="inputFechaIngreso" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Puesto:</label>
+                        <input id="inputPuesto" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-1">
+                        <label>Edad:</label>
+                        <input id="inputEdad" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Supervisor de Área:</label>
+                        <input id="inputSupervisor" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Área de Trabajo:</label>
+                        <input id="inputArea" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Tipo:</label>
+                        <select id="selectTipoAtencionMedicaAgregar" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="1">ENFERMEDAD</option>
+                            <option value="2">RIESGO TRABAJO</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Archivo ST7:</label>
+                        <div id="divCargarArchivoST7">
+                            <label id="botonArchivoST7" for="inputArchivoST7" class="custom-file-upload"><i class="fa fa-file-upload"></i></label>
+                            <label id="labelArchivoST7" class="labelArchivo"></label>
+                            <input id="inputArchivoST7" type="file" class="inputArchivo" accept="application/pdf, image/*" tipo-archivo="ST7">
+                        </div>
+                        <div id="divDescargarArchivoST7" style="display: none;">
+                            <button id="botonDescargarArchivoST7" class="btn btn-default" tipoArchivo="ST7"><i class="fa fa-download"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Archivo ST2:</label>
+                        <div id="divCargarArchivoST2">
+                            <label id="botonArchivoST2" for="inputArchivoST2" class="custom-file-upload"><i class="fa fa-file-upload"></i></label>
+                            <label id="labelArchivoST2" class="labelArchivo"></label>
+                            <input id="inputArchivoST2" type="file" class="inputArchivo" accept="application/pdf, image/*" tipo-archivo="ST2">
+                        </div>
+                        <div id="divDescargarArchivoST2" style="display: none;">
+                            <button id="botonDescargarArchivoST2" class="btn btn-default" tipoArchivo="ST2"><i class="fa fa-download"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label>Revisiones:</label>
+                        <table id="tablaRevisiones" class="table table-hover compact" width="100%"></table>
+                    </div>
+                </div>
+                <br>
+                <div id="rowNuevaRevision" class="row">
+                    <div class="col-sm-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Nueva Revisión:</legend>
+                            <div class="col-sm-12">
+                                <label>Diagnóstico:</label>
+                                <textarea id="textAreaDiagnostico" rows="3" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-12">
+                                <label>Tratamiento:</label>
+                                <textarea id="textAreaTratamiento" rows="3" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-12">
+                                <label>Comentarios:</label>
+                                <textarea id="textAreaComentarios" rows="3" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-3" style="margin-top: 5px;">
+                                <input type="checkbox" id="checkboxIncapacidad" class="regular-checkbox">
+                                <label for="checkboxIncapacidad"></label>
+                                <label style="font-size: 12px;">Aplica Incapacidad</label>
+                            </div>
+                            <div class="col-sm-9" style="margin-top: 5px;">
+                                <input type="checkbox" id="checkboxTerminacion" class="regular-checkbox">
+                                <label for="checkboxTerminacion"></label>
+                                <label style="font-size: 12px;">Aplica Revisión Posterior</label>
+                            </div>
+                            <div class="col-sm-3" style="margin-top: 5px;">
+                                <label>Días para la siguiente Revisión:</label>
+                                <input id="inputDiasSiguienteRevision" class="form-control" type="number">
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <br>
+                <div id="rowArchivos" class="row">
+                    <div class="col-sm-6">
+
+                    </div>
+                    <div class="col-sm-6">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/SaludOcupacional/AtencionMedica.js"></script>

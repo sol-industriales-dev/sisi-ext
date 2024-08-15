@@ -1,0 +1,285 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionSeguridadController().privilegioCapacitacion();
+    <!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/CapacitacionSeguridad/HorasAdiestramiento.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<div class="col-sm-12" style="margin-top: 33px;">
+    <br />
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-list"></i>Busqueda</legend>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Centros Costos</span>
+                    <select id="selectCentroCosto" class="form-control" multiple></select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Mes Inicial</span>
+                    <input id="inputMesInicial" class="form-control">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Mes Final</span>
+                    <input id="inputMesFinal" class="form-control">
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <button type='button' class="btn btn-primary" id="botonBuscar"><i class="fas fa-search"></i> Buscar</button>
+                @if (privilegioCapacitacion != 2)
+                {
+                    <button type='button' class="btn btn-primary" id="botonNuevaCaptura"><i class="fas fa-plus"></i> Nuevo</button>
+                }
+            </div>
+        </div><br />
+
+    </fieldset>
+    <br />
+    <ul class="nav nav-tabs" role="tablist">
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+            <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+                <a class="nav-link active" data-toggle="tab" href="#menu1" id="aEmpresas" style="font-weight: bold;color:#000;">Pendientes</a>
+            </li>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 4)
+        {
+            <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+                <a class="nav-link" data-toggle="tab" href="#menu2" id="aEmpresas" style="font-weight: bold;color:#000;">Liberados</a>
+            </li>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+            <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+                <a class="nav-link col-sm" data-toggle="tab" href="#menu3" id="aEmpresas" style="font-weight: bold;color:#000;">Dashboard</a>
+            </li>
+        }
+    </ul>
+    <div class="tab-content">
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+            <div id="menu1" class="container tab-pane active" style="width: 100%;">
+                <br>
+                <div class="col-lg-12 table-responsive table-bordered">
+                    <div style="margin-top: 5px; margin-bottom: 5px;">
+                        <div class="etiquetaRenglon" style="background-color: rgb(254, 142, 142);"></div>
+                        <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Baja del CC</label>
+                    </div>
+                    <table id="tablaPendientes" class="table-bordered stripe order-column" style="width: 100%;"></table>
+                </div>
+            </div>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 4)
+        {
+            <div id="menu2" class="container tab-pane fade" style="width: 100%;">
+                <br>
+                <div class="col-lg-12 table-responsive table-bordered">
+                    <div style="margin-top: 5px; margin-bottom: 5px;">
+                        <div class="etiquetaRenglon" style="background-color: rgb(254, 142, 142);"></div>
+                        <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Baja del CC</label>
+                        <div class="etiquetaRenglon" style="background-color: rgb(254, 211, 81); margin-left: 15px;"></div>
+                        <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Pendiente de soporte de liberación</label>
+                    </div>
+                    <table id="tablaLiberados" class="table-bordered stripe order-column" style="width: 100%;"></table>
+                </div>
+                <div class="col-lg-12 mrgTop">
+                    <button id="botonGuardarLiberados" class="btn btn-primary pull-right">Guardar</button>
+                </div>
+            </div>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+            <div id="menu3" class="container tab-pane fade">
+                <div id="graficaColaboradoresAdiestramiento"></div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevaCaptura" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleCurso"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><span class="badge badge-dark" style="background-color:#F86730">DATOS GENERALES</span></legend>
+                        <div class="row">
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Proyecto</span>
+                                    <select id="selectCentroCostoNuevo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Equipo</span>
+                                    <select id="selectEquipoNuevo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mrgTop">
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio</span>
+                                    <input id="inputFechaInicio" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Termino</span>
+                                    <input id="inputFechaTermino" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"><span class="badge badge-dark" style="background-color:#F86730">COLABORADOR - ADIESTRADOR</span></legend>
+                            <div class="contenido">
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Clave</span>
+                                        <input id="inputClaveColaborador" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Colaborador</span>
+                                        <input id="inputNombreColaborador" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Clave</span>
+                                        <input id="inputClaveAdiestrador" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-9 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Adiestrador</span>
+                                        <input id="inputNombreAdiestrador" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Instructor</span>
+                                        <input id="inputNombreInstructor" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Departamento Seguridad</span>
+                                        <input id="inputNombreSeguridad" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Recursos Humanos</span>
+                                        <input id="inputNombreRecursosHumanos" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Sobrestante</span>
+                                        <input id="inputNombreSobrestante" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mrgTop">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Gerente de Obra</span>
+                                        <input id="inputNombreGerenteObra" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarNuevaCaptura">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHorasAdiestramiento" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button id="botonAgregarRenglonHoras" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
+                        <table id="tablaHorasAdiestramiento" class="table-bordered stripe order-column mrgTop" style="width: 100%;"></table>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="redondo headerHoras">HRS ACUMULADAS</div>
+                        <div id="divHorasAcumuladas" class="redondo text-center celdaHoras">
+                            <label id="labelHorasAcumuladas" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                        <br>
+                        <div class="redondo headerHoras">HRS PENDIENTES</div>
+                        <div id="divHorasPendientes" class="redondo text-center celdaHoras">
+                            <label id="labelHorasPendientes" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarHorasAdiestramiento">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_visorGrid")
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/HorasAdiestramiento.js"></script>

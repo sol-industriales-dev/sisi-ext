@@ -1,0 +1,208 @@
+﻿@{
+    ViewBag.Title = "CatPuestos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<!-- CSS -->
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Tabuladores/General.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Tabuladores/CatPuestos.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <div class="row">
+        <div class="col-sm-12 seccion">
+            @Html.Partial("../Tabuladores/_MenuTabuladores")
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>PUESTOS</h2>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12'>
+            <!-- PANEL FILTROS -->
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <div class="pull-right">
+                                @* <button class="btn btn-primary" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button> *@
+                                <button type="button" class="btn btn-primary" id="botonAgregar"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroGenerarExcel"><i class='fas fa-file-excel'></i>&nbsp;Descargar excel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <!-- BODY -->
+            <div id='panelGraficas' class='panel panel-default panel-principal'>
+                <div class='panel-heading'></div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <table id="tablaPuestos" class="table table-hover compact table-bordered" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PUESTO -->
+<div id='modalPuesto' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <fieldset class='fieldset-custm seccion'>
+                    <div class="row">
+                        <div class='col-lg-2'>
+                            <label for='inputPuesto'>ID</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type='text' id='inputPuesto' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-lg-10'>
+                            <label for='inputNombre'>Puesto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type='text' id='inputNombre' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='textareaDescripcion'>Descripción</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <textarea type='text' id='textareaDescripcion' rows="5" class='form-control'></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='cboCE_AreaDepartamento'>Área / Departamento</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_AreaDepartamento' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='selectTipoNomina'>Tipo nómina</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='selectTipoNomina' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='cboCE_Sindicalizado'>Sindicalizado</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_Sindicalizado' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='cboCE_NivelMando'>Nivel de mando</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_NivelMando' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='cboCE_esEvaluacion'>Evaluación teórica</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_esEvaluacion' class='form-control select2'>
+                                    <option value="0">No aplica</option>
+                                    <option value="1">Aplica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6' id="divPERU_BASE">
+                            <label for='txtCE_BAE'>BAE</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type="text" id="txtCE_BAE" class="form-control" placeholder="Favor de ingresar el BAE al puesto." />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <!-- END: AUTORIZANTES -->
+            <div class='modal-footer'>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PUESTO -->
+
+@Html.Partial("reportViewerView", false)
+
+@Html.Action("_menuClick", "Mouse", new { area = "" })
+@Html.Action("_visorGrid", "Visor", new { area = "" })
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/CatPuestos.js"></script>
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Tabuladores/_MenuTabuladores.js'></script>
+
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+<!-- END: SCRIPTS -->

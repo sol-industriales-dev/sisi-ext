@@ -1,0 +1,968 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var facultamiento = new SIGOPLAN.Areas.ControlObra.Controllers.ControlObraController().GetPrivilegioUsuario();
+}
+
+@if (facultamiento == 1 || facultamiento == 2)
+{
+    <!-- CSS -->
+    @* <link href="~/Content/style/css/ControlObra/ControlObra2.css" rel="stylesheet" /> *@
+    @* <link href="~/Content/style/css/Administrativo/Gestor.css" rel="stylesheet" /> *@
+    @* <link href="~/Content/style/css/Subcontratistas/Estilo.css" rel="stylesheet" /> *@
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+    <link href="~/Content/select2.css" rel="stylesheet" />
+    <script src="~/Scripts/moment.min.js"></script>
+    <link href="~/Content/style/css/ControlObra/IndexOrdenCambio.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            $('#cboFiltroCC').select2();
+        });
+        $(document).ready(function () {
+            $('#cboOrdenDeCambio').select2();
+        });
+        function showContent() {
+            tablaAlcance = document.getElementById("AlcancesNuevos");
+            checkAlcance = document.getElementById("checkAlcance");
+            if (checkAlcance.checked) {
+                tablaAlcance.style.display = 'block';
+            }
+            else {
+                tablaAlcance.style.display = 'none';
+            }
+
+            tablaIngenieria = document.getElementById("ModificacionPorCambio");
+            checkCambioIngenieria = document.getElementById("checkCambioIngenieria");
+            if (checkCambioIngenieria.checked) {
+                tablaIngenieria.style.display = 'block';
+            }
+            else {
+                tablaIngenieria.style.display = 'none';
+            }
+
+            tablaRequerimiento = document.getElementById("RequerimientosEnCampo");
+            checkRequerimientosCampo = document.getElementById("checkRequerimientosCampo");
+            if (checkRequerimientosCampo.checked) {
+                tablaRequerimiento.style.display = 'block';
+            }
+            else {
+                tablaRequerimiento.style.display = 'none';
+            }
+
+            tablaAjustesVol = document.getElementById("AjustesDeVolumenes");
+            checkAjustesVol = document.getElementById("checkAjustesVol");
+            if (checkAjustesVol.checked) {
+                tablaAjustesVol.style.display = 'block';
+            }
+            else {
+                tablaAjustesVol.style.display = 'none';
+            }
+
+            tablaServicios = document.getElementById("ServiciosYSuministros");
+            checkServiciosSum = document.getElementById("checkServiciosSum");
+            if (checkServiciosSum.checked) {
+                tablaServicios.style.display = 'block';
+            }
+            else {
+                tablaServicios.style.display = 'none';
+            }
+
+            tablaTiempo = document.getElementById("Tiempo");
+            checkTiempo = document.getElementById("checkTiempo");
+            if (checkTiempo.checked) {
+                tablaTiempo.style.display = 'block';
+            }
+            else {
+                tablaTiempo.style.display = 'none';
+            }
+        }
+
+
+    </script>
+
+    <!-- CONTAINER FLUID -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <br>
+                <h2>ORDENES DE CAMBIO</h2>
+            </div>
+        </div>
+    </div>
+    <!-- END: CONTAINER FLUID -->
+
+    @* <div id='mdlgMontosSoportes' class='modal fade' role='dialog'> *@
+    <div class='modal-content'>
+        <div class='modal-body'>
+            <div class="container-fluid">
+                <div class="panel-group" id="tabGeneral">
+                    <!-- DATOS GENERALES -->
+                <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabGeneral"
+                                href="#collapseOne">DATOS GENERALES</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class='col-md-4'>
+                                        <label>CC</label>
+                                        <select id='cboFiltroCC' class='form-control select2'></select>
+                                    </div>
+                                    <div class='col-md-4'>
+                                        <label>Contrato</label>
+                                        <select id='cboOrdenDeCambio' class='form-control select2'></select>
+                                    </div>
+                                    <div class='col-md-4'>
+                                        <label>Contratista</label>
+                                        <input id='inpIdContratista' class='hidden'></input>
+                                        <input id='inpContratista' class='form-control' readonly></input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class='col-xs-4'>
+                                        <label>Proyecto</label>
+                                        <input id='inpProyecto' class='form-control' readonly></input>
+                                    </div>
+                                    <div class='col-xs-4'>
+                                        <label>Cliente</label>
+                                        <input id='inpCliente' class='form-control' readonly></input>
+                                    </div>
+                                    <div class='col-xs-2'>
+                                        <label>Estado</label>
+                                        <input id='inpEstado' class='form-control' readonly></input>
+                                    </div>
+                                    <div class='col-xs-2'>
+                                        <label>Municipio</label>
+                                        <input id='inpMunicipio' class='form-control' readonly></input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class='col-lg-12'>
+                                        <label>Dirección</label>
+                                        <input id='inpDireccion' class='form-control' readonly></input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class='col-lg-3'>
+                                        <label>Cobrable</label><br>
+                                        <input id='inpCobrable' class='form-control' type="checkbox"
+                                        data-toggle="toggle"></input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class='col-lg-3'>
+                                        <label class="hidden">Orden de cambio</label>
+                                        <input id='inpOrden' class='hidden'></input>
+                                    </div>
+                                    <div class='col-lg-3'>
+                                        <label class="hidden">Ubicación del proyecto</label>
+                                        <input id='inpUbicacion' class='hidden'></input>
+                                    </div>
+                                    <div class='col-lg-3'>
+                                        <label class='hidden'>No. Contrato</label>
+                                        <input id='inpNoContrato' class='hidden'></input>
+                                    </div>
+                                    <div class='col-lg-3'>
+                                        <label class='hidden'>CC</label>
+                                        <input id='inpcc' class='hidden'></input>
+                                    </div>
+                                    <div class='col-lg-3'>
+                                        <label class='hidden'>Fecha efectiva</label>
+                                        <input id='dtFechaEfectiva' class='hidden'></input>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#collapseFive">
+                                                <i class="fas fa-globe-americas"></i>
+                                                MOTIVO DE CAMBIO
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseFive" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-lg-2">
+                                                    <label>Nombre del archivo</label>
+                                                    <input class="form-control" id="inpNombreDelArchivo">
+                                                </div>
+                                                <div class="col-lg-10">
+                                                    <label>Archivo</label><br>
+                                                    <button class="btn btn-info" id="btnArchivoAntecedentes"><i
+                                                        class="fas fa-upload"></i>&nbsp;Seleccionar archivo</button>
+                                                    <label><span id="lblFileName"></span></label>
+                                                    <input type="file" id="txtArchivoAntecedentes" style="display: none;">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <label>Describa el porque se requiere una orden de cambio:</label>
+                                                    <textarea class="form-control" name="" id="txtAntecedentes" cols="20"
+                                                    rows="10"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- END: DATOS GENERALES -->
+
+                <!-- DESCRIPCIÓN DE LAS MODIFICACIONES (SOPORTES / EVIDENCIAS) -->
+
+            <div class="panel-group" id="tabModificaciones">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabModificaciones"
+                                href="#collapseTwo">DESCRIPCIÓN DE LAS MODIFICACIONES (SOPORTES / EVIDENCIAS)</a>
+                            </h4>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-lg-2"></div>
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" id="checkAlcance" class="check pull-right"
+                                            href="#AlcancesNuevos" value="1" onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <label class="pull-left">A - Alcances Nuevos</label>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input class="form-control pull-left" id="inpAlcances"
+                                            readonly="">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-2"></div>
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" class="check pull-right" id="checkCambioIngenieria"
+                                            href="#ModificacionPorCambio" style="check" value="2"
+                                            onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <label class="pull-left">B - Cambio de ingeniería</label>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input class="form-control pull-left" id="inpModificaciones"
+                                            readonly="">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-2"></div>
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" id="checkRequerimientosCampo" class="check pull-right"
+                                            href="#RequerimientosEnCampo" value="3" onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <label class="pull-left">C - Requerimientos en campo</label>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input class="form-control pull-left" id="inpReqCampo"
+                                            readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" id="checkAjustesVol" class="check pull-right"
+                                            href="#AjustesDeVolumenes" value="4" onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="pull-left">D - Ajustes de vol. por obra ejecutada</label>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input class="form-control pull-left" id="inpAjusteVol"
+                                            readonly="">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" id="checkServiciosSum" class="check pull-right"
+                                            href="#ServiciosYSuministros" value="5" onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="pull-left">E – Servicios y suministros</label>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input class="form-control pull-left" id="inpServiySum"
+                                            readonly="">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-lg-1">
+                                            <input type="checkbox" id="checkTiempo" class="check pull-right" href="#Tiempo"
+                                            value="6" onchange="javascript:showContent()">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label class="pull-left">F – Duración (Tiempo)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div id="AlcancesNuevos" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>
+                                    Alcances Nuevos</label>
+                                <div class="row">
+                                    <div class="col-lg-2 pull-left">
+                                        <button class="btn btn-primary" id="btnMas"><i
+                                            class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <table id='tblAlcances' class="table compact table-bordered no-footer">
+                                </table>
+                                <br>
+                                <div class="col-sm-6">
+                                    <div class="panel-group" style="display: none;">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading" style="padding: 5px;">
+                                                <div class="panel-title" style="font-size: 11px;">
+                                                    <center>Alcances Nuevos</center>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="ModificacionPorCambio" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>Cambio de ingeniería</label>
+                                <div class="row">
+                                    @* <div class="col-lg-10">
+                                        @* <label>Archivo</label><br> *@
+                                    @* <button class="btn btn-info" id="btnArchivoAlcancesNuevos"><i class="fas
+                                        fa-upload"></i>&nbsp;Seleccionar archivo</button>
+                                        <label><span id="lblFileNameAlcancesNuevos"></span></label> *@
+                                    @* </div> *@
+                                    <div class="col-lg-2 pull-left">
+                                        <button class="btn btn-primary" id="btnMasModificaciones"><i
+                                            class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <table id='tblModificaciones' class="table compact table-bordered">
+                                </table>
+                                <br>
+                                <div class="col-sm-6">
+                                    <div class="panel-group" style="display: none;">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading" style="padding: 5px;">
+                                                <div class="panel-title" style="font-size: 11px;">
+                                                    <center>Cambio de ingeniería</center>
+                                                </div>
+                                            </div>
+                                            <div class="panel-collapse collapse" aria-expanded="true">
+                                                <div class="panel-body p-primary" style="padding: 5px;">
+                                                    <div class="row text-center">
+                                                        <label for="fileModificaciones" class="inputs pointer btn"
+                                                        style="margin-top: 10px; border-radius: 20px;">
+                                                            <i class="fa fa-file-alt fa-3x"></i>
+                                                        </label>
+                                                        @* <input id="fileAlcancesNuevos" class="botonDocumento"
+                                                            type="file" multiple style="display:none;"> *@
+                                                        @* <label class="label labelNombre" id="" data-idevaluacion=''
+                                                            style="display: block;"> Ningún Archivo Seleccionado</label> *@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="RequerimientosEnCampo" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>
+                                    Requerimientos en campo</label>
+
+                                <div class="row">
+                                    <div class="col-lg-2 pull-left">
+                                        <button class="btn btn-primary" id="btnMasReqCampo"><i
+                                            class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <table id='tblReqCampo' class="table compact table-bordered">
+                                </table>
+                                <br>
+                                <div class="col-sm-6">
+                                    <div class="panel-group" style="display: none;">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading" style="padding: 5px;">
+                                                <div class="panel-title" style="font-size: 11px;">
+                                                    <center>Requerimientos en campo</center>
+                                                </div>
+                                            </div>
+                                            <div class="panel-collapse collapse" aria-expanded="true">
+                                                <div class="panel-body p-primary" style="padding: 5px;">
+                                                    <div class="row text-center">
+                                                        <label for="fileModificaciones" class="inputs pointer btn"
+                                                        style="margin-top: 10px; border-radius: 20px;">
+                                                            <i class="fa fa-file-alt fa-3x"></i>
+                                                        </label>
+                                                        @* <input id="fileAlcancesNuevos" class="botonDocumento"
+                                                            type="file" multiple style="display:none;">
+                                                            <label class="label labelNombre" id="" data-idevaluacion=''
+                                                            style="display: block;"> Ningún Archivo Seleccionado</label> *@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="AjustesDeVolumenes" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>
+                                    Ajustes de vol. por obra ejecutada</label>
+                                <div class="row">
+                                    <div class="col-lg-2 pull-left">
+                                        <button class="btn btn-primary" id="btnMasAjusteDeVolumenes"><i
+                                            class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <table id='tblAjusteDeVolumenes' class="table compact table-bordered">
+                                </table>
+                                <br>
+                                <div class="col-sm-6">
+                                    <div class="panel-group" style="display: none;">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading" style="padding: 5px;">
+                                                <div class="panel-title" style="font-size: 11px;">
+                                                    <center>Ajustes de vol. por obra ejecutada</center>
+                                                </div>
+                                            </div>
+                                            <div class="panel-collapse collapse" aria-expanded="true">
+                                                <div class="panel-body p-primary" style="padding: 5px;">
+                                                    <div class="row text-center">
+                                                        <label for="fileAjusteDeVolumenes" class="inputs pointer btn"
+                                                        style="margin-top: 10px; border-radius: 20px;">
+                                                            <i class="fa fa-file-alt fa-3x"></i>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="ServiciosYSuministros" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>
+                                    Servicios y suministros</label>
+
+                                <div class="row">
+                                    <div class="col-lg-2 pull-left">
+                                        <button class="btn btn-primary" id="btnMasServiySum"><i
+                                            class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <table id='tblServiySum' class="table compact table-bordered">
+                                </table>
+                                <br>
+                                <div class="col-sm-6">
+                                    <div class="panel-group" style="display: none;">
+                                        <div class="panel panel-primary">
+                                            <div class="panel-heading" style="padding: 5px;">
+                                                <div class="panel-title" style="font-size: 11px;">
+                                                    <center>Servicios y suministros</center>
+                                                </div>
+                                            </div>
+                                            <div class="panel-collapse collapse" aria-expanded="true">
+                                                <div class="panel-body p-primary" style="padding: 5px;">
+                                                    <div class="row text-center">
+                                                        <label for="fileServiYSuministros" class="inputs pointer btn"
+                                                        style="margin-top: 10px; border-radius: 20px;">
+                                                            <i class="fa fa-file-alt fa-3x"></i>
+                                                        </label>
+                                                        @* <input id="fileAlcancesNuevos" class="botonDocumento"
+                                                            type="file" multiple style="display:none;">
+                                                            <label class="label labelNombre" id="" data-idevaluacion=''
+                                                            style="display: block;"> Ningún Archivo Seleccionado</label> *@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- VARIACION PLAZO -->
+                        <div id="Tiempo" style="display: none;">
+                                <label class="form-control" style="background:#595959 ;color:white"> <i
+                                    class="fas fa-plus"></i>
+                                    VARIACIÓN AL
+                                    PLAZO DEL CONTRATO</label>
+                                <br>
+                                <input class="form-control" type="hidden" id="inpTiempo" readonly>
+                                <input class="form-control" type="hidden" id="inpTiempoFinal" readonly>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="row">
+
+                                            <div class="col-lg-12">
+                                                <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label class="pull-right">Fecha de inicio contractual:</label>
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <input class="form-control" type="text" id="inpFechaInicioContrato"
+                                                        style="background-color: #fcebdb;" readonly="">
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label class="pull-right">Fecha de terminación
+                                                            contractual:</label>
+                                                    </div>
+                                                    <div class="col-lg-2"><input class="form-control pull-left" type="text"
+                                                        id="inpFechaFinalContrato" style="background-color: #fcebdb;"
+                                                        readonly="">
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label class="pull-right">Plazo de ejecución:</label>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <input class="form-control pull-left" type="text" id="inpDias"
+                                                        style="background-color: #fcebdb;" readonly="">
+                                                    </div>
+                                                    <div class="col-lg-1"><label>dias</label></div>
+                                                </div>
+                                                <hr style="border-color:black">
+                                                <div class="row">
+                                                    <div class="col-lg-3"></div>
+
+                                                    <div class="col-lg-3">
+                                                        <label class="pull-right"> Fecha de terminación por O.C
+                                                            previas:(Acumuladas)</label>
+                                                    </div>
+                                                    <div class="col-xs-2">
+                                                        <input class="form-control pull-left" type="text"
+                                                        id="inpFechaFinalPrevias" readonly="">
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label class="pull-right"> Plazo de ejecución:</label>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <input class="form-control pull-left" type="text"
+                                                        id="inpDiasPrevias" readonly="">
+                                                    </div>
+                                                    <div class="col-lg-1 text-left">
+                                                        <label>dias</label>
+                                                    </div>
+                                                </div>
+                                                <hr style="border-color:black">
+                                                <div class="row">
+                                                    <div class="col-lg-3"></div>
+                                                    <div class="col-lg-3">
+                                                        <label class="pull-right"> Fecha de terminación con esta O.C
+                                                            Ampliación al
+                                                            plazo:</label>
+                                                    </div>
+
+                                                    <div class="col-lg-2">
+                                                        <input class="form-control pull-left" type="text"
+                                                        id="inpFechaAmpliacion" autocomplete="off">
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label class="pull-right"> Plazo de ejecución:</label>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <input class="form-control" type="text" id="inpDiasAmpliacion"
+                                                        readonly="">
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <label>dias</label>
+                                                    </div>
+                                                    <br>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- END: VARIACION PLAZO  -->
+
+                </div>
+                </div>
+                <!-- END: DESCRIPCIÓN DE LAS MODIFICACIONES (SOPORTES / EVIDENCIAS) -->
+
+                <!-- MONTO CONTRATO -->
+            <div class="panel-group" id="tabMontos">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabMontos"
+                                href="#collapseThree">
+                                    NUEVO MONTO DE CONTRATO
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseThree" class="panel-collapse collapse" aria-expanded="true">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-1"></div>
+
+                                    <div class="col-lg-10 text-center">
+                                        <div class="row">
+                                            <div class="col-lg-5 text-right">
+                                                <label id="montoContractual" class="pull-right">Monto Contractual
+                                                    Inicial
+                                                    M.N</label>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <input class="form-control pull-left" id="inpMontocontractual"
+                                                style="border-color: orange;" readonly>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 text-right">
+                                                <label id="montoTotalOrden" class="pull-right">Monto total orden de
+                                                    cambios
+                                                    previas M.N</label>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <input class="form-control pull-left" id="inpMontoTotalOrdenPrevia"
+                                                style="border-color: orange;" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-5 text-right">
+                                                <label id="montoActualContrato" class="pull-right">Monto actual de
+                                                    contrato
+                                                    M.N</label>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <input class="form-control pull-left" id="inpTotalMontoActual"
+                                                style="border-color: orange;" readonly>
+                                            </div>
+                                            <div class="col-xs-2"> 
+                                                <input class="form-control" id="porcentaje1" type="number" style="font:bold;" readonly>
+                                            </div>
+                                            <div class="col-xs-1" style="margin-top: 10px; text-align: left;">
+                                                <b>%</b>
+                                            </div>
+                                            <div class="col-lg-2" class="pull-left"> 
+                                                <label id="incremento1" class="pull-left">Incremento
+                                                    Contractual</label>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 text-right">
+                                                <label id="montoActualOrden" class="pull-right"> Monto por orden de
+                                                    cambio
+                                                    actual
+                                                    M.N</label>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <input class="form-control pull-left" id="inpSumaTotalModificaciones"
+                                                style="border-color: orange; font:bold;" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-5 text-right">
+                                                <label id="montoContratoOrden" class="pull-right" style="font:bold;">
+                                                    Monto
+                                                    de contrato con
+                                                    orden
+                                                    de cambio
+                                                    M.N</label>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <input class="form-control pull-left" id="inpTotalMontoOrdenCambioActual"
+                                                style="border-color: orange; font:bold;" readonly>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" type="number" id="porcentaje2"
+                                                style="font:bold;" readonly>
+                                            </div>
+                                            <div class="col-xs-1" style="margin-top: 10px; text-align: left;">
+                                                <b>%</b>
+                                            </div>
+                                            <div class="col-lg-2" class="pull-left"> <label id="incremento2"
+                                                class="pull-left">Incremento
+                                                    Proyectado</label>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="col-lg-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: MONTO CONTRATO  -->
+
+                <!-- SECCION DE AUTORIZANTES -->
+            <div id="tabAutorizante">
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabAutorizante"
+                                    href="#collapseFour">SECCIÓN
+                                        DE AUTORIZANTES</a>
+                                </h4>
+                            </div>
+                            <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table class="table table-condensed table table-striped align-center">
+                                                <thead class="bg-table-header-representante">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Nombre:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="form-control" id="inpRespresentanteLegal" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label><b>REPRESENTANTE LEGAL SUBCONTRATISTA</b></label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <table class="table table-condensed table table-striped align-center">
+                                                <thead class="bg-table-header-representante">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Nombre:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="hidden" id="inpIdGerenteProyecto">
+                                                            <input class="form-control" id="inpGerenteProyecto" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label><b>REPRESENTANTE LEGAL CONSTRUPLAN</b></label>
+                                                            <label><h6><b>GERENTE DE PROYECTO</b></h6></label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <table class=" table table-condensed table table-striped text-center">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Solicita:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="hidden" id="inpIdGerenteArea">
+                                                            <input class="form-control" id="inpGerenteArea" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label>GERENTE DE
+                                                                ÁREA</label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <table class=" table table-condensed table table-striped text-center">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Solicita:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="hidden" id="inpIdDirectorDivision">
+                                                            <input class="form-control" id="inpDirectorDivision" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label>DIRECTOR DE
+                                                                DIVISIÓN</label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <table class=" table table-condensed table table-striped text-center">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Solicita:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="hidden" id="inpIdGerentePMO">
+                                                            <input class="form-control" id="inpGerentePMO" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label>GERENTE DE
+                                                                PMO</label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <table class=" table table-condensed table table-striped text-center">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="col-sm-5 text-center">Solicita:</th>
+                                                        <th class="col-sm-5 text-center">Puesto:</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input class="hidden" id="inpIdDirectorTecnico">
+                                                            <input class="form-control" id="inpDirectorTecnico" readonly>
+                                                        </td>
+                                                        <td class="text-center" style="vertical-align: middle;">
+                                                            <label>DIRECTOR
+                                                                TÉCNICO</label>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SECCION DE AUTORIZANTES -->
+        </div>
+
+
+            <div class='modal-footer'>
+                @* <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa
+                    fa-arrow-left'></i>&nbsp;Cerrar</button> *@
+                @* <button type='button' class='btn btn-primary' id='btnEditar'><i class="glyphicon
+                    glyphicon-pencil"></i>
+                    Editar</button>*@
+                <button type='button' class='btn btn-primary' id='btnGestionar'><i class="glyphicon glyphicon-pencil"></i>
+                    Gestionar</button>
+                @* <button type='button' class='btn btn-primary' id='btnImprimir'><i class="glyphicon
+                    glyphicon-print"></i>
+                    Imprimir</button> *@
+            </div>
+        </div>
+    </div>
+
+    <div id='mdlFormularioDeFirmas' class='modal fade' role='dialog'>
+        <div class='modal-dialog modal-xl'>
+            <div class='modal-content '>
+                <div class='modal-header text-center'>
+                    <h1 class='modal-title'><i class='fa fa-dollar'></i>Firmas</h1>
+                </div>
+                <div class='modal-body'>
+                    <div class='container-fluid'>
+
+                        <div class="col-md-4">
+                            <div class="row">
+                                <button type="" class="btn btn-primary" id="Firma1">Firma de Subcontratista</button>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <button type="" class="btn btn-primary" id="Firma2">Gerente de Control de
+                                    Obra</button>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <button type="" class="btn btn-primary" id="Firma3">Gerente de Proyecto / Gerente de
+                                    Obra</button>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <button type="" class="btn btn-primary" id="Firma4">Director Area / Gerente
+                                    Area</button>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <button type="" class="btn btn-primary" id="Firma5">Director de Construcción /
+                                    Director de
+                                    Servicios</button>
+                            </div>
+                        </div>
+                        <div class="col-md-8" style="border: solid 1px;height: 300px;">
+                            <button class="btn btn-primary" type="" id="btnlimpiar" style="width: 100%;">Limpiar
+                                Firma</button>
+                            <img id="imgFirma1" src="" alt="" style="width: 100%; height: 260px; display:none;">
+                            <img id="imgFirma2" src="" alt="" style="width: 100%; height: 260px; display:none;">
+                            <img id="imgFirma3" src="" alt="" style="width: 100%; height: 260px; display:none;">
+                            <img id="imgFirma4" src="" alt="" style="width: 100%; height: 260px; display:none;">
+                            <img id="imgFirma5" src="" alt="" style="width: 100%; height: 260px; display:none;">
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-primary' id="btnGuardarFirmas"><i class='fa fa-save'></i>
+                        Guardar</button>
+                    <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i>
+                        regresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="divFirmaFull" style="display: none;">
+        <input type="text" class="form-control" id="claveDelQueFirma" disabled />
+        <input type="text" class="form-control" id="nombreDelQueFirma" disabled />
+        <button class="btn btn-default" id="btnCancelarFirma">Cancelar</button>
+        <button class="btn btn-success" id="btnGuardarFirma"><i class="far fa-save"></i> Guardar firma</button>
+        <canvas id="canvasFirmaFull"></canvas>
+    </div>
+
+    @Html.Partial("reportViewerView", false)
+
+    <script src="~/Scripts/Utilities/SignaturePaD/signature_pad.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+    <script src="~/Scripts/select2.js"></script>
+    <script src="~/Scripts/js/ControlObra/GestionDeProyectos/OrdenDeCambio/Index.js"></script>
+}
+else
+{
+    <h1 class="text-center">Su usuario no tiene acceso a este módulo.</h1>
+}

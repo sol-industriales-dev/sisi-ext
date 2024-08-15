@@ -1,0 +1,133 @@
+﻿@{
+    ViewBag.Title = "Anticipo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<style>
+    .radioBtn .notActive {
+        color: #3276b1;
+        background-color: #fff;
+    }
+</style>
+<h1 class="text-center">Anticipos de factoraje</h1>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Búsqueda</legend>
+    <div class=" col-md-3 col-lg-3">
+        <div class="input-group">
+            <span class="input-group-addon">Proveedor</span>
+            <select id="selBusqProv" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <button type="button" class="btn btn-primary" id="btnBuscar"><i class="fa fa-search"></i> Buscar</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mdlCaptura"><i class="fa fa-plus"></i> Nuevo</button>
+    </div>
+</fieldset>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Gestión</legend>
+    <div class="table-responsive">
+        <table id="tblAnticipo" class="table table-fixed table-responsive table-striped">
+            <thead class="bg-table-header">
+                <tr>
+                    <th># Proveedor</th>
+                    <th>Proveedor</th>
+                    <th>Factoraje</th>
+                    <th>Banco</th>
+                    <th>Moneda</th>
+                    <th>Anticipo</th>
+                    <th>Fecha Emision</th>
+                    <th>Fecha Vencimiento</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<div id="mdlCaptura" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-table"></i>
+                    Captura
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row container-fluid">
+                    <div class=" col-md-7 col-lg-7">
+                        <div class="input-group">
+                            <span class="input-group-addon">Proveedor</span>
+                            <select id="selProv" name="selProv" class="form-control valida" style="width: 100%;"></select>
+                        </div>
+                    </div>
+                    <div class=" col-md-5 col-lg-5">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <select id="selCC" class="form-control valida" style="width: 100%;"></select>
+                        </div>
+                    </div>
+                    <div class=" col-md-4 col-lg-4 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon">Banco</span>
+                            <select id="selBanco" class="form-control valida">
+                                <option value=''>--Seleccionar--</option>
+                                <option value='3217'>BANORTE</option>
+                                <option value='6544'>BANAMEX</option>
+                                <option value='32046'>SCOTIABANK</option>
+                                <option value='1097745'>MONEX</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class=" col-md-4 col-lg-4 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon">Factoraje</span>
+                            <select id="selFactoraje" class="form-control valida">
+                                <option value='V'>Vencido</option>
+                                <option value='N'>Normal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class=" col-md-4 col-lg-4 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon">Emision</span>
+                            <input type="text" id="dtEmision" class="form-control" />
+                        </div>
+                    </div>
+                    <div class=" col-md-4 col-lg-4 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon">Vencimiento</span>
+                            <input type="text" id="dtVencimiento" class="form-control" />
+                        </div>
+                    </div>
+                    <div class=" col-md-5 col-lg-5 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon text-right">Anticipo</span>
+                            <input type="text" id="txtAnticipo" class="form-control valida" />
+                        </div>
+                    </div>
+                    <div class=" col-md-3 col-lg-3 margin-top">
+                        <div class="radioBtn btn-group">
+                            <a class="btn btn-primary  active" data-toggle="radEstatus" data-title="false">En reportes</a>
+                            <a class="btn btn-primary  notActive" data-toggle="radEstatus" data-title="true">No</a>
+                        </div>
+                    </div>
+                    <div class=" col-md-12 col-lg-12 margin-top">
+                        <div class="input-group">
+                            <span class="input-group-addon">Concepto</span>
+                            <input type="text" id="txtConcepto" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left"></i> regresar</button>
+                <button type="button" class="btn btn-success" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Reportes/Anticipo.js"></script>

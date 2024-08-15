@@ -1,0 +1,278 @@
+﻿@{
+    ViewBag.Title = "Liberacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Inventario/StandbyJS.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+
+            <div class="col-xs-12 col-xs-12 col-md-1 col-lg-12">
+                <button type="button" class="btn btn-success pull-right modal-margin-rigth" id="btnNuevo"><span class="glyphicon glyphicon glyphicon-plus "></span> Nuevo</button>
+                <button type="button" class="btn btn-primary pull-right modal-margin-rigth" id="btnRegresar"><span class="glyphicon glyphicon glyphicon-arrow-left"></span> Regresar</button>
+            </div>
+      
+      
+    </div>
+    <div class="row" id="divPrincipal">
+        <fieldset class="fieldset-custm"><legend class="legend-custm">Lista de Conciliaciones Semana</legend>
+        
+        <div>
+            <table id="tblEquiposStandBylist" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="usuario" data-width="15%">Usuario</th>
+                        <th data-column-id="Fecha1" data-width="10%">Fecha Inicio</th>
+                        <th data-column-id="Fecha2" data-width="10%">Fecha Fin</th>
+                        <th data-column-id="Lugar" data-width="15%">Obra</th>
+                        <th data-column-id="Editar" data-formatter="btnEdit" data-width="5%" data-searchable="false">Editar</th>
+                        <th data-column-id="Reporte" data-formatter="btnReporte" data-width="5%" data-searchable="false"> Ver Reporte</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        </fieldset>
+    </div>
+    <div class="row" id="divCaptura">
+
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><label>Filtros:</label></legend>
+            <div class="row">
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-4">
+                    <label>Listado Cento Costos:</label>
+                    <select id="cboListaCC" class="form-control"></select>
+                </div>
+
+                <div class='col-xs-12 col-xs-12 col-md-4 col-lg-3'>
+                    <div class='col-lg-6 no-padding'>
+                        <label for='fechaIni'>Fecha Inicio:</label>
+                        <input type='text' id='tbfechaIni' class='form-control' />
+                    </div>
+                    <div class='col-lg-6 no-padding-right'>
+                        <label for='fechaFin'>Fecha Fin:</label>
+                        <input type='text' id='tbfechaFin' class='form-control' />
+                    </div>
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-1 col-lg-1">
+                    <button type="button" class="btn btn-primary margin-top" id="btnImprimir">Imprimir</button>
+                </div>
+
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-4">
+                    <label>A: <span style="font-weight: normal;">Disponible para envió</span>  </label>
+                    <label>B: <span style="font-weight: normal;">Reparación más de 3 días</span> </label>
+                    <label>C: <span style="font-weight: normal;">Falta de tramo</span></label>
+                    <label>D: <span style="font-weight: normal;">Reparación por daño en obra anterior</span></label>
+                    <label>E: <span style="font-weight: normal;">Back up</span></label>
+                </div>
+
+            </div>
+        </fieldset>
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Listado Equipos En Obra</legend>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#ListaEconomicosObra">Lista Economicos</a></li>
+                <li><a data-toggle="tab" href="#SetStandBy">Equipos standBy</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="ListaEconomicosObra" class="tab-pane fade in active" style="margin-top:10px;">
+                    <table id="tblEquiposObra" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-width="5%">Economico</th>
+                                <th data-column-id="Grupo" data-width="10%">Descripción</th>
+                                <th data-column-id="Modelo" data-width="8%">Modelo</th>
+                                <th data-column-id="HorometroInicial" data-width="15%" data-searchable="false">Horometro Inicial</th>
+                                <th data-column-id="HorometroFinal" data-width="15%" data-searchable="false">Horometro Final</th>
+                                <th data-column-id="FechaStandBy" data-formatter="setFechaStandby" data-width="15%" data-searchable="false">Fecha Paro</th>
+                                <th data-column-id="TipoConsideracion" data-formatter="TipoConsideracion" data-width="15%" data-searchable="false">Consideración</th>
+                                <th data-column-id="setStandby" data-formatter="setStandby" data-width="5%" data-searchable="false">Agregar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div id="SetStandBy" class="tab-pane fade in" style="margin-top:10px;">
+                    <table id="tblEquiposStandBy" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-width="5%">Economico</th>
+                                <th data-column-id="Grupo" data-width="10%">Descripción</th>
+                                <th data-column-id="Modelo" data-width="8%">Modelo</th>
+                                <th data-column-id="Lugar" data-width="15%">Lugar Equipo</th>
+                                <th data-column-id="HorometroInicial" data-width="15%" data-searchable="false">Horometro Inicial</th>
+                                <th data-column-id="HorometroFinal" data-width="15%" data-searchable="false">Horometro Final</th>
+                                <th data-column-id="FechaStandByA" data-formatter="setFechaStandbyA" data-width="15%" data-searchable="false">Fecha Paro</th>
+                                <th data-column-id="TipoConsideracion" data-formatter="TipoConsideracion" data-width="15%" data-searchable="false">Consideración</th>
+                                <th data-column-id="removeStandBy" data-formatter="removeStandBy" data-width="5%" data-searchable="false">Eliminar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalStandBy">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <h3 class="modal-title text-center">Colocar Equipo Stand By</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Comentario de paro maquina.</label>
+                        <textarea id="tbComentario" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <label id="txtvalid"></label>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" id="btnGuardarModal">Guardar</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalliberacion">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title text-center">Liberar Equipo Asignado</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>La maquinara seleccionada sera liberada de su cargo, una vez confirmada esta accion no podra capturar Horometros y Combustibles en este centro de costos.</label>
+
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <label style="font-size: x-large;">¿Desea Continuar?</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnAceptarLiberacion">Aceptar</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalSolicitud">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title text-center">Solicitud de Cambio de estatus maquinaria.</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label id="lblComentario">Situacion de paro.</label>
+                        <textarea class="form-control" rows="3" id="txtaComentarioParo"></textarea>
+                    </div>
+                    <div class="col-lg-12">
+                        <label id="txtValidacion"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarSolicitud">Aceptar</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAutorizacion">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title text-center">Autorización de Estatus Maquinaria</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-lg-12">
+                            <label>Estatus:</label>
+                            <textarea class="form-control" rows="3" id="txtComentarioEstatusAutorizacion" disabled></textarea>
+                        </div>
+                        <div class="col-lg-12">
+                            <label>Comentario:</label>
+                            <textarea class="form-control" rows="3" id="txtComentarioSolicitudModalComentario" disabled></textarea>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="col-lg-6">
+                            <label>Horas de Paro:</label>
+                            <input type="number" class="form-control" id="tbHorasParo" />
+                        </div>
+                        <div class="col-lg-12">
+                            <label>Comentario:</label>
+                            <textarea class="form-control" rows="3" id="txtComentarioAutorizacion"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <label id="txtValidacion"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Rechazar</button>
+                <button type="button" class="btn btn-primary" id="btnAutorizar">Autorizacion</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<div class="modal fade" id="modalImpresion" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Opciones de impresion</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-6 col-lg-6 form-group">
+                        <label>Centro Costos:</label>
+                        <input type="text" id="tbCCFiltro" class="form-control" />
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-6 col-lg-6 form-group">
+                        <div class="col-xs-6 col-xs-6 col-md-6 col-lg-6 form-group">
+                            <label>Fecha Inicio:</label>
+                            <input type="text" id="fechaInicio" class="form-control" />
+                        </div>
+                        <div class="col-xs-6 col-xs-6 col-md-6 col-lg-6 form-group">
+                            <label>Fecha Fin:</label>
+                            <input type="text" id="fechaFin" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnVerReporte">Ver Reporte</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

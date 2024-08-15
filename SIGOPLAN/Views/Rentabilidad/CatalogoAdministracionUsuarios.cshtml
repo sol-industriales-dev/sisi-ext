@@ -1,0 +1,144 @@
+<!-- Razor -->
+@{
+    ViewBag.Title = "Administración de Usuarios";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Divisiones.css" rel="stylesheet" />
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Administraci&oacute;n Usuarios Centro Costos <i class="fas fa-users-cog"></i></h2>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="row form-group">
+                <div class="col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Estado Usuarios: </span>
+                        <select id="comboFiltroEstatus" class="form-control" style="width: 100%;">
+                            <option value="1">Activos</option>
+                            <option value="2">deshabilitados</option>
+                            <option value="0">Todos</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pull-right">
+            <button class="form-control btn btn-primary" id="botonUsuarioResponsable">Nuevo</button>
+        </div>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><label>Divisiones:</label></legend>
+            <div class="col-md-12 col-lg-12 margin-top">
+                <table id="tablaUsuarioReponsables" class=" table table-fixed table-hover table-responsive table-striped">
+                    <thead class="bg-table-header">
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<!-- Modal para agregar Nuevo Responsable -->
+<div class="modal fade" id="modalNuevoReponsable" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3><label id="lblDescripcionModal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">
+                            Responsables Usuario:
+                        </legend>
+                        <div class="row form-group">
+                            <div class="col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Estatus: </span>
+                                    <select id="comboEstatus" class="form-control">
+                                        <option value="True">Activo</option>
+                                        <option value="False">Deshabilitar</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-lg-9">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Responsable:</span>
+                                       <select class="form-control" id="comboUsuarios" style="width: 100%;"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12 col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Area Cuenta: </span>
+                                    <select id="comboAC" class="form-control" name="areasCuenta[]" multiple="multiple" style="width: 100%;"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="botonGuardarCambios" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEliminar" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Baja de Responsable</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <label id="lblEliminar"></label>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> No
+                </button>
+                <button id="botonEliminar" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Si
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/AdministracionUsuarios.js"></script>

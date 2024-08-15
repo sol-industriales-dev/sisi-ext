@@ -1,0 +1,201 @@
+@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    @* var baseController = new SIGOPLAN.Controllers.BaseController(); *@
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/Relaciones.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/General.css' rel='stylesheet' />
+
+<!-- END: CONTAINER -->
+<div class='container-fluid'>
+
+    <!-- SECCIÓN MENÚ -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div id="menuPeriodos">
+                    <h2><i class="far fa-calendar-alt"></i></h2>
+                    <h5>Periodos</h5>
+                </div>
+                <div id="menuPersonal">
+                    <h2><i class="fas fa-user-tie"></i></h2>
+                    <h5>Personal</h5>
+                </div>
+                <div id="menuConductas">
+                    <h2><i class="fas fa-list"></i></h2>
+                    <h5>Conductas</h5>
+                </div>
+                <div id="menuCuestionarios">
+                    <h2><i class="fas fa-book"></i></h2>
+                    <h5>Cuestionarios</h5>
+                </div>
+                <div id="menuCriterios">
+                    <h2><i class="fas fa-tasks"></i></h2>
+                    <h5>Criterios</h5>
+                </div>
+                <div id="menuRelaciones" class="opcionSeleccionada">
+                    <h2><i class="fas fa-user-friends"></i></h2>
+                    <h5>Relaciones</h5>
+                </div>
+                <div id="menuEvaluaciones">
+                    <h2><i class="fas fa-window-restore"></i></h2>
+                    <h5>Evaluaciones</h5>
+                </div>
+                <div id="menuAvances">
+                    <h2><i class="fas fa-chart-pie"></i></i></h2>
+                    <h5>Avances</h5>
+                </div>
+                <div id="menuReporte360">
+                    <h2><i class="fas fa-bullseye"></i></h2>
+                    <h5>Reporte 360</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: SECCIÓN MENÚ -->
+
+    <!-- CONTAINER FILTROS -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div class="seccion">
+                <div class="row">
+                    <div class='col-lg-5'>
+                        <label for="cboFiltroPeriodo">Seleccione un periodo:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                            <select id="cboFiltroPeriodo" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class='pull-right'>
+                        <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        <button type='button' class='btn btn-primary' id='btnFiltroNuevo' title="Nuevo registro."><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class='col-xs-12'>
+                        <table id='tblRH_Eval360_Relaciones' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CONTAINER FILTROS -->
+
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR RELACIÓN -->
+<div id='mdlCERelacion' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for="cboCEEvaluado">Evaluado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="cboCEEvaluado" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for="cboCECuestionario">Cuestionario:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-stream"></i></span>
+                                <select id="cboCECuestionario" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                    <button type='button' class='btn btn-success' id='btnCERelacion'></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR RELACIÓN -->
+
+<!-- MODAL LISTADO EVALUADORES REL EVALUADO -->
+<div id='mdlListadoEvaluadoresRelEvaluado' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <!-- CREAR/EDITAR EVALUADO -->
+                <div class="seccion">
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for="edicionEvaluado_txtCEEvaluado">Evaluado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="edicionEvaluado_txtCEEvaluado">
+                            </div>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for="edicionEvaluado_cboCEEvaluador">Evaluador:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="edicionEvaluado_cboCEEvaluador" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='col-lg-6'>
+                            <label for="edicionEvaluado_cboCETipoRelacion">Relacion del evaluador sobre el evaluado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="edicionEvaluado_cboCETipoRelacion" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for="edicionEvaluado_cboCECuestionario">Cuestionario:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="edicionEvaluado_cboCECuestionario" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='pull-right'>
+                            <button type='button' class='btn btn-default' id="edicionEvaluado_btnCancelar"><i class="fas fa-undo-alt"></i>&nbsp;Cancelar</button>
+                            <button type='button' class='btn btn-success' id='edicionEvaluado_btnCERelacion'></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: CREAR/EDITAR EVALUADO -->
+
+                <!-- LISTADO DE EVALUADORES -->
+                <div class="row seccion">
+                    <div class='col-xs-12'>
+                        <table id='tblListadoEvaluadoresRelEvaluador' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE EVALUADORES -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR RELACIÓN -->
+
+<!-- SCRIPT -->
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Evaluacion360/Relaciones.js'></script>

@@ -1,0 +1,344 @@
+﻿@{
+    ViewBag.Title = "Cátalogo Modelos de Equipos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<script src="~/Scripts/js/Maquinaria/Catalogo/ModeloMaquina.js"></script>
+
+<style>
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        padding: 6px 0px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
+    }
+    .tabla { overflow-y: auto; height: 200px; }
+    .tabla th {
+        font-size: 12px;
+        position: sticky; top: 0;
+        background-color: #81bd72 !important;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="row">
+    <h2 class="text-center">Catálogo Modelos de Equipo</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-10">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <label>Marca de Equipo:</label>
+                <select class="form-control" id="cboFiltrosMarcaEquipo" title="Seleccione Marca"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <label>Descripción:</label>
+                <input class="form-control" id="txtDescripcionModelosEquipo" type="text" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboFiltroEstatusModelosEquipo">
+                    <option value="1">ACTIVO</option>
+                    <option value="0">INACTIVO</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar_ModeloEquipo">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-lg-2 text-center">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Modelo:</legend>
+            <button type="button" class="btn btn-success margin-top" id="btnNuevo_ModeloEquipo">
+                <span class="glyphicon glyphicon-plus"></span> Nuevo
+            </button>
+        </fieldset>
+    </div>
+
+</div>
+
+<div class="row form-group">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Resultados Búsqueda:</legend>
+            <table id="grid_ModelosEquipo" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="archivos" data-formatter="archivos" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Ver Archivos</th>
+                        <th data-column-id="update" data-formatter="update" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                        <th data-column-id="delete" data-formatter="delete" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Deshabilitar</th>
+                        @*<th data-column-id="addSubConjuntos" data-formatter="addSubConjuntos" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Agregar SubConjunto</th>*@
+                        <th data-column-id="id" data-align="center" data-header-align="center">id</th>
+                        <th data-column-id="descripcion" data-align="center" data-header-align="center">Descripción</th>
+                        @*<th data-column-id="grupo" data-align="center" data-header-align="center">Grupo</th>*@
+                        <th data-column-id="marca" data-align="center" data-header-align="center">Marca</th>
+                        <th data-column-id="estatus" data-align="center" data-header-align="center">Estatus</th>
+                    </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalModeloEquipo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmModeloEquipo">
+                        <div class="row">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Datos Modelo Equipo</legend>
+
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
+                                    <label>Grupo Maquinaria:</label>
+                                    <select class="form-control" id="cboModalGrupo" title="Seleccionar Grupo"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
+                                    <label>Marcas:</label>
+                                    <select class="form-control" id="cboModalMarcas" title="Seleccionar Marca"></select>
+                                </div>
+                                @*<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left form-group">
+                                    <label>Nombre Corto:</label>
+                                    <input class="form-control" id="txtModalNomCorto" type="text" />
+                                </div>*@
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left form-group">
+                                    <label>Descripción:</label>
+                                    <input class="form-control" id="txtModaldescripcionModeloEquipo" />
+                                </div>
+
+                                <div class="col-xs-3 col-sm-3 col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label>Archivo:</label>
+                                        <input type="file" id="fupAdjunto" style="width:300px;" required multiple>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group text-left">
+                                    <label>Estatus:</label>
+                                    <select class="form-control" id="cboModalEstatusModeloEquipo">
+                                        <option value="1">ACTIVO</option>
+                                        <option value="0">INACTIVO</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group text-left">
+                                    <label>Overhaul:</label>
+                                    <select class="form-control" id="cboModalOverhaul">
+                                        <option value="1">Aplica</option>
+                                        <option value="0">no Aplica</option>
+                                    </select>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Modelo Equipo</legend>
+                            <div class="container-fluid">
+                                <ul class="nav nav-tabs" id="ulNuevo">
+                                    <li class="active"><a id="tabTitle1" data-toggle="tab" href="#Documentos">Documentos</a></li>
+                                    <li><a id="tabTitle2" data-toggle="tab" href="#componentes">Componentes</a></li>
+                                    <li><a id="tabTitle3" data-toggle="tab" href="#prefijos">Nombre Corto</a></li>
+                                </ul>
+                                <div class="tab-content">
+
+                                    <div id="Documentos" class="tab-pane fade in active">
+                                        <div class="row hide" id="tblArchivosDiv">
+                                            <fieldset class="fieldset-custm">
+                                                <legend class="legend-custm">ListaArchivos</legend>
+                                                <div class="col-lg-12">
+                                                    <table id="grid_ArchivosModificar" class="table table-condensed table-hover table-striped text-center">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th data-column-id="delete" data-formatter="delete" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Delete</th>
+                                                                <th data-column-id="Nombre" data-align="center" data-header-align="center">Nombre</th>
+                                                            </tr>
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="componentes">
+                                        <fieldset class="fieldset-custm fielset-Filtros">
+                                            <legend class="legend-custm">Filtros:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                                <label>Conjunto:</label>
+                                                <select class="form-control" id="cboConjunto"></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-4">
+                                                <label>Subconjunto:</label>
+                                                <select class="form-control" id="cboSubconjunto" disabled></select>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left form-group">
+                                                <label>Número de parte:</label>
+                                                <input class="form-control" id="txtModalComponentesNumParte" type="text" />
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                                <button type="button" class="btn btn-info margin-top btn-circle" id="btnAgregarSubconjuntoNuevo" disabled>
+                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                </button>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="fieldset-custm">
+                                            <legend class="legend-custm">Componentes:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                <table id="grid_Subconjuntos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                    <thead class="bg-table-header">
+                                                        <tr>
+                                                            <th data-column-id="subconjuntoID" class="text-center" style="display:none;" data-formatter="subconjuntoID" data-identifier="true" data-type="numeric" data-visible="false">subconjuntoID</th>
+                                                            <th data-column-id="quitar" class="text-center" style="" data-formatter="quitar">Quitar</th>
+                                                            <th data-column-id="conjunto" class="text-center" style="" data-formatter="conjunto">Conjunto</th>
+                                                            <th data-column-id="subconjunto" class="text-center" style="" data-formatter="subconjunto">Sub-Conjunto</th>
+                                                            <th data-column-id="numParte" class="text-center" style="" data-formatter="numParte">Número de parte</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+
+                                        </fieldset>
+                                    </div>
+                                    <div class="tab-pane fade" id="prefijos">
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                            <fieldset class="fieldset-custm fielset-Filtros">
+                                                <legend class="legend-custm">Filtros:</legend>
+                                                <div class="col-xs-12 col-sm-12 col-md-9 col-lg-10 form-group">
+                                                    <label>Prefijo:</label>
+                                                    <input class="form-control" id="txtModalPrefijo" type="text" />
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2 form-group">
+                                                    <button type="button" class="btn btn-info margin-top btn-circle" id="btnAgregarPrefijo" disabled>
+                                                        <span class="glyphicon glyphicon-plus"></span>
+                                                    </button>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                            <fieldset class="fieldset-custm">
+                                                <legend class="legend-custm">Prefijos:</legend>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                    <table id="gridPrefijos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false"></th>
+                                                                <th data-column-id="prefijo" class="text-center" style="" data-formatter="numParte">Prefijo</th>
+                                                                <th data-column-id="quitar" class="text-center" style="" data-formatter="quitar">Quitar</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar_ModelosEquipo">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar_ModelosEquipo" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modalVistaArchivo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Visor de Archivos de modelo</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <table id="grid_ArchivosVER" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+
+                                <th data-column-id="Nombre" data-align="center" data-header-align="center">Nombre</th>
+                                <th data-column-id="Descarga" data-formatter="descarga" data-align="center" data-header-align="center">Link</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAltaSubConjuntos" tabindex="-1" role="dialog" aria-labelledby="modalAltaSubConjuntos" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Dar Alta de Componentes Por modelo</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>Conjunto</label>
+                            <select class="form-control" id="cboConjuntoModal"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>Sub-Conjunto</label>
+                            <select class="form-control" id="cboSubConjuntoModal"></select>
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-success margin-top" id="btnAgregarSubConjunto">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table id="tblSubConjutoModelos" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="eliminarSubConjunto" data-formatter="eliminarSubConjunto" data-align="center" data-header-align="center">Quitar</th>
+                                    <th data-column-id="Conjunto" data-align="center" data-header-align="center">Conjunto</th>
+                                    <th data-column-id="SubConjunto" data-align="center" data-header-align="center">SubConjunto</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

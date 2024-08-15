@@ -1,0 +1,102 @@
+﻿@{List<Core.DTO.Kubrix.VencimientoDTO> lst = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController().lstVencimiento();}
+<div class="table-responsive">
+    <table id="tblCxp" class="table table-condensed table-hover text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>No</th>
+                <th>NOMBRE PROVEEDOR</th>
+                <th>FACTURA</th>
+                <th>CONCEPTO DE LA FACTURA</th>
+                <th>FECHA</th>
+                <th>VENCIMIENTO</th>
+                <th>VENCER</th>
+                <th>15 DIAS</th>
+                <th>30 DIAS</th>
+                <th>60 DIAS</th>
+                <th>90 DIAS</th>
+                <th>+ 90 DIAS</th>
+                <th>SALDO</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>@lst.Where(w => w.fechavenc >= DateTime.Now).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Where(w => w.fechavenc < DateTime.Now && w.fechavenc > DateTime.Now.AddDays(-15)).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Where(w => w.fechavenc < DateTime.Now.AddDays(-15) && w.fechavenc > DateTime.Now.AddDays(-30)).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Where(w => w.fechavenc < DateTime.Now.AddDays(-30) && w.fechavenc > DateTime.Now.AddDays(-60)).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Where(w => w.fechavenc < DateTime.Now.AddDays(-60) && w.fechavenc > DateTime.Now.AddDays(-90)).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Where(w => w.fechavenc <= DateTime.Now.AddDays(-90)).Sum(s => s.saldo_factura).ToString("C2")</th>
+                <th>@lst.Sum(s => s.saldo_factura).ToString("C2")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lst.Count == 0)
+            {
+                <tr><td colspan="14" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                var lstG = lst.OrderBy(o => o.cc).GroupBy(g => new { g.cc }, (k, g) => new
+                {
+                    cc = string.Format("{0} {1}", k.cc, g.FirstOrDefault().descripcion),
+                    lst = g.Select(x => new
+                    {
+                        numpro = x.numpro,
+                        prov = x.nombre,
+                        factura = x.factura,
+                        concepto = x.concepto,
+                        fecha = x.fecha,
+                        fechaVenc = x.fechavenc,
+                        vencer = x.fechavenc >= DateTime.Now ? x.saldo_factura : 0,
+                        D15 = x.fechavenc < DateTime.Now && x.fechavenc > DateTime.Now.AddDays(-15) ? x.saldo_factura : 0,
+                        D30 = x.fechavenc < DateTime.Now.AddDays(-15) && x.fechavenc > DateTime.Now.AddDays(-30) ? x.saldo_factura : 0,
+                        D60 = x.fechavenc < DateTime.Now.AddDays(-30) && x.fechavenc > DateTime.Now.AddDays(-60) ? x.saldo_factura : 0,
+                        D90 = x.fechavenc < DateTime.Now.AddDays(-60) && x.fechavenc > DateTime.Now.AddDays(-90) ? x.saldo_factura : 0,
+                        D90mas = x.fechavenc <= DateTime.Now.AddDays(-90) ? x.saldo_factura : 0,
+                        saldo = x.saldo_factura
+                    }).ToList(),
+                }).ToList();
+                foreach (var g in lstG)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center warning">@g.cc</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc >= DateTime.Now).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc < DateTime.Now && w.fechaVenc > DateTime.Now.AddDays(-15)).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc < DateTime.Now.AddDays(-15) && w.fechaVenc > DateTime.Now.AddDays(-30)).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc < DateTime.Now.AddDays(-30) && w.fechaVenc > DateTime.Now.AddDays(-60)).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc < DateTime.Now.AddDays(-60) && w.fechaVenc > DateTime.Now.AddDays(-90)).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Where(w => w.fechaVenc <= DateTime.Now.AddDays(-90)).Sum(s => s.saldo).ToString("C2")</td>
+                        <td class="text-right success">@g.lst.Sum(s => s.saldo).ToString("C2")</td>
+                    </tr>
+                    foreach (var x in g.lst)
+                    {
+                        <tr>
+                            <td class="text-right">@x.numpro</td>
+                            <td>@x.prov</td>
+                            <td class="text-right">@x.factura</td>
+                            <td>@x.concepto</td>
+                            <td>@x.fecha.ToShortDateString()</td>
+                            <td>@x.fechaVenc.ToShortDateString()</td>
+                            <td class="text-right">@x.vencer.ToString("C2")</td>
+                            <td class="text-right">@x.D15.ToString("C2")</td>
+                            <td class="text-right">@x.D30.ToString("C2")</td>
+                            <td class="text-right">@x.D60.ToString("C2")</td>
+                            <td class="text-right">@x.D90.ToString("C2")</td>
+                            <td class="text-right">@x.D90mas.ToString("C2")</td>
+                            <td class="text-right">@x.saldo.ToString("C2")</td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="col-md-12 text-center">
+    <ul class="pagination" id="lstPaginador" data-showprevnext="true" data-hidepagenumbers="false" data-perpage="10"></ul>
+</div>
+<script src="~/Scripts/Utilities/pageMe.js"></script>
+<script src="~/Scripts/js/Kubrix/BaseDatos/_tblCxp.js"></script>

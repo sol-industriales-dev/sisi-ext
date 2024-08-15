@@ -1,0 +1,310 @@
+﻿@{
+ViewBag.Title = "Seguimientos";
+
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="/Content/style/css/Style-Reportes.css" rel="stylesheet">
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CincoS/Seguimientos.css" rel="stylesheet" />
+
+<fieldset class="fieldset-custm" style="border-radius: 10px !important;">
+    <legend class="legend-custm">Filtros</legend>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="input-group">
+                <div class="input-group-addon">SEGUIMIENTO:</div>
+                <select class="form-control" id="cboSeguimiento">
+                    <option value="Ocultar" selected>--Seleccione--</option>
+                    <option value="Estatus">Estatus</option>
+                    <option value="PlanAccion">Plan de Acción</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="input-group">
+                <div class="input-group-addon">CC CONSTRUPLAN:</div>
+                <select id="cboFiltroCC" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-lg-3" style="margin-top: 5px;">
+            <div class="input-group">
+                <div class="input-group-addon">FECHA INICIO:</div>
+                <input id="inputFechaInicio" class="form-control" autocomplete="off"></input>
+            </div>
+        </div>
+        <div class="col-lg-3" style="margin-top: 5px;">
+            <div class="input-group">
+                <div class="input-group-addon">FECHA FINAL:</div>
+                <input id="inputFechaFinal" class="form-control" autocomplete="off"></input>
+            </div>
+        </div>
+        <div class="col-lg-2" style="margin-top: 5px;">
+            <button id="btnBuscar" class="btn botonNaranja">
+                <i class="fas fa-search"></i> BUSCAR
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<br>
+
+<div id="SeguimientoEstatus" style="display:none;">
+    <div class="row">
+        <div class="col-sm-4">
+            <span class="badge" style="display: block; font-size: 16px; font-weight: normal; background-color: rgb(192, 0, 0); border-radius: 7px;">DETECCIONES</span>
+        </div>
+        <div class="col-sm-4">
+            <span class="badge" style="display: block; font-size: 16px; font-weight: normal; background-color: rgb(237, 125, 49); border-radius: 7px;">MEDIDAS IMPLEMENTADAS</span>
+        </div>
+        <div class="col-sm-4">
+            <span class="badge" style="display: block; font-size: 16px; font-weight: normal; background-color: rgb(0, 176, 80); border-radius: 7px;">ACCIONES REALIZADAS</span>
+        </div>
+    </div>
+    <div id="divRenglonesDatos">
+        @* <div class="row">
+            <div class="col-sm-4 divDetecciones">
+                <div class="col-sm-12 cuadroAuditoriaDetalle">
+                    <span style="display: block;">¿Están identificadas y delimitadas todas las áreas (centros de
+                        carga, pasillos peatonales, almacenes de cilindros de gases, aceite,
+                        neumáticos, componentes, estacionamiento de vehículos y
+                        maquinaria, bitácoras, basura común, scrap, residuos peligrosos,
+                        utensilios de limpieza, etc)?</span>
+                    <div class="divControles" style="margin-top: 5px;">
+                        <button class="btn btn-sm btn-default botonAccion"><i class="fa fa-comment-dots"></i></button>
+                        <button class="btn btn-sm btn-default botonDescargarArchivoDeteccion"><i class="fa fa-image"></i></button>
+                        <div class="text-center" style="display: inline-block;">
+                            <label for="inputCargarSeguimientoDeteccion_1" class="btn btn-sm btn-default botonCargarSeguimientoDeteccion"><i class="fa fa-upload"></i></label>
+                            <input id="inputCargarSeguimientoDeteccion_1" type="file" class="inputCargarSeguimientoDeteccion inputCargarSeguimientoDeteccion_1" accept="application/pdf, image/*">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 divMedidas">
+                <div class="col-sm-12 cuadroAuditoriaDetalle">
+                    <span style="display: block;">¿Están identificadas y delimitadas todas las áreas (centros de
+                        carga, pasillos peatonales, almacenes de cilindros de gases, aceite,
+                        neumáticos, componentes, estacionamiento de vehículos y
+                        maquinaria, bitácoras, basura común, scrap, residuos peligrosos,
+                        utensilios de limpieza, etc)?</span>
+                    <div class="divControles" style="margin-top: 5px;">
+                        <button class="btn btn-sm btn-default botonDescargarArchivoSeguimiento"><i class="fa fa-download"></i></button>
+                        <button class="btn btn-sm btn-default botonMotivo" captura="1" disabled><i class="fa fa-comment-dots"></i></button>
+                        <div class="radioBtn btn-group pull-right">
+                            <a class="btn btn-sm btn-success notActive" data-toggle="radioRespuesta_1" respuesta="1" style="font-weight: bold;">
+                                <i class="fa fa-check"></i>&nbsp;SÍ
+                            </a>
+                            <a class="btn btn-sm btn-danger notActive" data-toggle="radioRespuesta_1" respuesta="2" style="font-weight: bold;">
+                                <i class="fa fa-times"></i>&nbsp;NO
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 divAcciones">
+                <div class="col-sm-12 cuadroAuditoriaDetalle">
+                    <span style="display: block;">¿Están identificadas y delimitadas todas las áreas (centros de
+                        carga, pasillos peatonales, almacenes de cilindros de gases, aceite,
+                        neumáticos, componentes, estacionamiento de vehículos y
+                        maquinaria, bitácoras, basura común, scrap, residuos peligrosos,
+                        utensilios de limpieza, etc)?</span>
+                    <div class="divControles" style="margin-top: 5px;">
+                        <div class="col-sm-2" style="padding-left: 0px;">
+                            <button class="btn btn-sm btn-default botonDescargarArchivoSeguimiento"><i class="fa fa-download"></i></button>
+                        </div>
+                        <div class="col-sm-10" style="padding-right: 0px; margin-top: 5px;">
+                            <span style="color: rgb(0, 176, 80); font-weight: bold; font-size: 16px;">IMPLEMENTACIÓN EN ÁREA OK</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 divDetecciones">
+
+            </div>
+            <div class="col-sm-4 divMedidas">
+                <div class="col-sm-12 cuadroAuditoriaDetalle">
+                    <span style="display: block;">¿Están identificadas y delimitadas todas las áreas (centros de
+                        carga, pasillos peatonales, almacenes de cilindros de gases, aceite,
+                        neumáticos, componentes, estacionamiento de vehículos y
+                        maquinaria, bitácoras, basura común, scrap, residuos peligrosos,
+                        utensilios de limpieza, etc)?</span>
+                    <div class="divControles" style="margin-top: 5px;">
+                        <button class="btn btn-sm btn-default botonDescargarArchivoSeguimiento"><i class="fa fa-download"></i></button>
+                        <button class="btn btn-sm btn-default botonMotivo" captura="0"><i class="fa fa-comment-dots"></i></button>
+                        <div class="text-center" style="display: inline-block;">
+                            <label for="inputCargarSeguimientoMedida_2" class="btn btn-sm btn-default botonCargarSeguimientoMedida"><i class="fa fa-upload"></i></label>
+                            <input id="inputCargarSeguimientoMedida_2" type="file" class="inputCargarSeguimientoMedida inputCargarSeguimientoMedida_2" accept="application/pdf, image/*">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 divAcciones">
+
+            </div>
+        </div> *@
+    </div>
+</div>
+
+<div id="SeguimientoPlanAccion" style="display:none;">
+    <fieldset class="fieldset-custm" style="border-radius: 10px !important;">
+        <legend class="legend-custm">PLAN DE ACCIONES</legend>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-4">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Área:</div>
+                                    <select id="cboFiltroArea" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+
+                            </div>
+                            <div class="col-lg-2"></div>
+                            <div class="col-lg-2">
+                                <button id="btnImprimir" class="btn-default align-right"><i class="fas fa-print"></i></button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblPlanAccion" class="hover stripe order-column compact" style="width: 100%">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div class="modal fade" id="modalAccion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaAccionRequerida">
+                            <h4>Descripción de la acción requerida:</h4>
+                        </label>
+                        <textarea id="textAreaAccionRequerida" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeteccion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaAccionRequerida">
+                            <h4>Descripción:</h4>
+                        </label>
+                        <textarea id="textAreaDescripcionDeteccion" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonVisualizarDeteccion" class="btn btn-default"><i class="fa fa-eye"></i></button>
+                <button id="botonDescargarDeteccion" class="btn btn-default"><i class="fa fa-download"></i></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmarRespuesta" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Confirmar Respuesta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaMotivo">
+                            <h4>Motivo:</h4>
+                        </label>
+                        <textarea id="textAreaMotivo" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button id="botonGuardarRespuesta" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMotivo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaMotivoConsulta">
+                            <h4>Motivo:</h4>
+                        </label>
+                        <textarea id="textAreaMotivoConsulta" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalComentarioLider" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaComentarioLider">
+                            <h4>Comentario Lider:</h4>
+                        </label>
+                        <textarea id="textAreaComentarioLider" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button id="botonGuardarComentarioLider" class="btn btn-success"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+@Html.Action("_visorGrid")
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CincoS/Seguimientos.js"></script>

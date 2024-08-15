@@ -1,0 +1,82 @@
+﻿@using Core.DTO.RecursosHumanos;
+@using Core.Entity.RecursosHumanos.Captura;
+@model List<CatFormatoCambioDTO>
+
+@{
+    var Base = new SIGOPLAN.Controllers.BaseController();
+
+}
+
+<script src="~/Scripts/Utilities/bootgrid/jquery.bootgrid.js"></script>
+
+
+
+<table id="tblCambio" class="table table-condensed table-hover table-striped text-center">
+    <thead class="bg-table-header">
+        <tr>
+            <th class="text-center" data-column-id="Operacion">Operación</th>
+            <th class="text-center" data-column-id="Empleado"><label>Empleado</label></th>
+            <th class="text-center" data-column-id="Nombre"><label>Nombre</label></th>
+            <th class="text-center" data-column-id="CentroCostos"><label>Centro de Costos</label></th>
+            <th class="text-center" data-column-id="Puesto"><label>Puesto</label></th>
+            <th class="text-center" data-column-id="Estado"><label>Estado</label></th>
+            <th class="text-center" data-column-id="detalles" data-formatter="detalles"><label>Detalle</label></th>
+            <th class="text-center" data-column-id="editar" data-formatter="editar"><label>Editar</label></th>
+            @if (Base.getAction("TodoFormatoCambio"))
+            {
+            <th class="text-center" data-column-id="eliminar" data-formatter="eliminar"><label>Eliminar</label></th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (CatFormatoCambioDTO obj in @Model)
+        {
+
+            <tr>
+
+                <td>@obj.objFormatoCambio.id</td>
+                <td>@obj.objFormatoCambio.Clave_Empleado</td>
+                <td>@obj.objFormatoCambio.Nombre @obj.objFormatoCambio.Ape_Paterno @obj.objFormatoCambio.Ape_Materno</td>
+                <td>@obj.objFormatoCambio.CcID - @obj.objFormatoCambio.CC</td>
+                <td>@obj.objFormatoCambio.Puesto</td>
+                <td id="tdAp">
+                    @if (@obj.objFormatoCambio.Aprobado)
+                    {
+                        <label>Aprobado</label>
+                    }
+                    else
+                    {
+                        if (@obj.objFormatoCambio.Rechazado)
+                        {
+                            <label>Rechazado</label>
+                        }
+                        else
+                        {
+                            <label>Pendiente</label>
+                        }
+
+                    }
+                </td>
+
+
+                <td><button class="btn btn-info verDet">Detalle</button></td>
+                @if (@obj.objFormatoCambio.Rechazado)
+                {
+                <td>@false</td>
+                }
+                else
+                {
+                <td>@obj.objFormatoCambio.editable</td>
+                }
+                <td><button class="btn btn-info btnRemove">Eliminar</button></td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+
+
+
+

@@ -1,0 +1,605 @@
+﻿@{
+ViewBag.Title = "Estadisticas";
+
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="/Content/style/css/Style-Reportes.css" rel="stylesheet">
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CincoS/Estadisticas.css" rel="stylesheet" />
+
+
+
+<div class="content-fluid">
+    <br>
+    <br>
+    <div id="panelFiltro" class="panel panel-default panel-principal">
+        <div class="panel-heading">
+            <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <div class="input-group-addon">CC:</div>
+                        <select id="cboFiltroCC" class="form-control" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <div class="input-group-addon">AREA:</div>
+                        <select id="cboFiltroArea" class="form-control" multiple="multiple"></select>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="input-group">
+                        <div class="input-group-addon">FECHA INICIO:</div>
+                        <input id="inputFechaInicio" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <div class="input-group">
+                        <div class="input-group-addon">FECHA FINAL:</div>
+                        <input id="inputFechaFinal" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-lg-1">
+                    <button id="btnBuscar" class="btn btn-success btnNaranja pull-right">
+                        <i class="fas fa-search"></i> BUSCAR
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div id="tabsNav col-lg-12">
+            <fieldset class="fieldset-custm">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs justify-content-center" role="tablist">
+                    <li role="presentation" class="active col-lg-4">
+                        <a href="#tabGeneral" aria-controls="tabGeneral" role="tab" data-toggle="tab">GENERAL</a>
+                    </li>
+                    <li role="presentation" class=" col-lg-4">
+                        <a href="#tabAccionSeguimiento" aria-controls="tabAccionSeguimiento" role="tab" data-toggle="tab">
+                            ESTÁNDAR EXCELENCIA 5's
+                        </a>
+                    </li>
+                    <li role="presentation" class=" col-lg-4">
+                        <a href="#tabRadar" aria-controls="tabRadar" role="tab" data-toggle="tab">
+                            RADAR 5'S
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tab GENERAL-->
+                    <div role="tabpanel" class="tab-pane fade in active" id="tabGeneral" style="margin-bottom: 100px;">
+                        <div id="divTablaGraficaTendencias">
+                            <br />
+                            <div class="row margin-top">
+                                <div class="col-lg-12">
+                                    <div id="divTendenciasImplementadas">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                            <table id="tblTendenciasImplementadas" class="table-bordered compact hover" style="width: 100%;">
+                                                <tfoot>
+                                                    <tr>
+                                                        <th style="text-align:right;">% de cumplimiento</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br /><br />
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div id="divGraficaTendencias">
+                                        <div id="grTendenciasImplementadas"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- tab ACCION SEGUIMIENTO -->
+                    <div role="tabpanel" class="tab-pane fade" id="tabAccionSeguimiento" style="margin-bottom: 100px;">
+
+                        <div class="row margin-top">
+                            <div class="col-lg-12 align-center">
+                                <div class="col-lg-2" style="display: none;">
+                                    <div class="input-group">
+                                        <div class="input-group-addon totalizador">
+                                            TOTAL DE OBSERVACIONES
+                                            <input id="inputTotalObservaciones" class="form-control" style="font-weight: bold; font-size: 20px;" placeholder="#" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2" style="display: none;">
+                                    <div class="input-group">
+                                        <div class="input-group-addon totalizador">
+                                            EN REVISIÓN
+                                            <input id="inputTotalEnRevision" class="form-control" style="font-weight: bold; font-size: 20px;" placeholder="#" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3"></div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                        <div class="input-group-addon totalizador">
+                                            "S 's" NO ESTANDARIZADAS
+                                            <input id="inputTotalEnProceso" class="form-control" style="font-weight: bold; font-size: 20px;" placeholder="#" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="input-group">
+                                        <div class="input-group-addon totalizador">
+                                            "S 's" ESTANDARIZADAS
+                                            <input id="inputTotalConcluidas" class="form-control" style="font-weight: bold; font-size: 20px;" placeholder="#" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3"></div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#collapseProduccion">
+                                                    <i class="fas fa-truck"></i>
+                                                    PRODUCCION
+                                                </a>
+                                                <a data-toggle="collapse" href="#collapseProduccion" class="btn btn-xs btn-dark pull-right btnConsulta" data-elemento=>
+                                                    CONSULTAR
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseProduccion" class="panel-collapse collapse">
+                                            <br /> <br />
+                                            <div class="col-lg-1"></div>
+                                            <div id="InputsTotales" class="col-lg-2">
+                                                <br />
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            TOTAL DE "S 's" EVALUADAS
+                                                            <input id="inputAccionesProduccion" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" NO ESTANDARIZADAS
+                                                            <input id="inputPendientesProduccion" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" ESTANDARIZADAS
+                                                            <input id="inputConcluidasProduccion" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            ESTÁNDAR EXCELENCIA 5's
+                                                            <input id="inputCumplimientoProduccion" class="form-control" placeholder="%" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <div class="col-lg-7 no-padding">
+                                                <div class="input-group-addon" style="padding:0; background-color: black; color: white;font-size:14px;">
+                                                    <b>PRODUCCIÓN</b> % CUMPLIMIENTO A DETECCIONES
+                                                    <table id="tblProduccion" class="tabla table-bordered compact hover" style="width: 100%;"> </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <br /> <br />
+                                            <div class="col-lg-12">
+                                                <div id="graficaProduccion"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#collapseMantenimiento">
+                                                    <i class="fas fa-wrench"></i>
+                                                    MANTEMIMIENTO
+                                                </a>
+                                                <a data-toggle="collapse" href="#collapseMantenimiento" class="btn btn-xs btn-dark pull-right btnConsulta" data-elemento=>
+                                                    CONSULTAR
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseMantenimiento" class="panel-collapse collapse">
+                                            <br /> <br />
+                                            <div class="col-lg-1"></div>
+                                            <div id="InputsTotales" class="col-lg-2">
+                                                <br />
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            TOTAL DE "S 's" EVALUADAS
+                                                            <input id="inputAccionesMantenimiento" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" NO ESTANDARIZADAS
+                                                            <input id="inputPendientesMantenimiento" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" ESTANDARIZADAS
+                                                            <input id="inputConcluidasMantenimiento" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            ESTÁNDAR EXCELENCIA 5's
+                                                            <input id="inputCumplimientoMantenimiento" class="form-control" placeholder="%" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <div class="col-lg-7 no-padding">
+                                                <div class="input-group-addon" style="padding:0; background-color: black; color: white;font-size:14px;">
+                                                    <b>MANTENIMIENTO</b> % CUMPLIMIENTO A DETECCIONES
+                                                    <table id="tblMantenimiento" class="tabla table-bordered compact hover" style="width: 100%;"> </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <br /> <br />
+                                            <div class="col-lg-12">
+                                                <div id="graficaMantenimiento"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#collapseOverhaul">
+                                                    <i class="fas fa-cogs"></i>
+                                                    OVERHAUL
+                                                </a>
+                                                <a data-toggle="collapse" href="#collapseOverhaul" class="btn btn-xs btn-dark pull-right btnConsulta" data-elemento=>
+                                                    CONSULTAR
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseOverhaul" class="panel-collapse collapse">
+                                            <br /> <br />
+                                            <div class="col-lg-1"></div>
+                                            <div id="InputsTotales" class="col-lg-2">
+                                                <br />
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            TOTAL DE "S 's" EVALUADAS
+                                                            <input id="inputAccionesOverhaul" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" NO ESTANDARIZADAS
+                                                            <input id="inputPendientesOverhaul" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" ESTANDARIZADAS
+                                                            <input id="inputConcluidasOverhaul" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            ESTÁNDAR EXCELENCIA 5's
+                                                            <input id="inputCumplimientoOverhaul" class="form-control" placeholder="%" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <div class="col-lg-7 no-padding">
+                                                <div class="input-group-addon" style="padding:0; background-color: black; color: white;font-size:14px;">
+                                                    <b>OVERHAUL</b> % CUMPLIMIENTO A DETECCIONES
+                                                    <table id="tblOverhaul" class="tabla table-bordered compact hover" style="width: 100%;"> </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <br /> <br />
+                                            <div class="col-lg-12">
+                                                <div id="graficaOverhaul"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#collapseAlmacen">
+                                                    <i class="fas fa-archive"></i>
+                                                    ALMACEN
+                                                </a>
+                                                <a data-toggle="collapse" href="#collapseAlmacen" class="btn btn-xs btn-dark pull-right btnConsulta" data-elemento=>
+                                                    CONSULTAR
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseAlmacen" class="panel-collapse collapse">
+                                            <br /> <br />
+                                            <div class="col-lg-1"></div>
+                                            <div id="InputsTotales" class="col-lg-2">
+                                                <br />
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            TOTAL DE "S 's" EVALUADAS
+                                                            <input id="inputAccionesAlmacen" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" NO ESTANDARIZADAS
+                                                            <input id="inputPendientesAlmacen" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" ESTANDARIZADAS
+                                                            <input id="inputConcluidasAlmacen" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            ESTÁNDAR EXCELENCIA 5's
+                                                            <input id="inputCumplimientoAlmacen" class="form-control" placeholder="%" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <div class="col-lg-7 no-padding">
+                                                <div class="input-group-addon" style="padding:0; background-color: black; color: white;font-size:14px;">
+                                                    <b>ALMACÉN</b> % CUMPLIMIENTO A DETECCIONES
+                                                    <table id="tblAlmacen" class="tabla table-bordered compact hover" style="width: 100%;"> </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <br /> <br />
+                                            <div class="col-lg-12">
+                                                <div id="graficaAlmacen"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#collapseAreaAdmin">
+                                                    <i class="fas fa-laptop"></i>
+                                                    AREA ADMINISTRATIVA
+                                                </a>
+                                                <a data-toggle="collapse" href="#collapseAreaAdmin" class="btn btn-xs btn-dark pull-right btnConsulta" data-elemento=>
+                                                    CONSULTAR
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseAreaAdmin" class="panel-collapse collapse">
+                                            <br /> <br />
+                                            <div class="col-lg-1"></div>
+                                            <div id="InputsTotales" class="col-lg-2">
+                                                <br />
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            TOTAL DE "S 's" EVALUADAS
+                                                            <input id="inputAccionesAreaAdmin" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" NO ESTANDARIZADAS
+                                                            <input id="inputPendientesAreaAdmin" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            "S 's" ESTANDARIZADAS
+                                                            <input id="inputConcluidasAreaAdmin" class="form-control" placeholder="#" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon totalizador">
+                                                            ESTÁNDAR EXCELENCIA 5's
+                                                            <input id="inputCumplimientoAreaAdmin" class="form-control" placeholder="%" disabled />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <div class="col-lg-7 no-padding">
+                                                <div class="input-group-addon" style="padding:0; background-color: black; color: white;font-size:14px;">
+                                                    <B>ÁREA ADMINISTRATIVA</B> % CUMPLIMIENTO ESTÁNDAR EXCELENCIA 5's
+                                                    <table id="tblAreaAdmin" class="tabla table-bordered compact hover" style="width: 100%;"> </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1"></div>
+                                            <br /> <br />
+                                            <div class="col-lg-12">
+                                                <div id="graficaAreaAdmin"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- tab RADAR-->
+                    <div role="tabpanel" class="tab-pane fade" id="tabRadar" style="margin-bottom: 100px;">
+                        <div id="divRadar">
+                            <div class="row margin-top">
+                                <div class="col-xs-12 col-md-12">
+                                    <br /> <br />
+                                    <div class="row">
+                                        <div class="col-lg-7" style="padding-right:0;">
+                                            <div class="col-lg-4">
+                                                <div class="input-group">
+                                                    <div class="input-group-addon porcentajes"> CLASIFICAR </div>
+                                                    <input id="inputClasificar" class="form-control porcentajes" disabled />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="input-group">
+                                                    <div class="input-group-addon porcentajes"> LIMPIEZA </div>
+                                                    <input id="inputLimpieza" class="form-control porcentajes" disabled />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="input-group">
+                                                    <div class="input-group-addon porcentajes"> ORDEN </div>
+                                                    <input id="inputOrden" class="form-control porcentajes" disabled />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5" style="padding-left:0;">
+                                            <div class="col-lg-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-addon porcentajes"> ESTANDARIZACIÓN </div>
+                                                    <input id="inputEstandarizacion" class="form-control porcentajes" disabled />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-addon porcentajes"> DISCIPLINA </div>
+                                                    <input id="inputDisciplina" class="form-control porcentajes" disabled />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br /> <br />
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div id="divGraficaRadar">
+                                                <div id="grRadar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CincoS/Estadisticas.js"></script>
+<script src="~/Scripts/js/Encuestas/highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Encuestas/highcharts/highcharts-more.js"></script>

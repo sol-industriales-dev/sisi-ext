@@ -1,0 +1,179 @@
+﻿
+@{
+    ViewBag.Title = "CatalogoDeDiviciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<h2 style="text-align:center;">Catalogo De Divisiones De Evaluaciones</h2>
+<link href="~/Content/style/css/ControlObra/controlObra2.css" rel="stylesheet" />
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+
+<style>
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+        table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+            border: 0px solid #ffffff !important;
+        }
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .disenioModal .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+        .disenioModal .modal-header .titleHeader {
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-title {
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-subtitle {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#cboProyecto').select2();
+    });
+    $(document).ready(function () {
+        $('#cboSubContratista').select2();
+    });
+</script>
+
+<!-- TITULO MODULO -->
+<!-- BODY -->
+
+<fieldset class="fieldset-custm">
+        <!-- ESTATUS -->
+        <legend class="legend-custm">Filtros : </legend>
+            <br>
+                <div class="col-md-9">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary"  id="btnBuscar">Buscar Divisiones</button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#mdlNuevaDivicion"  id="btnNuevo">Nueva División</button>
+                </div>
+            <br>
+</fieldset>
+               
+<br>
+<fieldset class="fieldset-custm">
+    <div class="row form-group">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-md-12">
+                <br>
+                <table id='tblDiviciones' class='table table-condensed table-hover table-striped text-center'>
+                </table>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<div id='mdlNuevaDivicion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Nueva División</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <label for="">Descripcion Evaluación</label>
+                        <input class="form-control" type="text" id="inpDescripcion">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="">Mensaje Evaluación</label>
+                        <input class="form-control" type="text" id="inpMensaje">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="">Requerimiento : </label>
+                        <input class="form-control" type="text" id="inpRequerimiento">
+                        <button id="btnGuardarRequerimiento">Insertar</button>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id='tblRequerimientos' class='table table-condensed table-hover table-striped text-center'>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-success' id="btnAgregar"><i class='fa fa-save' ></i> Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlEditarDivicion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Editar División</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <label for="">Descripcion Evaluacón</label>
+                        <input class="form-control" type="text" id="inpDescripcionEdit">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="">Mensaje Evaluación</label>
+                        <input class="form-control" type="text" id="inpMensajeEdit">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="">Requerimiento : </label>
+                        <input class="form-control" type="text" id="inpRequerimientoEdit">
+                        <button id="btnGuardarRequerimientoEdit">Insertar</button>
+                    </div>
+                </div>    
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id='tblRequerimientosEdit' class='table table-condensed table-hover table-striped text-center'>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-success' id="btnModificar"><i class='fa fa-save' ></i> Modificar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/ControlObra/subContratista/CatalogoDeDiviciones.js"></script>

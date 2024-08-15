@@ -1,0 +1,303 @@
+﻿(() => {
+    $.namespace('RecursosHumanos.Desempeno._FormMetaEvaluar');
+    _FormMetaEvaluar = function () {
+        var idObservacion = 0, idMeta = 0, idEvaluacion = 0, idProceso = 0, idUsuario = 0, lstSemaforo = [], evaMetaContador = 0, lstEvaMetaEvidencias = [];
+        const divEvaMetaForm = $('.divEvaMetaForm');
+        const lblEvaMetaTipo = $('#lblEvaMetaTipo');
+        const btnEvaMetaGuardar = $('#btnEvaMetaGuardar');
+        const txtVerComoActivado = $('#txtVerComoActivado');
+        const divEvaMetaSemaforo = $('#divEvaMetaSemaforo');
+        const txtEvaMetaResultado = $('#txtEvaMetaResultado');
+        const tblEvaMetaEvidencia = $('#tblEvaMetaEvidencia');
+        const btnEvaMetaEvidencia = $('#btnEvaMetaEvidencia');
+        const cboEvaMetaEvaluacion = $('#cboEvaMetaEvaluacion');
+        const fileEvaMetaEvidencia = $('#fileEvaMetaEvidencia');
+        const lblEvaMetaDescripcion = $('#lblEvaMetaDescripcion');
+        const divEvaMetaAutoIndicador = $('#divEvaMetaAutoIndicador');
+        const divEvaMetaJefeIndicador = $('#divEvaMetaJefeIndicador');
+        const txtEvaMetaJefeEvaluacion = $('#txtEvaMetaJefeEvaluacion');
+        const txtEvaMetaAutoEvaluacion = $('#txtEvaMetaAutoEvaluacion');
+        const txtEvaMetaJefeObservacion = $('#txtEvaMetaJefeObservacion');
+        const txtEvaMetaAutoObservacion = $('#txtEvaMetaAutoObservacion');
+        const getObservacion = new URL(window.location.origin + '/Administrativo/Desempeno/getObservacion');
+        const eliminarEvidencia = new URL(window.location.origin + '/Administrativo/Desempeno/eliminarEvidencia');
+        const metaEvidenciaGuardar = new URL(window.location.origin + '/Administrativo/Desempeno/metaEvidenciaGuardar');
+        const getCboEvaluacionPorProceso = new URL(window.location.origin + '/Administrativo/Desempeno/getCboEvaluacionPorProceso');
+        let init = () => {
+            initDataTblEvaMetaEvidencia();
+            txtEvaMetaResultado.change(setEvaMetaResultado);
+            cboEvaMetaEvaluacion.change(setEvaMetaObservacion);
+            btnEvaMetaGuardar.click(setEvaMetaEvidenciaGuardar);
+            txtEvaMetaAutoEvaluacion.change(setEvaMetaAutoIndicador);
+            txtEvaMetaJefeEvaluacion.change(setEvaMetaJefeIndicador)
+            btnEvaMetaEvidencia.click(setEvaMetaInputEvidencia);
+            fileEvaMetaEvidencia.change(function () { setEvaMetaEvidencia(this); });
+            setEvaMetaResultado();
+        }
+        setEvaMetaObservacion = async () => {
+            try {
+                idEvaluacion = +cboEvaMetaEvaluacion.val();
+                response = await ejectFetchJson(getObservacion, {
+                    idMeta,
+                    idEvaluacion,
+                    idUsuarioCalificar: idUsuario
+                });
+                let { success, observacion } = response;
+                if (success) {
+                    setFormEvaluacion(observacion);
+                }
+            } catch (o_O) { AlertaGeneral('Aviso', o_O.message) }
+        }
+        setEliminarEvidencia = async id => {
+            try {
+                response = await ejectFetchJson(eliminarEvidencia, { id });
+                if (response.success) {
+                    NotificacionGeneral("Aviso", "Evidencia eliminada con éxito.");
+                }
+            } catch (o_O) { AlertaGeneral('Aviso', o_O.message) }
+        }
+        setEvaMetaEvidenciaGuardar = () => {
+            try {
+                let formData = getFormEvaMetaEvaluacion()
+                    , request = new XMLHttpRequest();
+                request.open("POST", metaEvidenciaGuardar);
+                request.send(formData);
+                request.onload = response => {
+                    if (request.status == 200) {
+                        var jsonResponse = JSON.parse(request.responseText);
+                        if (jsonResponse.success) {
+                            AlertaGeneral("Aviso", `Evaluacion gaurdado con exito.`);
+                            dtEvaMetaEvidencia.columns.adjust().draw();
+                            setMetaIndividual(idMeta);
+                            setEmpleadosJefe();
+                        } else {
+                            AlertaGeneral("Aviso", `${jsonResponse.message}`);
+                        }
+
+                    }
+                };
+            } catch (o_O) { AlertaGeneral('Aviso', o_O.message) }
+        }
+        setFormEvaluacion = ({ lstEvidencia, lstArchivo, meta, lstSemaforo, id, idUsuario, idJefe, resultado, autoEvaluacion, autoObservacion, jefeEvaluacion, jefeObservacion, puedeAutoEvaluar, puedeJefeEvaluar }) => {
+            setMetaSemaforoForm(lstSemaforo);
+            dtEvaMetaEvidencia.clear().draw();
+            dtEvaMetaEvidencia.rows.add(lstEvidencia).draw();
+            lblEvaMetaDescripcion.text(meta.descripcion);
+            lblEvaMetaTipo.text(meta.tipo);
+            txtEvaMetaResultado.val(resultado);
+            txtEvaMetaAutoEvaluacion.val(autoEvaluacion);
+            txtEvaMetaAutoObservacion.val(autoObservacion);
+            txtEvaMetaJefeEvaluacion.val(jefeEvaluacion);
+            txtEvaMetaJefeObservacion.val(jefeObservacion);
+            setEvaMetaResultado();
+            setEvaMetaAutoIndicador();
+            setEvaMetaJefeIndicador();
+            txtEvaMetaResultado.prop("disabled", !puedeAutoEvaluar);
+            txtEvaMetaAutoEvaluacion.prop("disabled", !puedeAutoEvaluar);
+            txtEvaMetaAutoObservacion.prop("disabled", !puedeAutoEvaluar);
+            txtEvaMetaJefeEvaluacion.prop("disabled", !puedeJefeEvaluar);
+            txtEvaMetaJefeObservacion.prop("disabled", !puedeJefeEvaluar);
+            btnEvaMetaGuardar.data({
+                id,
+                idUsuario,
+                idJefe,
+                idMeta: meta.id,
+                idProceso: meta.idProceso,
+                puedeAutoEvaluar,
+                puedeJefeEvaluar
+            });
+            btnEvaMetaGuardar.addClass("hidden");
+            if (puedeAutoEvaluar || puedeJefeEvaluar) {
+                btnEvaMetaGuardar.removeClass("hidden");
+            }
+            lstEvidencia.forEach(a => {
+                let pos = a.source.indexOf(';base64,')
+                    , type = a.source.substring(5, pos);
+                lstEvaMetaEvidencias.push(new File([new Blob([a.source], { type })], a.nombre, { type }));
+            });
+        }
+        setEvaMetaResultado = () => {
+            let resultado = +txtEvaMetaResultado.val();
+            txtEvaMetaResultado.val(maskNumero2D(resultado))
+        }
+        setEvaMetaAutoIndicador = () => {
+            let calificacion = +txtEvaMetaAutoEvaluacion.val(),
+                min = lstSemaforo.reduce((prev, curr) => prev.minimo < curr.minimo ? prev : curr).minimo,
+                max = lstSemaforo.reduce((prev, curr) => prev.maximo > curr.maximo ? prev : curr).maximo;
+            if (calificacion < min) {
+                calificacion = min;
+            }
+            if (calificacion > max) {
+                calificacion = max;
+            }
+            let indicador = lstSemaforo.find(semaforo => semaforo.minimo <= calificacion && semaforo.maximo >= calificacion);
+            divEvaMetaAutoIndicador.css("background", `#${indicador.color}`);
+            txtEvaMetaAutoEvaluacion.val(maskNumero2D(calificacion));
+        }
+        setEvaMetaJefeIndicador = () => {
+            let calificacion = +txtEvaMetaJefeEvaluacion.val(),
+                min = lstSemaforo.reduce((prev, curr) => prev.minimo < curr.minimo ? prev : curr).minimo,
+                max = lstSemaforo.reduce((prev, curr) => prev.maximo > curr.maximo ? prev : curr).maximo;
+            if (calificacion < min) {
+                calificacion = min;
+            }
+            if (calificacion > max) {
+                calificacion = max;
+            }
+            let indicador = lstSemaforo.find(semaforo => semaforo.minimo <= calificacion && semaforo.maximo >= calificacion);
+            divEvaMetaJefeIndicador.css("background", `#${indicador.color}`);
+            txtEvaMetaJefeEvaluacion.val(maskNumero2D(calificacion));
+        }
+        setMetaSemaforoForm = lst => {
+            divEvaMetaSemaforo.html("");
+            lstSemaforo = lst;
+            lst.forEach(semaforo => {
+                let divContenedor = $('<div>', {
+                    class: 'input-group'
+                }),
+                    divColor = $('<span>', {
+                        class: 'dot',
+                        style: `background: #${semaforo.color}`
+                    }),
+                    lblPorcentaje = $('<label>', {
+                        text: `${maskNumero2D(semaforo.minimo)} - ${maskNumero2D(semaforo.maximo)}`,
+                    });
+                divContenedor.append(divColor);
+                divContenedor.append(lblPorcentaje);
+                divEvaMetaSemaforo.append(divContenedor);
+            });
+        }
+        setEvaMetaEvidencia = input => {
+            if (input.files && input.files[0]) {
+                evaMetaContador++;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    let nombreLimit = input.files[0].name.split('.').length - 1,
+                        extencion = input.files[0].name.split('.')[nombreLimit];
+                    input.files[0].name = `${idProceso} - Evidencia ${evaMetaContador}.${extencion}`;
+                    dtEvaMetaEvidencia.row.add({
+                        id: 0,
+                        contador: evaMetaContador,
+                        nombre: `Evidencia ${evaMetaContador}.${extencion}`,
+                        extencion: `.${extencion}`,
+                        source: input.files[0]
+                    }).draw();
+                    lstEvaMetaEvidencias.push(input.files[0]);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        getFormEvaMetaEvaluacion = () => {
+<<<<<<< Updated upstream
+            let formData = new FormData();
+            let lstEvidencia = dtEvaMetaEvidencia.rows().data().toArray();
+            formData.append("obs", JSON.stringify({
+                id: idObservacion,
+                idMeta: idMeta,
+                idUsuario: idUsuario,
+                idEvaluacion: +cboEvaMetaEvaluacion.val(),
+                calificacion: +txtEvaMetaEvaluacion.val(),
+                autoObservacion: txtEvaMetaObservacion.val(),
+                lstEvidencia: lstEvidencia.map(evidencia => ({
+                    id: evidencia.id,
+                    idObservacion,
+                    nombre: evidencia.nombre,
+                })),
+            }));
+=======
+            let formData = new FormData(),
+                lstEvidencia = dtEvaMetaEvidencia.rows().data().toArray(),
+                data = btnEvaMetaGuardar.data(),
+                obs = {
+                    id: data.id,
+                    idEvaluacion: data.idEvaluacion,
+                    idMeta: data.idMeta,
+                    idUsuario: data.idUsuario,
+                    idJefe: data.idJefe,
+                    idEvaluacion: +cboEvaMetaEvaluacion.val(),
+                    resultado: +txtEvaMetaResultado.val(),
+                    autoEvaluacion: +txtEvaMetaAutoEvaluacion.val(),
+                    autoObservacion: txtEvaMetaAutoObservacion.val(),
+                    jefeEvaluacion: +txtEvaMetaJefeEvaluacion.val(),
+                    jefeObservacion: txtEvaMetaJefeObservacion.val(),
+                    esActivo: true,
+                    esAutoEvaluado: true,
+                    esJefeEvaluado: data.puedeJefeEvaluar,
+                    lstEvidencia: lstEvidencia.map(evidencia => ({
+                        id: evidencia.id,
+                        idObservacion,
+                        nombre: evidencia.nombre,
+                    })),
+                };
+            formData.append("obs", JSON.stringify(obs));
+>>>>>>> Stashed changes
+            dtEvaMetaEvidencia.rows().data().each((i, j) => {
+                formData.append("files[]", lstEvaMetaEvidencias[j]);
+            });
+            return formData;
+        }
+        setEvaMetaInputEvidencia = () => {
+            fileEvaMetaEvidencia.click();
+        }
+        showFormMetaEvaluar = (proceso, meta) => {
+            idProceso = proceso.id;
+            idMeta = meta.id;
+            cboEvaMetaEvaluacion.fillCombo(getCboEvaluacionPorProceso, { idProceso }, true, null);
+            divEvaMetaForm.addClass("hidden");
+            if (meta.esVobo) {
+                idUsuario = meta.idUsuario;
+                setEvaMetaObservacion();
+                divEvaMetaForm.removeClass("hidden");
+            }
+        }
+        function initDataTblEvaMetaEvidencia() {
+            dtEvaMetaEvidencia = tblEvaMetaEvidencia.DataTable({
+                destroy: true
+                , language: dtDicEsp
+                , columns: [
+                    { data: 'nombre', title: 'Evidencia' }
+                    , {
+                        data: 'contador', width: '2%', title: 'Mostrar', createdCell: function (td, data, rowData, row, col) {
+                            let btn = $("<button>", {
+                                class: `btn btn-success descargar`,
+                                html: `<i class='fa fa-file'></i>`
+                            });
+                            $(td).html(btn);
+                        }
+                    }
+                    , {
+                        data: 'contador', title: 'Eliminar', width: '2%', visible: !txtVerComoActivado.prop('checked'), createdCell: function (td, data, rowData, row, col) {
+                            let btn = $("<button>", {
+                                class: `btn btn-danger eliminar`,
+                                html: `<i class='fa fa-trash'></i>`
+                            });
+                            $(td).html(btn);
+                        }
+                    }
+                ]
+                , initComplete: function (settings, json) {
+                    tblEvaMetaEvidencia.on('click', '.eliminar', function (event) {
+                        let row = $(this).closest('tr'),
+                            data = dtEvaMetaEvidencia.row(row).data();
+                        dtEvaMetaEvidencia.row(row).remove().draw();
+                        lstEvaMetaEvidencias.splice(lstEvaMetaEvidencias.indexOf("contador", data.id), 1);
+                        if (data.id > 0) {
+                            setEliminarEvidencia(id);
+                        }
+                    });
+                    tblEvaMetaEvidencia.on('click', '.descargar', function (event) {
+                        let row = $(this).closest('tr'),
+                            data = dtEvaMetaEvidencia.row(row).data();
+                        setVisorFile(data.source, data.extencion);
+                    });
+                }
+            });
+        }
+        init();
+    }
+    $(document).ready(() => {
+        RecursosHumanos.Desempeno._FormMetaEvaluar = new _FormMetaEvaluar();
+    })
+        .ajaxStart(() => { $.blockUI({ message: 'Procesando...' }); })
+        .ajaxStop(() => { $.unblockUI(); });
+})();

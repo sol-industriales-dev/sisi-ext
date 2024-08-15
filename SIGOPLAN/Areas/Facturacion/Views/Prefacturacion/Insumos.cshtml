@@ -1,0 +1,274 @@
+﻿@{
+    ViewBag.Title = "Insumos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- PUESTOS -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>INSUMOS</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <!-- <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Estatus</span>
+                                <select type="date" id="cboFiltroEstatus" class="form-control">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="0">No Activo</option>
+                                    <option value="1">Activo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha Inicio</span>
+                                <input type="date" id="txtFiltroFechaInicio" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha Terminacion</span>
+                                <input type="date" id="txtFiltroFechaTerminacion" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row marginBottom">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon"># Emp.</span>
+                                <input id="txtFiltroClaveEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="txtFiltroNombreEmpleado" class="form-control">
+                            </div>
+                        </div> -->
+                        <div class="col-sm-2 pull-right">
+                            <div class="pull-right">
+
+                                <!-- <button type="button" class="btn btn-primary" id="btnFiltroExportarCR">Exportar</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroExportar"><i class="far fa-file-excel"></i> Descargar</button> -->
+                                <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroNuevo">Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE PUESTOS -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblInsumos" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE PUESTOS -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<div id='mdlCarousel' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1><i class="fas fa-exclamation-triangle"></i></h1>
+            </div> 
+            <div class='modal-body'>
+                    <!-- <h2>Carousel</h2> -->
+                <div id="carouselNotis" class="carousel slide" >
+                    <!-- Indicators -->
+                    <!-- <ol class="carousel-indicators">
+                        <li data-target="#carouselNotis" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselNotis" data-slide-to="1"></li>
+                        <li data-target="#carouselNotis" data-slide-to="2"></li>
+                        <li data-target="#carouselNotis" data-slide-to="3"><span>21645</span></li>
+                    </ol> -->
+
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner" id ="carouselNotisInner">
+                        
+                    </div>
+
+                    <!-- Left and right controls -->
+                    <a class="left carousel-control" href="#carouselNotis" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carouselNotis" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL ADD PUESTO -->
+<div id='mdlCEInsumo' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanCEInsumoTitulo"></span> INSUMO</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Clave</span>
+                            <input type="text" id="txtCEInsumoClave" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Unidad</span>
+                            <input type="text" id="txtCEInsumoUnidad" class="form-control" placeholder="Ej. KG/HRS/LB/LT/M/CM">
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Descripcion</span>
+                            <input type="text" id="txtCEInsumoDesc" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row marginBottom">
+                    <div class="col-sm-2"> 
+                        <button class="btn btn-primary" data-toggle="collapse" data-target="#divNuevosInsumos" aria-expanded="false" aria-controls="divNuevosInsumos"><i class="fas fa-plus"></i> Insumos</button>
+                    </div>
+                </div>
+                <div class="row collapse marginBottom" id="divNuevosInsumos">
+                    <div class="col-sm-12"> 
+                        <select style="width:100%" name="" class="form-control" multiple="multiple" id="cboCEInsumos"></select>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblInsumosEK" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCEInsumo"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD PUESTO -->
+
+<!-- MODAL ADD INSUMO -->
+<div id='mdlADDInsumos' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>AGREGAR INSUMO</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">No. Empleado</span>
+                            <input type="text" id="txtCEIncapClaveEmpleado" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre</span>
+                            <input type="text" id="txtCEIncapNombreEmpleado" class="form-control" placeholder="Ingresa un nombre ...">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2"> 
+                        <button class="btn btn-primary"><i class="far fa-plus"></i>Insumos</button>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblInsumosEK" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCEInsumo"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD INSUMO -->
+
+<!-- END: MODALES -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Facturacion/Prefacturacion/Insumos.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/jquery-ui.js"></script>

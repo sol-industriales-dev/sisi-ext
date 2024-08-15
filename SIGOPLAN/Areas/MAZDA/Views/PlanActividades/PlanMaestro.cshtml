@@ -1,0 +1,472 @@
+﻿@{
+    ViewBag.Title = "Gestion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/PlanMaestro.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/RevisionCuadrilla.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.18/fc-3.2.5/fh-3.1.4/datatables.min.css" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/PlanActividadesGestion.js"></script>
+<script src="~/Scripts/js/MAZDA/RevisionCuadrilla.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.18/fc-3.2.5/fh-3.1.4/datatables.min.js"></script>
+
+
+<div class="container-fluid">
+
+    <div class="row">
+        <h2 class="text-center">Plan Maestro</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <div class="container-fluid">
+                    <fieldset class="fieldset-custm" style="margin-bottom: 5px; border-radius: 0px !important;">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="input-group col-md-12">
+                            <div class="col-lg-2">
+                                <label>Cuadrillas:</label>
+                                <select class="form-control" id="multiSelectCua" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Periodos:</label>
+                                <select class="form-control" id="multiSelectPer" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Areas:</label>
+                                <select class="form-control" id="multiSelectArea" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Actividades:</label>
+                                <select class="form-control" id="multiSelectAct" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Meses:</label>
+                                <select class="form-control" id="multiSelectMes" multiple="multiple"></select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="btnFiltrarPlanMaestro" class="btn btn-primary" style="margin-top: 25px; padding: 6px 6px;"><span class="glyphicon glyphicon-search"></span> Filtrar</button>
+                                <button id="btnPrint" class="btn btn-primary" style="margin-top: 25px; padding: 6px 6px;"><span class="glyphicon glyphicon-print"></span> Reporte</button>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="row" style='padding-left:15px; padding-right:15px;'>
+                        <table id="tblPlanMaestro" class="table  text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th id="col_cuadrilla" class="text-center" style="border-right: 1px solid black;">CUADRILLA</th>
+                                    <th id="col_periodo" class="text-center" style="border-right: 1px solid black;">PERIODO</th>
+                                    <th id="col_area" class="text-center" style="border-right: 1px solid black;">AREA</th>
+                                    <th id="col_actividades" class="text-center" style="border-right: 1px solid black;">ACTIVIDADES</th>
+                                    <th id="col_abril" class="text-center mesHeader" data-numeromes="4">ABR</th>
+                                    <th id="col_mayo" class="text-center mesHeader" data-numeromes="5">MAY</th>
+                                    <th id="col_junio" class="text-center mesHeader" data-numeromes="6">JUN</th>
+                                    <th id="col_julio" class="text-center mesHeader" data-numeromes="7">JUL</th>
+                                    <th id="col_agosto" class="text-center mesHeader" data-numeromes="8">AGO</th>
+                                    <th id="col_septiembre" class="text-center mesHeader" data-numeromes="9">SEP</th>
+                                    <th id="col_octubre" class="text-center mesHeader" data-numeromes="10">OCT</th>
+                                    <th id="col_noviembre" class="text-center mesHeader" data-numeromes="11">NOV</th>
+                                    <th id="col_diciembre" class="text-center mesHeader" data-numeromes="12">DIC</th>
+                                    <th id="col_enero" class="text-center mesHeader" data-numeromes="1">ENE</th>
+                                    <th id="col_febrero" class="text-center mesHeader" data-numeromes="2">FEB</th>
+                                    <th id="col_marzo" class="text-center mesHeader" data-numeromes="3">MAR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dialogPlanMes" role="dialog">
+        <div class="modal-dialog modal-md" role="document" style="width: 90%;">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label id="labelDialogPlanMes"> Plan Mes</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                                <legend class="legend-custm"></legend>
+                                <table id="tblPlanMes" class="table  text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                    <thead class="bg-table-header"></thead>
+                                    <tbody></tbody>
+                                    <tfoot></tfoot>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnPrintMes" class="btn btn-primary" style="margin-top: 24px;"><span class="glyphicon glyphicon-print"></span> Reporte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlRevisionAC">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label id="labelTituloRevisionAC"><i class="fa fa-photo"></i> Revisión</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="divCuadrillaAC" class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="container-fluid" style="padding-left: 0px; padding-right: 0px;">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                    <fieldset id="fieldBusquedaAC" class="fieldset-custm">
+                                        <legend class="legend-custm">Capturar</legend>
+                                        <div class="input-group col-md-12">
+                                            <div class="col-lg-2">
+                                                <label>Equipo:</label>
+                                                <select class="form-control" id="selectEquipo"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Tonelaje:</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control text-right" id="inputTonelaje" />
+                                                    <span class="input-group-addon">Toneladas</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Area:</label>
+                                                <select class="form-control" id="selectArea"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Periodo:</label>
+                                                <select class="form-control" id="selectPeriodo"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Técnico:</label>
+                                                <select class="form-control" id="selTecnico"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Ayudantes:</label>
+                                                <select class="form-control" id="selAyudante" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-lg-3" style="margin-top: 5px;">
+                                                <button class="btn btn-default" id="btnLimpiar"><span class="fa fa-eraser"></span> Limpiar</button>
+                                                <button class="btn btn-primary" id="btnShowMdl"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                                            <legend class="legend-custm"></legend>
+                                            <table class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th data-formatter="" data-header-align="center" class="text-center" style="border: 2px solid black; background-color: #ddd;">ACTIVIDADES DE MANTENIMIENTO DE AIRES ACONDICIONADOS</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <table id="tblCondensador" class="table text-center" style="margin-bottom: 0px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="text-center col-lg-7" rowspan="2">CONDENSADOR</th>
+                                                        <th class="text-center col-lg-1">SE REALIZO</th>
+                                                        <th class="text-center col-lg-4" rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <table id="tblEvaporador" class="table text-center" style="margin-top: 5px; margin-bottom: 10px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center col-lg-7" rowspan="2">EVAPORADOR</th>
+                                                        <th data-header-align="center" class="text-center col-lg-1">SE REALIZO</th>
+                                                        <th data-header-align="center" class="text-center col-lg-4" rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObs" class="form-control" style="border-radius: 0px; height: 100px;"></textarea>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlRevisionCua">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label id="labelTituloRevisionCua"><i class="fa fa-photo"></i> Revisión</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="divCuadrillaGeneral" class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset id="fieldBusquedaCuadrilla" class="fieldset-custm">
+                                <legend class="legend-custm">Capturar</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-2" style="padding-left: 0px;">
+                                        <label>Mes:</label>
+                                        <select class="form-control" id="selectMes">
+                                            <option value="">--Seleccione--</option>
+                                            <option value="1">ENERO</option>
+                                            <option value="2">FEBRERO</option>
+                                            <option value="3">MARZO</option>
+                                            <option value="4">ABRIL</option>
+                                            <option value="5">MAYO</option>
+                                            <option value="6">JUNIO</option>
+                                            <option value="7">JULIO</option>
+                                            <option value="8">AGOSTO</option>
+                                            <option value="9">SEPTIEMBRE</option>
+                                            <option value="10">OCTUBRE</option>
+                                            <option value="11">NOVIEMBRE</option>
+                                            <option value="12">DICIEMBRE</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label>Técnico:</label>
+                                        <select class="form-control" id="selTecnicoCua"></select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label>Ayudantes:</label>
+                                        <select class="form-control" id="selAyudanteCua" multiple="multiple"></select>
+                                    </div>
+                                    <div class="col-lg-3" style="padding-left: 0px;">
+                                        <button class="btn btn-primary" id="btnShowMdlCua" style="margin-top: 25px;"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                                    </div>
+                                    <input id="selectCuadrilla" disabled style="display: none;" />
+                                </div>
+                            </fieldset>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                                        <legend class="legend-custm"></legend>
+                                        <table id="tblRevisionActividades" class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                            <thead class="bg-table-header">
+                                                <tr>
+                                                    <th class="text-center col-lg-1" rowspan="2">FRECUENCIA</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ÁREA</th>
+                                                    <th class="text-center col-lg-4" rowspan="2">ACTIVIDADES</th>
+                                                    <th class="text-center col-lg-1">SE REALIZO</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ESTATUS</th>
+                                                </tr>
+                                                <tr>
+                                                    <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                            <tfoot></tfoot>
+                                        </table>
+                                        <div id="divObservaciones" style="margin-top: 5px;">
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObsCua" class="form-control" style="border-radius: 0px; height: 100px;"></textarea>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEvidencia">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleria"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-2">
+                        <div class="custom-file-upload">
+                            <label for="inputEvidencias" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Evidencia
+                            </label>
+                            <input type="file" id="inputEvidencias" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnGuardar"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEvidenciaCua">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleriaCua"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-2">
+                        <div class="custom-file-upload">
+                            <label for="inputEvidenciasCua" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Evidencia
+                            </label>
+                            <input type="file" id="inputEvidenciasCua" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnGuardarCua"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEquiposArea" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="lblEquiposArea"> Equipos Area</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 noPaddingField">
+                        <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                            <legend class="legend-custm"></legend>
+                                <div class="row">
+                                    <div class="col-md-6 table-responsive noPadding-right">
+                                        <table id="tblEquiposArea" class="table" style="margin-top: 5px; margin-bottom: 0px;">
+                                            <thead class="bg-table-header"></thead>
+                                            <tbody></tbody>
+                                            <tfoot></tfoot>
+                                        </table>
+                                    </div>
+
+                                    <div class="col-md-6 divpadding">
+                                        <div class="wrap">
+                                            <table id="tblEquiposAreaDias" class="table" style="margin-top: 5px; margin-bottom: 0px;" style="width: 50%">
+                                                <thead class="bg-table-header"></thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnPrintExcel" class="btn btn-primary" style="margin-top: 5px; padding: 6px 6px;"><span class="glyphicon glyphicon-print"></span> Reporte</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEquipoDiasMes" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="lblEquipoDiaMes"> Equipos Area</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                            <legend class="legend-custm"></legend>
+                            <table id="tblEquipoDiaMes" class="table  text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                <thead class="bg-table-header"></thead>
+                                <tbody></tbody>
+                                <tfoot></tfoot>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<input id="planMesDetalleID" style="display: none;" />
+@Html.Partial("reportViewerView", false)

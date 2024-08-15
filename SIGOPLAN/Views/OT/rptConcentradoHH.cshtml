@@ -1,0 +1,686 @@
+﻿@{
+    ViewBag.Title = "rptConcentradoHH";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<script src="~/Scripts/js/Maquinaria/Captura/OT/rptConcentradoHHJS.js"></script>
+<link href="~/Content/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+@Html.Partial("reportViewerView", false)
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>REPORTE CONCENTRADO DE HORAS-HOMBRE</h2>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Fitros:</legend>
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>CC:</label>
+                        <select class="form-control" id="cboCC" multiple></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <label>
+                                    Fecha Inicio:
+                                </label>
+                                <input class="form-control" id="txtFechaIncioFiltro" type="text" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <label>
+                                    Fecha Fin:
+                                </label>
+                                <input class="form-control" id="txtFechaFinFiltro" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>Catergorias H-H:</label>
+                        <select class="form-control" id="cboCategorias" multiple></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>SubCatergorias H-H:</label>
+                        <select class="form-control" id="cboSubCategorias" multiple></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-2">
+                        <button type="button" id="btnBusqueda" class="btn btn-default btn-block">
+                            Busqueda
+                        </button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="button" id="btnRptPorPuesto" class="btn btn-default btn-block">
+                            Reporte por Puesto
+                        </button>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="button" id="btnRptPorCatySub" class="btn btn-default btn-block">
+                            Pareto por Categoria/SubCategoria
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#ConcentradoGeneral" id="divConcentradoGeneral">Concentrado General</a></li>
+            <li><a data-toggle="tab" href="#DistribucionGeneral" id="divDistribucionGeneral">Distribucion General</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="ConcentradoGeneral">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Info Busqueda:</legend>
+                        <table class="table table-responsive table-fixed" id="tblGeneralPuestos">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>PUESTO</th>
+                                    <th>HORAS HOMBRE (hrs)</th>
+                                    <th>COSTO HORA-HOMBRE ($/hr)</th>
+                                    <th>COSTO TOTAL HORA-HOMBRE ($)</th>
+                                    <th>% DE REGISTRO</th>
+                                    <th>% DE HORAS EFECTIVAS</th>
+                                    <th>Ver Detalle</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th style="text-align:right">Total:</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="DistribucionGeneral">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Info Busqueda:</legend>
+                        <table class="table table-responsive table-fixed" id="tblReporteGlobalDistribucion">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>PUESTO</th>
+                                    <th>TRABAJOS EN MAQUINARIA (OT) (hrs)</th>
+                                    <th>TRABAJOS EN INSTALACIONES (hrs)</th>
+                                    <th>MONITOREO DIARIO</th>
+                                    <th>LIMPIEZA (hrs)</th>
+                                    <th>CONSULTA DE INFORMACION (hrs)</th>
+                                    <th>TIEMPO DE DESCANSO (hrs)</th>
+                                    <th>CURSOS Y CAPACITACIONES (hrs)</th>
+                                    <th>TOTAL HORAS-HOMBRE (hrs)</th>
+                                    <th>Ver Detalle</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th style="text-align:right">Total:</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalDetalleDistribucion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle">Detalle de Distribución</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" id="divDEtallePuesto">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <button type="button" id="btnRptDetalleDistribucion" class="btn btn-default btn-block">
+                                Ver Reporte
+                            </button>
+                        </div>
+                    </div>
+                    <div class=" row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Detalle: </legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tblDetallePuesto" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>NOMBRE</th>
+                                                <th>TRABAJOS EN MAQUINARIA (OT) (hrs)</th>
+                                                <th>TRABAJOS EN INSTALACIONES (hrs)</th>
+                                                <th>MONITOREO DIARIO</th>
+                                                <th>LIMPIEZA (hrs)</th>
+                                                <th>CONSULTA DE INFORMACION (hrs)</th>
+                                                <th>TIEMPO DE DESCANSO (hrs)</th>
+                                                <th>CURSOS Y CAPACITACIONES (hrs)</th>
+                                                <th>TOTAL HORAS-HOMBRE (hrs)</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th style="text-align:right">Total:</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="row hide" id="divDetalleEmpleados">
+
+                    <div class="col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <button type="button" id="btnRptDetalleEmpleado" class="btn btn-default btn-block margin-top">
+                                Ver Reporte
+                            </button>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Puesto:</label>
+                            <input type="text" class="form-control text-center" id="modalEmpleadoDetallePuesto" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Nombre:</label>
+                            <input type="text" class="form-control text-center" id="modalEmpleadoDetalleNombre" disabled />
+                        </div>
+
+                    </div><div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblEmpleadoDetalleDistibucion" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th></th>
+                                            <th>HORAS HOMBRE (hrs)</th>
+                                            <th>COSTO HORA-HOMBRE ($/hr)</th>
+                                            <th>COSTO TOTAL ($)</th>
+                                            <th>TOTAL POR GRUPO ($)</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+
+
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">Trabajos en maquinaria (OT)</legend>
+                                    <canvas id="LineWithLine6" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">Trabajos en instalaciones</legend>
+                                    <canvas id="LineWithLine1" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm"> Tiempo de descanso</legend>
+                                    <canvas id="LineWithLine4" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm"> Limpieza</legend>
+                                    <canvas id="LineWithLine2" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm"> Cursos y Capacitaciones</legend>
+                                    <canvas id="LineWithLine5" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">   Consulta de información</legend>
+                                    <canvas id="LineWithLine3" width="1300" height="400"></canvas>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEmpleadoDetalle" role="dialog">
+        <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label id="titleModalDetalle"></label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <button type="button" id="btnRptDetalleEmpleado" class="btn btn-default btn-block">
+                                Ver Reporte
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <button type="button" id="GraficasBtn" class="btn btn-default btn-block">
+                                Ver Graficas
+                            </button>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Puesto:</label>
+                            <input type="text" class="form-control text-center" id="modalEmpleadoDetallePuesto" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                            <label>Nombre:</label>
+                            <input type="text" class="form-control text-center" id="modalEmpleadoDetalleNombre" />
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Detalle: </legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tblEmpleadoDetalleDistibucion" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th></th>
+                                                <th>HORAS HOMBRE (hrs)</th>
+                                                <th>COSTO HORA-HOMBRE ($/hr)</th>
+                                                <th>COSTO TOTAL ($)</th>
+                                                <th>TOTAL POR GRUPO ($)</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                <canvas id="LineWithLine1" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                <canvas id="LineWithLine2" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                <canvas id="LineWithLine3" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                <canvas id="LineWithLine4" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                <canvas id="LineWithLine5" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <canvas id="LineWithLine6" width="1300" height="400"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"> Monitoreo Diario</legend>
+                            <canvas id="LineWithLine15" width="1300" height="400"></canvas>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalGraficaPareto" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle">Grafica de Pareto.</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#paretoCategoriaModal" id="divparetoCategoriaModal">Gráfica Categoría</a></li>
+                    <li><a data-toggle="tab" href="#paretoSubCategoriaModal" id="divparetoSubCategoriaModal">Gráfica SubCategoría</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="paretoCategoriaModal">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">Categorias: </legend>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                                            <canvas id="LineWithLine11" width="1300" height="400"></canvas>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade in" id="paretoSubCategoriaModal">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">subCategorias: </legend>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <canvas id="LineWithLine12" width="1300" height="400"></canvas>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="modalDetalleUtilizacion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle">Detalle de Utilización</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <button type="button" id="btnRptUtilizacion" class="btn btn-default btn-block">
+                            Ver Reporte
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tlbUtilizacionDetalle" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>NOMBRE</th>
+                                            <th>HORAS DISPONIBLES DE TRABAJO</th>
+                                            <th>HORAS REGISTRADAS DE TRABAJO</th>
+                                            <th>HORAS FALTANTES DE REGISTRO</th>
+                                            <th>% DE REGISTRO</th>
+                                            <th>% DE HORAS EFECTIVAS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#UtilizacionRegistro">% Registro</a></li>
+                        <li><a data-toggle="tab" href="#UtilizacionEfectivas">% De Horas Efectivas</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade in active" id="UtilizacionRegistro">
+                            <div class="col-lg-12">
+                                <canvas id="LineWithLine7" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane fade" id="UtilizacionEfectivas">
+                            <div class="col-lg-12">
+                                <canvas id="LineWithLine8" width="1300" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalverRPTPuesto" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModal">Reporte por Puestos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>CC: </label>
+                        <select class="form-control" id="cboCentroCostosMOdal" multiple></select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Puestos: </label>
+                        <select class="form-control" id="cboPuestosModal" multiple></select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Personal: </label>
+                        <select class="form-control" id="cboNombrePersonal" multiple></select>
+                    </div>
+                    <div class="col-lg-2 margin-top">
+                        <div class="col-lg-6">
+                            <button type="button" id="btnBuscarrpt" class="btn btn-default">
+                                Buscar
+                            </button>
+                        </div>
+                        <div class="col-lg-6">
+                            <button type="button" id="btnVerReporte" class="btn btn-default">
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Resultado: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table class="table table-responsive table-fixed" id="tblRptPorPuestos">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th id="tblTitleColumns"></th>
+                                            <th>TRABAJOS EN MAQUINARIA (OT) (hrs)</th>
+                                            <th>TRABAJOS EN INSTALACIONES (hrs)</th>
+                                            <th>MONITOREO DIARIO</th>
+                                            <th>LIMPIEZA (hrs)</th>
+                                            <th>CONSULTA DE INFORMACION (hrs)</th>
+                                            <th>TIEMPO DE DESCANSO (hrs)</th>
+                                            <th>CURSOS Y CAPACITACIONES (hrs)</th>
+                                            <th>TOTAL HORAS-HOMBRE (hrs)</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-lg-9">
+                            <fieldset class="fieldset-custm">
+                                Grafica
+                                <legend class="legend-custm">Grafica:</legend>
+                                <canvas id="LineWithLine13" width="1300" height="400"></canvas>
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-3 text-left form-group  margin-top">
+
+                            <table class="table" id="infoMaquina">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Trabajos en maquinaria (OT):</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblMaquinariaOT" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Trabajos en Instalaciones:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblInstalacion" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Monitoreo Diario:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblMonitoreoDiario" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Limpieza:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblLimpieza" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Consulta Información:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblConsultaInformacion" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Tiempo de Descanso:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblTiempoDescanso" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <label>Cursos y Capacitaciones:</label>
+                                            </div>
+                                            <div>
+                                                <label id="lblCursosyCapacitaciones" class="labelFont"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,316 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/starrr.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .panel-principal>div.panel-heading {
+        background: linear-gradient(40deg, rgb(237, 125, 49), rgb(197, 90, 17)) !important;
+        border-color: rgb(237, 125, 49);
+        color: white;
+    }
+
+    .panel-principal {
+        border-color: rgb(237, 125, 49);
+    }
+
+    .panelFiltro .panel-heading h4,
+    .panelFiltro .panel-heading h5,
+    .panel-principal .panel-heading h4,
+    .panel-principal-rojo .panel-heading h4 {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .botonNaranja {
+        background-color: rgb(237, 125, 49) !important;
+        color: white !important;
+    }
+
+    .botonNaranja:hover {
+        background-color: rgb(216, 99, 19) !important;
+        color: white !important;
+    }
+
+    table.dataTable thead {
+        font-size: 12px;
+        /* background: linear-gradient(40deg, #45cafc, #303f9f) !important; */
+        background-color: rgb(64, 64, 64);
+        color: white;
+    }
+
+    #tablaAuditorias thead tr th,
+    #tablaAuditorias tbody tr td,
+    #tablaInspecciones thead tr th,
+    #tablaInspecciones tbody tr td {
+        border: 1px solid #ddd;
+    }
+
+    #modalAuditoria .panel-principal>div.panel-heading {
+        background: linear-gradient(40deg, rgb(237, 125, 49), rgb(197, 90, 17)) !important;
+        border-color: rgb(237, 125, 49);
+        color: #333;
+        font-weight: bold;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    #modalAuditoria .modal-body {
+        max-height: calc(100vh - 212px);
+        overflow-y: auto;
+    }
+
+    #tablaIndicador tbody tr td {
+        text-align: center;
+        vertical-align: middle;
+        font-weight: bold;
+    }
+
+    #modalAuditoria .panel-heading h5 {
+        color: white;
+        font-weight: bold;
+    }
+
+    #tablaInspecciones tbody tr td {
+        vertical-align: middle;
+    }
+
+    #tablaInspecciones thead tr th,
+    #tablaInspecciones tbody tr td,
+    #tablaInspecciones tbody tr td input,
+    #tablaInspecciones tbody tr td select {
+        font-size: 11px;
+    }
+
+    #tablaInspecciones tbody tr td select {
+        padding: 4px 12px;
+    }
+
+    #tablaInspecciones tbody tr td input,
+    #tablaInspecciones tbody tr td select {
+        height: 24px;
+    }
+
+    /* Estilo "Columna Subir Archivo" */
+    #tablaInspecciones input[type="file"] {
+        display: none;
+    }
+
+    #tablaInspecciones .labelArchivo {
+        font-weight: normal;
+        vertical-align: middle;
+        width: 200px;
+        overflow: hidden;
+        text-overflow: clip;
+        margin-bottom: 0px;
+    }
+
+    /* Fin Estilo "Columna Subir Archivo" */
+
+    .radioBtn .notActive {
+        color: #3276b1;
+        background-color: #fff;
+    }
+
+    .radioBtn .notActive.btn-success {
+        color: #398439;
+    }
+
+    .radioBtn .notActive.btn-danger {
+        color: #d43f3a;
+    }
+
+    .radioBtn .notActive.btn-success:active {
+        color: #fff;
+    }
+
+    .radioBtn .notActive.btn-danger:active {
+        color: #fff;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>AUDITORÍAS</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default panel-principal panelFiltro">
+                <div class="panel-heading">
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC Construplan</span>
+                                <select id="selectCentroCosto" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio</span>
+                                <input id="inputFechaInicio" class="form-control text-center" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Final</span>
+                                <input id="inputFechaFinal" class="form-control text-center" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <button id="botonIniciarAuditoria" class="btn botonNaranja">Iniciar Auditoría</button>
+                            <button id="botonBuscar" class="btn botonNaranja"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal panelFiltro">
+                <div class="panel-heading">
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaAuditorias" class="table compact" style="width: 100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalAuditoria' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 95%;">
+        <div class='modal-content'>
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Auditoría</label></h3>
+                </div>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-6 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre Auditoría</span>
+                            <select id="selectAuditoria" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Proyecto</span>
+                            <select id="selectProyecto" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Área</span>
+                            <input id="inputArea" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha</span>
+                            <input id="inputFechaAuditoria" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-sm-5 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Auditor</span>
+                            <select id="selectAuditor" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaIndicador" class="table table-bordered" style="margin-top: 20px;">
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2">RESULTADOS</td>
+                                    <td>PORCENTAJE DE CUMPLIMIENTO</td>
+                                    <td id="celdaPorcentaje" rowspan="2">%</td>
+                                    <td id="celdaEstatus5s" rowspan="2"></td>
+                                </tr>
+                                <tr>
+                                    <td id="celdaEstatusAuditoria"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default panel-principal panelFiltro">
+                            <div class="panel-heading">
+                                <h5 class="text-left">AUDITORÍA 5'S</h5>
+                                <h5 id="textoInspecciones" class="text-right">0 inspecciones de 0</h5>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="table-responsive">
+                                            <table id="tablaInspecciones" class="table compact" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarContinuar" type="button" class="btn btn-primary"><i class='fa fa-save'></i>&nbsp;Guardar y Continuar</button>
+                <button id="botonGuardarTerminar" type="button" class="btn btn-success"><i class='fa fa-save'></i>&nbsp;Guardar y Terminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAccion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaAccionRequerida">
+                            <h4>Descripción de la acción requerida:</h4>
+                        </label>
+                        <textarea id="textAreaAccionRequerida" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button id="botonGuardarAccionRequerida" type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CincoS/Auditorias5s.js"></script>

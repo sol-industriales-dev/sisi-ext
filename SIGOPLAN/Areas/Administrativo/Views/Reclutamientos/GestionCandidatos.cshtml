@@ -1,0 +1,495 @@
+﻿@{
+    var empresa = (int)ViewBag.Empresa;
+
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/GestionCandidatos.css' rel='stylesheet' />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+
+@if (empresa == 6) {
+    <input id="txtEmpresa" style="display: none;" value="6">;
+}else if (empresa == 3){
+    <input id="txtEmpresa" style="display: none;" value="3">;
+}
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- SOLICITUDES -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>GESTIÓN DE CANDIDATOS</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-4" style="display:none;">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Vacante</span>
+                                <select class="form-control" id="cboFiltroPuesto" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select class="form-control" id="cboFiltroEstatusCandidato" style="width: 100%; height: 33.99px">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Pendientes</option>
+                                    <option value="2">Contratados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar</button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroNuevoCandidato">Nuevo</button>
+                            <button type="button" class="btn btn-primary" style="display: none" id="btnFiltroLimpiar">Limpiar</button>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE GESTIÓN SOLICITUDES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_REC_GestionCandidatos" class="table table-hover compact" style="width:100%;"></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- CREAR/EDITAR CANDIDATO -->
+<div id='mdlCrearEditarCandidato' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 95%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTitleCrearEditarCandidato"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div id="divCrearEditarReingreso" style="display:none;">
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">   
+                                <span class="input-group-addon">Num. Empleado</span>
+                                <input type ="text" class="form-control" id="txtCrearEditarReClave" disabled>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <input type ="text" placeholder="Ingrese el nombre del empleado a reingresar..." class="form-control" id="txtCrearEditarReNombre" spellcheck="false">
+                        </div>
+                    </div>
+                    <div class="marginBottom pull-right">
+                        <div class="col-sm-2" class="checkbox" id="divCrearEditarToggle">
+
+                            <input type="checkbox" id="chkReingreso" data-toggle="toggle" data-on="Reingreso" 
+                                data-off="Reingreso" data-onstyle="success" data-offstyle="danger" data-width="150" >
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre(s)</span>
+                            <!-- <input type="text" id="txtCrearEditarNombre" class="form-control" autocomplete="off" onkeyup="javascript: this.value = this.value.toUpperCase();"> -->
+                            <input type="text" id="txtCrearEditarNombre" class="form-control" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Ape. paterno</span>
+                            <input type="text" id="txtCrearEditarApePaterno" class="form-control" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Ape. materno</span>
+                            <input type="text" id="txtCrearEditarApeMaterno" class="form-control" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @(empresa != 6 ? "style=display:none;" : "style=display:block;")>
+                    <div class="col-sm-4">
+                         <div class="input-group marginBottom">
+                            <span class="input-group-addon">C.U.S.P.P.:</span>
+                            <input type="text" id="txtCrearEditarCUSPP" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Correo</span>
+                            <input type="text" id="txtCrearEditarCorreo" class="form-control" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Teléfono</span>
+                            <input type="number" id="txtCrearEditarTelefono" class="form-control" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength = $('#txtEmpresa').val() == 6 ? 9 : 10">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Celular</span>
+                            <input type="number" id="txtCrearEditarCelular" class="form-control" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength = this.empresa == 6 ? 9 : 10">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Puesto</span>
+                            <select class="form-control" id="cboCrearEditarPuesto"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha de nacimiento</span>
+                            <input type="date" id="txtCrearEditarFechaNacimiento" class="form-control" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Edad</span>
+                            <input type="text" id="txtCrearEditarEdad" class="form-control" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            @* <span class="input-group-addon">NSS</span>
+                                <input type="text" id="txtCrearEditarNSS" class="form-control" autocomplete="off"> *@
+                            <span class="input-group-addon">Altura - cms</span>
+                            <input type="number" id="txtCrearEditarAltura" class="form-control" placeholder="cms" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=3">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Peso - kgs</span>
+                            <input type="number" id="txtCrearEditarPeso" class="form-control" placeholder="kgs" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=3">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Sexo</span>
+                            <select class="form-control" id="cboCrearEditarSexo">
+                                <option value="">-Seleccione--</option>
+                                <option value="F">Femenino</option>
+                                <option value="M">Masculino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">*País nacimiento:</span>
+                            <select class="form-control" id="cboCEDatosEmpleadoPaisNac"></select>
+                        </div>
+                    </div>
+                    <div id="divCeDatosEmpleadosDepartamentoNac" class="col-sm-4" @(empresa != 6 ? "style=display:none;" : "style=display:block;")>
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon" id="lblCEDatosEmpleadoDepartamentoNac">*Departamento:</span>
+                            <select class="form-control" data-select2-id="cboCEDatosEmpleadoDepartamentoNacIndex" id="cboCEDatosEmpleadoDepartamentoNac" tabindex="0"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "*Provincia" : empresa == 3 ? "*Departamento Nacimiento" : "*Estado Nacimiento"):</span>
+                            <select class="form-control" id="cboCEDatosEmpleadoEstadoNac"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "*Distrito" : "*Lugar nacimiento"):</span>
+                            <select class="form-control" id="cboCEDatosEmpleadoLugarNac"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Notas reclutador</legend>
+                            <textarea class="inputTextArea" id="txtCrearEditarNotasReclutador" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">CV:</span>
+                            <input class="form-control" id='txtCrearArchivo' type="file" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCrearEditarCandidato"><span id="spanCrearEditarCandidato"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR CANDIDATO -->
+
+<!-- LISTADO ARCHIVOS CANDIDATO -->
+<div id='mdlLstArchivos' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivos</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_REC_Archivos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: LISTADO ARCHIVOS CANDIDATO -->
+
+<!-- CREAR/EDITAR ENTREVISTA INICIAL -->
+<div id='mdlCrearEditarEntrevistaInicial' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Entrevista inicial</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre(s)</span>
+                            <input type="text" id="txtCEEntrevistaInicialNombreCompleto" class="form-control" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Escolaridad</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEscolaridad"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Edad</span>
+                            <input type="number" id="txtCEEntrevistaInicialEdad" class="form-control" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Estado civil</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEstadoCivil"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input type="checkbox" id="chkCEEntrevistaInicialBrutoNeto" data-toggle="toggle" data-on="Bruto" data-off="Neto" data-onstyle="success" data-offstyle="primary" data-width="146">
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Expectativa salarial mensual</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialExpectativaSalarial" placeholder="$" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Lugar de nacimiento</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialLugarNacimiento" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Puesto solicitado</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialPuestoSolicitado" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Experiencia laboral</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialExperienciaLaboral" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Sector de la ciudad</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialSectorCiudad" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Tiempo en la ciudad (Años)</span>
+                            <input type="number" class="form-control" id="txtCEEntrevistaInicialTiempoEnLaCiudad" placeholder="Años" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEEntrevistaInicialEntrevistasAnteriores" data-toggle="toggle" data-on="Entrevistas anteriores" data-off="Entrevistas anteriores" data-onstyle="success" data-offstyle="danger" data-width="265">
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Medio de reclutamiento</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialPlataforma"></select>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEEntrevistaInicialFamiliarEnLaEmpresa" data-toggle="toggle" data-on="Familiar en la empresa" data-off="Familiar en la empresa" data-onstyle="success" data-offstyle="danger" data-width="265">
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom" style="display: none;">
+                            <span class="input-group-addon">Teléfono</span>
+                            <input type="number" class="form-control" id="txtCEEntrevistaInicialTelefono" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); maxLength=10">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" style="display: none;">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Documentación</legend>
+                            <select class="form-control" id="cboCEEntrevistaInicialDocumentacion">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">Completo</option>
+                                <option value="2">Incompleto</option>
+                                <option value="3">Pendiente</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom' id="divFamiliaEnLaEmpresa" style="display:none;">
+                            <legend class='legend-custm'>Familia en la empresa</legend>
+                            <textarea class="inputTextArea" placeholder="Indicar a la familia dentro de la empresa." id="txtCEEntrevistaInicialFamiliaEnLaEmpresa" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Familia</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialFamilia" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Empleos</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialEmpleos" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Características personales del candidato</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialCaracteristicasPersonalesCandidato" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Comentarios del entrevistador</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialComentariosEntrevistador" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="date" class="form-control" id="txtCEEntrevistaInicialFechaEntrevista" value="" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 marginBottom">
+                        <input type="checkbox" id="chkCEEntrevistaInicialAvanza" data-toggle="toggle" data-on="Avanza" data-off="Avanza" data-onstyle="success" data-offstyle="danger" data-width="410">
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" id="divCEEntrevistaInicialAvanza" style="display: none;">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Motivo no avanza</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialComentariosAvanza" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 marginBottom">
+                        <input type="checkbox" id="chkCEEntrevistaInicialDisposicionHorario" data-toggle="toggle" data-on="Disposición de horario" data-off="Disposición de horario" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="410">
+                        <!-- <div class="input-group marginBottom">
+                            <span class="input-group-addon">Disposición de horario</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialDisposicionHorario" value="" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div> -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Entrevistó</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEntrevisto"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom" style="display:none">
+                            <span class="input-group-addon">Resultado</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialResultado" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCEEntrevistaInicial"><span id="spanTitleBtnCEEntrevistaInicial"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR ENTREVISTA INICIAL -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/GestionCandidatos.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<!-- <link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" /> -->

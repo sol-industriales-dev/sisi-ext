@@ -1,0 +1,224 @@
+﻿
+@{
+    ViewBag.Title = "ActividadesCatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/ActividadesCatalogo.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/ControlObra/ActividadesCatalogo.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Catálogo  de Actividades</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                <legend class="legend-custm">Filtros:</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-10">
+                                        <label>Capitulo:</label>
+                                        <select class="form-control" id="SelectCapitulosFiltro"></select>
+                                    </div>
+
+                                    <div class="col-lg-2" style="padding-left: 0px;">
+                                        <button type="button" class="btn btn-primary" id="btnBuscarActividades" style="margin-top: 24px; margin-right: 5px;">
+                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                        </button>
+                                        <button id="btnNuevaActividad" class="btn btn-primary" style="margin-top: 24px; margin-right: 5px;">
+                                            <span class="glyphicon glyphicon-plus"></span> Nueva Actividad
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                     
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm"></legend>
+                                <table id="tblActividades" class="table table-striped table-hover table-bordered" style="width:100%">
+                                    <thead class="bg-table-header">
+                                            <tr>
+                                                <th></th>   
+                                                <th></th>
+                                                <th>Actividad</th>
+                                                <th>Unidad</th>
+                                                <th>cantidad</th>
+                                                <th>Fecha Inicio</th>
+                                                <th>Fecha Fin</th> 
+                                                <th></th>   
+                                                <th></th>                                       
+                                            </tr>
+                                        </thead>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalActividades" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label id="lblTitulo"> Nueva Actividad</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                         <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Capitulo:</span>
+                            </div>
+                        </div>                      
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectCapitulo" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcapitulo Nivel I:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectSubcapituloN1" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcapitulo Nivel II:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectSubcapituloN2" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcapitulo Nivel III:</span>
+                            </div>
+                        </div>           
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectSubcapituloN3" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Actividad Padre:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="selectActividadPadre" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Actividad:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input id="txtActividad" class="form-control" placeholder="Actividad" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Unidad:</span>
+                                    </div>
+                                    <select id="selectUnidad" class="form-control"></select>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Costo:</span>
+                                    </div>
+                                    <input id="txtCostoUnidad" class="form-control" placeholder="Costo" />
+                                </div>
+                            </div>                         
+                        </div>
+
+                         <div class="col-lg-6">
+                             <div class="input-group">
+                                <span class="input-group-addon">Cantidad:</span>
+                            </div>
+                             <input id="txtCantidad" class="form-control" placeholder="Cantidad" />
+                         </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio:</span>
+                            </div>
+                            <input class="form-control" id="dpFechaInicio" style="border-radius: 0px; border-left: 0px;" />
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Fin:</span>
+                            </div>
+                            <input class="form-control" id="dpFechaFin" style="border-radius: 0px; border-left: 0px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">                 
+                    <a id="btnGuardarActividad" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogEliminarActividad" title="Eliminar Actividad" style="display: none;">
+        <text id="txtEliminarActividad">¿Está seguro que desea eliminar esta actividad?</text>
+    </div>
+</div>

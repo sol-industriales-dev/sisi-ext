@@ -1,0 +1,195 @@
+﻿<!-- Razor -->
+@{
+ViewBag.Title = "Index";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Rentabilidad.css" rel="stylesheet" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2 id="tituloVista"></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Area Cuenta</span>
+                <select id="comboAC" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Tipo</span>
+                <select id="comboTipo" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Grupo</span>
+                <select multiple id="comboGrupo" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Modelo</span>
+                <select multiple id="comboModelo" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row margin-top">
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">CC</span>
+                <select multiple id="comboCC" class="form-control"></select>
+            </div>
+        </div>
+        <div class='col-xs-4 col-md-4 col-lg-4'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Periodo</span>
+                <input class="text-center form-control" type="text" id="inputMesInicial">
+                <span class='input-group-addon' style='padding:0px;'></span>
+                <input class="text-center form-control" type="text" id="inputMesFinal">
+            </div>
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-3 col-lg-3' style="display:none">
+            <div class='input-group'>
+                <span class="input-group-addon">Rentabilidad</span>
+                <select id='comboTipoReporte' class='form-control'></select>
+            </div>
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-2 col-lg-2' style="visibility:hidden">
+            <input type="checkbox" checked data-toggle="toggle" data-on="Total" data-off="Costo/Hora" data-onstyle="success" data-offstyle="info" id="chbCostoHora">
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-3 col-lg-3'>
+            
+            <button id='botonReporte' type='button' class='btn btn-primary' style="visibility:hidden">
+                <i class='fa fa-print'></i>
+                Reporte
+            </button>            
+            <button id="botonBuscar" class="btn btn-primary pull-right"><i class="fas fa-search"></i> Buscar</button>
+        </div>        
+    </div>
+</fieldset>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm" id="lblLegend">Resultado</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 scrollDT">
+                <table id="tablaRentabilidad" class="table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header"></thead>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalles" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <i class="fas fa-folder-tree"></i>
+                        <button id="botonNombreNivelCero" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-chevron-right"></i>    <strong></strong></button>
+                        <button id="botonNombreNivelUno" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-chevron-right"></i>    <strong></strong></button>
+                        <button id="botonNombreNivelDos" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-chevron-right"></i>    <strong></strong></button>
+                        @*<input readonly class="text-center form-control subrayado" type="text" id="inputNombreDetalle">*@
+                    </div>
+                    @*<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <label id="botonSubdetalle"></button>
+                    </div>*@
+                </div>
+
+                <div class="row margin-top" id="divTablaNivelCero">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaSctaDetalles" class="table table-condensed table-hover table-striped text-center" style="width:100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row margin-top" id="divTablaNivelUno">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaDetalles" class="table table-condensed table-hover table-striped text-center" style="width:100%">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row margin-top" id="divTablaNivelDos">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaSubdetalles"
+                            class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                            </thead>
+                            <tfoot><tr><td></td><td></td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            @*<div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Rentabilidad.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

@@ -1,0 +1,170 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- 
+    ViewBag.Title = "AutorizarAsginacionNoEconomico";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+ -->
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Capacitacion/PromedioEvaluaciones.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #F86730;
+        color: white;
+    }
+
+    /*BOOTSTRAP BTN*/
+    /* .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+
+        .btn-primary {
+            background-color: #624de2 !important;
+            border-color: #624de2 !important;
+        } */
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+<script>
+
+
+</script>
+<div class="col-sm-12">
+    <br />
+    <div class="center" style="text-align: center;">
+        <h3>Promedio de Evaluaciones</h3><br>
+    </div>
+
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-list"></i>Datos Generales</legend>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Proyecto</span>
+                    <select id="cboProyecto" class="form-control" multiple></select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Departamento</span>
+                    <select id="cboDepartamento" class="form-control" multiple></select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div id="divMes" class="input-group">
+                    <span class="input-group-addon">Mes</span>
+                    <input id="inputMes" class="form-control date-picker">
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+        </div>
+    </fieldset>
+    <br />
+    <!-- END: CONTROLES DE FILTRO -->
+    <span class="badge badge-dark" style="background-color: #F86730;width:100%;text-align: left;font-size: 16px;">Indicadores globaless</span>
+    <fieldset class="fieldset-custm">
+
+        <div class="row">
+            <div class="col-lg-6" style="font-size: 24px;">
+                <label class="text-color" for="cboProyecto">Promedio General:
+                    <span id="spanPromedioGeneral" class="badge badge-dark" style="background-color: #F86730;font-size:24px;">%</span></label>
+            </div>
+            <div class="col-lg-6" style="font-size: 24px;">
+                <label class="text-color" for="cboProyecto">Total de personal:
+                    <span id="spanTotalPersonal" class="badge badge-dark" style="background-color: #F86730;font-size:24px;">0</span></label>
+            </div>
+        </div>
+        <br>
+    </fieldset>
+    <br />
+    <fieldset class='fieldset-custm'>
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="tablaPorcentajes" class="table compact table-bordered" style="margin-top: 5px;">
+                    <thead>
+                        <tr>
+                            <th colspan="2">PERSONAL OPERATIVO</th>
+                            <th>PROMEDIO GENERAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Instructivos Operativos</td>
+                            <td id="tdInstructivosOperativos">%</td>
+                            <td id="tdPromedioGeneral" rowspan="4">%</td>
+                        </tr>
+                        <tr>
+                            <td>Técnicos Operativos</td>
+                            <td id="tdTecnicosOperativos">%</td>
+                        </tr>
+                        <tr>
+                            <td>Protocolos de fatalidad</td>
+                            <td id="tdProtocolosFatalidad">%</td>
+                        </tr>
+                        <tr>
+                            <td>Normativos</td>
+                            <td id="tdNormativos">%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </fieldset><br><br>
+
+
+
+</div>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Capacitacion/PromedioEvaluaciones.js"></script>
+<script type="text/javascript">
+    (function () {
+        var Controlador = new promedioEvaluacionesController();
+        Controlador.Inicializar();
+    })();
+</script>
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>

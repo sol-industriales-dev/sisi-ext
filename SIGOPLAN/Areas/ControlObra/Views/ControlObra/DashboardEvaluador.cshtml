@@ -1,0 +1,178 @@
+﻿
+@{
+    ViewBag.Title = "DashboardEvaluador";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<h2 style="text-align: center;">Dashboard Evaluador</h2>
+<link href="~/Content/style/css/ControlObra/controlObra2.css" rel="stylesheet" />
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+
+<style>
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+        table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+            border: 0px solid #ffffff !important;
+        }
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .disenioModal .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+        .disenioModal .modal-header .titleHeader {
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-title {
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-subtitle {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#cboProyecto').select2();
+    });
+    $(document).ready(function () {
+        $('#cboSubContratista').select2();
+    });
+</script>
+
+<!-- TITULO MODULO -->
+<!-- BODY -->
+<div class="container-fluid"> 
+    <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Archivos de subcontratistas: <span id="lblErrorProyecto"></span></legend>
+        <div class="row">
+               <div class="col-xs-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">Proyecto : </span>
+                        <select name="" id="cboProyecto" class="form-control comboChange"></select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">Sub Contratista : </span>
+                        <select name="" id="cboSubContratista" class="form-control comboChange"></select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-2">
+                    <button id="btnBuscar" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                </div>
+        </div>
+
+        <!-- MENU Y LISTADO DE ESTATUS -->
+        <div class="container-fluid">
+                <div class="row">
+                  <br>
+                    <div id="contenido">
+                    </div>
+                </div>  
+                    <br>
+
+                 
+        </div>
+    </fieldset>
+  </div>
+
+
+<div id='mdlComentario' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>PROCESO DE RETROALIMENTACIÓN</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div class='row'>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentario : </span>
+                                    <textarea name="" id="inpComentario" class="form-control" ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Plan De Accion : </span>
+                                    <textarea name="" id="inpPlanDeAccion" class="form-control" ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Responsable : </span>
+                                    <input name="" id="inpResponsable" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Compromiso : </span>
+                                    <input name="" id="inpFechaCompromiso" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Evaluación : </span>
+                                    <input name="" id="inpEvaluacion" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-warning' id='btnGuardar'><i class='fa fa-save'></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+        <script src="~/Scripts/moment-with-locales.js"></script>
+        @* <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/export-data.js"></script>
+        <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/exporting.js"></script>
+        <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script> *@
+        <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+        <script src="~/Scripts/select2.js"></script>
+        <script src="~/Scripts/js/ControlObra/subContratista/EvalSubContratista.js"></script>

@@ -1,0 +1,519 @@
+﻿@{
+ViewBag.Title = "AsignacionResguardo";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .custum-bodyAcordeon {
+        padding: 0px 0px 0px 0px !important;
+        padding-top: 10px !important;
+        height: 250px !important;
+    }
+
+    table.tablaFix {
+        width: 100% !important;
+    }
+
+    .SeleccionExterior,
+    .SelecccionInterior {
+        cursor: pointer;
+    }
+
+    .Activo {
+        background-color: orangered !important;
+    }
+
+    .cursorClick {
+        cursor: pointer;
+    }
+
+    .colorTitle {
+        background-color: #5DADE2 !important;
+        color: white !important;
+    }
+
+    a:link {
+        text-decoration: none;
+    }
+
+    .pnl {
+        cursor: pointer;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Asignación de resguardo de vehículo de servicio</h2>
+    </div>
+    <ul class="nav nav-tabs">
+        <li class="active"><a id="tabTitle1" data-toggle="tab" href="#ListaResguardos">Lista Resguardos</a></li>
+        <li><a id="tabTitle2" data-toggle="tab" href="#nuevoResguardo">Formulario Asignación</a></li>
+        <li style="display: none;"><a id="tabTitle3" data-toggle="tab" href="#sinResguardo">Equipos sin Resguardo</a></li>
+    </ul>
+    <div class="tab-content">
+
+        <div id="ListaResguardos" class="tab-pane fade in active">
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Filtros:</legend>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                            <label>CC</label>
+                            <select class="form-control" id="txtCentroCostos"></select>
+                        </div>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                            <label>Tipo Resguardo</label>
+                            <select class="form-control" id="cboTipoResguardo">
+                                <option value="1">Pendientes Autorización</option>
+                                <option value="2">Asignados Autorizados</option>
+                                <option value="3">Liberados</option>
+                                <option value="4">Sin Resguardo</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+                        <div id="divTabla1">
+                            <table id="tblListaAsignados" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="Economico" data-width="25%">No Economico</th>
+                                        <th data-column-id="CCName" data-width="25%">Obra</th>
+                                        <th data-column-id="fechaCaptura" data-width="25%">Fecha&lt;br&gt;Captura</th>
+                                        <th data-column-id="UsuarioSolicitud" data-formatter="UsuarioSolicitud" data-width="25%">Usuario Resguardo</th>
+                                        <th data-column-id="Grupo" data-width="25%">Descripción&lt;br&gt;Equipo</th>
+                                        <th data-column-id="Vencimiento" data-width="25%" data-searchable="false" 0>Días&lt;br&gt;Licencia</th>
+                                        <th data-column-id="ImprimirResguardo" data-formatter="imprimirResguardo" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Resguardo</th>
+                                        <th data-column-id="ImprimirChecklist" data-formatter="imprimirChecklist" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;CheckList</th>
+                                        <th data-column-id="ImprimirEvidencia" data-formatter="ImprimirEvidencia" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Evidencia</th>
+                                        <th data-column-id="Editresguardo" data-formatter="Editresguardo" data-sortable="false" data-width="25px" data-searchable="false">Liberar&lt;br&gt;Resguardo</th>
+                                        <th data-column-id="ModificarLicencia" data-formatter="ModificarLicencia" data-sortable="false" data-width="25px" data-searchable="false">Actualizar&lt;br&gt;Licencia / Póliza</th>
+                                        <th data-column-id="SubirArchivo" data-formatter="SubirArchivo" data-sortable="false" data-width="25px" data-searchable="false">Subir&lt;br&gt;Resguardo</th>
+                                        <th data-column-id="ResguardoCargado" data-formatter="ResguardoCargado" data-sortable="false" data-width="25px" data-searchable="false">Resguardo&lt;br&gt;cargado</th>
+                                        @*<th data-column-id="documentos" data-formatter="documentos" data-sortable="false" data-width="25px" data-searchable="false">Documentos</th>*@
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                        <div id="divTabla2" style="display: none;">
+                            <table id="tblSinReguardo" class='table table-fixed' width="100%">
+                                <thead class='bg-table-header'>
+                                </thead>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="nuevoResguardo">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Formulario :</legend>
+
+                <div class="panel-group" id="Acordeon1">
+                    <div class="panel panel-default pnl">
+                        <div class="panel-heading colorTitle">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="apnl apnl1" data-parent="#Acordeon1" href="#collapse1">Datos del Empleado</a>
+                            </h4>
+                        </div>
+                        <div id="collapse1" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Tipo de Resguardo:</label>
+                                    <select class="form-control" id="cboTipoAsignacion">
+                                        <option value="1">Asignación</option>
+                                        <option value="2">Liberación</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>*Nombre:</label>
+                                    <input type="text" class="form-control" id="tbNombreEmpleado" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Puesto:</label>
+                                    <input type="text" class="form-control" id="tbPuestoEmpleado" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Obra:</label>
+                                    <input type="text" class="form-control" id="tbCentroCostosEmpleado" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>*Economico:</label>
+                                    <select class="form-control" id="cboEconomico"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Descripción:</label>
+                                    <input class="form-control" id="tbDescripcionEconomico" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Marca:</label>
+                                    <input class="form-control" id="tbMarcaEconomico" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>Modelo:</label>
+                                    <input class="form-control" id="tbModeloEconomico" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>*Kilometraje:</label>
+                                    <input class="form-control" id="tbKilometraje" type="number" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>No Serie:</label>
+                                    <input class="form-control" id="tbNoSerie" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <label>No Placas:</label>
+                                    <input class="form-control" id="tbPlacas" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <div class="col-lg-10">
+                                        <label>Tipo de Encierro</label>
+                                        <div style="margin-left: 20px;">
+
+                                            <label class="radio-inline" style="display: table-row;">
+                                                <input type="radio" id="radioPrioridad3" value="1" name="radioInline1">A (Libre)
+                                            </label>
+                                            <label class="radio-inline" style="display: table-row;">
+                                                <input type="radio" id="radioPrioridad2" value="2" name="radioInline1" checked="checked">B (Fin de semana)
+                                            </label>
+                                            <label class="radio-inline" style="display: table-row;">
+                                                <input type="radio" id="radioPrioridad1" value="3" name="radioInline1">C (Diario)
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <input class="form-control-feedback margin-top" id="tbEncierro" style="margin-top: 40px;font-weight: bold;font-size: x-large;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default pnl">
+                        <div class="panel-heading colorTitle ">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse2">Datos del Empleado y Vehículo</a>
+                            </h4>
+                        </div>
+                        <div id="collapse2" class="panel-collapse collapse">
+                            <div class="panel-body" id="divNuevo">
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>*Vencimiento Licencia:</label>
+                                    <input type="text" class="form-control" id="VencimientoLicencia" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>* Vencimiento Póliza:</label>
+                                    <input type="text" class="form-control" id="VencimientoPoliza" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>* Licencia Conducir:</label>
+                                    <input type="file" class="form-control" id="fLicenciaConducir" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>* Tarjeta Circulación:<span id="spCirculacion"></span></label>
+                                    <input type="file" class="form-control" id="fTarjetaCirculacion" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>* Póliza de Seguro:<span id="spPoliza"></span></label>
+                                    <input type="file" class="form-control" id="fPolizaSeguro" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>Checklist Asignación :</label>
+                                    <input type="file" class="form-control" id="fcheckAsignacion" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>Formato Mantenimientos Preventivos:</label>
+                                    <input type="file" class="form-control" id="fFormatoMMtoPreventivo" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>Permiso de Carga:<span id="spCarga"></span></label>
+                                    <input type="file" class="form-control" id="fPermisoCarga" />
+                                </div>
+                            </div>
+                            <div class="panel-body hide" id="divLiberacion">
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                    <label>Checklist Liberación :</label>
+                                    <input type="file" class="form-control" id="fcheckLiberacion" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default pnl">
+                        <div class="panel-heading colorTitle ">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse3">Check List Interior</a>
+                            </h4>
+                        </div>
+                        <div id="collapse3" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                    <table class="display nowrap" id="tblCondicionesInterior" cellspacing="0" width="100%">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th rowspan="1">I. Interio:</th>
+                                                <th colspan="4" style="text-align: center;">Estado</th>
+                                                <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align: center;">Concepto</th>
+                                                <th>Bueno</th>
+                                                <th>Regular</th>
+                                                <th>Malo</th>
+                                                <th>No Aplica</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default pnl">
+                        <div class="panel-heading colorTitle ">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse4">Check List Exterior</a>
+                            </h4>
+                        </div>
+                        <div id="collapse4" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                    <table class="table table-bordered table-responsive table-striped tablaFix" id="tblCondicionesExterior">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th rowspan="1">II. Exterio:</th>
+                                                <th colspan="4" style="text-align: center;">Estado</th>
+                                                <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
+                                            </tr>
+                                            <tr>
+                                                <th rowspan="1" style="text-align: center;">Concepto</th>
+                                                <th rowspan="1">Bueno</th>
+                                                <th rowspan="1">Regular</th>
+                                                <th rowspan="1">Malo</th>
+                                                <th rowspan="1">No Aplica</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default pnl">
+                        <div class="panel-heading colorTitle ">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse">Observaciones.</a>
+                            </h4>
+                        </div>
+                        <div id="collapse" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                    <div class="col-lg-3" style="padding: 0;margin-bottom: 4px;">
+                                        <input class="disabled form-control" value="IV. Observaciones:" style="background: #81bd72 !important;color: white;cursor: auto;" disabled="">
+                                    </div>
+                                    <textarea class="form-control" id="tbObservaciones" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
+                        <button class="btn btn-success form-control" id="btnGuardarAsignacion">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div id="sinResguardo" class="tab-pane fade" style="display: none;">
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Filtros:</legend>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                            <div class='input-group'>
+                                <span class='input-group-addon'>AC</span>
+                                <select class="form-control" id="txtCentroCostos2"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button id="btnBuscar" class="btn btn-primary">Buscar</button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalVistaAsignacionResguardos" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Acciones</legend>
+                            <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2">
+                                <button class="btn btn-success form-control" id="btnCheckList">
+                                    <span class="glyphicon glyphicon-print"></span> Ver CheckList Resguardo
+                                </button>
+                            </div>
+                            <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
+                                <button class="btn btn-success form-control" id="btnVerResguardo">
+                                    <span class="glyphicon glyphicon-print"></span> Ver Resguardo
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSubidaArchivos" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Archivo Firmado Resguardo</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Archivos:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <label>*Archivo Resguardo Firmado:</label>
+                                <input type="file" class="form-control" id="fResguardoFirmado" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <label>Otros Archivos:</label>
+                                <input type="file" class="form-control" id="fAnexos" />
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
+                        <button class="btn btn-success form-control" id="btnGuardarSubidaArchivo">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("reportViewerView", false)
+
+
+<div class="modal fade" id="modalEditlicencia" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    EDICION DE LICENCIA / PÓLIZA / CURSO.
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 col-lg-4 text-center">
+                        <p class="margin-top">Actualizar Licencia</p>
+                        <input type="checkbox" class="form-control" id="checkboxActualizarLicencia" />
+                        <div id="divCamposLicencia">
+                            <label>Vencimiento Licencia:</label>
+                            <input type="text" id="modalEditFechaLicencia" class="form-control" />
+                            <label class="margin-top">* Licencia Conducir:</label>
+                            <input type="file" class="form-control" id="fileLicenciaUpdate" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-4 text-center">
+                        <p class="margin-top">Actualizar Póliza</p>
+                        <input type="checkbox" class="form-control" id="checkboxActualizarPoliza" />
+                        <div id="divCamposPoliza">
+                            <label>Vencimiento Póliza:</label>
+                            <input type="text" id="modalEditFechaPoliza" class="form-control" />
+                            <label class="margin-top">* Póliza de Seguro:</label>
+                            <input type="file" class="form-control" id="filePolizaUpdate" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-4 text-center">
+                        <p class="margin-top">Actualizar Curso de Manejo a la Defensiva</p>
+                        <input type="checkbox" class="form-control" id="checkboxActualizarDefensiva" />
+                        <div id="divCamposDefensiva">
+                            @*<label>Vencimiento Curso:</label>
+                            <input type="text" id="modalEditFechaDefensiva" class="form-control" />*@
+                            <label class="margin-top">* Evidencia curso:</label>
+                            <input type="file" class="form-control" id="fileDefensivaUpdate" />
+                            <label>Fecha Vigencia:</label>
+                            <input id="inputFechaVigencia" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button type="button" class="btn btn-success margin-top" id="btnGuardarEditLicencia">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+<script src="~/Scripts/js/Genericos/Mouse/_menuClick.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Inventario/AsignacionResguardoJS.js"></script>
+
+@Html.Action("_menuClick", "Mouse", new { area = "" })
+@Html.Action("_visorGrid", "Visor", new { area = "" })
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+
+@*@Html.Action("_menuClick", "Mouse")
+@Html.Action("_visorGrid", "Visor")*@

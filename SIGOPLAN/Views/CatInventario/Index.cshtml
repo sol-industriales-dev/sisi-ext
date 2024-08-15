@@ -1,0 +1,218 @@
+﻿@{
+    ViewBag.Title = "Inventario de maquinaria";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Catalogo/InventarioMaq.js"></script>
+<style type="text/css">
+    table.center-all td, th {
+        text-align: center;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Inventario de Maquinaria por centro de costos</h2>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Filtros:</legend>
+                @*<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <label>Centro Costos:</label>
+                        <input class="form-control" id="txtFiltroCentroCostos" type="text" />
+                    </div>*@
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Area Cuenta:</label>
+                    <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Tipo Maquinaria:</label>
+                    <select class="form-control" id="cboFiltroTipoMaquinaria" title="Seleccione Tipo Maquinaria"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 hidden">
+                    <label>Estatus:</label>
+                    <select class="form-control" id="cboFiltroEstatus">
+                        <option value="1">ACTIVO</option>
+                        <option value="0">INACTIVO</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                    <label>No Economico:</label>
+                    <input class="form-control" id="tbEconomico" type="text" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <div class="col-lg-4">
+                        <button type="button" class="btn btn-info margin-top" id="btnHistorial">
+                            <span class="glyphicon glyphicon-search"></span> Historial
+                        </button>
+                    </div>
+                    <div class="col-lg-4">
+                        <button type="button" class="btn btn-info margin-top " id="btnImprimir" style=" margin-left: 10px;">
+                            <span class="glyphicon glyphicon-print"></span> Imprimir
+                        </button>
+                    </div>
+                    <div class="col-lg-4">
+                        <button type="button" class="btn btn-info margin-top" id="btnBuscar" style=" margin-left: 10px;">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                    </div>
+                    @if (Base.getAction("EnvioInventario"))
+                    {
+                        <div class="col-lg-4">
+                            <button type="button" class="btn btn-info margin-top" id="btnEnvioCorreo" style=" margin-left: 10px;">
+                                <span class="glyphicon glyphicon-search"></span> Envio
+                            </button>
+                        </div>
+                    }
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados Búsqueda:</legend>
+                <table id="grid_Inventario" class="display" cellspacing="0" width="100%">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th>Economico</th>
+                            <th>Tipo</th>
+                            <th>Grupo</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Serie</th>
+                            <th>Año</th>
+                            <th>Horometro Acum</th>
+                            <th>Ubicación</th>
+                            <th>Redireccionamiento</th>
+                            <th>Cargo obra</th>
+                            <th>Propiedad Empresa</th>
+                            <th>Estatus</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ModalListaInventario" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <label class="text-center">Historico de inventarios</label>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-lg-5">
+                        <div>
+                            <label>Semana:</label>
+                            <select id="cboSemanas" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-info margin-top" id="btnExport">
+                                <span class="glyphicon glyphicon-export"></span> Exportar Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row center-block">
+                    <div class="row center-block">
+                        <table class="table  table-responsive" style="font-weight:bold;" id="tblHistorial">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th>No Economico</th>
+                                    <th>Tipo Maquinaria</th>
+                                    <th>Grupo Maquinaria</th>
+                                    <th>Marca</th>
+                                    <th>Modelo Maquina</th>
+                                    <th>Serie</th>
+                                    <th>Año</th>
+                                    <th>Horometro Acumulado</th>
+                                    <th>Ubicación</th>
+                                    <th>Redireccionamiento</th>
+                                    <th>Con Cargo a la obra</th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="envioCorreosModal" role="dialog">
+    <div style="margin-left:10px;margin-right:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <label class="text-center">Envio Correos</label>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-info margin-top" id="btnMartes" style=" margin-left: 10px;">
+                            <span class="glyphicon glyphicon-search"></span> Envio Dia Martes
+                        </button>
+                        <button type="button" class="btn btn-info margin-top" id="btnStandBy" style="margin-left:10px">
+                            <i class="far fa-paper-plane"></i> Envio StandBy
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" hidden>
+                        <button type="button" class="btn btn-info margin-top" id="btnSabado" style=" margin-left: 10px;">
+                            <span class="glyphicon glyphicon-search"></span> Envio Dia Sabado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("reportViewerView", false)

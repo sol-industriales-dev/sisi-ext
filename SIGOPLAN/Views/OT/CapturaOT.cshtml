@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "CapturaOT";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+
+
+}
+
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/CheckBoxRadiosFancy.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/js/Maquinaria/Captura/OT/CapturaOTJS.js"></script>
+
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+
+<style>
+    .bg-ColorHead {
+        background: #DC7633;
+    }
+
+    div.dropdown-menu {
+        background-color: #ffffff !important;
+    }
+
+    .cursorClick {
+        cursor: pointer;
+        font-size: larger;
+    }
+</style>
+
+<script>
+    var Dato = "@Base.getAction("PermisoCapturaOrden")";
+    var isTrueSet = (Dato == "True");
+    var ValidaPermisoHorometro = isTrueSet;
+</script>
+<div class="container-fluid">
+    <div id="Principal">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><label>Filtro de órdenes de Trabajo</label></legend>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3">
+                <label>CC</label>
+                <select id="cboBusqCC" class="form-control"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 hide">
+                <label>Nombre</label>
+                <input type="text" id="txtBusqCC" class="form-control" value="TODOS" disabled />
+            </div>
+            <div class="col-xs-12 col-md-4 col-lg-3">
+                <div class="col-xs-6 col-md-6 col-lg-6">
+                    <label for="FInicial">Fecha Inicial:</label>
+                    <input type="text" id="FInicial" class="form-control" />
+                </div>
+                <div class="col-xs-6 col-md-6 col-lg-6">
+                    <label for="FFinal">Fecha Final:</label>
+                    <input type="text" id="FFinal" class="form-control" />
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4 col-lg-3">
+                <label>Económico:</label>
+                <select class="form-control" id="cboEconomicofiltro"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <label>Motivo Paro</label>
+                <select class="form-control" id="cboMotivoParoFiltro"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <button type="button" class="btn btn-success margin-top" id="btnNuevo">
+                    <span class="glyphicon glyphicon-plus"></span> Nueva OT
+                </button>
+                <button type="button" class="btn btn-primary margin-top" id="btnAplicarFiltros">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+                <button type="button" class="btn btn-success margin-top" id="btnExportar">
+                    <span class="glyphicon glyphicon-plus"></span> Exportar
+                </button>
+            </div>
+
+        </fieldset>
+
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"><label>Lista de órdenes de Trabajo</label></legend>
+            <ul class="nav nav-tabs">
+                <li class="active"><a id="tabTitle1" data-toggle="tab" href="#OTAbiertas">OT Cerradas</a></li>
+                <li><a id="tabTitle2" data-toggle="tab" href="#OTCerradas">OT Abiertas</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="OTAbiertas" class="tab-pane fade in active">
+                    <table id="tblListaOT" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="verReporte" data-searchable="false" data-formatter="verReporte" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Imprimir</th>
+                                <th data-column-id="EditarOT" data-searchable="false" data-formatter="EditarOT" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                                <th data-column-id="Folio" data-align="center" data-header-align="center">Folio</th>
+                                <th data-column-id="Lugar" data-align="center" data-header-align="center">Lugar OT</th>
+                                <th data-column-id="Economico" data-align="center" data-header-align="center">Economico</th>
+                                <th data-column-id="FechaInicio" data-align="center" data-header-align="center" data-searchable="false">Fecha Inicio</th>
+                                <th data-column-id="FechaFin" data-align="center" data-header-align="center" data-searchable="false">Fecha Fin</th>
+                                <th data-column-id="Estatus" data-align="center" data-header-align="center" data-searchable="false">Estatus</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div id="OTCerradas" class="tab-pane">
+                    <table id="tblListaOT1" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="verReporte" data-searchable="false" data-formatter="verReporte" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Imprimir</th>
+                                <th data-column-id="EditarOT" data-searchable="false" data-formatter="EditarOT" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                                <th data-column-id="Folio" data-align="center" data-header-align="center">Folio</th>
+                                <th data-column-id="Lugar" data-align="center" data-header-align="center">Lugar OT</th>
+                                <th data-column-id="Economico" data-align="center" data-header-align="center">Economico</th>
+                                <th data-column-id="FechaInicio" data-align="center" data-header-align="center" data-searchable="false">Fecha Inicio</th>
+                                <th data-column-id="FechaFin" data-align="center" data-header-align="center" data-searchable="false">Fecha Fin</th>
+                                <th data-column-id="Estatus" data-align="center" data-header-align="center" data-searchable="false">Estatus</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </fieldset>
+    </div>
+    <div id="Detalle" class="hide">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick" id="BntRegresar"></span> <label>CAPTURA ORDEN TRABAJO</label></legend>
+            <div class="row">
+
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Datos del Equipo</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Económico:</label>
+                            <select class="form-control" id="cboEconomico"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Obra:</label>
+                            <input class="form-control" type="text" id="tbObra" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 hide">
+                            <label>Fecha:</label>
+                            <input class="form-control" type="text" id="tbFechaCreacion" />
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Modelo:</label>
+                            <input class="form-control" id="tbModelo" />
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                            <label>Fecha de Horometro:</label>
+                            <input class="form-control" type="text" id="tbFechaOT" />
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                            <label>Horómetro:</label>
+                            <input class="form-control" type="number" id="tbHorometro" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Turno:</label>
+                            <select class="form-control" id="cboTurno">
+                                <option value="1">Turno 1</option>
+                                <option value="2">Turno 2</option>
+                                <option value="3">Turno 3</option>
+                                <option value="4">Turno 4</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group" style="top: 21px;">
+                            <label>OT Abieta</label>
+                            <span class="button-checkbox">
+                                <button type="button" class="btn btn-default" data-color="primary" id="btnOTAbierta"><i class="state-icon glyphicon glyphicon-unchecked"></i>&nbsp;<span id="lblOTAbierta">NO</span></button>
+                                <input type="checkbox" class="hidden" id="ckOTAbierta">
+                            </span>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Motivos del paro:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <label>Motivo Paro</label>
+                                    <select class="form-control" id="cboMotivoParo"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <label>Comentario:</label>
+                                    <input class="form-control" id="tbOtroMotivo" disabled />
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Tipo de Paro:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <select class="form-control hide" id="cboTipoParo">
+                                        <option value="1">Paro Programado</option>
+                                        <option value="2">Paro no Programado</option>
+                                    </select>
+
+                                    <input class="form-control" id="tbTipoParo" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <select class="form-control hide" id="cboTipoParo2">
+                                        <option value="1">Preventivo</option>
+                                        <option value="2">Correctivo</option>
+                                        <option value="3">Predictivo</option>
+                                    </select>
+
+                                    <input class="form-control" id="tbTipoMantenimiento" disabled />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <select class="form-control" id="cboTipoParo3">
+                                        <option value="1"> Maquinaria en stand by</option>
+                                        <option value="2"> Maquinaria trabajando</option>
+                                        <option value="3"> Falta de Tramo</option>
+                                    </select>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Tiempos de paro:</legend>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-lg-6">
+                                    <label>Hora Entrada</label>
+                                    <input type="text" class="form-control" id="tbHoraEntrada" />
+                                </div>
+                                <div class="col-lg-6 form-group">
+                                    <label>Hora Salida</label>
+                                    <input type="text" class="form-control" id="tbHoraFinalizacion" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tiempo de paro total:</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoParoH" disabled>
+                                <span class="input-group-addon">Horas</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoParoM" disabled>
+                                <span class="input-group-addon">Minutos</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tiempo de Reparación:</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoReparacionH" disabled>
+                                <span class="input-group-addon">Horas</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoReparacionM" disabled>
+                                <span class="input-group-addon">Minutos</span>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-12 form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tiempo Muerto:</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoMuertoH">
+                                <span class="input-group-addon">Horas</span>
+                                <input type="number" class="form-control text-left" id="tbTiempoMuertoM">
+                                <span class="input-group-addon">Minutos</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 form-group">
+                            <label>Motivo Tiempo Muerto:</label>
+                            <input type="text" class="form-control" id="tbTiempoMuertoDescripcion" placeholder="Motivo de Tiempo Muerto" />
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <fieldset class=" fieldset-custm">
+                        <legend class="legend-custm">Personal</legend>
+                        <div class="row form-group">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-12">
+                                        <label>Codigo de empleado:</label>
+                                        <input type="text" id="tbNumEmpleado" class="form-control" />
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <label>Nombre:</label>
+                                        <input class="form-control" id="tbNombreEmpleado" />
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <label>Puesto:</label>
+                                        <input class="form-control" id="tbPuestoEmpleado" />
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-5">
+                                        <label>Hora Inicio</label>
+                                        <input type="text" class="form-control" id="tbHoraEntradaHH" />
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <label>Hora Fin</label>
+                                        <input type="text" class="form-control" id="tbHoraFinalizacionHH" />
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <button type="button" class="btn btn-success margin-top pull-right" id="btnAgregarHH">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="center-block">
+                                    <table class="table table-responsive table-fixed" id="tblEmpleadosTrabajo">
+                                        <thead class="bg-ColorHead">
+                                            <tr>
+                                                <th>Nombre Personal</th>
+                                                <th>Puesto Personal</th>
+                                                <th>Horas Inicio</th>
+                                                <th>Horas Fin</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Método de Solución</legend>
+                        <div class="col-lg-12">
+                            <label>Comentario</label>
+                            <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                        </div>
+                    </fieldset>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:10px;">
+
+                            <button type="button" class="btn btn-success pull-right" id="btnGuardarOT">
+                                <span class="glyphicon glyphicon-floppy-disk"></span> Guardar OT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalEliminarRegistro" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Eliminar Personal.</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group text-center">
+                        <label>Usted esta eliminando un registro de horas hombre trabajadas</label>
+                        <label>¿Desea Continuar con la operación?</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnEliminarRegistro">
+                                    <span class="glyphicon glyphicon-ok"></span> Aceptar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-remove"></span> Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

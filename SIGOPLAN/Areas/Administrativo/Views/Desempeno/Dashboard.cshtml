@@ -1,0 +1,193 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var usuarioDesempeño = (Core.DTO.RecursosHumanos.Desempeno.UsuarioDTO)Session["usuarioDesempeño"];
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+
+<style>
+    /*MENU PRINCIPAL*/
+    #menuPrincipal {
+        float: left;
+        width: 100%;
+        
+        color: white;
+
+        margin-bottom: 20px;
+    }
+    #menuPrincipal div {
+        float: left;
+        width: 10%;
+
+        text-align: center;
+
+        transition: width 1s;
+
+        opacity: 0.4;
+        color: black;
+    }
+    #menuPrincipal #menuSalirVerComo {
+        float: right;
+        color: white;
+    }
+    #menuPrincipal div:hover {
+        width: 25%;
+        cursor: pointer;
+        opacity: 1;
+        color: white;
+        box-shadow: 0px 0px 7px #000000;
+    }
+    #menuPrincipal div.opcionSeleccionada {
+        box-shadow: 0px 0px 7px #000000;
+        width: 25%;
+        opacity: 1;
+        color: white;
+    }
+    #menuPrincipal div h5 {
+        font-weight: bold;
+    }
+    #menuPrincipal #menuEscritorio {
+        background-color: #28b779;
+    }
+    #menuPrincipal #menuCalendario {
+        background-color: #ffb848;
+    }
+    #menuPrincipal #menuAdministracion {
+        background-color: #2255a4;
+    }
+    #menuPrincipal #menuReportes {
+        background-color: red;
+    }
+    #menuPrincipal #menuSalirVerComo {
+        background-color: #000000;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+    table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+    .bodyDesempeño .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+    .bodyDesempeño .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .bodyDesempeño .modal-header .modal-title {
+        font-weight: bold;
+    }
+    .bodyDesempeño .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*BOOTSTRAP COLS - modifica los cols-xx-xx, sin padding para crear las áreas (secciones)*/
+    .no-gutter {
+        padding: 0px 0px 0px 0px;
+    }
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+    .btn-primary:hover {
+        background-color: #624de2 !important;
+        border-color: #624de2 !important;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /*GENERALES*/
+    .txt-bold {
+        font-weight: bold;
+    }
+    .vertical-align {
+        display: flex;
+        align-items: center;
+    }
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+
+        background-color: white;
+        
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+    body {
+        background-color: whitesmoke;
+    }
+    ul.ui-autocomplete {
+        z-index: 1051 !important;
+    }
+    #modalAgregarProceso. hasDatepicker {
+        z-index: 99999 !important;
+    }
+</style>
+
+<div class="container-fluid bodyDesempeño">
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div class="opcionSeleccionada" id="menuEscritorio">
+                    <h2><i class="fa fa-desktop"></i></h2>
+                    <h5>Escritorio</h5>
+                </div>
+                <div id="menuCalendario">
+                    <h2><i class="fa fa-calendar"></i></h2>
+                    <h5>Calendario</h5>
+                </div>
+                @if (usuarioDesempeño.esAdmin)
+                {
+                    <div id="menuAdministracion">
+                        <h2><i class="fa fa-cogs"></i></h2>
+                        <h5>Administración</h5>
+                    </div>
+                }
+                @if (usuarioDesempeño.esAdmin)
+                {
+                    <div id="menuReportes">
+                        <h2><i class="fa fa-cogs"></i></h2>
+                        <h5>Reportes</h5>
+                    </div>
+                }
+                @if (usuarioDesempeño.esAdmin && usuarioDesempeño.VerComoActivado)
+                {
+                    <div id="menuSalirVerComo">
+                        <h2><i class="fas fa-long-arrow-alt-left"></i></h2>
+                        <h5>Salir (ver como)</h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid  bodyDesempeño" id="divPrincipal"></div>
+
+@Html.Action("_visorGrid", "Visor", new { area = "" })
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Desempeno/DashboardJS.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/sweetalert2@10.js"></script>

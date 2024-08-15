@@ -1,0 +1,270 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+    var dash = new SIGOPLAN.Controllers.SeguimientoAcuerdos.SeguimientoAcuerdosController();
+}
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Acuerdo.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Dashboard.css")" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/dhtmlxgantt.css")">
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/dhtmlxgantt.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/locale_es.js")"></script>
+<script src="@Url.Content("~/Scripts/js/SeguimientoAcuerdos/Dashboard.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    var usuarioNombre = "@Base.getUsuario().nombre";
+    var usuarioID = @Base.getUsuario().id;
+    var gFecha = "@DateTime.Now.ToShortDateString()";
+</script>
+<div class="container-fluid">
+    <div class="row form-group">
+        <h2 class="text-center">Dashboard</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-5 pull-left" style=" top: -18px; position:relative;display:table;">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="input-group">
+                    <span class="input-group-addon fijo">Dependientes</span>
+                    <select id="slOrganigrama" class=" form-control"></select>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-6 pull-right" style=" top: -18px; position:relative;display:table;">
+            <div class="input-group" style="display:table-cell">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Prioridad:</legend>
+                    <div class="input-group" title="Codigo de colores de Prioridad" style="height:27px;">
+                        <span class="input-group-addon" style="background-color:blue; border: 1px solid black;width:43px;min-width:43px; height:27px;"></span>
+                        <span class="form-control" style="padding-left:3px;border:1px solid black;height:27px;width:100px;font-weight:bold;font-size:10px;font-weight:bold;margin-right:10px;">BAJA</span>
+
+                        <span class="input-group-addon" style="background-color:yellow; border: 1px solid black;width:43px;min-width:43px; height:27px;"></span>
+                        <span class="form-control" style="padding-left:3px;border:1px solid black;height:27px;width:100px;font-weight:bold;font-size:10px;font-weight:bold;margin-right:10px;">MEDIA</span>
+
+                        <span class="input-group-addon" style="background-color:red; border: 1px solid black;width:43px;min-width:43px; height:27px;"></span>
+                        <span class="form-control" style="padding-left:3px;border:1px solid black;height:27px;width:100px;font-weight:bold;font-size:10px;font-weight:bold;">ALTA</span>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="input-group" style="display:table-cell">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Tipo Actividad:</legend>
+                    <div class="input-group" title="Codigo de colores de Tipo Actividad" style="height:27px;">
+                        <span class="input-group-addon" style="background-color:black; border: 1px solid black;width:43px;min-width:43px; height:27px;"></span>
+                        <span class="form-control" style="padding-left:3px;border:1px solid black;height:27px;width:100px;font-weight:bold;font-size:10px;margin-right:10px;">INTERES</span>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">MINUTAS DE <span id="spMinutaOwner"></span>:</legend>
+                <div style="display:inline-block;width:100%;overflow-y:auto;background-color:#FAFAFA;border:1px solid #ddd;">
+                    <ul class="timeline timeline-horizontal" id="timeline"></ul>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">ACTIVIDADES:</legend>
+                <div id="divKanban" class="row">
+                    <div class="panel panel-default kColumn">
+                        <div class="panel-heading text-center">PENDIENTE</div>
+                        <div class="column cP0" data-columna="0">
+                        </div>
+                    </div>@*Pendiente*@
+                    <div class="panel panel-default kColumn">
+                        <div class="panel-heading text-center">EN PROCESO: 25%</div>
+                        <div class="column cP25" data-columna="25">
+                        </div>
+                    </div>@*25%*@
+                    <div class="panel panel-default kColumn">
+                        <div class="panel-heading text-center">EN PROCESO: 50%</div>
+                        <div class="column cP50" data-columna="50">
+                        </div>
+                    </div>@*50%*@
+                    <div class="panel panel-default kColumn">
+                        <div class="panel-heading text-center">EN PROCESO: 75%</div>
+                        <div class="column cP75" data-columna="75">
+                        </div>
+                    </div>@*75%*@
+                    <div class="panel panel-default kColumn">
+                        <div class="panel-heading text-center">FINALIZADO: 100%</div>
+                        <div class="column cP100" data-columna="100">
+                        </div>
+                    </div>@*100%*@
+                </div>
+            </fieldset>
+        </div>
+    </div>@*ACTIVIDADES*@
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">GANTT:</legend>
+                <div class="row" style='padding-left:10px;padding-right:10px;'>
+                    <div id="gantt_here" style='height:500px;width:100%'>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>@*ACTIVIDADES*@
+</div>
+
+<div class="modal fade" id="modalActividad" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Captura Actividad</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center form-group">
+                    <h3><label>Actividad</label></h3>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Actividad</span>
+                            <input id="txtMActividad" type="text" class="form-control" placeholder="Actividad" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Descripcion</span>
+                            <textarea id="txtMDescripcionActividad" class="form-control" placeholder="Descripción" rows="5" disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Responsable</span>
+                            @*<select id="slMResponsable" class=" form-control" style="width:100%;" disabled></select>*@
+                            <input id="slMResponsable" type="text" class="form-control" placeholder="Responsable" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Responsables</span>
+                            <div class="ResponsablesInActivity form-control" disabled>
+                                <input id="newResponsables" class="newResponsables" type="text" style="display:none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Autoriza</span>
+                            <input id="txtRevisa" type="text" class="form-control" placeholder="Autoriza" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Fecha Inicio</span>
+                            <input id="txtFechaInicio" type="text" class="form-control clsDatePicker" placeholder="FechaInicio" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Fecha Compromiso</span>
+                            <input id="txtFechaCompromiso" type="text" class="form-control clsDatePicker" placeholder="Fecha Compromiso" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Prioridad</span>
+                            <select id="slMPrioridad" class=" form-control" style="width:100%;" disabled>
+                                <option value="3">Baja</option>
+                                <option value="2">Media</option>
+                                <option value="1">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios">
+                                <!-- timeline time label -->
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-left:30px;">
+                    <div class="form-group">
+                        <input type="file" id="fupAdjunto" style="width:300px;">
+                    </div>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnAddComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="divDialogPromover" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-md" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;"><span id="spPromover" style="display:block;width: 200px;"></span></h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtObservacion" title="Introducir observación" style="height:100px; width:97%;" placeholder="Escribe un observación"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" data-dismiss="modal" id="btnPromover" class="btn btn-primary" style="font-weight:bold;font-size:large;">Promover</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

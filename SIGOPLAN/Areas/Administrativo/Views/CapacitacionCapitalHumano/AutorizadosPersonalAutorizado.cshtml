@@ -1,0 +1,338 @@
+﻿@{
+    ViewBag.Title = "Autorizados Personal Autorizado";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.RecursosHumanos.Capacitacion.CapacitacionCapitalHumanoController().privilegioCapacitacion();
+    <!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+}
+
+<!-- CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Capacitacion/ControlAsistencia.css" rel="stylesheet" />
+
+<style>
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    .mrgBottom {
+        margin-bottom: 5px;
+    }
+
+    .select2-selection--single,
+    .select2-selection__rendered {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 35px !important;
+    }
+
+    .inputInteresados {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        height: 30px;
+        font-size: 14px;
+        background-color: transparent !important;
+        border: 0px solid !important;
+        height: 30px !important;
+        width: 260px !important;
+    }
+
+    .inputInteresados:focus {
+        outline: none !important;
+    }
+
+    .divUser {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 5px 0px 0px 0px;
+    }
+
+    .userContainer {
+        position: relative;
+        vertical-align: middle;
+        white-space: nowrap;
+        outline: none;
+        overflow: hidden;
+        width: 100%;
+        display: table;
+        font-size: 14px;
+        padding-left: 10px;
+    }
+
+    .userComponent {
+        width: 40px;
+        color: #000;
+        background-color: #e0e0e0;
+        display: table-cell;
+        vertical-align: middle;
+        white-space: nowrap;
+        position: relative;
+        padding: 0 14px 0 25px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5% 5% 5% 5%;
+        left: -10px;
+    }
+
+    .userComponent:hover {
+        background-color: #d3d3d3;
+    }
+
+    .userDelete {
+        border-width: 0;
+        border-radius: 50%;
+        cursor: pointer !important;
+        position: relative;
+        padding: 2px 10px 0 5px;
+        margin-left: -15px;
+        display: table-cell;
+        vertical-align: middle;
+        font-size: 14px;
+        height: 30px;
+        color: #000;
+        left: -10px;
+    }
+
+    .userFill {
+        background-color: #e0e0e0;
+        width: 5px;
+        border-width: 0;
+        border-radius: 50%;
+        cursor: pointer !important;
+        position: relative;
+        padding: 2px 10px 0 5px;
+        margin-left: 10px;
+        display: table-cell;
+        vertical-align: middle;
+        font-size: 14px;
+        height: 30px;
+        color: #000;
+    }
+</style>
+
+<div class="col-md-12" style="margin-top: 47px;">
+    @if (privilegioCapacitacion != 2)
+    {
+        <button id="botonEnviarCorreos" class="btn btn-default pull-right">Enviar Correos</button>
+    }
+
+    <button id="botonImprimirLista" class="btn btn-default pull-right">Imprimir Lista</button>
+</div>
+<div class="col-md-12">
+    <fieldset class="fieldset-custm" style="margin-bottom: 100px;">
+        <legend class="legend-custm"><i class="fas fa-bars"></i> Datos Generales de Autorización:</legend>
+        <div class="row mrgTop">
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Fecha</span>
+                    <input class="text-center form-control" type="text" id="inputFecha" disabled>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Clave</span>
+                    <select id="selectClaveListaAutorizacion" class="form-control select2"></select>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Curso</span>
+                    <select id="selectCurso" class="form-control select2"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row mrgTop">
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Revisión</span>
+                    <input class="text-center form-control" type="text" id="inputRevision" disabled>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Razón Social</span>
+                    <select id="selectRazonSocial" class="form-control"></select>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">RFC</span>
+                    <input class="text-center form-control" type="text" id="inputRFC" disabled>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="display: none;">
+                <div class="input-group">
+                    <span class="input-group-addon">Departamento</span>
+                    <select id="selectDepartamento" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Objetivo</span>
+                    <input class="text-center form-control" type="text" id="inputObjetivo" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fas fa-users"></i> Asistentes</legend>
+
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave:</span>
+                                <input class="text-center form-control" type="text" id="inputClaveEmpleado">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre:</span>
+                                <input class="text-center form-control" type="text" id="inputNombreEmpleado">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <button id="botonAgregarAsistente" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="row mrgTop">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaAsistentes" class="table table-bordered compact table-hover table-striped"></table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Nota</span>
+                    <input class="text-center form-control" type="text" id="inputNota" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fas fa-users"></i> Autorizantes</legend>
+
+                    <div class="row mrgTop">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Jefe del Departamento</span>
+                                <input class="form-control" type="text" id="inputJefeDepartamento">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Coordinador de CSH</span>
+                                <input class="form-control" type="text" id="inputCoordinadorCSH">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mrgTop">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Gerente de Proyecto</span>
+                                <input class="form-control" type="text" id="inputGerenteProyecto">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Secretario de CSH</span>
+                                <input class="form-control" type="text" id="inputSecretarioCSH">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mrgTop">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Dpto. Seguridad</span>
+                                <input class="form-control" type="text" id="inputSeguridad">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fas fa-users"></i> Interesados</legend>
+
+                    <div class="row mrgTop">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div id="divInteresados">
+                                <input class="form-control mrgTop" type="text" id="inputInteresados" style="display: inline-block; width: 20%;">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="row mrgTop">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                @if (privilegioCapacitacion != 2)
+                {
+                    <button id="botonGuardar" class="btn btn-success pull-right"><i class="fa fa-save"></i>&nbsp;Guardar Información</button>
+                }
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div class="modal fade" id="modalEnviarCorreos" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Enviar Correos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="textAreaCorreos" class="form-label">Correos:</label>
+                        <textarea id="textAreaCorreos" class="form-control" cols="12" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonEnviarCorreosConfirmar">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Capacitacion/AutorizadosPersonalAutorizado.js"></script>

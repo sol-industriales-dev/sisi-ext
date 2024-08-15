@@ -1,0 +1,163 @@
+﻿
+@{
+    ViewBag.Title = "CreacionExamen";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<script src="~/Scripts/js/Cursos/CreacionExamen.js"></script>
+<script src="~/Scripts/Utilities/Utilities.js"></script>
+
+<div class="row form-group col-lg-12">
+    <div class="row">
+        <h1 class="text-center">Generador de exámenes</h1>
+        <h2 class="text-center" id="hFolio"></h2>
+    </div>    
+    <div id="divInfoCambio" class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Formato:</legend>
+                <div class="col-md-10">
+                    <input type="number" class="hidden" value="@ViewBag.id">
+                    <table class=" table table-condensed table-hover table-striped text-center  MACHIQI">
+
+                        <tbody>
+                            <tr>
+                                <td class="col-lg-2">Nombre Curso:</td>
+                                <td>
+                                    <div class="col-lg-8">
+                                        <select class="form-control no-padding" id="cboCurso"></select>
+                                    </div>
+                                </td>
+                                <td class="col-lg-1">Fecha de Creación:</td>
+                                <td>
+                                    <div class="col-lg-8">
+                                        <input type="text" id="fechaIni" class="form-control" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Datos Generales de Examen:</legend>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Titulo:</span>
+                            <input id="txtTitulo" class="form-control" placeholder="Titulo" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Descripción:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcion" class="form-control" placeholder="Descripción"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class=" col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Agregar Pregunta:</legend>
+                <div class="container pull-left">
+                    <div class="input-group col-lg-12">
+                        <span class="input-group-addon">Pregunta:</span>
+                        <textarea id="txtPregunta" class="form-control" placeholder="Pregunta"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+
+    <div class="row form-group hideActualizar">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm pull-left">
+                <legend class="legend-custm">Agregar Respuesta: </legend>
+                <div class="container">
+                    <input type="hidden" name="count" value="1" />
+                    <div class="control-group" id="fields">
+                        <label class="control-label" for="field1">Tipo de Reactivo</label>
+                        <div class="controls" id="profs">
+                            <form class="input-append">
+                                <div id="field">
+                                    <div class="col-sm-3">
+                                        <select class="input form-control pdi-spacing-02" id="tpReac" name="prof1">
+                                            <option value="1" selected="selected">Opcion Multiple</option>
+                                            <option value="2">Opcion Abierta</option>
+                                        </select>
+                                        <small id="txtMultiple">Presionar + para agregar opciones</small>
+                                    </div>
+                                    <button id="b1" class="btn add-more  btn-success" type="button">+</button>
+                                </div>
+                            </form>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Seccion de llenado:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pregunta" hidden>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtRespuesta" class="form-control" placeholder="Respuesta"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="multiple">
+                    <div class="col-lg-12">
+                        <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%; margin-top:4px;" border="1" id="tablaMultiple">
+                            <thead class="bg-table-header table-responsive" style="text-align:center">
+                                <tr>
+                                    <th rowspan="2" width="" class="col-lg-2">Opcion</th>
+                                    <th rowspan="2">Descripción</th>
+                                    <th rowspan="2" class="col-lg-1">Valida</th>
+                                    <th rowspan="2" class="col-lg-1">Remover</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblPlantilla"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row">
+                <div class="col-lg-12">
+                    <button id="btnAgregar" class="btn btn-default pull-right">Agregar Reactivo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row form-group hideActualizar">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Vista Previa de Examen:</legend>
+                <div class="Preguntas">
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12"><button id="btnGuardar" class="btn btn-default pull-right hideActualizar">Guardar</button></div>
+    </div>
+</div>

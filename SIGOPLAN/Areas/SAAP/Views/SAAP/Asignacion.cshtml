@@ -1,0 +1,221 @@
+﻿@{
+ViewBag.Title = "Asignacion";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    /* Estilo CheckBox */
+    label {
+        display: inline;
+    }
+
+    .regular-checkbox,
+    .regular-checkboxdanger {
+        display: none;
+    }
+
+    .regular-checkbox+label,
+    .regular-checkboxdanger+label {
+        background-color: #fafafa;
+        border: 1px solid #cacece;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);
+        padding: 11px;
+        border-radius: 3px;
+        display: inline-block;
+        position: relative;
+        height: 25px;
+        width: 25px;
+        margin-bottom: 0px;
+        vertical-align: middle;
+    }
+
+    .regular-checkbox+label:active,
+    .regular-checkbox:checked+label:active,
+    .regular-checkboxdanger+label:active,
+    .regular-checkboxdanger:checked * label:active {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .regular-checkbox:checked+label {
+        /* color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4; */
+
+        color: #fff;
+        background-color: #449d44;
+        border-color: #398439;
+
+        /* color: #99a1a7;
+	background-color: #e9ecee;
+    border: 1px solid #adb8c0; */
+
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05), inset 15px 10px -12px rgba(255, 255, 255, 0.1);
+    }
+
+    .regular-checkboxdanger:checked+label {
+        /* color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4; */
+
+        color: #fff;
+        background-color: #d9534f;
+        border-color: #d43f3a;
+
+        /* color: #99a1a7;
+	background-color: #e9ecee;
+    border: 1px solid #adb8c0; */
+
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05), inset 15px 10px -12px rgba(255, 255, 255, 0.1);
+    }
+
+    .regular-checkbox:checked+label:after {
+        content: '\2714';
+        font-size: 17px;
+        position: absolute;
+        top: 0px;
+        left: 4px;
+        /* color: #99a1a7; */
+        color: #fff;
+    }
+
+    .regular-checkboxdanger:checked+label:after {
+        content: '\2716';
+        font-size: 17px;
+        position: absolute;
+        top: 0px;
+        left: 4px;
+        /* color: #99a1a7; */
+        color: #fff;
+    }
+
+    .big-checkbox+label {
+        padding: 18px;
+    }
+
+    .big-checkbox:checked+label:after {
+        font-size: 28px;
+        left: 6px;
+    }
+
+    .tag {
+        font-family: Arial, sans-serif;
+        width: 200px;
+        position: relative;
+        top: 5px;
+        font-weight: bold;
+        text-transform: uppercase;
+        display: block;
+        float: left;
+    }
+
+    .radio-1 {
+        width: 193px;
+    }
+
+    .button-holder {
+        float: left;
+    }
+
+    /* Fin Estilo CheckBox */
+
+    #tablaActividades_wrapper .regular-checkboxdanger+label {
+        padding: 9px;
+        height: 12px;
+        width: 12px;
+    }
+
+    #tablaActividades_wrapper .regular-checkboxdanger:checked+label:after {
+        font-size: 13px;
+    }
+</style>
+
+<div class="row text-center margin-top">
+    <h2>Asignación</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Agrupación</legend>
+    <div class="row">
+        <div class="col-md-4 noPadRight">
+            <select class="form-control select2" id="selectCentroCosto"></select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" id="botonBuscar">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm">Actividades:</legend>
+    <div class="row mrgTop">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary" id="botonAgregar"><i class="fas fa-plus"></i> Agregar</button>
+            <button type="button" class="btn btn-danger pull-right" id="botonQuitar" disabled><i class="fas fa-times"></i> Quitar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaActividades" class="table table-hover compact" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalAgregarActividad">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Agregar Actividades</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label>Agrupación:</label>
+                        <select class="form-control" id="selectCentroCostoAgregar" multiple></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="selectAreaAgregar" class="form-label">Área:</label>
+                        <select id="selectAreaAgregar" class="form-control" multiple></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Clasificación:</label>
+                        <select class="form-control" id="selectClasificacionAgregar" multiple></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Fecha Inicio Evaluación:</label>
+                        <input type="text" id="inputFechaInicioEvaluacion" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label>Actividades:</label>
+                        <table id="tablaActividadesAgregar" class="table table-hover compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/SAAP/Asignacion.js"></script>

@@ -1,0 +1,178 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/summernote/summernote.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/dhtmlxgantt.css")">
+
+<style>
+    body {
+        background-color: whitesmoke;
+    }
+    .RenderBody {
+        margin-top: 25px !important;
+    }
+
+    /*MENU*/
+    #menuPrincipal {
+        max-width: 1260px;
+        z-index: 1049;
+
+        position: fixed;
+        width: 1260px;
+        left: 50%;
+        margin-left: -630px;
+    }
+
+    .navbar-li-margin {
+        margin-right: 15px;
+    }
+    #cboMural {
+        margin-top: 7px;
+        width: 200px;
+    }
+
+    /*MURAL*/
+    #mural {
+        margin-top: 50px;
+        width: 5000px;
+        height: 5000px;
+    }
+
+    .postIt, .bloque {
+        z-index: 998;
+    }
+    .header-postIt:hover, .bloque:hover {
+        cursor: all-scroll;
+    }
+    .note-editor:hover {
+        cursor: text !important;
+    }
+    .header-postIt, .bloque-header {
+        width: 100%;
+        height: 25px;
+        border: 0px;
+    }
+    .header-postIt i.fa-times, .bloque-header i.fa-times {
+        padding-top: 5px;
+        padding-right: 5px;
+        color: #b6b6b6;
+        display: none;
+    }
+    .header-postIt i.fa-times:hover, .bloque-header i.fa-times:hover {
+        color: black;
+        cursor: pointer;
+    }
+
+    /*MODALES*/
+
+    /*ROWS - COLS - SECCIONES*/
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+
+        background-color: white;
+        
+        border-radius: 4px 4px;
+
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+    .no-gutter {
+        padding: 0px 0px 0px 0px;
+    }
+</style>
+
+<nav class="navbar navbar-default" id="menuPrincipal">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">Mural</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="navbar-li-margin">
+                    <select id="cboMural" class="form-control"></select>
+                </li>
+                <li>
+                    <a id="addPostIt">
+                        <i class="far fa-sticky-note fa-2x"></i>
+                    </a>
+                </li>
+                <li>
+                    <a id="addBloque">
+                        <i class="fas fa-vector-square fa-2x"></i>
+                    </a>
+                </li>
+                <li>
+                    <a id="cleanMural">
+                        <i class="fas fa-eraser fa-2x"></i>
+                    </a>
+                </li>
+                @*<li>
+                    <a id="zoomIn">
+                        <i class="fas fa-search-plus fa-2x"></i>
+                    </a>
+                </li>
+                <li>
+                    <a id="zoom0">
+                        <i class="fas fa-compress fa-2x"></i>
+                    </a>
+                </li>
+                <li>
+                    <a id="zoomOut">
+                        <i class="fas fa-search-minus fa-2x"></i>
+                    </a>
+                </li>*@
+                @*<li>
+                    <button type="button" class="btn btn-success" id="saveMural">
+                        <i class="far fa-save"></i> Guardar mural
+                    </button>
+                </li>*@
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a id="newMural">
+                        <i class="fas fa-chalkboard fa-2x"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<br />
+
+<div id="mural">
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalNewMural">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="txtNombreMural" />
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="btnSaveNombreMural">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote-es-ES.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/dhtmlxgantt.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/locale_es.js")"></script>
+
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Mural/Mural.js"></script>

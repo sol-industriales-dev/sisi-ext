@@ -1,0 +1,134 @@
+﻿@{
+ViewBag.Title = "Autorizacion";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Autorizante.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .select2-selection__rendered {
+        max-height: 82px;
+        overflow-y: auto !important;
+    }
+
+    #tblAuth {
+        font-size: 12px;
+    }
+
+    #tblAuth th,
+    #tblAuth td {
+        border: 1px solid #ddd;
+    }
+</style>
+
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+<input id="inputUsuario" class="form-control" style="display: none;"> <!-- Se agrega este elemento para el script de la vista "Solicitar" -->
+<input id="inputUso" class="form-control" style="display: none;"> <!-- Se agrega este elemento para el script de la vista "Solicitar" -->
+
+<h2 class="text-center">Control de Autorizaciones</h2>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Filtros</legend>
+    <div class='col-md-10 col-lg-10 noPadLeft' style="display: inline-flex;">
+        <div class='radioBtn btn-group' style="width: 20%;">
+            <a class='btn btn-success active' data-toggle='radAuth' data-title='false' style="width: 48%;">Autorizar</a>
+            <a class='btn btn-danger notActive' data-toggle='radAuth' data-title='true' style="width: 48%;">Desautorizar</a>
+        </div>
+        <div class='input-group' style="width: 80%;">
+            <span class='input-group-addon'>CC</span>
+            <select id="selCC" class="form-control" style="display: none;"></select>
+            <select id='selCCMulti' class='form-control select2' multiple="multiple"></select>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-2 noPadRight' style="text-align: right;">
+        <button id="btnAutorizar" type="button" class="btn btn-primary disabled">
+            <i class="fas fa-save"></i> Guardar
+        </button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Requisiciones</legend>
+    <div class='table-responsive'>
+        <table id='tblAuth' class='table compact' width='100%'>
+            <thead class='advice'>
+                <tr>
+                    <th>Centro Costos</th>
+                    <th>Número</th>
+                    <th>Solicitó</th>
+                    <th>Fecha</th>
+                    <th>Cantidad</th>
+                    <th id="headerAut">Autorizar</th>
+                    <th>Consigna</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            <tbody></tbody>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlDetalleReq" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Detalle Requisición</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_mdlDetalleReq")
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarReqAut" class="btn btn-primary pull-right" style="display: none;">
+                    <i class="fas fa-save"> Guardar</i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlOrigenReq" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Origen Requisición</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe id="iFrameOrigenRequisicion" style="height: 100%; width: 100%;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEstatusObservaciones" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Observaciones</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <textarea id="txtEstatusObservaciones" class="form-control" rows="5"></textarea>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/Autorizar.js"></script>
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,51 @@
+﻿
+<link href="~/Content/style/Dropzone/basic.min.css" rel="stylesheet" />
+<link href="~/Content/style/Dropzone/dropzone.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/SOS/Style-CargaArchivos.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/Dropzone/dropzone.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/SOS/CargaArchivosJS.js"></script>
+
+<script type="text/javascript">
+    //File Upload response from the server
+    Dropzone.autoDiscover = true;
+    Dropzone.options.dZUpload = {
+        url: "/proyecciones/CargarAchivoExcel",
+        paramName: "Files",
+        maxFiles: 1,
+        addRemoveLinks: true,
+        init: function () {
+            this.on("maxfilesexceeded", function (file) {
+                ConfirmacionGeneral("Confirmación", "Solo se permite un archivo al mismo tiempo", "bg-red");
+
+                this.removeFile(file);
+            });
+            this.on("success", function (file, response) {
+                ConfirmacionGeneral("Confirmación", "La operacion se proceso correctamente", "bg-green");
+                $("#ModalUploadFile").modal('hide');
+                $("#btnCargarInfo").click();
+                this.removeFile(file);
+            });
+            this.on("error", function (file, response) {
+
+            });
+            this.on("removedfile", function (file) {
+
+            });
+        }
+    };
+</script>
+
+<div id="uploadFiles" class="row form-group">
+    <div class="col-lg-12 form-group">
+        <fieldset class="position fieldsetUpdExcel">
+            <div id="dZUpload" class="dropzone upload-drop-zone">
+                <div class="dz-message acomodo">
+                    <i class="fa fa-database tamano" aria-hidden="true"></i>
+                    <h3>Arrastrar aquí archivo de excel aquí</h3>
+                    <h3>Elige un archivo</h3>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>

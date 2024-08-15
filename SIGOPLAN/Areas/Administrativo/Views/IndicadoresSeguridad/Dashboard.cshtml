@@ -1,0 +1,1206 @@
+﻿@{
+ViewBag.Title = "Dashboard";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- Temp -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/IndicadoresSeguridad/Dashboard.css" rel="stylesheet" />
+
+<style>
+    .mrgBottom {
+        margin-bottom: 5px;
+    }
+</style>
+
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<button type="button" class="btn btn-primary" id="botonReporteGlobal" style="margin-bottom: 10px;"><i class="fas fa-print"></i> Reporte Semanal</button>
+
+<main>
+    <input id="tabMejora" type="radio" name="tabs" checked>
+    <label class="header" for="tabMejora">Evaluación Mejora</label>
+
+    <input id="taIndicadoresSeguridad" type="radio" name="tabs">
+    <label class="header" for="taIndicadoresSeguridad">
+        Indicadores Seguridad
+        <span class="badge" id="badgeSeguridad"></span>
+    </label>
+
+    <input id="tabAccidentabilidad" type="radio" name="tabs">
+    <label class="header" for="tabAccidentabilidad">Tendencias Accidentabilidad</label>
+
+    <input id="tabCausas" type="radio" name="tabs">
+    <label class="header" for="tabCausas">Causa de Incidencias</label>
+
+
+
+    <section id="contentMejora">
+        <div class="container-fluid">
+            <div style="height: 700px; overflow-y:scroll;">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#filtrosBusqueda">FILTROS DE BUSQUEDA</a>
+                                    </h4>
+                                </div>
+                                <div id="filtrosBusqueda" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>División:</label>
+                                                <select class="form-control" id="selectDivision" multiple></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Linea de Negocio:</label>
+                                                <select class="form-control" id="selectLineaNegocio" multiple></select>
+                                            </div>
+                                            <div class="col-md-3" style="display: none;">
+                                                <label>Clasificación:</label>
+                                                <select class="form-control" id="selectClasificacionHHT"></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Centro Costo:</label>
+                                                <select class="form-control select2" id="selectCCFiltros" multiple="multiple"></select>
+                                            </div>
+                                            <!-- <div class="col-md-3">
+                                                <label>Departamento:</label>
+                                                <select class="form-control select2" id="selectDeptoFiltros" multiple="multiple"></select>
+                                            </div> -->
+                                            <div class="col-md-3" style="display: none;">
+                                                <label>Supervisor:</label>
+                                                <select class="form-control select2" id="selectSupervisorFiltros" multiple="multiple"></select>
+                                            </div>
+                                            <div class='col-md-4'>
+                                                <label>Fecha:</label>
+                                                <div class='input-group'>
+                                                    <input id="txtFechaInicio" class="form-control" />
+                                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                                    <input id="txtFechaFin" class="form-control" />
+                                                    <span class='input-group-btn'>
+                                                        <button type="button" class="btn btn-primary" id="btnBuscar">
+                                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#incidentesRegistrables">INCIDENTES REGISTRABLES</a>
+                                    </h4>
+                                </div>
+                                <div id="incidentesRegistrables" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartRegistrables"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#incidentesReportables">INCIDENTES REPORTABLES</a>
+                                    </h4>
+                                </div>
+                                <div id="incidentesReportables" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartReportables"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#horasHombreLostDays">HORAS HOMBRE Y LOST DAYS</a>
+                                    </h4>
+                                </div>
+                                <div id="horasHombreLostDays" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class=" tableFixHead">
+                                            <table id="tablaHorasHombre" class="table table-bordered table-hover">
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#potencialSeveridad">POTENCIAL DE SEVERIDAD</a>
+                                    </h4>
+                                </div>
+                                <div id="potencialSeveridad" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartPotencialSeveridad"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#incidentesMes">INCIDENTES POR MES</a>
+                                    </h4>
+                                </div>
+                                <div id="incidentesMes" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartIncidentesMes"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#incidentesDepartamento">INCIDENTES POR DEPARTAMENTO</a>
+                                    </h4>
+                                </div>
+                                <div id="incidentesDepartamento" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartIncidentesDepartamento"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#danoInstalacionEquipo">DAÑO INSTALACIÓN/EQUIPO</a>
+                                    </h4>
+                                </div>
+                                <div id="danoInstalacionEquipo" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartDanoInstalacionEquipo"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#accidentesRegistrablesMesAnterior">ÍNDICE DE FRECUENCIA DE INCIDENTES REGISTRABLES MENSUAL [AÑO ANTERIOR]</a>
+                                    </h4>
+                                </div>
+                                <div id="accidentesRegistrablesMesAnterior" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartAccidentesRegistrablesMesAnterior"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#accidentesRegistrablesMesActual">ÍNDICE DE FRECUENCIA DE INCIDENTES REGISTRABLES MENSUAL [AÑO ACTUAL]</a>
+                                    </h4>
+                                </div>
+                                <div id="accidentesRegistrablesMesActual" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <canvas id="chartAccidentesRegistrablesMesActual"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-8">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#tasaIncidencia">ÍNDICE DE FRECUENCIA DE INCIDENTES REGISTRABLES ANUAL</a>
+                                            </h4>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <button class="btn btn-primary pull-right" id="botonMetas"><i class="fas fa-chart-bar"></i> Metas</button>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <select class="form-control" id="selectTipoCarga"> </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tasaIncidencia" class="panel-collapse collapse in">
+                                    <div class="panel-body" id="wrapperIncidencia" style="position: relative; height: 50vh">
+                                        <canvas id="chartTasaIncidencia"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-8">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#tifr">TIFR</a>
+                                            </h4>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <button class="btn btn-primary pull-right" id="botonMetasTIFR"><i class="fas fa-chart-bar"></i> Metas</button>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <select class="form-control" id="selectTipoCargaTIFR"> </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tifr" class="panel-collapse collapse in">
+                                    <div class="panel-body" id="wrapperTIFR" style="position: relative; height: 50vh">
+                                        <canvas id="chartTIFR"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="display: none;">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mejora">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-8">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#tpdfr">TPDFR</a>
+                                            </h4>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <button class="btn btn-primary pull-right" id="botonMetasTPDFR"><i class="fas fa-chart-bar"></i> Metas</button>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            <select class="form-control" id="selectTipoCargaTPDFR"> </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tpdfr" class="panel-collapse collapse in">
+                                    <div class="panel-body" id="wrapperTPDFR" style="position: relative; height: 50vh">
+                                        <canvas id="chartTPDFR"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contentIndicadoresSeguridad">
+        <div class="container-fluid container-scroll">
+            <div style="height: 700px; overflow-y:scroll;">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#filtrosBusquedaIndicadoresSeguridad">FILTROS DE BUSQUEDA</a>
+                                    </h4>
+                                </div>
+                                <div id="filtrosBusquedaIndicadoresSeguridad" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>División:</label>
+                                                <select class="form-control" id="selectDivisionIndicadoresSeguridad" multiple></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Linea de Negocio:</label>
+                                                <select class="form-control" id="selectLineaNegocioIndicadoresSeguridad" multiple></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3">
+                                                <label>Centro Costo:</label>
+                                                <select class="form-control select2" id="selectCCIndicadoresSeguridad" multiple="multiple"></select>
+                                            </div>
+                                            <!-- <div class="col-md-3">
+                                                <label>Departamento:</label>
+                                                <select class="form-control select2" id="selectDeptoIndicadoresSeguridad" multiple="multiple"></select>
+                                            </div> -->
+                                            <div class="col-md-3" style="display: none;">
+                                                <label>Supervisor:</label>
+                                                <select class="form-control select2" id="selectSupervisorIndicadoresSeguridad" multiple="multiple"></select>
+                                            </div>
+                                            <div class='col-md-4'>
+                                                <label>Fecha:</label>
+                                                <div class='input-group'>
+                                                    <input id="txtFechaInicioIndicadoresSeguridad" class="form-control" />
+                                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                                    <input id="txtFechaFinIndicadoresSeguridad" class="form-control" />
+                                                    <span class='input-group-btn'>
+                                                        <button type="button" class="btn btn-primary" id="btnBuscarIndicadoresSeguridad">
+                                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INDICADORES -->
+                <div class="row margin-top">
+
+                    <!-- INDICADOR TOTAL -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorTotal">
+                        <div class="info-box-3 indicador" id="indicadorTotalHeader">
+                            <div class="content">
+                                <div class="text">Total Incidencias</div>
+                                <div class="number" id="indicadorTotalCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR FATAL -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorFatal">
+                        <div class="info-box-3 indicador" id="indicadorFatalHeader">
+                            <div class="content">
+                                <div class="text">Fatal</div>
+                                <div class="number" id="indicadorFatalCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR LTI -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorLTA">
+                        <div class="info-box-3 indicador" id="indicadorLTAHeader">
+                            <div class="content">
+                                <div class="text">LTI</div>
+                                <div class="number" id="indicadorLTACantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR ATR -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorATR">
+                        <div class="info-box-3 indicador" id="indicadorATRHeader">
+                            <div class="content">
+                                <div class="text">MDI</div>
+                                <div class="number" id="indicadorATRCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR ATM -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorATM">
+                        <div class="info-box-3 indicador" id="indicadorATMHeader">
+                            <div class="content">
+                                <div class="text">MTI</div>
+                                <div class="number" id="indicadorATMCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR APA -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorAPA">
+                        <div class="info-box-3 indicador" id="indicadorAPAHeader">
+                            <div class="content">
+                                <div class="text">FAI</div>
+                                <div class="number" id="indicadorAPACantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INDICADORES -->
+                <div class="row">
+                    <!-- INDICADOR DAMEQ -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorDAMEQ">
+                        <div class="info-box-3 indicador" id="indicadorDAMEQHeader">
+                            <div class="content">
+                                <div class="text">PD</div>
+                                <div class="number" id="indicadorDAMEQCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR NM -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorNM">
+                        <div class="info-box-3 indicador" id="indicadorNMHeader">
+                            <div class="content">
+                                <div class="text">NM</div>
+                                <div class="number" id="indicadorNMCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR OI -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorOI">
+                        <div class="info-box-3 indicador" id="indicadorOIHeader">
+                            <div class="content">
+                                <div class="text">OI</div>
+                                <div class="number" id="indicadorOICantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR EI -->
+                    <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12" id="indicadorEI">
+                        <div class="info-box-3 indicador" id="indicadorEIHeader">
+                            <div class="content">
+                                <div class="text">EI</div>
+                                <div class="number" id="indicadorEICantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+
+                    </div>
+                </div>
+
+                <!-- TABLA DETALLES -->
+                <div class="row">
+                    <div id="divBotonExcel" class="col-md-12 col-lg-12"></div>
+                    <div class="col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#incidenciasPresentadas">INCIDENCIAS PRESENTADAS</a>
+                                    </h4>
+                                </div>
+                                <div id="incidenciasPresentadas" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="tableIncidenciasPresentadas">
+                                                <table id="tblIncidenciasPresentadas" class="table table-bordered" width="100%"></table>
+                                                <!-- <table class="table  dashboard-task-infos" id="tblIncidenciasPresentadas">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-center">PROYECTO</th>
+                                                            <th class="text-center">FATAL</th>
+                                                            <th class="text-center">LTI</th>
+                                                            <th class="text-center">MDI</th>
+                                                            <th class="text-center">MTI</th>
+                                                            <th class="text-center">FAI</th>
+                                                            <th class="text-center">PD</th>
+                                                            <th class="text-center">NM</th>
+                                                            <th class="text-center">OI</th>
+                                                            <th class="text-center">EI</th>
+                                                            <th class="text-center">LESIONES <br /> REGISTRABLES</th>
+                                                            <th class="text-center">LESIONES <br /> INCAPACITANTES</th>
+                                                            <th class="text-center">LESIONES <br /> TOTALES</th>
+                                                            <th class="text-center">LESIONES <br /> Y DAÑOS</th>
+                                                            <th class="text-center">SEVERIDAD</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table> -->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="contentAccidentabilidad">
+        <div class="container-fluid container-scroll">
+            <div style="height: 700px; overflow-y:scroll;">
+
+                <!-- FILTROS -->
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#filtrosBusquedaAccidentabilidad">FILTROS DE BUSQUEDA</a>
+                                    </h4>
+                                </div>
+                                <div id="filtrosBusquedaAccidentabilidad" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>División:</label>
+                                                <select class="form-control" id="selectDivisionAccidentabilidad" multiple></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Linea de Negocio:</label>
+                                                <select class="form-control" id="selectLineaNegocioAccidentabilidad" multiple></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3">
+                                                <label>Centro Costo:</label>
+                                                <select class="form-control select2" id="selectCCFiltrosAccidentabilidad" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3">
+                                                <label>Departamento:</label>
+                                                <select class="form-control select2" id="selectDeptoAccidentabilidad" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3" style="display: none;">
+                                                <label>Supervisor:</label>
+                                                <select class="form-control select2" id="selectSupervisorAccidentabilidad" multiple="multiple"></select>
+                                            </div>
+                                            <div class='col-md-4 col-lg-4'>
+                                                <label>Fecha:</label>
+                                                <div class='input-group'>
+                                                    <input id="txtFechaInicioAccidentabilidad" class="form-control" />
+                                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                                    <input id="txtFechaFinAccidentabilidad" class="form-control" />
+                                                    <span class='input-group-btn'>
+                                                        <button type="button" class="btn btn-primary" id="btnBuscarAccidentabilidad">
+                                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- INDICADORES -->
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#filtrosBusquedaAccidentabilidad2" data-target="#filtrosBusquedaAccidentabilidad2" aria-expanded="false" aria-controls="filtrosBusquedaAccidentabilidad2">TENDENICAS GENERALES</a>
+                                    </h4>
+                                </div>
+                                <div id="filtrosBusquedaAccidentabilidad2" class="collapse">
+                                    <div class="panel-body">
+                                        <div class="row">
+
+                                            <!-- INDICADOR PROYECTO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 divAccidentabilidad" id="indicadorProyecto" data-tipo="1">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorProyectoHeader">
+                                                    <div class="content">
+                                                        <div class="text">PROYECTO</div>
+                                                        <div class="number accidentabilidad" id="indicadorProyectoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorProyectoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR PUESTO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 divAccidentabilidad" id="indicadorPuesto" data-tipo="2">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorPuestoHeader">
+                                                    <div class="content">
+                                                        <div class="text">PUESTO</div>
+                                                        <div class="number accidentabilidad" id="indicadorPuestoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorPuestoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <!-- INDICADOR DEPARTAMENTO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 divAccidentabilidad" id="indicadorDepartamento" data-tipo="3">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorDepartamentoHeader">
+                                                    <div class="content">
+                                                        <div class="text">DEPARTAMENTO</div>
+                                                        <div class="number accidentabilidad" id="indicadorDepartamentoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorDepartamentoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR POTENCIAL SEVERIDAD -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 divAccidentabilidad" id="indicadorPotencialSeveridad" data-tipo="4">
+                                                <div class="info-box-3 bg-deep-orange " id="indicadorPotencialSeveridadHeader">
+                                                    <div class="content">
+                                                        <div class="text">POTENCIAL SEVERIDAD</div>
+                                                        <div class="number accidentabilidad" id="indicadorPotencialSeveridadCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorPotencialSeveridadPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- INDICADOR DIA -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 divAccidentabilidad" id="indicadorDia" data-tipo="5">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorDiaHeader">
+                                                    <div class="content">
+                                                        <div class="text">Dia</div>
+                                                        <div class="number accidentabilidad" id="indicadorDiaCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorDiaPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <!-- INDICADOR HORA -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorHora" data-tipo="6">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorHoraHeader">
+                                                    <div class="content">
+                                                        <div class="text">Hora</div>
+                                                        <div class="number accidentabilidad" id="indicadorHoraCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorHoraPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR TURNO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorTurno" data-tipo="7">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorTurnoHeader">
+                                                    <div class="content">
+                                                        <div class="text">Turno</div>
+                                                        <div class="number accidentabilidad" id="indicadorTurnoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorTurnoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR ACTIVIDAD -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorActividad" data-tipo="8">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadoActividadHeader">
+                                                    <div class="content">
+                                                        <div class="text">ACTIVIDAD</div>
+                                                        <div class="number accidentabilidad" id="indicadorActividadCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorActividadPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR TAREA -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorTarea" data-tipo="9">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadoTareaHeader">
+                                                    <div class="content">
+                                                        <div class="text">TAREA</div>
+                                                        <div class="number accidentabilidad" id="indicadorTareaCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorTareaPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <!-- INDICADOR AGENTE -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorAgente" data-tipo="10">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorAgenteHeader">
+                                                    <div class="content">
+                                                        <div class="text">AGENTE</div>
+                                                        <div class="number accidentabilidad" id="indicadorAgenteCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorAgentePercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR EDAD -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorEdad" data-tipo="11">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorEdadHeader">
+                                                    <div class="content">
+                                                        <div class="text">EDAD</div>
+                                                        <div class="number accidentabilidad" id="indicadorEdadCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorEdadPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- INDICADOR EXPERIENCIA -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorExperiencia" data-tipo="12">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorExperienciaHeader">
+                                                    <div class="content">
+                                                        <div class="text">EXPERIENCIA</div>
+                                                        <div class="number accidentabilidad" id="indicadorExperienciaCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorExperienciaPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR ANTIGUEDAD -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorAntiguedad" data-tipo="13">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorAntiguedadHeader">
+                                                    <div class="content">
+                                                        <div class="text">ANTIGÜEDAD</div>
+                                                        <div class="number accidentabilidad" id="indicadorAntiguedadCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorAntiguedadPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <!-- INDICADOR DIAS TRABAJADOS -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorDiasTrabajados" data-tipo="14">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorDiasTrabajadosHeader">
+                                                    <div class="content">
+                                                        <div class="text">DIAS TRABAJADOS</div>
+                                                        <div class="number accidentabilidad" id="indicadorDiasTrabajadosCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorDiasTrabajadosPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- INDICADOR LUGAR -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorLugar" data-tipo="15">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorLugarHeader">
+                                                    <div class="content">
+                                                        <div class="text">LUGAR</div>
+                                                        <div class="number accidentabilidad" id="indicadorLugarCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorLugarPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- INDICADOR CAPACITADO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 divAccidentabilidad" id="indicadorCapactidado" data-tipo="16">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorCapacitadoHeader">
+                                                    <div class="content">
+                                                        <div class="text">CAPACITADO</div>
+                                                        <div class="number accidentabilidad" id="indicadorCapacitadoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorCapacitadoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <!-- INDICADOR PROTOCOLO TRABAJO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-5 divAccidentabilidad" id="indicadorProtocoloTrabajo" data-tipo="17">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorProtocoloTrabajoHeader">
+                                                    <div class="content">
+                                                        <div class="text">PROTOCOLO TRABAJO</div>
+                                                        <div class="number accidentabilidad" id="indicadorProtocoloTrabajoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorProtocoloTrabajoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- INDICADOR TIPO CONTACTO -->
+                                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-5 divAccidentabilidad" id="indicadorTipoContacto" data-tipo="18">
+                                                <div class="info-box-3 bg-deep-orange" id="indicadorTipoContactoHeader">
+                                                    <div class="content">
+                                                        <div class="text">TIPO CONTACTO</div>
+                                                        <div class="number accidentabilidad" id="indicadorTipoContactoCantidad"></div>
+                                                        <div class="percent accidentabilidad" id="indicadorTipoContactoPercent"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelLesionesAlPersonal" data-target="#panelLesionesAlPersonal" aria-expanded="false" aria-controls="panelLesionesAlPersonal">LESIONES AL PERSONAL</a>
+                                    </h4>
+                                </div>
+                                <div id="panelLesionesAlPersonal" class="collapse">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div id="chartLesionesRegionAnatomica"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="chartLesionesCausasInmediatas"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelDañosMateriales" data-target="#panelDañosMateriales" aria-expanded="false" aria-controls="panelDañosMateriales">DAÑOS MATERIALES</a>
+                                    </h4>
+                                </div>
+                                <div id="panelDañosMateriales" class="collapse">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div id="chartDañosCausasInmediatas"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="chartDañosProtocoloFatalidad"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contentCausas">
+        <div class="container-fluid container-scroll">
+            <div style="height: 700px; overflow-y:scroll;">
+
+                <!-- FILTROS -->
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#filtrosBusquedaCausas">FILTROS DE BUSQUEDA</a>
+                                    </h4>
+                                </div>
+                                <div id="filtrosBusquedaCausas" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>División:</label>
+                                                <select class="form-control" id="selectDivisionCausas" multiple></select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Linea de Negocio:</label>
+                                                <select class="form-control" id="selectLineaNegocioCausas" multiple></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3">
+                                                <label>Centro Costo:</label>
+                                                <select class="form-control select2" id="selectCCFiltrosCausas" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3">
+                                                <label>Departamento:</label>
+                                                <select class="form-control select2" id="selectDeptoCausas" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-md-3 col-lg-3" style="display: none;">
+                                                <label>Supervisor:</label>
+                                                <select class="form-control select2" id="selectSupervisorCausas" multiple="multiple"></select>
+                                            </div>
+                                            <div class='col-md-4 col-lg-4'>
+                                                <label>Fecha:</label>
+                                                <div class='input-group'>
+                                                    <input id="txtFechaInicioCausas" class="form-control" />
+                                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                                    <input id="txtFechaFinCausas" class="form-control" />
+                                                    <span class='input-group-btn'>
+                                                        <button type="button" class="btn btn-primary" id="btnBuscarCausas">
+                                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INDICADORES PROTOCOLOS FATALIDAD -->
+                <div class="row">
+
+                    <!-- INDICADOR ALTURAS -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorAlturas">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorAlturasHeader">
+                            <div class="content">
+                                <div class="text">ALTURAS</div>
+                                <div class="number causas" id="indicadorAlturasCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR CORTE Y SOLDADURA -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorCorteSoldadura">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorCorteSoldaduraHeader">
+                            <div class="content">
+                                <div class="text">CORTE Y SOLDADURA</div>
+                                <div class="number causas" id="indicadorCorteSoldaduraCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR ESPACIOS CONFINADOS -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorEspaciosConfinados">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorEspaciosConfinadosHeader">
+                            <div class="content">
+                                <div class="text">ESPACIOS CONFINADOS</div>
+                                <div class="number causas" id="indicadorEspaciosConfinadosCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR EXCAVACIONES -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorExcavaciones">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorExcavacionesHeader">
+                            <div class="content">
+                                <div class="text">EXCAVACIONES</div>
+                                <div class="number causas" id="indicadorExcavacionesCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <!-- INDICADOR CONTROL DE ENERGIAS -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorControlEnergias">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorControlEnergiasHeader">
+                            <div class="content">
+                                <div class="text">CONTROL DE ENERGIAS</div>
+                                <div class="number causas" id="indicadorControlEnergiasCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR MANEJO DEFENSIVO -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorManejoDefensivo">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorManejoDefensivoHeader">
+                            <div class="content">
+                                <div class="text">MANEJO DEFENSIVO</div>
+                                <div class="number causas" id="indicadorManejoDefensivoCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR MANIPULACION DE CARGAS -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorManipulacionCargas">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorManipulacionCargasHeader">
+                            <div class="content">
+                                <div class="text">MANIPULACION DE CARGAS</div>
+                                <div class="number causas" id="indicadorManipulacionCargasCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR ESTABILIZACION DE TALUDES -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorEstabilizacion">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorEstabilizacionHeader">
+                            <div class="content">
+                                <div class="text">ESTABILIZACION DE TALUDES</div>
+                                <div class="number causas" id="indicadorEstabilizacionCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <!-- INDICADOR SUSTANCIAS QUIMICAS -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorSustanciaQuimica">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorSustanciaQuimicaHeader">
+                            <div class="content">
+                                <div class="text">SUSTANCIA QUIMICAS</div>
+                                <div class="number causas" id="indicadorSustanciaQuimicaCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INDICADOR VOLADURA -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorVoladura">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorVoladuraHeader">
+                            <div class="content">
+                                <div class="text">VOLADURA</div>
+                                <div class="number causas" id="indicadorVoladuraCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ND -->
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3" id="indicadorND">
+                        <div class="info-box-3 bg-deep-orange" id="indicadorNDHeader">
+                            <div class="content">
+                                <div class="text">ND</div>
+                                <div class="number causas" id="indicadorNDCantidad"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+
+<div class="modal modalDetalle" id="modalDetalleIndicadores" style="z-index: 1000000;">
+    <div class="modal-content modalDetalle" id="modalContent">
+        <span class="close" id="closeModal">&times;</span>
+        <div class="font-bold" id="modalTitle"></div>
+        <br>
+        <table id="tblDetalleTipoIndicador" class="table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Horas Hombre</th>
+                </tr>
+            </thead>
+            <tbody> </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal modalDetalle" id="modalDetalleAccidentabilidad" style="z-index: 1000000;">
+    <div class="modal-content modalDetalle" id="modalContentAccidentabilidad">
+        <span class="close" id="closeModalAccidentabilidad">&times;</span>
+        <div class="font-bold" id="modalTitleAccidentabilidad"></div>
+        <br>
+        <table id="tblDetalleTipoAccidentabilidad" class="table">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Porcentaje</th>
+                </tr>
+            </thead>
+            <tbody> </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalMetas" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Metas</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-4">
+                        <label>Nombre:</label>
+                        <input type="text" id="inputNombreMeta" class="form-control">
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <label>Valor:</label>
+                        <input type="number" id="inputValorMeta" class="form-control">
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <label>Año:</label>
+                        <input type="number" id="inputAñoMeta" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-4">
+                        <label>Gráfica:</label>
+                        <select class="form-control" id="selectTipoGrafica"></select>
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <label>Color:</label>
+                        <input type="color" class="form-control" id="inputColor">
+                    </div>
+                    <div class="col-xs-12 col-md-2">
+                        <button id="botonAgregarMeta" class="btn btn-primary pull-right">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 margin-top">
+                        <table id="tablaMetas" class="table">
+                            <thead class="bg-table-header margin-top">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/chartLabel.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/es-modules/Extensions/Exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/es-modules/Extensions/ExportData.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/es-modules/Accessibility/Accessibility.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/Dashboard.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/absolute.js"></script>

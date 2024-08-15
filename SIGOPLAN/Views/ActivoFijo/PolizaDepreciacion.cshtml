@@ -1,0 +1,248 @@
+﻿@{
+    ViewBag.Title = "Póliza depreciación";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    
+    var baseC = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .blockUI {
+        z-index: 6000 !important;
+    }
+
+    .dataTables_scroll .dataTables_scrollHeadInner table thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+    .dataTables_scroll .dataTables_scrollHeadInner table thead tr, th {
+        text-align: center;
+    }
+
+    #hdrCuentaConsultada {
+        margin-top: 0px;
+        padding-top: 0px;
+    }
+
+    .modal-bg h3 {
+        margin: 1%;
+        text-align: center;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="text-center">
+                <h1>@baseC.getEmpresaNombre();</h1>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="idEmpresa" value="@baseC.getEmpresaID()" />
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Cuenta</span>
+                                <select class="form-control" id="selectFiltroCuenta"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Año</span>
+                                <select class="form-control" id="selectFiltroAño"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Mes</span>
+                                <select class="form-control" id="selectFiltroMes"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button class="btn btn-primary" id="btnFiltroBuscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="col-sm-2 text-right">
+                            <button class="btn btn-success" id="btnCapturarPoliza">
+                                <i class="fas fa-plus"></i> Capturar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 id="hdrCuentaConsultada"></h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="hover stripe order-column" id="tblPolizasDepreciacion" style="width: 100%;"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPolizaDetalle">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Detalle póliza</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblPolizaDetalle" class="hover stripe order-column" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="9">TOTAL: </th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCapturaPoliza">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Captura de póliza de depreciación</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Cuenta</span>
+                            <select class="form-control" id="selectCapturaCuenta"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Año</span>
+                            <select class="form-control" id="selectCapturaAño" disabled></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Mes</span>
+                            <select class="form-control" id="selectCapturaMes" disabled></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Semana</span>
+                            <select class="form-control" id="selectCapturaSemana" disabled></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="checkbox" id="divOverhaul" style="display: none;">
+                            <label>
+                                <input type="checkbox" id="chkCapturaOverhaul" /> Es Overhaul
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <button class="btn btn-success" id="btnGenerarPoliza">
+                            <i class="fas fa-tasks"></i> Generar póliza
+                        </button>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row" id="divCuentasDep" style="display: none;">
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Cuenta dep.</span>
+                            <select class="form-control" id="selectCapturaCuentaOverhaul"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4" id="divDepPendienteOH" style="display: none;">
+                        <button class="btn btn-info" id="btnGenerarPolizaOHPendiente">
+                            <i class="fas fa-tasks"></i> Generar póliza OH Pendiente
+                        </button>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblNuevaPoliza" class="hover stripe order-column" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="8">TOTAL: </th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="btnRegistrarPoliza" style="display: none;">
+                    <i class="far fa-check-square"></i> Registrar
+                </button>
+                <button class="btn btn-warning" id="btnModificarPoliza" style="display:none;">
+                    <i class="far fa-check-square"></i> Modificar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/ActivoFijoPolizaDepreciacion.js"></script>
+
+@Html.Action("_menuClick", "Mouse")
+@Html.Action("_visorGrid", "Visor")

@@ -1,0 +1,385 @@
+﻿@{
+    ViewBag.Title = "EntradaNoInventariable";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/OrdenCompra/Editar.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Captura.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<h2 class="text-center">Recepción de Insumos No Inventariables</h2>
+
+<fieldset class='fieldset-custm noPadLeft noPadRight mrgBottom' style="border-radius: 0px !important;">
+    <legend class='legend-custm'>Compra:</legend>
+    <input id='inputCompradorSesionNum' type='text' class='form-control' style="display: none;" />
+    <input id='inputCompradorSesionNom' type='text' class='form-control' style="display: none;" />
+
+    <div id="panelIzquierdo" class="col-md-7 col-lg-7 noPadLeft noPadRight">
+        <div class='col-md-12 col-lg-12 mrgTop mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Folio Origen:</span>
+                <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>CC</span>
+                <select id='selectCC' class='form-control'></select>
+            </div>
+        </div>
+
+        <div class='col-md-12 col-lg-12 mrgBottom' style="display: none;">
+            <div class='input-group mrgBottom' style="width: 0px;">
+                <span class='input-group-addon'>Inicio</span>
+                <input type='text' id='dtpInicio' class='form-control'>
+            </div>
+            <div class='input-group' style="width: 0px;">
+                <span class='input-group-addon'>Fin</span>
+                <input type='text' id='dtpFin' class='form-control'>
+            </div>
+        </div>
+
+        <div class='col-md-4 col-lg-4 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Núm. O.C.:</span>
+                <input id='inputNumero' type='text' class='form-control' />
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Núm. Req.:</span>
+                <input id='inputNumeroReq' type='text' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>B ó S:</span>
+                <select id='selectBoS' class='form-control' disabled>
+                    <option value=""></option>
+                    <option value="B">Bienes</option>
+                    <option value="S">Servicios</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-4 mrgBottom">
+            <div class="input-group">
+                <span class="input-group-addon">Almacén Mov.:</span>
+                <input type="text" id="inputAlmacenMovimiento" class="form-control">
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Remisión:</span>
+                <input id='inputRemision' type='text' class='form-control'>
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Fecha:</span>
+                <input id='dtpFecha' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Proveedor:</span>
+                    <input id='inputProvNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                <input id='inputProvNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom elementoPeru'>
+            <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Cta. Corriente:</span>
+                    <select id="selectCuentaCorriente" class="form-control" disabled>
+                        <option value="">--Seleccione--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom elementoPeru'>
+            <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Forma Pago:</span>
+                    <select id="selectFormaPago" class="form-control" disabled>
+                        <option value="">--Seleccione--</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Comprador:</span>
+                    <input id='inputCompNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                <input id='inputCompNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Solicitó:</span>
+                    <input id='inputSolNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                <input id='inputSolNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Autorizó:</span>
+                    <input id='inputAutNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                <input id='inputAutNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Embarquese:</span>
+                <input id='inputEmb' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <!-- <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>L.A.B.</span>
+                <select id='selectLab' class='form-control' disabled></select>
+            </div>
+        </div> -->
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Concepto Factura:</span>
+                <input id='inputConFact' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-3 col-lg-3 mrgBottom'>
+            <div class='input-group'>
+                <label style="font-weight: bold; cursor: pointer;">
+                    <input style="margin-right: 5px; height: 15px; width: 15px; cursor: pointer;" id='checkAutoRecep' type='checkbox' />Auto Recepcionable
+                </label>
+            </div>
+        </div>
+        <div class='col-md-9 col-lg-9 mrgBottom'>
+            <div class="col-md-4 col-lg-4 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Almacén:</span>
+                    <input id='inputAlmNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-8 noPadLeft noPadRight">
+                <input id='inputAlmNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+        <div class='col-md-3 col-lg-3 mrgBottom'>
+            <div class='input-group'></div>
+        </div>
+        <div class='col-md-9 col-lg-9 mrgBottom'>
+            <div class="col-md-4 col-lg-4 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Empleado:</span>
+                    <input id='inputEmpNum' type='text' class='form-control' disabled />
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-8 noPadLeft noPadRight">
+                <input id='inputEmpNom' type='text' class='form-control' disabled />
+            </div>
+        </div>
+    </div>
+    <div id="panelDerecho" class="col-md-5 col-lg-5 noPadLeft noPadRight">
+        <div class='col-md-12 col-lg-12 mrgTop mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Tipo O.C.:</span>
+                <select id='selectTipoOC' class='form-control' disabled>
+                    <option value=""></option>
+                    <option value="1">Normal</option>
+                    <option value="2">Urgente</option>
+                    <option value="3">Crítico</option>
+                </select>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Moneda:</span>
+                <select id='selectMoneda' class='form-control' disabled>
+                    <option value=""></option>
+                    <option value="1">MN</option>
+                    <option value="2">USD</option>
+                    <option value="3">EUR</option>
+                    <option value="4">SOL</option>
+                </select>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom elementoPeru'>
+            <div class='input-group'>
+                <span class='input-group-addon'>T. Cambio:</span>
+                <select id='selectTipoCompraVenta' class='form-control' disabled>
+                    <option value="1">COM</option>
+                    <option value="4">VTA</option>
+                </select>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Tipo Cambio:</span>
+                <input type='text' id='inputTipoCambio' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Sub Total:</span>
+                <input type='text' id='inputSubTotal' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4 mrgBottom noPadRight'>
+            <div class='input-group'>
+                <span class='input-group-addon spanIVA'>I.V.A.</span>
+                <input type='text' id='inputIVAPorcentaje' class='form-control' style="text-align: right;" disabled>
+            </div>
+        </div>
+        <div class='col-md-8 col-lg-8 mrgBottom noPadLeft'>
+            <div class='input-group'>
+                <span class='input-group-addon' style="min-width: 20px;">=</span>
+                <input type='text' id='inputIVANumero' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Retención:</span>
+                <input type='text' id='inputRetencion' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Total:</span>
+                <input type='text' id='inputTotal' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Total Final:</span>
+                <input type='text' id='inputTotalFinal' class='form-control' disabled>
+            </div>
+        </div>
+        <div class='col-md-12 col-lg-12 mrgBottom'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Folio Origen:</span>
+                <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 mrgBottom">
+            <div class='input-group'>
+                <span class='input-group-addon'>Orden Traspaso:</span>
+                <input id='inputOrdenTraspaso' type='text' class='form-control' />
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12 mrgBottom">
+            <div class='input-group'>
+                <span class='input-group-addon'>Comentarios:</span>
+                <input id='inputComentarios' type='text' class='form-control' />
+            </div>
+        </div>
+        <div class="col-md-6 mrgBottom noPadRight elementoPeru">
+            <div class='input-group'>
+                <span class='input-group-addon'>Guia Compra:</span>
+                <input id='inputGuiaPrefijo' type='text' placeholder="Prefijo" class='form-control'>
+            </div>
+        </div>
+        <div class="col-md-6 noPadLeft elementoPeru">
+            <input id='inputGuiaFolio' type='text' placeholder="Folio" class='form-control'>
+        </div>
+        <div class='col-md-12 elementoPeru'>
+            <div class="col-md-9 noPadLeft noPadRight">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Tipo Documento:</span>
+                    <select id="selectTipoDocumento" class="form-control"></select>
+                </div>
+            </div>
+            <div class="col-md-3 noPadLeft noPadRight">
+                <input id='inputFolioDocumento' type='text' placeholder="Folio" class='form-control'>
+            </div>
+        </div>
+        <div class="col-md-9 col-lg-9 mrgBottom">
+            <div class='input-group'>
+                <span class='input-group-addon'>No. Movimiento:</span>
+                <input id='inputNumMovimiento' type='numeric' class='form-control' />
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3 mrgBottom">
+            <button id="botonReporte" class="btn btn-default pull-right"><i class="fa fa-print"></i> Imprimir</button>
+        </div>
+        <div class="col-md-12 col-lg-12 mrgBottom">
+            <button id="btnGlobal" class="btn btn-primary"><i class="fa fa-globe"></i> Global</button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset id="fieldTablaPartidas" class='fieldset-custm noPadLeft noPadRight' style="border-radius: 0px !important;">
+    <legend class="legend-custm">Partidas:</legend>
+    <div class="col-md-12 col-lg-12 noPadLeft">
+        <div class="input-group pull-right col-md-2 col-lg-2" style="margin-bottom: 5px;">
+            <button id="btnGuardarSurtido" class="btn btn-primary pull-right"><i class="fa fa-save"></i>
+                Guardar</button>
+        </div>
+    </div>
+    <div class="container col-lg-12 mrgTop">
+        <table id="tblPartidas" style="width: 100%;"></table>
+    </div>
+</fieldset>
+
+<fieldset id="fieldDescripcionPartida" class="fieldset-custm noPadLeft noPadRight" style="border-radius: 0px !important; margin-bottom: 100px;">
+    <legend class="legend-custm">Descripción de la Partida</legend>
+    <div class="container col-lg-12">
+        <textarea id="textAreaDescPartida" class="form-control" rows="4" disabled style="border-radius: 0px;"></textarea>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlUbicacionDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Ubicación </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12">
+                        <button id="btnAgregarUbicacion" type="button" class="btn btn-sm btn-primary mrgTop mrgBottom"><i class="fa fa-plus"></i></button>
+                        <button id="btnQuitarUbicacion" type="button" class="btn btn-sm btn-danger mrgTop mrgBottom"><i class="fa fa-minus"></i></button>
+
+                        <table id="tblUbicacion" class="table table-fixed table-bordered marginBottom5" width="100%">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="margin-top: 5px;">
+                    <button id="btnGuardarUbicacion" class="btn btn-primary"><i class="fa fa-save"></i>
+                        Capturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/OrdenCompra/EntradaNoInventariable.js"></script>
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,236 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/AltaElementos.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+        $('#inpEvaluador').select2();
+    });
+    $(document).ready(function () {
+        $('#inpEvaluadorEdit').select2();
+    });
+    $(document).ready(function () {
+        $('#cboContratos').select2();
+    });
+</script>
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>CATÁLOGO PLANTILLAS</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class='col-md-4 col-lg-6'>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Plantilla</span>
+                                    <select type='text' id='cboPlantillasBuscar' class='form-control'>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col-md-4 col-lg-6'>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Contratos</span>
+                                    <select type='text' id='cboContratosBuscar' class='form-control'></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary" id="btnBuscarPlantilla" title="Búsqueda de plantillas."><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#idMdlNuevoPlantilla" title="Crear nueva plantilla." id="btnNuevoPlantilla"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id='tblPlantillas' class='table table-hover table-bordered table-striped compact'></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL NUEVA PLANTILLA -->
+<div id='idMdlNuevoPlantilla' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id="txtTituloPlan" for=""></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-md-5 col-lg-5'>
+                        <label>Plantilla</label>
+                        <input type='text' id='txtPlantilla' class='form-control' autocomplete="off">
+                    </div>
+                    <div class='col-md-5 col-lg-5'>
+                        <label>Contratos</label>
+                        <select id="cboContratos" class="js-example-basic-multiple"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#mdlNuevaDivicion" id="btnNuevo">Nuevo Elemento</button>
+                    </div>
+                </div><br>
+                <fieldset class="fieldset-custm" id="contenidoElementos">
+                    <div class="row form-group">
+                        <div class="col-lg-12" style="padding: 0;">
+                            <div class="col-md-12">
+                                <br>
+                                <table id='tblDiviciones' class='table table-condensed table-hover table-striped text-center'>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnAgregarPlantilla"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL NUEVA PLANTILLA -->
+
+<!-- MODAL NUEVA DIVISIÓN -->
+<div id='mdlNuevaDivicion' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>NUEVO ELEMENTO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="">Descripción evaluación</label>
+                        <textarea class="form-control" type="text" id="inpDescripcion"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="">Mensaje evaluación</label>
+                        <textarea class="form-control" type="text" id="inpMensaje"></textarea>
+                    </div>
+                    <div class="col-md-12" style="display: none;">
+                        <label for="">Evaluador</label>
+                        <select class="form-control" id="inpEvaluador"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="">Orden</label>
+                        <input class="form-control" type="text" id="inpOrden" autocomplete="off">
+                    </div>
+                    <div class="col-md-8">
+                        <label for="">Requerimiento</label>
+                        <input class="form-control" type="text" id="inpRequerimiento" autocomplete="off">
+                    </div>
+                    <div class="col-md-3" style="display: none;">
+                        <br>
+                        <label for="">Opcional</label>
+                        <input class="" type="checkbox" id="inpImportant">
+                    </div>
+                    <div class="col-md-2">
+                        <button id="btnGuardarRequerimiento" class='btn btn-primary'>Insertar</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <br>
+                    <div class="col-md-12">
+                        <table id='tblRequerimientos' class='table table-hover table-bordered compact'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnAgregar"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL NUEVA DIVISIÓN -->
+
+<!-- MODAL EDITAR DIVISIÓN -->
+<div id='mdlEditarDivicion' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>EDITAR ELEMENTO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="">Descripción evaluacón</label>
+                        <textarea class="form-control" type="text" id="inpDescripcionEdit"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="">Mensaje evaluación</label>
+                        <textarea class="form-control" type="text" id="inpMensajeEdit"></textarea>
+                    </div>
+                    <div class="col-md-12" style="display: none;">
+                        <label for="">Evaluador</label>
+                        <select class="form-control autoriza" id="inpEvaluadorEdit"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="">Orden</label>
+                        <input class="form-control" type="text" id="inpOrdenEdit">
+                    </div>
+                    <div class="col-md-8">
+                        <label for="">Requerimiento</label>
+                        <input class="form-control" type="text" id="inpRequerimientoEdit">
+                    </div>
+                    <div class="col-md-3" style="display: none;">
+                        <br>
+                        <label for="">Opcional : </label>
+                        <input class="" type="checkbox" id="inpImportantEdit">
+                    </div>
+                    <div class="col-md-2">
+                        <br>
+                        <button id="btnGuardarRequerimientoEdit" class='btn btn-primary'>Insertar</button>
+                    </div>
+                </div>
+                <div class="row"><br>
+                    <div class="col-lg-12">
+                        <table id='tblRequerimientosEdit' class='table table-hover table-bordered compact' style="width: 100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnModificar"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL EDITAR DIVISIÓN -->
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/SubContratistas/Evaluacion/AltaElementos.js"></script>

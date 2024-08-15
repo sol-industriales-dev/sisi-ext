@@ -1,0 +1,251 @@
+﻿@{
+    ViewBag.Title = "PantallaPrincipal";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+
+@*<script src="~/Scripts/js/PantallaPrinciapl.js"></script>*@
+<script>
+    var _GCurrentYear = @DateTime.Now.Year;
+</script>
+<script src="~/Scripts/js/Administrativo/Proyecciones/PantallaPrincipal.js"></script>
+<link href="~/Content/style/css/PantallaPrinciapl.css" rel="stylesheet" />
+<script>
+    function getFGB() {
+        return {
+            escenario: $("#cboEscenario").val(),
+            divisor: $("#tbDivisor").val(),
+            mes: $("#tbMesesInicio").val(),
+            anio: $("#cboPeriodo").val(),
+            inclCM: $("#cboIncluirCostoMaq").val(),
+            reduccion: $("#tbEscenarioPorciento").val()
+        }
+    }
+</script>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"> <span class="glyphicon glyphicon-home" id="btnHome" value="0"></span> MENU <span id="btnMenuPrincipal" data-toggle="collapse" href="#collapse1" style="cursor: pointer;">&#8595;</span><span>&#8593;</span></legend>
+                <div class="col-lg-12 panel-collapse collapse in" id="collapse1">
+                    <div class="row">
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnObras" value="5">
+                                Obras
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnMaquinaria" value="6">
+                                CxC
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnPagosDiversos" value="9">
+                                Pagos Diversos
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnSaldosIniciales" value="11">
+                                Saldos Iniciales
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnPremisas" value="12">
+                                Premisas
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnGastosAdmon" value="7">
+                                Gto de Admon
+                            </button>
+                        </div>
+
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnCobroDiversos" value="10">
+                                Cobros Diversos
+                            </button>
+                        </div>
+
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-primary btn-xs form-control" id="btnActivoFijo" value="8">
+                                Activo Fijo
+                            </button>
+                        </div>
+
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-success btn-xs form-control" id="btnCifrasPrincipales" value="31">
+                                Cifras Principales
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-success btn-xs form-control" id="btnEdoResultado" value="26">
+                                Edo. de Resultado
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-success btn-xs form-control" id="btnFlujo" value="27">
+                                Flujo
+                            </button>
+                        </div>
+                        <div class="col-lg-1 form-group">
+                            <button class="btn-success btn-xs form-control" id="btnBalance" value="28">
+                                Balance
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2 text-center">
+
+                            <div class="col-lg-12" style="padding-right: 0px;">
+                                <label>
+                                    ESCENARIO:
+                                </label>
+                                <select class="form-control filtroGeneral" style="text-align-last: center;" id="cboEscenario">
+                                    <option value="1">A</option>
+                                    <option value="2">B</option>
+                                    <option value="3">C</option>
+                                    <option value="4">D</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2 no-padding">
+                                <button type="button" class="btn btn-info margin-top hide" id="btnAddEscenario">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 text-center">
+                            <label>
+                                DIVISOR:
+                            </label>
+                            <input class="form-control filtroGeneral" style="text-align-last: center;" id="tbDivisor" value="1000" />
+                        </div>
+                        <div class="col-lg-2 text-center">
+                            <label>
+                                REDUC GTOS DE OPER.
+                            </label>
+                            <input class="form-control filtroGeneral" style="text-align-last: center;" id="tbEscenarioPorciento" style=" margin-bottom: 3px;" />
+                        </div>
+                        <div class="col-lg-2 text-center">
+                            <label>
+                                # MESES DE INICIO:
+                            </label>
+                            <select class="form-control filtroGeneral" style="text-align-last: center;" id="tbMesesInicio">
+                                <option value="0">Enero</option>
+                                <option value="1">Febrero</option>
+                                <option value="2">Marzo</option>
+                                <option value="3">Abril</option>
+                                <option value="4">Mayo</option>
+                                <option value="5">Junio</option>
+                                <option value="6">Julio</option>
+                                <option value="7">Agosto</option>
+                                <option value="8">Septiembre</option>
+                                <option value="9">Octubre</option>
+                                <option value="10">Noviembre</option>
+                                <option value="11">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 text-center">
+                            <label>
+                                EJERC. INICIAL:
+                            </label>
+                            <select class="form-control filtroGeneral" style="text-align-last: center;" id="cboPeriodo">
+                                <option value="2017">2017</option>
+                                <option value="2018">2018</option>
+                                <option value="2019">2019</option>
+                                <option value="2020">2020</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                            <button type="button" class="btn btn-info margin-top" id="btnCargarInfo">
+                                <span class="glyphicon glyphicon-refresh"></span> Recargar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm" style="margin-top:15px;padding-top:15px;">
+                <legend class="legend-custm text-center"><label style="display:none;" id="idTituloContainer"></label></legend>
+                <div id="idVistaParcial">
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+
+<div id="ModalUploadFile" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header text-center modal-bg">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Importación de archivos excel.</h4>
+        </div>
+        <!-- Modal content-->
+        <div class="modal-content">
+            @Html.Partial("_CargarArchivos", false);
+        </div>
+    </div>
+</div>
+
+<div id="modalNewEscenario" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="text-center">Nuevo Escenario</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-5">
+                            <label>¿Escenario Secundario?:</label>
+                            <div class="material-switch pull-">
+                                <input id="chkEscenarioPadre" name="isPadreEscenarioN" type="checkbox" />
+                                <label for="chkEscenarioPadre" class="label-primary"></label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Lista Escenarios:</label>
+                            <select id="cboEscenariosPrincipales" class="form-control"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Descripción</label>
+                            <input class="form-control" id="tbModalDescEscenario" />
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                    <label>Margen Superior:</label>
+                                    <input class="form-control" id="tbModalMargenInicial" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                    <label>Margen Inferior:</label>
+                                    <input class="form-control" id="tbModalMargenFinal" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                    <button class="btn btn-success form-control" id="btnGuardarNuevoEscenario">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

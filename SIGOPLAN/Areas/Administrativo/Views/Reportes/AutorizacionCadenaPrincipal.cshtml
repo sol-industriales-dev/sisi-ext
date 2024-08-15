@@ -1,0 +1,135 @@
+﻿<!-- Razor -->
+@{
+ViewBag.Title = "AutorizacionCadenaPrincipal";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/AutorizacionCadenaPrincipal.css" rel="stylesheet" />
+
+<!-- HTML -->
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center titulo" style=" margin-top: 0;margin-bottom: 0;">
+            Autorización Cadenas Principales
+        </h2>
+    </div>
+    <div class="row" id="ListaVencimientos">
+        <div class="row form-group">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Documentos:</legend>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <button id="botonSeleccionarTodo" class="btn btn-warning pull-right margin-top">
+                                <i class="fas fa-check-double"></i>
+                                Seleccionar todo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <button id="botonAutorizar" class="btn btn-primary btn-lg pull-right margin-top">
+                                <i class="fas fa-user-check"></i>
+                                Autorizar documentos <span id="numeroDocumentos" class="badge">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <table id="tblVencimiento" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="numProveedor" data-align="center" data-searchable="true">
+                                    #Proveedor
+                                </th>
+                                <th data-column-id="numNafin" data-align="center" data-searchable="true">
+                                    # NAFIN
+                                </th>
+                                <th data-column-id="proveedor" data-align="center">
+                                    Proveedor
+                                </th>
+                                <th data-column-id="saldoFactura" data-align="center" data-searchable="false">
+                                    Monto
+                                </th>
+                                <th data-column-id="fechaS" data-align="center" data-searchable="false">
+                                    Fecha Emisión
+                                </th>
+                                <th data-column-id="fechaVencimientoS" data-align="center" data-searchable="false">
+                                    Fecha Vencimiento
+                                </th>
+                                <th data-column-id="Imprimir" data-formatter="imprimir" data-align="center"
+                                    data-header-align="center" data-searchable="false">
+                                    Imprimir
+                                </th>
+                                <th data-column-id="facturas" data-formatter="facturas" data-align="center"
+                                    data-header-align="center" data-searchable="false">
+                                    Facturas
+                                </th>
+                                <th data-column-id="autorizar" data-formatter="autorizar" data-align="center"
+                                    data-searchable="false">
+                                    Autorizar
+                                </th>
+                                <th data-column-id="rechazar" data-formatter="rechazar" data-align="center"
+                                    data-searchable="false">
+                                    Rechazar
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFacturas">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Facturas</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+
+                <table id="tablaFacturas" class="table table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th colspan="2" data-column-id="descargar" data-formatter="descargar" data-align="center"
+                                data-searchable="true">
+                                PDF / XML
+                            </th>
+                            <th data-column-id="proveedor" data-align="center" data-searchable="true">
+                                Proveedor
+                            </th>
+                            <th data-column-id="factura" data-align="center" data-searchable="true">
+                                Factura
+                            </th>
+                            <th data-column-id="monto" data-align="center" data-searchable="true">
+                                Monto
+                            </th>
+                            <th data-column-id="fecha" data-align="center" data-searchable="true">
+                                Fecha Emisión
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="botonModalAviso" class="btn btn-default"
+                    data-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Reportes/AutorizacionCadenaPrincipal.js"></script>

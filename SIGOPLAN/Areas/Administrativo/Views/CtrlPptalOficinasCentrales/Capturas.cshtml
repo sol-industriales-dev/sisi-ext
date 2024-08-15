@@ -1,0 +1,325 @@
+﻿@{
+    ViewBag.Title = "Capturas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/Capturas.css" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Acuerdo.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Dashboard.css")" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/dhtmlxgantt.css")">
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>CAPTURA<span id="lblTitleCatalogo"></span></h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label>Año</label>
+                            <select id="cboFiltroAnio" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>CC</label>
+                            <select id="cboFiltroCC" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Agrupación</label>
+                            <select id="cboFiltroAgrupacion" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-4 pull-right" style="margin-top: 26px;">
+                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar" title="Realizar busqueda."><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroNuevaCaptura" style="display: none;" title="Registrar nueva captura."><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                            <button type="button" class="btn btn-success" id="btnFiltroMatch" title="Match plan maestro vs agrupación."><i class="fas fa-balance-scale"></i></button>
+                            <button type="button" class="btn btn-default marginRight" id="btnFiltroNotificar" title="Notificar presupuesto."><i class="far fa-bell"></i>&nbsp;Notificar</button>
+                        </div><br><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblAF_CtrlPptalOfCe_CapPptos" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR/EDITAR CONTROL IMPACTO -->
+<div id='mdlCECaptura' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCECaptura"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading">
+                                <h4 class="text-center">ACTIVIDAD</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <textarea id="txtActividad" class="inputTextArea" cols="30" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>CC</label>
+                        <select id="cboCC" class="form-control select2" disabled="disabled"></select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label>Año</label>
+                        <select id="cboAnio" class="form-control select2" disabled="disabled"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Agrupación</label>
+                        <select id="cboAgrupacion" class="form-control select2" disabled="disabled"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Concepto</label>
+                        <select id="cboConcepto" class="form-control select2" disabled="disabled"></select>
+                    </div>
+                </div>
+                <div class="row" style="display: none;">
+                    <div class="col-lg-6">
+                        <label>Insumo</label>
+                        <input type="text" id="txtInsumo" class="form-control" disabled="disabled">
+                    </div>
+                    <div class="col-lg-6">
+                        <label>Cuenta</label>
+                        <input type="text" id="txtCuentaDescripcion" class="form-control" disabled="disabled">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Responsable</label>
+                        <select id="cboResponsable" class="form-control select2"></select>
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading">
+                                <h4 class="text-center">IMPORTES</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <label>Enero</label>
+                                        <input type="text" id="txtImporteEnero" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Febrero</label>
+                                        <input type="text" id="txtImporteFebrero" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Marzo</label>
+                                        <input type="text" id="txtImporteMarzo" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Abril</label>
+                                        <input type="text" id="txtImporteAbril" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <label>Mayo</label>
+                                        <input type="text" id="txtImporteMayo" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Junio</label>
+                                        <input type="text" id="txtImporteJunio" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Julio</label>
+                                        <input type="text" id="txtImporteJulio" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Agosto</label>
+                                        <input type="text" id="txtImporteAgosto" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <label>Septiembre</label>
+                                        <input type="text" id="txtImporteSeptiembre" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Octubre</label>
+                                        <input type="text" id="txtImporteOctubre" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Noviembre</label>
+                                        <input type="text" id="txtImporteNoviembre" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>Diciembre</label>
+                                        <input type="text" id="txtImporteDiciembre" class="form-control importePpto" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnCECaptura"><span id="lblTitleBtnCECaptura"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA -->
+
+<!-- MODAL ADITIVA -->
+<div id='mdlAditiva' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><span id="lblTitleAditiva"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-3 pull-right">
+                        <button type="button" class="btn btn-info pull-right" id="btnAgregarAditiva"><i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </div>
+                <br>
+                <div class="table-responsive">
+                    <table id="tblAditiva" class="table table-hover table-bordered compact"></table>
+                </div>
+                <br>
+                <div id="divComentarioAditiva" style="display:none;">
+                    <p>COMENTARIO:</p>
+                    <textarea id="comentarioAditiva" rows="4"></textarea>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnAditivaGuardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADITIVA -->
+
+<!-- MODAL MATCH AGRUPACION PLAN MAESTRO VS AGRUPACION CAPTURADO -->
+<div id='mdlMatch' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>AGRUPACIÓN PLAN MAESTRO VS AGRUPACIÓN CAPTURA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <span id="lblTitleMatch"></span>
+                        <span id="lblMatch"></span>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MATCH AGRUPACION PLAN MAESTRO VS AGRUPACION CAPTURADO -->
+
+<!-- ACTIVIDAD EN MODAL -->
+<div id='mdlVerActividad' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>ACTIVIDAD</h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtVerActividad" class="inputTextArea" cols="30" rows="10"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: ACTIVIDAD EN MODAL -->
+
+<!-- COMENTARIOS -->
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios"></ul>
+                            <!-- timeline time label -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnCrearComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: COMENTARIOS -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/Capturas.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>

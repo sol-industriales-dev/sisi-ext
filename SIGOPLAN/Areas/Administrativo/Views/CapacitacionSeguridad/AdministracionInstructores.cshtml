@@ -1,0 +1,294 @@
+﻿@{
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionSeguridadController().privilegioCapacitacion();
+<!-- Privilegios:
+        NoAsignado = 0
+        Administrador = 1
+        Visor = 2
+        ControlDocumentos = 3
+        Instructor = 4
+    -->
+}
+<link href="~/Content/style/FullCalendarV4/Core/main.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Evaluacion/EvaluacionEstilo.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<style>
+    .fc-other-month {
+        color: #b6b6b6;
+    }
+
+    .fc-head {
+        font-size: 15px;
+        font-weight: bold;
+        color: white;
+        background-color: #3556ae;
+        border: none;
+    }
+
+    .fc th {
+        border-style: none;
+        height: 42px;
+        vertical-align: middle;
+    }
+
+    #leyendaEventos ul {
+        list-style: none;
+        padding-left: 15px;
+    }
+
+    hr {
+        border-top: 5px solid #51799b;
+        border-radius: 3px 3px 0px 0px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#cboInstructor').select2();
+    }); $(document).ready(function () {
+        $('#cboAno').select2();
+    });
+</script>
+<div class="col-sm-12">
+    <div class="center" style="text-align: center;">
+    </div>
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-list"></i>Filtros Busqueda</legend>
+        <br>
+        <div class="row">
+            <div class="col-sm-4 no-gutter">
+                <div class="input-group">
+                    <span class="input-group-addon">Proyecto</span>
+                    <select id="cboProyecto" class="form-control"></select>
+                </div>
+            </div>
+            <div class="col-sm-4 no-gutter">
+                <div class="input-group">
+                    <span class="input-group-addon">Instructor</span>
+                    <select id="cboInstructor" class="form-control"></select>
+                </div>
+            </div>
+            <div class="col-sm-2 no-gutter">
+                <div class="input-group">
+                    <span class="input-group-addon">Año</span>
+                    <select id="cboAno" class="form-control"></select>
+                </div>
+            </div>
+            <div class="col-sm-1 no-gutter">
+                <button id="btnBuscar" class="btn btn-warning"><i class="fas fa-search"></i>Buscar</button>
+            </div>
+            <div class="col-sm-1 no-gutter">
+                @if (privilegioCapacitacion != 2 && privilegioCapacitacion != 3) {
+                <button id="btnAlta" class="btn btn-warning"><i class="fas fa-search"></i>Alta</button>
+                }
+            </div>
+        </div>
+        <br>
+</div>
+<br>
+<br>
+<div class="col-sm-12">
+    <div class="center" style="text-align: center;">
+    </div>
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm" style="text-align: center;">JORNADA LABORAL</legend>
+        <br>
+        <div class="row">
+            <div class="col-sm-6 no-gutter">
+                <span class="badge badge-dark" style="font-size: 25px;text-align: center;left: 300px;position: absolute;background-color:#257e4a;bottom: 0px;">LABORANDO</span>
+            </div>
+            <div class="col-sm-6 no-gutter">
+                <span class="badge badge-dark" style="font-size: 25px;text-align: center;left: 300px;position: absolute;background-color:#EA461A;bottom: 0px;">DESCANSO</span>
+            </div>
+
+        </div>
+        <br>
+</div>
+<br>
+<br>
+</fieldset>
+<div class="col-sm-12">
+    <div class="center" style="text-align: center;">
+    </div>
+    <br>
+    <br>
+
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <div class="row">
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioEnero"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioFebrero"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioMarzo"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioAbril"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioMayo"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioJunio"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioJulio"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioAgosto"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioSeptiembre"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioOctubre"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioNoviembre"></div>
+            </div>
+            <div class="col-sm-3 no-gutter">
+                <div id="divCalendarioDiciembre"></div>
+            </div>
+            <!-- <div id="divProximosEventos">
+                <label>Próximos eventos</label>
+                <ul id="listaProximosEventos"></ul>
+            </div> -->
+        </div>
+    </fieldset>
+    <br>
+    <br><br>
+    <br>
+</div>
+
+
+
+<div class="modal fade" id="modalAlta" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg btn-primary" style="background-color:#1A5AEA">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleCurso"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-10 mrgTop">
+                    </div>
+                    <div class="col-sm-2 mrgTop">
+                        <button type="button" class="btn btn-success" id="btnGenerarModal">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 mrgTop">
+                        <label for="tablaEvaluadores" class="form-label">Instructores:</label>
+                        <br>
+                        <br>
+                        <table id="tablaEvaluadores" class="table table-hover table-fixed table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalAltaAgregarEditar" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg btn-primary" style="background-color:#1A5AEA">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label id="titleCurso"></label></h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label for="inputClaveEmpleado" class="form-label">Clave Empleado:</label>
+                            <input type="number" name="inputClaveEmpleado" id="inputClaveEmpleado" class="form-control" />
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="inputNombre" class="form-label">Nombre:</label>
+                            <input type="text" name="inputNombre" id="inputNombre" class="form-control" disabled>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="inputApellidoPaterno" class="form-label">Apellido Paterno:</label>
+                            <input type="text" name="inputApellidoPaterno" id="inputApellidoPaterno" class="form-control" disabled>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <label for="inputApellidoMaterno" class="form-label">Apellido Materno:</label>
+                            <input type="text" name="inputApellidoMaterno" id="inputApellidoMaterno" class="form-control" disabled>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="selectGrupo" class="form-label">Grupo:</label>
+                            <select id="selectGrupo" class="form-control"></select>
+                        </div>
+                        <div class="col-sm-4" style="margin-top: 25px; margin-bottom: 4px;">
+                            <input type="checkbox" id="checkBoxEvaluador" class="regular-checkbox" />
+                            <label for="checkBoxEvaluador"></label>
+                            <label style="font-size: 14px;">&nbsp;Instructor</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="cboTematica" class="form-label">Tematica:</label>
+                            <select id="cboTematica" class="form-control">
+
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="inputFechaInicioRol" class="form-label">Fecha Inicio Rol:</label>
+                            <input type="text" name="inputFechaInicioRol" id="inputFechaInicioRol" class="form-control" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="inputCC" class="form-label">Proyecto:</label>
+                            <input type="text" name="inputCC" id="inputCC" class="form-control" disabled />
+                        </div>
+                        <br>
+                        <br>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" id="btnCancelar">
+                            <i class="fas fa-undo"></i> Cancelar
+                        </button>
+
+                        <button type="button" class="btn btn-primary" id="btnGuardar">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <script src="~/Scripts/moment-with-locales.js"></script>
+        <script src="~/Scripts/Utilities/FullCalendarV4/Core/main.js"></script>
+        <script src="~/Scripts/Utilities/FullCalendarV4/Core/locales-all.js"></script>
+        <script src="~/Scripts/Utilities/FullCalendarV4/Daygrid/main.js"></script>
+        <script src="~/Scripts/Utilities/FullCalendarV4/Interaction/main.js"></script>
+        <script src="~/Scripts/Utilities/FullCalendarV4/Moment/main.js"></script>
+        <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+        <script src="~/Scripts/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+        <script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/AdministracionInstructores.js"></script>

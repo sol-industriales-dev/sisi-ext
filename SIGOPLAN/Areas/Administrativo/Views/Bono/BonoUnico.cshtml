@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "BonoUnico";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/MonthPicker.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+
+<h2 class="text-center">Captura de bono unico</h2>
+
+<fieldset class="fieldset-custm col-lg-8">
+    <legend class="legend-custm"><i class="fas fa-search"></i>  Búsqueda</legend>
+    <div class="col-md-5">
+        <div class='input-group'>
+            <span class='input-group-addon'>CC</span>
+            <select id="cboCC" class="form-control selBuscar"></select>
+        </div>
+    </div>
+    <div class='col-md-5'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Tipo Nomina</span>
+            <select id='cboTipoNomina' class='form-control'>
+                <option value="1">SEMANAL</option>
+                <option value="4">QUINCENAL</option>
+                <option value="5">MENSUAL</option>
+            </select>
+        </div>
+    </div>
+    <div class='col-md-2'>
+        <button id='btnCargar' type='button' class='btn btn-primary'><i class='fa fa-load'></i> Cargar</button>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm col-lg-4">
+    <legend class="legend-custm">Acción</legend>
+    <div class='col-md-3 col-lg-3 hidden'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Inicio</span>
+            <input type='text' id='mpInicio' class='form-control'>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3 hidden'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Fin</span>
+            <input type='text' id='mpFin' class='form-control'>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="input-group no-padding text-center">
+            <span class='input-group-addon'>Captura</span>
+            <input type="text" id="txtFecha" class="form-control text-center" disabled>
+        </div>
+    </div>
+    <div class='col-md-2'>
+        <button id='btnGuardar' type='button' class='btn btn-primary'><i class='fa fa-save'></i> Guardar</button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm col-lg-12'>
+    <legend class="legend-custm"><i class="fas fa-hand-holding-usd"></i>  Justificación</legend>
+    <div class='table-responsive'>
+        <textarea id="txtJustificacion" style="width:100%;">
+
+        </textarea>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm col-lg-12'>
+    <legend class="legend-custm"><i class="fas fa-hand-holding-usd"></i>  Bonos</legend>
+    <div class='table-responsive'>
+        <table id='tblPuestos' class='table table-fixed' width="100%">
+            <thead class='bg-table-header'>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm hidden' id="divAceptacion">
+    <legend class='legend-custm'><i class="fas fa-user"></i> Aceptación</legend>
+    <div class="col-sm-12">
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-sm-6">Solicita:</th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input requerido" id="inpAuth1" placeholder="*" autocomplete="off"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos</label></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-sm-6">VoBo:</th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input requerido" id="inpAuth2" placeholder="*" autocomplete="off"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Capital Humano</label></td>
+            </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <label> Autoriza 1:</label>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+                                <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth3" placeholder="N/R" autocomplete="off"> </td>
+                    <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Gerente / Director de Área</label></td>
+            </tr>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth4" placeholder="N/R" autocomplete="off"> </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <label> Autoriza 2:</label>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth5" placeholder="N/R" autocomplete="off"> </td>
+                    <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Director de Línea de Negocios</label></td>
+            </tr>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth6" placeholder="N/R" autocomplete="off"> </td>
+            </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <label> Autoriza 3:</label>
+                            </div>
+                        </div>
+                    </th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth7" placeholder="N/R" autocomplete="off"> </td>
+                    <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Alta Dirección</label></td>
+            </tr>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input" id="inpAuth8" placeholder="N/R" autocomplete="off"> </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</fieldset>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/MonthPicker.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Bono/BonoUnicoJS.js"></script>

@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "EstadoResultados";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/EstadoFinancieroEstilo.css" rel="stylesheet" />
+<link href="~/Content/style/Highcharts/highcharts.css" rel="stylesheet" />
+
+<div class="row text-center mrgTop">
+    <h2>Estado de Resultados</h2>
+</div>
+
+<fieldset class="fieldset-custm mrgTop">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-sm-3 mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Empresa</span>
+                <select id="selectEmpresa" class="form-control" multiple>
+                    <option value="Todos">Todos</option>
+                    <option value="1">CONSTRUPLAN</option>
+                    <option value="2">ARRENDADORA</option>
+                    <option value="4">EICI</option>
+                    <option value="5">INTEGRADORA</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-2 mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Mes</span>
+                <input id="inputMes" class="form-control date-picker">
+            </div>
+        </div>
+        <div class="col-sm-5 mrgTop">
+            <div class="input-group">
+                <span class="input-group-addon">Centros de Costo</span>
+                <select id="selectCentroCosto" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-sm-1 mrgTop">
+            <button id="botonBuscar" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+        </div>
+        <div class="col-sm-1 mrgTop">
+            <button id="botonReporte" class="btn btn-info pull-right" disabled><i class="far fa-file-alt"></i> Reporte</button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm mrgTop">
+    <div class="row">
+        <div class="col-sm-12 mrgTop">
+            <table id="tablaEstadoResultados" class="table table-hover table-bordered compact" width="99%">
+                <!-- <thead>
+                    <tr>
+                        <th></th>
+                        <th class="text-center">CONCEPTOS</th>
+                        <th class="text-center" colspan="2">MES</th>
+                        <th class="text-center" colspan="2">MES AÑO ANTERIOR</th>
+                        <th class="text-center">VARIACIONES</th>
+                        <th class="text-center" colspan="2">ACU. MES</th>
+                        <th class="text-center" colspan="2">ACU. MES AÑO ANTERIOR</th>
+                        <th class="text-center">ACU. VARIACIONES</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead> -->
+            </table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalIngreso">
+    <div class="modal-dialog modal-lg" style="width:98%">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>AVANCE DE OBRA</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm no-margin">
+                    <legend class="legend-custm" style="text-align:center">Datos</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" style="padding:0;padding-right:1px;">
+                        <table id="tablaIngreso" class="table table-hover table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 text-center" style="padding:0;padding-left:1px;margin-top:50px;">
+                        <p style="display:block;padding:0;margin-bottom:20px;font-size:21px;line-height:inherit;color:#333;border:0;width:auto !important;">Tendencia</p>
+                        <div id="graficaIngresoLineas"></div>
+                    </div>
+                </fieldset>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:0;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm" id="lblGraficaCosto" style="text-align:center">Tendencia Por División</legend>
+                        <div id="graficaIngresoColumnas"></div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCosto">
+    <div class="modal-dialog modal-lg" style="width:98%">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>COSTOS DE OBRA</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm no-margin">
+                    <legend class="legend-custm" style="text-align:center">Datos</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" style="padding:0;padding-right:1px;">
+                        <table id="tablaCosto" class="table table-hover table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 text-center" style="padding:0;padding-left:1px;margin-top:50px;">
+                        <p style="display:block;padding:0;margin-bottom:20px;font-size:21px;line-height:inherit;color:#333;border:0;width:auto !important;">Tendencia</p>
+                        <div id="graficaCostoLineas"></div>
+                    </div>
+                </fieldset>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:0;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm" id="lblGraficaCosto" style="text-align:center">Tendencia Por Concepto</legend>
+                        <div id="graficaCostoColumnas"></div>
+                    </fieldset>
+                </div>                
+            </div>
+            <div class="modal-footer margin-top">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGasto">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Gastos de operación</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaGasto" class="table table-hover table-bordered compact" style="width:100%;">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/EstadoResultados.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/highcharts-regression.js"></script>

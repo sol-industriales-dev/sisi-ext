@@ -1,0 +1,177 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/General.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/Canales.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <!-- TITULO -->
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>CANALES</h2>
+        </div>
+    </div>
+    <!-- END: TITULO -->
+
+    <!-- PANEL FILTROS -->
+    <div class='row'>
+        <div class='col-sm-12'>
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTROS DE BÚSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class="row">
+                        <div class="col-lg-3 pull-right">
+                            <label>&nbsp;</label>
+                            <div class='input-group'>
+                                <button class="btn btn-primary" id="btnFiltro_Buscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_Nuevo"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: PANEL FILTROS -->
+
+    <div class='row'>
+        <!-- MENU -->
+        @Html.Partial("_Menu")
+        <!-- END: MENU -->
+
+        <!-- TABLA CANALES -->
+        <div class="col-lg-10">
+            <fieldset class='fieldset-custm'>
+                <legend class="legend-custm"><span class="badge">Canales</span></legend>
+                <div class='row'>
+                    <div class='col-sm-12'>
+                        <div id='panelFiltro' class='panel-principal'>
+                            <div class='panel-heading'></div>
+                            <div class='panel-body'>
+                                <div class="row">
+                                    <table class="table" id="tblCanales"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <!-- END: TABLA CANALES -->
+    </div>
+</div>
+<!-- CONTAINER -->
+
+<!-- MODAL CREAR EDITAR CANAL -->
+<div id='mdlCE_Canal' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Canal'>Canal</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Canal' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_Canal'></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR EDITAR CANAL -->
+
+<!-- MODAL LISTADO CANALES DIVISIONES -->
+<div id='mdlListado_CanalesDivisiones' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row pull-right">
+                        <div class="col-lg-12">
+                            <button class="btn btn-primary" id="btnFiltro_CanalesDivisiones_Nuevo"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table" id="tblCanalesDivisiones"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO CANALES DIVISIONES -->
+
+<!-- MODAL CREAR EDITAR CANALES DIVISIONES -->
+<div id='mdlCE_CanalesDivisiones' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for='cboCE_CanalesDivisiones_Canal'>Canal</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_CanalesDivisiones_Canal' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCE_CanalesDivisiones_Division'>Division</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_CanalesDivisiones_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_CanalesDivisiones_CanalDivision'><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR EDITAR CANALES DIVISIONES -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/_Menu.js"></script>
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/Canales.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<!-- END: JS -->

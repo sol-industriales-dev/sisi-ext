@@ -1,0 +1,110 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!--CSS-->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Corte.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/MonthPicker.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.css" rel="stylesheet" />
+
+<div class="col-xs-12 col-sm-12 col-md-10 col-lg-11 text-center">
+    <h2 class="text-center">Corte Kubrix Arrendadora    <i class='fas fa-hand-holding-usd'></i></h2>
+</div>  
+
+<div id="mensajeCostosEst" style="top: 20px; right: 0; position: fixed; z-index: 1029; display:none;">
+    <h2><span class="label label-danger">Costos Estimados sin cerrar</span></h2>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center no-padding">
+    <div class="panel-group">
+        <div class="panel panel-primary panel-filtros">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <a data-toggle="collapse" href="#filtrosBusqueda">FILTROS DE BUSQUEDA</a>
+                    <button id="botonBuscar" class="btn btn-warning pull-right" style="margin-top:-6px;"><i class="fas fa-search"></i> Buscar</button>
+                    <button id="botonReportes" class="btn btn-warning pull-right" style="margin-top:-6px;margin-right:5px;"><i class="fas fa-file"></i> Reportes</button>
+                </div>
+            </div>
+            <div id="filtrosBusqueda" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center no-padding">
+
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center" style="padding:2px;">
+                                    <label>Ejercicio:</label>
+                                    <select id="cbConfiguracion" class="text-center form-control" name="cbConfiguracion">
+                                        <option value="1">Actual</option>
+                                        @*<option value="0">Acumulado</option>*@
+                                        <option value="2">Acumulado</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center" style="padding:2px;">
+                                    <label>Tipo Corte:</label>
+                                    <select id="cbTipoCorte" class="text-center form-control" name="cbTipoCorte">
+                                        <option value="0" selected>Semanal</option>
+                                        <option value="1">Mensual</option>
+                                        <option value="10">Flujo</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center" style="padding:2px;">
+                                    <label>Corte:</label>
+                                    <input class="text-center form-control btn btn-primary" type="text" id="inputCorte" autocomplete="off" readonly="readonly" style="color: #fff;background-color: #286090;border-color: #204d74;" placeholder="Fecha">
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 text-center" style="padding:2px;">
+                                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 text-center" style="padding:2px;">
+                                        <label>División:</label>
+                                        <select id="comboDivision" class="form-control" name="comboDivision"></select>
+                                    </div>
+                                    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7 text-center" style="padding:2px;">
+                                        <label>Responsable:</label>
+                                        <select id="comboResponsable" class="form-control" name="comboResponsable"></select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center" style="padding:2px;">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="padding:2px;">
+                                        <label>Area Cuenta:</label><br />
+                                        <select id="comboAC" class="form-control comboMulti" name="comboAC" multiple="multiple" style=""></select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 text-center" style="padding:2px;">
+                                    <label>Grupo:</label>
+                                    <select id="comboGrupoK" class="form-control" name="comboGrupo"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center" style="padding:2px;">
+                                    <label>Modelo:</label>
+                                    <select id="comboModeloK" class="form-control comboMulti" name="comboAC" multiple="multiple" style=""></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 text-center" style="padding:2px;">
+                                    <label>Económico:</label>
+                                    <select id="cboMaquina" class="form-control" name="cboMaquina"></select>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/KubrixCorteArrendadora.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/highcharts-regression.js"></script>
+<script src="~/Scripts/MonthPicker.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/rowGroup.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/dataTables.rowGroup.min.js"></script>
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/buttons.dataTables.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/dataTables.buttons.js"></script>

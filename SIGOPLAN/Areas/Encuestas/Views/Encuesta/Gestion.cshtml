@@ -1,0 +1,388 @@
+﻿@{
+    ViewBag.Title = "AsignacionResguardo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+<script src="@Url.Content("~/Scripts/starrr.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/js/Encuestas/Gestion.js")" type="text/javascript"></script>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Gestión de cambios de encuestas</h2>
+    </div>
+    <ul class="nav nav-tabs">
+        <li class="active"><a id="tabTitle1" data-toggle="tab" href="#tabPendiente">Pendientes</a></li>
+        <li><a id="tabTitle2" data-toggle="tab" href="#tabAutorizada">Autorizadas</a></li>
+        <li><a id="tabTitle3" data-toggle="tab" href="#tabRechazada">Rechazadas</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="tabPendiente">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Encuestas Pendientes:</legend>
+                        <table id="tblPendiente" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="tipo" data-width="50px">Acción</th>
+                                    <th data-column-id="titulo" data-width="25%">Titulo</th>
+                                    <th data-column-id="departamento" data-width="25%">Departamento</th>
+                                    <th data-column-id="fecha" data-width="25%">Fecha</th>
+                                    <th data-column-id="btnVer" data-formatter="Editresguardo" data-sortable="false" data-width="25px">Ver</th>
+                                    <th data-column-id="btnAceptar" data-formatter="SubirArchivo" data-sortable="false" data-width="25px">Autorizar</th>
+                                    <th data-column-id="btnRechazar" data-formatter="SubirArchivo" data-sortable="false" data-width="25px">Rechazar</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tabAutorizada">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Encuestas Pendientes:</legend>
+                        <table id="tblAutorizada" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="tipo" data-width="50px">Acción</th>
+                                    <th data-column-id="titulo" data-width="25%">Titulo</th>
+                                    <th data-column-id="departamento" data-width="25%">Departamento</th>
+                                    <th data-column-id="fecha" data-width="25%">Fecha</th>
+                                    <th data-column-id="btnVer" data-formatter="Editresguardo" data-sortable="false" data-width="25px">Ver</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tabRechazada">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Encuestas Rechazadas:</legend>
+                        <table id="tblRechazada" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="tipo" data-width="50px">Acción</th>
+                                    <th data-column-id="titulo" data-width="25%">Titulo</th>
+                                    <th data-column-id="departamento" data-width="25%">Departamento</th>
+                                    <th data-column-id="fecha" data-width="25%">Fecha</th>
+                                    <th data-column-id="btnVer" data-formatter="Editresguardo" data-sortable="false" data-width="25px">Liberar Resguardo</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="dialogVerEncuesta" title="Ver encuesta" style="display:none;">
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Datos Generales de Encuesta:</legend>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Titulo:</span>
+                            <input id="txtTitulo" class="form-control" placeholder="Titulo" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Descripción:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcion" class="form-control" placeholder="Descripción" disabled></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Encuesta:</legend>
+                <div class="Preguntas" style="max-height:200px;height:200px;">
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Agregar Comentario:</legend>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Comentario:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <textarea id="txtComentario" class="form-control" placeholder="Comentario" disabled></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="dialogAceptar" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Aceptar Encuesta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        ¿Esta apunto de aceptar esta encuesta, desea continuar?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnAceptar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok" style="font-size: medium;"></span></a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="dialogRechazar" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Rechazar Encuesta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        ¿Esta apunto de rechazar esta encuesta, desea continuar?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnRechazar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove" style="font-size: medium;"></span></a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialogVerEncuestaUpdate" title="Ver encuesta" style="display:none;">
+    <div class="row">
+        <center>
+            <div style="padding-left:22px; padding-top: 8px; width:400px;">
+                <div class="col-md-4">
+                    <div class="input-group" title="Codigo de Colores">
+                        <span class="input-group-addon Procedimiento" style="background-color:green;"></span>
+                        <span class="form-control" style="width:100px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Agregar</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group" title="Codigo de Colores">
+                        <span class="input-group-addon Formato" style="background-color:yellow;"></span>
+                        <span class="form-control" style="width:100px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Actualizar</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group" title="Codigo de Colores">
+                        <span class="input-group-addon Otro" style="background-color:red;"></span>
+                        <span class="form-control" style="width:100px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Eliminar</span>
+                    </div>
+                </div>
+            </div>
+        </center>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Encuesta Actual:</legend>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Generales de Encuesta:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Titulo:</span>
+                                        <input id="txtTituloa" class="form-control" placeholder="Titulo" disabled />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Descripción:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtDescripciona" class="form-control" placeholder="Descripción" disabled></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Encuesta:</legend>
+                            <div class="Preguntasa" style="max-height:200px;height:200px;">
+
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Agregar Comentario:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Comentario:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtComentarioa" class="form-control" placeholder="Comentario" disabled></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-md-6">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Encuesta Actualizada:</legend>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Generales de Encuesta:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Titulo:</span>
+                                        <input id="txtTituloau" class="form-control" placeholder="Titulo" disabled />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Descripción:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtDescripcionau" class="form-control" placeholder="Descripción" disabled></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Encuesta:</legend>
+                            <div class="Preguntasau" style="max-height:200px;height:200px;">
+
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Agregar Comentario:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Comentario:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtComentarioau" class="form-control" placeholder="Comentario" disabled></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="dialogAceptarUpdate" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Aceptar actualización de encuesta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        ¿Esta apunto de aceptar la actualización de esta encuesta, desea continuar?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnAceptarUpdate" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok" style="font-size: medium;"></span></a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="dialogRechazarUpdate" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Rechazar actualización de encuesta</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        ¿Esta apunto de rechazar la actualización de esta encuesta, desea continuar?
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnRechazarUpdate" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove" style="font-size: medium;"></span></a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>

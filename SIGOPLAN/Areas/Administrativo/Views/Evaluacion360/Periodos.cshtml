@@ -1,0 +1,147 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/Periodos.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/General.css' rel='stylesheet' />
+
+<!-- END: CONTAINER -->
+<div class='container-fluid'>
+
+    <!-- SECCIÓN MENÚ -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div id="menuPeriodos" class="opcionSeleccionada">
+                    <h2><i class="far fa-calendar-alt"></i></h2>
+                    <h5>Periodos</h5>
+                </div>
+                <div id="menuPersonal">
+                    <h2><i class="fas fa-user-tie"></i></h2>
+                    <h5>Personal</h5>
+                </div>
+                <div id="menuConductas">
+                    <h2><i class="fas fa-list"></i></h2>
+                    <h5>Conductas</h5>
+                </div>
+                <div id="menuCuestionarios">
+                    <h2><i class="fas fa-book"></i></h2>
+                    <h5>Cuestionarios</h5>
+                </div>
+                <div id="menuCriterios">
+                    <h2><i class="fas fa-tasks"></i></h2>
+                    <h5>Criterios</h5>
+                </div>
+                <div id="menuRelaciones">
+                    <h2><i class="fas fa-user-friends"></i></h2>
+                    <h5>Relaciones</h5>
+                </div>
+                <div id="menuEvaluaciones">
+                    <h2><i class="fas fa-window-restore"></i></h2>
+                    <h5>Evaluaciones</h5>
+                </div>
+                <div id="menuAvances">
+                    <h2><i class="fas fa-chart-pie"></i></i></h2>
+                    <h5>Avances</h5>
+                </div>
+                <div id="menuReporte360">
+                    <h2><i class="fas fa-bullseye"></i></h2>
+                    <h5>Reporte 360</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: SECCIÓN MENÚ -->
+
+    <!-- CONTAINER FILTROS -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div class="seccion">
+                <div class="row">
+                    <div class='pull-right'>
+                        <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        <button type='button' class='btn btn-primary' id='btnModalPeriodo' title="Nuevo registro."><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class='col-xs-12'>
+                        <table id='tblPeriodos' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CONTAINER FILTROS -->
+
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PERIODO -->
+<div id='modalPeriodo' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="inputNombrePeriodo">Nombre del periodo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <input type="text" id="inputNombrePeriodo" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="inputFechaCierre" class="form-label">Fecha de cierre:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <input type="text" id="inputFechaCierre" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="cboEstado" class="form-label">Estado:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <select class="form-control select2" id="cboEstado">
+                                    <option value="N/A" selected>Seleccione una opción</option>
+                                    <option value="A">Periodo Abierto</option>
+                                    <option value="C">Periodo Cerrado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display:none">
+                        <div class="col-lg-12">
+                            <label for="inputRetroalimentacion" class="form-label">Retroalimentación:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <textarea type="text" class="form-control" id="inputRetroalimentacion" rows="3" placeholder="Retroalimentación"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                    <button type='button' class='btn btn-success' id='btnGuardarPeriodo'></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PERIODO -->
+
+<!-- SCRIPT -->
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Evaluacion360/Periodos.js"></script>
+<script src='~/Scripts/select2.js'></script>

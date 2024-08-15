@@ -1,0 +1,224 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<!-- STYLE -->
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    table.dataTable tbody tr td,
+    table thead tr th,
+    table.dataTable,
+    .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+
+    .btn-primary:hover {
+        background-color: #624de2 !important;
+        border-color: #624de2 !important;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+
+<div class="col-sm-12">
+    <br />
+    <div class="center">
+        <h3>Catálogo de Departamentos</h3><br>
+    </div>
+    <input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"></legend>
+        <div class="row">
+            <br />
+            <div class="col-lg-4">
+                <label class="text-color" for="cboCC">CC: </label>
+                <select id="cboCC" class="form-control"></select>
+            </div>
+            <div class="col-lg-4" style="display:none;">
+                <label class="text-color" for="cboClaveDepto">Clave departamento: </label>
+                <select id="cboClaveDepto" class="form-control"></select>
+            </div>
+            <div class="col-lg-4">
+                <label class="text-color" for="cboAreaOperativa">Área operativa: </label>
+                <select id="cboAreaOperativa" class="form-control"></select>
+            </div>
+        </div><br />
+        <div class="row">
+            <div class="col-lg-9"></div>
+            <div class="col-lg-3">
+                <button type='button' class="btn btn-primary" id="btnLimpiar"><i class="fa fa-brush"></i>
+                    Limpiar</button>
+                <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i>
+                    Buscar</button>
+                <button type="button" data-toggle="modal" data-target="#mdlCrearEditarDepartamento"
+                    class="btn btn-primary" id="btnNuevo">
+                    <i class="fas fa-plus"></i> Nuevo
+                </button>
+            </div>
+        </div><br>
+    </fieldset>
+    <br />
+    <!-- END: CONTROLES DE FILTRO -->
+
+    <!-- LISTADO -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'></legend>
+        <div class="row">
+            <div class="col-lg-12 table-responsive ">
+                <table id="tblS_CatDepartamentos" class="hover stripe order-column"></table>
+            </div>
+        </div>
+    </fieldset><br><br>
+    <!-- END: LISTADO -->
+</div>
+
+<!-- MODAL PARA CREAR/EDITAR DEPARTAMENTOS -->
+<div id="mdlCrearEditarDepartamento" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i><span id="lblCrearEditarDepartamento"></span></h1>
+            </div>
+            <div class="modal-body">
+                <!-- SECCION DE CONTROLES -->
+                <div class="seccion">
+                    <div class="row" id="ocultarEditar">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoCC">CC: </label>
+                                <select id="cboNuevoCC" class="form-control"></select>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoClaveDepto">Clave departamento: </label>
+                                <select id="cboNuevoClaveDepto" class="form-control"></select>
+                            </div>
+
+
+
+
+                        </div>
+                    </div><br>
+                    <div class="row" id="showEditar">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoCC">CC: </label>
+                                <input id="txtcboNuevoCC" class="form-control" disabled="true">
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoClaveDepto">Clave departamento: </label>
+                                <input id="txtNuevoClaveDepto" class="form-control" disabled="true">
+                            </div>
+
+
+                        </div>
+                    </div><br>
+
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoAreaOperativa">Área operativa: </label>
+                                <select id="cboNuevoAreaOperativa" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="txtNuevoDescripcion">Descripción: </label>
+                                <input id="txtNuevoDescripcion" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SECCION DE CONTROLES -->
+            </div>
+            <div class="modal-footer">
+                <button type='button' class="btn btn-primary" id="btnNuevoLimpiar"><i class="fa fa-brush"></i>
+                    Limpiar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>
+                    Regresar</button>
+                <button type="button" id="btnCrearEditarHorasHombre" class="btn btn-primary"><i class="fas fa-save"></i>
+                    Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA REGISTRAR HORAS HOMBRE -->
+
+<script src="~/Scripts/js/Administrativo/Seguridad/CatDepartamentos/CatDepartamentos.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>

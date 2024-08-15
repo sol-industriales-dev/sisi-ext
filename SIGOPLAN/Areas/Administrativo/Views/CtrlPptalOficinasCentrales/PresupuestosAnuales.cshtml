@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "Presupuestos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/PptoInicial.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>INICIALIZAR PRESUPUESTO</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary marginRight" id="botonAgregar"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                        </div><br><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblAF_CtrlPptalOfCe_PptoInicial" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<div class="modal fade" id="modalPresupuesto" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h4>Presupuesto Anual</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="selectCentroCosto" class="form-label">Centro de Costo:</label>
+                        <select id="selectCentroCosto" class="form-control select2"></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="inputAnio" class="form-label">Año:</label>
+                        <input type="text" name="inputAnio" id="inputAnio" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="col-sm-9">
+                        <label for="inputNombrePresupuesto" class="form-label">Nombre del Presupuesto:</label>
+                        <input type="text" name="inputNombrePresupuesto" id="inputNombrePresupuesto" class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR PPTO INICIAL -->
+<div id='mdlCEPptoInicial' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCEPptoInicial"></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>Año</label>
+                        <input type="text" id="txt_pptoInicial_anio" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Nombre ppto</label>
+                        <input type="text" id="txt_pptoInicial_nombrePpto" class="form-control" autocomplete="off">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Fecha inicio</label>
+                        <input type="date" id="txt_pptoInicial_fechaInicio" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label>Fecha fin</label>
+                        <input type="date" id="txt_pptoInicial_fechaFin" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Fecha inicio limite</label>
+                        <input type="date" id="txt_pptoInicial_fechaInicioLimite" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label>Fecha fin limite</label>
+                        <input type="date" id="txt_pptoInicial_fechaFinLimite" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnCEPptoInicial"><span id="lblTitleBtnCEPptoInicial"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PPTO INICIAL -->
+
+<!-- MODAL LISTADO CC REL PPTO INICIAL -->
+<div id='mdlCECCRelPpto' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>Centros de costos en el Presupuesto</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="tblCCRelPpto" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL LISTADO CC REL PPTO INICIAL -->
+
+<!-- MODAL AGREGAR CC AL PPTO -->
+<div id='mdlAgregarCC' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>NUEVO CC AL PPTO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>CC</label>
+                        <select id="cboCC" class="form-control select2"></select>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnAgregarCC"><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL AGREGAR CC AL PPTO -->
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/PresupuestosAnuales.js"></script>

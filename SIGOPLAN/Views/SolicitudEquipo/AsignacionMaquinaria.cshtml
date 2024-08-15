@@ -1,0 +1,201 @@
+﻿@{
+    ViewBag.Title = "AsigancionMaquinaria";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+@*Region de Styles*@
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-Asignacion.css" rel="stylesheet" />
+@*Region de contenedor*@
+<div class="container-fluid">
+    <div class="row" id="divPrincipal">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"><label id="lblTitleLengedSolicitudes"></label></legend>
+
+
+                <div class="row form-group">
+                    <div class="col-lg-3">
+                        <label>Filtro Solicitudes:</label>
+                        <select id="cboTipoFiltro" class="form-control">
+                            <option value="1">Pendientes Asignación Normal</option>
+                            <option value="2">RE-asignacion de Equipos</option>
+                            <option value="3">Pendientes Asignación Reemplazo</option>
+                            <option value="4">RE-asignacion de Equipos Reemplazo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class=" col-lg-12">
+                        <table id="tblSolicitudesAutorizadas" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="Folio" data-width="25%">Folio</th>
+                                    <th data-column-id="CCName" data-width="25%">Centro Costos</th>
+                                    <th data-column-id="UsuarioSolicitud" data-width="25%">Usuario Solicita</th>
+                                    <th data-column-id="Fecha" data-width="25%" data-sortable="false" data-searchable="false">Fecha</th>
+                                    <th data-column-id="VerSolicitud" data-formatter="VerSolicitud" data-searchable="false" data-sortable="false" data-width="25px">Ver Detalle</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row hide" id="divDetalle">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick" style="font-size:35px;" id="BntRegresar"></span> Detalle de Solicitud: <label id="lblfolio"></label></legend>
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#divAsignacionPendiente">Asignaciones Pendientes</a></li>
+                    @if (ViewBag.PermisoVistas)
+                    {
+                        <li><a data-toggle="tab" href="#divAsigacionesRealizadas">Asignaciones Realizadas</a></li>}
+                    <li><a data-toggle="tab" href="#divRastreoAsignaciones">Rastreo de Asignaciones</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="divAsignacionPendiente" class="tab-pane fade in active" style="margin-top:10px;">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                <div class="modal-margin-rigth">
+                                    @if (ViewBag.PermisoVistas)
+                                    {
+                                        <button type="button" class="btn btn-primary pull-right" id="btnGuardarTodos">
+                                            <span class="glyphicon glyphicon-ok"></span> Asignar Todos
+                                        </button>}
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary pull-right" id="btnGuardarAsignacion" style="margin-right: 5px;">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar Parcial
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table id="tblDetalleSolicitud" class="table table-responsive table-striped">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th data-column-id="id" data-css-class="hidden" data-header-css-class="hidden" data-align="center" data-header-align="center">id</th>
+                                            <th data-column-id="Tipo" data-formatter="Tipo" data-align="center" data-header-align="center" data-width="6%">Tipo Equipo</th>
+                                            <th data-column-id="Grupo" data-formatter="Grupo" data-align="center" data-header-align="center" data-width="10%">Grupo Equipo</th>
+                                            <th data-column-id="Modelo" data-formatter="Modelo" data-align="center" data-header-align="center" data-width="6%">Modelo Equipo</th>
+                                            <th data-column-id="pFechaInicio" data-sortable="false" data-align="center" data-header-align="center" data-searchable="false" data-width="6%">Fecha Inicio</th>
+                                            <th data-column-id="pFechaFin" data-sortable="false" data-align="center" data-header-align="center data-searchable=" false"" data-width="6%">Fecha Fin</th>
+                                            <th data-column-id="Comentario" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Comentario</th>
+                                            <th data-column-id="Economicos" data-formatter="Economicos" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Economicos</th>
+                                          
+
+
+                                            
+                                            @if (ViewBag.PermisoVistas)
+                                            {
+                                                <th data-column-id="FechaPromesa" data-formatter="FechaPromesa" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Fecha Promesa</th>
+    <th data-column-id="Asignar" data-formatter="Asignar" data-sortable="false" data-align="center" data-header-align="center" data-searchable="false" data-width="5%">Asignar</th>
+                                            }
+
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="divAsigacionesRealizadas" style="margin-top:10px;">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div>
+                                    <button type="button" class="btn btn-primary pull-right" id="btnVerReporte" style="margin-right:5px;">
+                                        <span class="glyphicon glyphicon-print"></span> Ver Reporte
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12" style="margin-top:10px;">
+                                <table id="tblEquiposAsignados" class="table table-responsive table-striped">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th data-column-id="id" data-css-class="hidden" data-header-css-class="hidden" data-align="center" data-header-align="center">id</th>
+                                            <th data-column-id="Folio" data-formatter="Estado" data-align="center" data-header-align="center" data-width="6%">Folio</th>
+                                            <th data-column-id="Tipo" data-formatter="Tipo" data-align="center" data-header-align="center" data-width="6%">Tipo Equipo</th>
+                                            <th data-column-id="Grupo" data-formatter="Grupo" data-align="center" data-header-align="center" data-width="10%">Grupo Equipo</th>
+                                            <th data-column-id="Modelo" data-formatter="Modelo" data-align="center" data-header-align="center" data-width="6%">Modelo Equipo</th>
+                                            <th data-column-id="pFechaInicio" data-sortable="false" data-align="center" data-header-align="center" data-width="6%">Fecha Inicio</th>
+                                            <th data-column-id="pFechaFin" data-sortable="false" data-align="center" data-header-align="center" data-width="6%">Fecha Fin</th>
+                                            <th data-column-id="FechaPromesa" data-sortable="false" data-align="center" data-header-align="center" data-width="6%">Fecha Promesa</th>
+                                            <th data-column-id="Comentario" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Comentario</th>
+                                            <th data-column-id="Economico" data-formatter="Economicos" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Economicos</th>
+                                            <th data-column-id="TipoEquipo" data-formatter="TipoEquipo" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Tipo Equipo</th>
+                                            <th data-column-id="Reemplazo" data-formatter="Reemplazo" data-sortable="false" data-align="center" data-header-align="center" data-width="10%">Quitar</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divRastreoAsignaciones" class="tab-pane fade">
+                        <div class="col-lg-12" style="margin-top:10px;">
+                            <table id="tblRastreoAsignados" class="table table-responsive table-striped">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                       
+                                        <th data-column-id="LugarRecepcion" data-align="center" data-header-align="center" data-width="10%">Lugar Recepcion</th>
+                                        <th data-column-id="LugarOrigen" data-align="center" data-header-align="center" data-width="10%">Lugar Origen</th>
+                                        <th data-column-id="Economico" data-formatter="Modelo" data-align="center" data-header-align="center" data-width="6%">Economico</th>
+                                        <th data-column-id="TipoEconomico" data-formatter="Modelo" data-align="center" data-header-align="center" data-width="6%">Tipo Equipo</th>
+                                        <th data-column-id="FechaPromesa" data-sortable="false" data-align="center" data-header-align="center" data-width="6%">Fecha Promesa</th>
+                                        <th data-column-id="Rastreo" data-formatter="Rastreo" data-sortable="false" data-align="center" data-header-align="center" data-width="30%">Estado Rastreo</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
+@*Modal para eliminacion de registros*@
+<div class="modal fade" id="modalEliminarRegistro" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Eliminar Asignación</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group text-center">
+                        <label>¿Desea Continuar con la operación?</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnEliminarRegistro">
+                                    <span class="glyphicon glyphicon-ok"></span> Aceptar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-remove"></span> Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/js/Maquinaria/Inventario/AsignacionMaquinariaJS.js"></script>
+
+@Html.Partial("reportViewerView", false)

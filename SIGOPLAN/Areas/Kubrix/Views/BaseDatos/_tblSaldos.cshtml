@@ -1,0 +1,99 @@
+﻿@{
+    var Controlador = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController();
+    System.Threading.Tasks.Task<Dictionary<string, object>> tsk = Controlador.lstSalContCC(Session["cc"].ToString(), Convert.ToInt32(Session["anio"]));
+    var res = tsk.Result;
+    List<Core.DTO.Kubrix.SalContCCDTO> lst = (List<Core.DTO.Kubrix.SalContCCDTO>)res["lst"];
+    List<Core.DTO.Contabilidad.CcDTO> lstCc = (List<Core.DTO.Contabilidad.CcDTO>)res["lstCC"];
+    List<Core.DTO.Contabilidad.Poliza.CatctaDTO> lstCta = (List<Core.DTO.Contabilidad.Poliza.CatctaDTO>)res["lstCta"];
+ }
+<div class="table-responsive">
+    <table id="tblSaldos" class="table table-condensed table-hover table-striped text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>cta</th>
+                <th>scta</th>
+                <th>sscta</th>
+                <th>year</th>
+                <th>salini</th>
+                <th>enecargos</th>
+                <th>eneabonos</th>
+                <th>febcargos</th>
+                <th>febabonos</th>
+                <th>marcargos</th>
+                <th>marabonos</th>
+                <th>abrcargos</th>
+                <th>abrabonos</th>
+                <th>maycargos</th>
+                <th>mayabonos</th>
+                <th>juncargos</th>
+                <th>junabonos</th>
+                <th>julcargos</th>
+                <th>julabonos</th>
+                <th>agocargos</th>
+                <th>agoabonos</th>
+                <th>sepcargos</th>
+                <th>sepabonos</th>
+                <th>octcargos</th>
+                <th>octabonos</th>
+                <th>novcargos</th>
+                <th>novabonos</th>
+                <th>diccargos</th>
+                <th>dicabonos</th>
+                <th>cc</th>
+                <th>descripcion</th>
+                <th>descripcion</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lst.Count == 0)
+            {
+                <tr><td colspan="32" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                foreach (var x in lst)
+                {
+                    <tr>
+                        <td>@x.cta</td>
+                        <td>@x.scta</td>
+                        <td>@x.sscta</td>
+                        <td>@x.year</td>
+                        <td>@x.salini.ToString("C2")</td>
+                        <td>@x.enecargos.ToString("C2")</td>
+                        <td>@x.eneabonos.ToString("C2")</td>
+                        <td>@x.febcargos.ToString("C2")</td>
+                        <td>@x.febabonos.ToString("C2")</td>
+                        <td>@x.marcargos.ToString("C2")</td>
+                        <td>@x.marabonos.ToString("C2")</td>
+                        <td>@x.abrcargos.ToString("C2")</td>
+                        <td>@x.abrabonos.ToString("C2")</td>
+                        <td>@x.maycargos.ToString("C2")</td>
+                        <td>@x.mayabonos.ToString("C2")</td>
+                        <td>@x.juncargos.ToString("C2")</td>
+                        <td>@x.junabonos.ToString("C2")</td>
+                        <td>@x.julcargos.ToString("C2")</td>
+                        <td>@x.julabonos.ToString("C2")</td>
+                        <td>@x.agocargos.ToString("C2")</td>
+                        <td>@x.agoabonos.ToString("C2")</td>
+                        <td>@x.sepcargos.ToString("C2")</td>
+                        <td>@x.sepabonos.ToString("C2")</td>
+                        <td>@x.octcargos.ToString("C2")</td>
+                        <td>@x.octabonos.ToString("C2")</td>
+                        <td>@x.novcargos.ToString("C2")</td>
+                        <td>@x.novabonos.ToString("C2")</td>
+                        <td>@x.diccargos.ToString("C2")</td>
+                        <td>@x.dicabonos.ToString("C2")</td>
+                        <td>@x.cc</td>
+                        <td>@lstCta.FirstOrDefault(w => w.cta == x.cta && w.scta == x.scta && w.sscta == x.sscta).descripcion</td>
+                        <td>@lstCc.FirstOrDefault(w => w.cc.Equals(x.cc)).descripcion</td>
+                    </tr>
+                }
+            }
+        </tbody>
+</table>
+</div>
+<div class="col-md-12 text-center">
+    <ul class="pagination" id="lstPaginador" data-showprevnext="true" data-hidepagenumbers="false" data-perpage="10"></ul>
+</div>
+<script src="~/Scripts/Utilities/pageMe.js"></script>
+<script src="~/Scripts/js/Kubrix/BaseDatos/_tblSaldos.js"></script>

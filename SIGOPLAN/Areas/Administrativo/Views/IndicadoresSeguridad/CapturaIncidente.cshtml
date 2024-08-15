@@ -1,0 +1,1013 @@
+﻿@{
+ViewBag.Title = "CapturaIncidente";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+var baseController = new SIGOPLAN.Controllers.BaseController();
+
+}
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/IndicadoresSeguridad/CapturaIncidente.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script> *@
+<script src='~/Scripts/sweetalert2@10.js'></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/CapturaIncidente.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<style>
+    .select2-selection {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 34px !important;
+    }
+</style>
+
+<input type="hidden" id="id-empresa" value="@baseController.getEmpresaID()" />
+
+<h1 id="h1Titulo" class="text-center"></h1>
+
+<div class="main">
+    <div class="container">
+        <div class="acc-wizard">
+            <div class="panel-group" id="accordion">
+                <div id="divSeccion1">
+                    <!-- Persona Implicada en el Accidente -->
+                    <div class="panel panel-default active">
+                        <div class="panel-heading" id="headingOne">
+                            <h3>
+                                <a href="#collapsePersonaAccidente" data-toggle="collapse" data-parent="#accordion">Persona Implicada en el Accidente</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapsePersonaAccidente" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <fieldset>
+
+                                    <div id="divEsContratista">
+                                        <input type="checkbox" id="chkEsContratista" data-on="Contratista" data-off="Construplan">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    @* <input type="checkbox" id="chkEsContratista" style="margin-top:9px;" data-toggle="toggle" /> *@
+                                                    <span id="lblContratistas" style="display: none;">Contratista</span>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-sm-4 col-md-2 campoInformePreliminar">
+                                                    <label for="claveEmpleado" class="form-label">Clave Empleado:</label>
+                                                    <input type="text" name="claveEmpleado" id="claveEmpleado" placeholder="" class="form-control claveEmpleado">
+                                                </div>
+                                                <div class="col-sm-4 col-md-5 campoInformePreliminar">
+                                                    <label for="nombreEmpleado" class="form-label">Nombre Empleado:</label>
+                                                    <input type="text" name="nombreEmpleado" id="nombreEmpleado" disabled class="form-control validarPreliminar" />
+                                                </div>
+                                                <div class="col-sm-4 col-md-5 campoIncidente">
+                                                    <div class="form-group">
+                                                        <label for="selectEmpleado" class="form-label">Nombre:</label>
+                                                        <select name="selectEmpleado" id="selectEmpleado" class="form-control validar"></select>
+                                                        <button class="btn btn-sm btn-primary" id="btnAddEmpleado" style="display: none;">+</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-1 col-md-1 campoIncidente" style="padding-right: 0; padding-left: 0;">
+                                                    <div class="form-group">
+                                                        <label for="edadPersonal" class="form-label">edad:</label>
+                                                        <input type="text" name="edadPersonal" id="edadPersonal" placeholder="Edad" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4 col-md-4 campoInformePreliminar">
+                                                    <label for="txtPuestoEmpleado" class="form-label">Puesto Empleado:</label>
+                                                    <input id="txtPuestoEmpleado" name="txtPuestoEmpleado" class="form-control validarPreliminar" />
+                                                </div>
+
+                                                <div class="col-sm-4 col-md-4 campoIncidente">
+                                                    <div class="form-group">
+                                                        <label for="puestoPersonal" class="form-label">Puesto:</label>
+                                                        <input type="text" name="puestoPersonal" id="puestoPersonal" placeholder="Puesto" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectExperienciaEmpleado" class="form-label">Experiencia:</label>
+                                                        <select name="selectExperienciaEmpleado" id="selectExperienciaEmpleado" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2 campoInformePreliminar">
+                                                    <label for=" txtFechaIngreso" class="form-label">Fecha Ingreso:</label>
+                                                    <input id="txtFechaIngreso" name="txtFechaIngreso" class="form-control validarPreliminar" />
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectAntiguedadEmpleado" class="form-label">Antigüedad en la empresa:</label>
+                                                        <select name="selectAntiguedadEmpleado" id="selectAntiguedadEmpleado" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="selectTurnoEmpleado" class="form-label">Turno:</label>
+                                                        <select name="selectTurnoEmpleado" id="selectTurnoEmpleado" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="horasTrabajadas" class="form-label">Horas trabajadas:</label>
+                                                        <input type="number" name="horasTrabajadas" id="horasTrabajadas" placeholder="Horas Trabajadas" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="diasTrabajados" class="form-label">Dias trabajados:</label>
+                                                        <input type="number" name="diasTrabajados" id="diasTrabajados" placeholder="Dias Trabajados" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="capacitado" class="form-label">Capacitado:</label>
+                                                        <div class="inline-radio" id="capacitadoP">
+                                                            <div><input type="radio" name="capacitado" value="1"><label class="text-center">Si</label></div>
+                                                            <div><input type="radio" name="capacitado" value="0"><label class="text-center">No</label></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="accidentesAnteriores" class="form-label">Accidentes anteriores:</label>
+                                                        <div class="inline-radio" id="accidentesA">
+                                                            <div><input type="radio" name="accidentesAnteriores" value="1"><label class="text-center">Si</label></div>
+                                                            <div><input type="radio" name="accidentesAnteriores" value="0"><label class="text-center">No</label></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-4 col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="claveSupervisor" class="form-label">Clave Supervisor:</label>
+                                                        <input type="text" name="claveSupervisor" id="claveSupervisor" class="form-control" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-5 col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="supervisorCargo" class="form-label">Supervisor a cargo:</label>
+                                                        <input type="text" name="supervisorCargo" id="supervisorCargo" disabled class="form-control validar" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row campoInformePreliminar">
+                                                <div class="col-sm-4 col-md-3">
+                                                    <label for="claveEmpleadoInformo" class="form-label">Clave Empleado Informó:</label>
+                                                    <input type="text" name="claveEmpleadoInformo" id="claveEmpleadoInformo" placeholder="" class="form-control validarPreliminar claveEmpleadoInformo" />
+                                                </div>
+
+                                                <div class="col-sm-8 col-md-7">
+                                                    <label for="nombreEmpleadoInformo" class="form-label">Nombre Empleado Informó:</label>
+                                                    <input type="text" name="nombreEmpleadoInformo" id="nombreEmpleadoInformo" disabled class="form-control validar" />
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <label for="txtFechaInforme" class="form-label">Fecha Informe:</label>
+                                                    <input id="txtFechaInforme" name="txtFechaInforme" class="form-control validar" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Generales del Accidente -->
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading" id="headingTwo">
+                            <h3>
+                                <a href="#collapseDatosGenerales" data-toggle="collapse" data-parent="#accordion">Datos Generales del Accidente</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseDatosGenerales" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-3">
+                                                    <label for="selectTipoAccidente" class="form-label">Tipo Accidente:</label>
+                                                    <select name="selectTipoAccidente" id="selectTipoAccidente" class="form-control select2 validar" style="width: 100%"></select>
+                                                </div>
+
+                                                <div class="col-sm-1 col-md-2 col-lg-2">
+                                                    <label class="text-center">¿Es externo?:</label>
+                                                    <div class="inline-radio" id="clienteIE">
+                                                        <div><input type="radio" name="empresa" value="1"><label class="text-center">Si</label></div>
+                                                        <div><input type="radio" name="empresa" value="0"><label class="text-center">No</label></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4 col-md-4">
+                                                    <div class="form-group" id="cboSelectCC">
+                                                        <label for="selectCC" id="lblCC" class="form-label">Centro costo:</label>
+                                                        <select type="text" name="selectCC" id="selectCC" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4 col-md-3 col-lg-3">
+                                                    <div class="form-group" id="cboSelectContratista">
+                                                        <label for="selectContratista" class="form-label">Contratista:</label>
+                                                        <select type="text" name="selectContratista" id="selectContratista" class="form-control select2" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row" id="divSubclasificacion">
+                                                <div class="col-sm-12 col-md-3">
+                                                    <label for="selectSubclasificacionIncidente" class="form-label">Subclasificación Incidente:</label>
+                                                    <select id="selectSubclasificacionIncidente" name="selectSubclasificacionIncidente" class="form-control select2" style="width: 100%"></select>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row">
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectDepartamento" class="form-label">Departamento:</label>
+                                                        <select name="selectDepartamento" id="selectDepartamento" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="lugarAccidente" class="form-label">Lugar Accidente:</label>
+                                                        <input type="text" name="lugarAccidente" id="lugarAccidente" placeholder="Lugar Accidente" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="fechaAccidente" class="form-label">Fecha Accidente:</label>
+                                                        <input type="text" name="fechaAccidente" id="fechaAccidente" placeholder="Fecha Accidente" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectTipoLesion" class="form-label">Tipo de lesión:</label>
+                                                        <select name="selectTipoLesion" id="selectTipoLesion" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row">
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectParteCuerpo" class="form-label">Parte del cuerpo:</label>
+                                                        <select name="selectParteCuerpo" id="selectParteCuerpo" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="actividadRutinaria" class="form-label">Actividad Rutinaria</label>
+                                                        <div class="inline-radio" id="actividadR">
+                                                            <div><input type="radio" name="actividadRutinaria" value="1"><label class="text-center">Si</label></div>
+                                                            <div><input type="radio" name="actividadRutinaria" value="0"><label class="text-center">No</label></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4 col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="selectAgenteImplicado" class="form-label">Objeto/Equipo/Substancia causante:</label>
+                                                        <select name="selectAgenteImplicado" id="selectAgenteImplicado" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="trabajoPlaneado" class="form-label">El trabajo fue planeado</label>
+                                                        <div class="inline-radio" id="trabajoP">
+                                                            <div><input type="radio" name="trabajoPlaneado" value="1"><label class="text-center">Si</label></div>
+                                                            <div><input type="radio" name="trabajoPlaneado" value="0"><label class="text-center">No</label></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row">
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="trabajoRealizaba" class="form-label">Trabajo que realizaba</label>
+                                                        <input type="text" name="trabajoRealizaba" id="trabajoRealizaba" placeholder="Trabajo que realizaba" class="form-control validar" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="selectTipoContacto" class="form-label">Tipo de contacto</label>
+                                                        <select name="selectTipoContacto" id="selectTipoContacto" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="protocoloTrabajo" class="form-label">Protocolo de trabajo</label>
+                                                        <select name="selectProtocoloTrabajo" id="selectProtocoloTrabajo" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción del Accidente -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingThree">
+                            <h3>
+                                <a href="#collapseDescripcionAccidente" data-toggle="collapse" data-parent="#accordion">Descripción del Accidente</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseDescripcionAccidente" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="descripcionAccidente" class="form-label">Limitarse a contestar: <b>¿Qué hacia? y ¿Cómo pasó?</b></label>
+                                                        <textarea class="form-control validar" name="descripcionAccidente" id="descripcionAccidente" cols="12" rows="2"></textarea>
+                                                        <small style="color: red;">Toda información extra en la descripción, es innecesaria y desvía la objetividad de la investigación. </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12 campoInformePreliminar">
+                                            <!-- <label for="txtAccionInmediata" class="form-label">Acción correctiva / preventiva realizada inmediatamente:</label> -->
+                                            <label for="txtAccionInmediata" class="form-label">Acciones Inmediatas y Pronostico de Lesión o Daños:</label>
+                                            <textarea id="txtAccionInmediata" class="form-control validarPreliminar" name="txtAccionInmediata" rows="3" style="width: 100%;"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row campoInformePreliminar">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <label class="text-center">Procedimientos Violados</label>
+                                            <select id="selectProcedimientosViolados" class="formo-control select2" multiple style="width: 100%"></select>
+                                        </div>
+                                        @*<div class="col-sm-4 col-md-4 col-lg-4">
+                                            <label class="text-center">¿Es accidente investigable?:</label>
+                                            <div class="inline-radio" id="divAplicaRIA">
+                                                <div><input type="radio" name="aplicaRIA" value="1"><label class="text-center">Si</label></div>
+                                                <div><input type="radio" name="aplicaRIA" value="0"><label class="text-center">No</label></div>
+                                            </div>
+                                        </div>*@
+                                    </div>
+                                    <!-- <div class="row campoInformePreliminar">
+                                        <div id="divNoRIA">
+                                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                                <label for="selectRiesgo" class="form-label">Evaluación de Riesgo:</label>
+                                                <select id="selectRiesgo" name="selectRiesgo" class="form-control select2 validarPreliminar" style="width: 100%"></select>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evaluación de la perdida si no es corregida -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingFour">
+                            <h3>
+                                <a href="#collapseEvaluacion" data-toggle="collapse" data-parent="#accordion">Evaluación de la perdida si no es corregida</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseEvaluacion" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-3">
+                                                    <label class="text-center">Consecuencias (C)</label>
+                                                    <div class="inline-radio">
+                                                        <div><input type="radio" name="consecuencias" value="3"><label class="text-center">Alta <br> [3] </label></div>
+                                                        <div><input type="radio" name="consecuencias" value="2"><label class="text-center">Media <br> [2] </label></div>
+                                                        <div><input type="radio" name="consecuencias" value="1"><label class="text-center">Baja <br> [1] </label></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3 col-md-3">
+                                                    <label class="text-center">Probabilidad de Ocurrencia (P)</label>
+                                                    <div class="inline-radio">
+                                                        <div><input type="radio" name="probabilidadOcurrencia" value="3"><label class="text-center">Alta <br> [3] </label></div>
+                                                        <div><input type="radio" name="probabilidadOcurrencia" value="2"><label class="text-center">Media <br> [2] </label></div>
+                                                        <div><input type="radio" name="probabilidadOcurrencia" value="1"><label class="text-center">Baja <br> [1] </label></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-5 col-md-5">
+                                                    <label class="text-center">Riesgo (P x C)</label>
+                                                    <div id="divRadioRiesgo" class="inline-radio">
+                                                        <div><input type="radio" name="riesgoPxC" value="1" disabled><label class="text-center">Leve <br> [1] </label></div>
+                                                        <div><input type="radio" name="riesgoPxC" value="2" disabled><label class="text-center">Tolerable <br> [2] </label></div>
+                                                        <div><input type="radio" name="riesgoPxC" value="3" disabled><label class="text-center">Moderado <br> [3-4] </label></div>
+                                                        <div><input type="radio" name="riesgoPxC" value="6" disabled><label class="text-center">Critico <br> [6] </label></div>
+                                                        <div><input type="radio" name="riesgoPxC" value="9" disabled><label class="text-center">Intolerable <br> [9] </label></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divSeccion2">
+                    <!-- Grupo de Trabajo para la investigación -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingFive">
+                            <h3>
+                                <a href="#collapseGrupoTrabajo" data-toggle="collapse" data-parent="#accordion">Grupo de Trabajo para la investigación</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseGrupoTrabajo" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <small>(En la investigación deben participar mínimo cinco personas e integrantes de la Comisión de Seguridad e Higiene C.S.H.) </small>
+
+                                            <div>
+                                                <ul class="nav navbar-nav pull-right">
+                                                    <li><button class="btn btn-sm btn-success" id="addRowGrupoInvestigacion">+</button></li>
+                                                    <li><button class="btn btn-sm btn-danger" id="deleteRowGrupoInvestigacion">-</button></li>
+                                                </ul>
+                                            </div>
+
+                                            <br>
+
+                                            <table id="tblGrupoInvestigacion" class="table table-responsive">
+                                                <thead style="background-color:#f65300;">
+                                                    <tr>
+                                                        <th width="25%" class="text-center">Nombre</th>
+                                                        <th width="25%" class="text-center">Puesto</th>
+                                                        <th width="25%" class="text-center">Departamento</th>
+                                                        <th width="25%" class="text-center">Externo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="grupoInvestigacion">
+                                                    <tr>
+                                                        <td><input type="text" class="form-control nombreInvestigacion" placeholder="*"></td>
+                                                        <td><label class="puestoInvestigacion"></label></td>
+                                                        <td><label class="departamentoInvestigacion"></label></td>
+                                                        <td><input type="checkbox" class="form-control esExterno"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control nombreInvestigacion" placeholder="*"></td>
+                                                        <td><label class="puestoInvestigacion"></label></td>
+                                                        <td><label class="departamentoInvestigacion"></label></td>
+                                                        <td><input type="checkbox" class="form-control esExterno"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control nombreInvestigacion" placeholder="*"></td>
+                                                        <td><label class="puestoInvestigacion"></label></td>
+                                                        <td><label class="departamentoInvestigacion"></label></td>
+                                                        <td><input type="checkbox" class="form-control esExterno"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control nombreInvestigacion" placeholder="*"></td>
+                                                        <td><label class="puestoInvestigacion"></label></td>
+                                                        <td><label class="departamentoInvestigacion"></label></td>
+                                                        <td><input type="checkbox" class="form-control esExterno"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control nombreInvestigacion" placeholder="*"></td>
+                                                        <td><label class="puestoInvestigacion"></label></td>
+                                                        <td><label class="departamentoInvestigacion"></label></td>
+                                                        <td><input type="checkbox" class="form-control esExterno"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orden Cronologico del Accidente -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingSix">
+                            <h3>
+                                <a href="#collapseOrdenCronologico" data-toggle="collapse" data-parent="#accordion">Orden Cronologico del Accidente</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseOrdenCronologico" class="panel-collapse collapse">
+                            <div class="panel-body">
+
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="instruccionTrabajo" class="form-label">¿Cómo fue girada la instrucción de trabajo al empleado?</label>
+                                                        <input type="text" name="instruccionTrabajo" id="instruccionTrabajo" class="form-control validar" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="explicacionManera" class="form-label">¿Por qué se hizo de esa manera?</label>
+                                                        <input type="text" name="explicacionManera" id="explicacionManera" class="form-control validar" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+
+                                                    <div>
+                                                        <ul class="nav navbar-nav pull-right">
+                                                            <li><button class="btn btn-sm btn-success" id="addRowOrdenCronologico">+</button></li>
+                                                            <li><button class="btn btn-sm btn-danger" id="deleteRowOrdenCronologico">-</button></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <table id="tblOrdenCronologico" class="table table-responsive">
+                                                        <thead style="background-color:#f65300;">
+                                                            <tr>
+                                                                <th class="text-center">Menciona paso a paso, como se presentarón los sucesos hasta el momento del accidente. (Mínimo 5 pasos)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="ordenCronologico">
+                                                            <tr>
+                                                                <td><input type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="text" class="form-control"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><input type="text" class="form-control"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Técnica de Investigación -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingSeven">
+                            <h3>
+                                <a href="#collapseTecnicaInvestigacion" data-toggle="collapse" data-parent="#accordion">Técnica de Investigación</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseTecnicaInvestigacion" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="selectTecnicasInvestigacion" class="form-label">Técnica aplicada:</label>
+                                                        <select name="selectTecnicasInvestigacion" id="selectTecnicasInvestigacion" class="form-control select2 validar" style="width: 100%"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analisis de Causas -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingEight">
+                            <h3>
+                                <a href="#collapseAnalisisCausa" data-toggle="collapse" data-parent="#accordion">Analisis de Causas</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseAnalisisCausa" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+
+                                                        <div>
+                                                            <ul class="nav navbar-nav pull-right">
+                                                                <li><button class="btn btn-sm btn-success" id="addRowEventoDetonador">+</button></li>
+                                                                <li><button class="btn btn-sm btn-danger" id="deleteRowEventoDetonador">-</button></li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <br>
+
+                                                        <table id="tblEventoDetonador" class="table table-responsive">
+                                                            <thead style="background-color:#f65300;">
+                                                                <tr>
+                                                                    <th class="text-center">Evento detonador</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="eventoDetonador">
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+
+                                                        <div>
+                                                            <ul class="nav navbar-nav pull-right">
+                                                                <li><button class="btn btn-sm btn-success" id="addRowCausaInmediata">+</button></li>
+                                                                <li><button class="btn btn-sm btn-danger" id="deleteRowCausaInmediata">-</button></li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <br>
+
+                                                        <table id="tblCausaInmediata" class="table table-responsive">
+                                                            <thead style="background-color:#f65300;">
+                                                                <tr>
+                                                                    <th class="text-center">Causa Inmediata</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="causaInmediata">
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+
+                                                        <div>
+                                                            <ul class="nav navbar-nav pull-right">
+                                                                <li><button class="btn btn-sm btn-success" id="addRowCausaBasica">+</button></li>
+                                                                <li><button class="btn btn-sm btn-danger" id="deleteRowCausaBasica">-</button></li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <br>
+
+                                                        <table id="tblCausaBasica" class="table table-responsive">
+                                                            <thead style="background-color:#f65300;">
+                                                                <tr>
+                                                                    <th class="text-center">Causa basica</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="causaBasica">
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-group">
+
+                                                        <div>
+                                                            <ul class="nav navbar-nav pull-right">
+                                                                <li><button class="btn btn-sm btn-success" id="addRowCausaRaiz">+</button></li>
+                                                                <li><button class="btn btn-sm btn-danger" id="deleteRowCausaRaiz">-</button></li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <br>
+
+                                                        <table id="tblCausaRaiz" class="table table-responsive">
+                                                            <thead style="background-color:#f65300;">
+                                                                <tr>
+                                                                    <th class="text-center">Causa Raiz</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="causaRaiz">
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medidas de Control -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="headingNine">
+                            <h3>
+                                <a href="#collapseMedidasControl" data-toggle="collapse" data-parent="#accordion">Medidas de Control</a>
+                            </h3>
+                        </div>
+
+                        <div id="collapseMedidasControl" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <fieldset>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-12">
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                                    <div class="form-group">
+                                                        <label for="inputLugarJunta" class="form-label">¿Lugar de la junta?</label>
+                                                        <input type="text" name="inputLugarJunta" id="inputLugarJunta" class="form-control" placeholder="Lugar donde se hará la minuta" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <div class="form-group">
+                                                        <label for="inputFechaJunta" class="form-label">Fecha</label>
+                                                        <input type="text" name="inputFechaJunta" id="inputFechaJunta" class="form-control" placeholder="Fecha de la junta" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                                    <div class="form-group">
+                                                        <label for="inputHoraInicio" class="form-label">Hora inicio</label>
+                                                        <input type="text" name="inputHoraInicio" id="inputHoraInicio" class="form-control" placeholder="00:00" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-lg-3">
+                                                    <div class="form-group">
+                                                        <label for="inputHoraFin" class="form-label">Hora fin</label>
+                                                        <input type="text" name="inputHoraFin" id="inputHoraFin" class="form-control" placeholder="00:00" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12">
+
+                                                    <div>
+                                                        <ul class="nav navbar-nav pull-right">
+                                                            <li><button class="btn btn-sm btn-success" id="addRowMedidasControl">+</button></li>
+                                                            <li><button class="btn btn-sm btn-danger" id="deleteRowMedidasControl">-</button></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <table id="tblMedidasControl" class="table table-responsive">
+                                                        <thead style="background-color:#f65300;">
+                                                            <tr>
+                                                                <th width="40%" class="text-center">Acciones Preventivas y/o Correctivas </th>
+                                                                <th width="15%" class="text-center">Fecha Cump.</th>
+                                                                <th width="30%" class="text-center">Responsable</th>
+                                                                <th width="15%" class="text-center">Prioridad</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="medidasControl">
+                                                            <tr>
+                                                                <td><textarea rows="3" class="form-control"></textarea></td>
+                                                                <td><input type="text" class="form-control fechaCump"></td>
+                                                                <td><input class="form-control responsableMedidasControl" placeholder="*"></td>
+                                                                <td><select class="form-control select2 selectPrioridadMedidas" style="width: 100%"></select></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><textarea rows="3" class="form-control"></textarea></td>
+                                                                <td><input type="text" class="form-control fechaCump"></td>
+                                                                <td><input class="form-control responsableMedidasControl" placeholder="*"></td>
+                                                                <td><select class="form-control select2 selectPrioridadMedidas" style="width: 100%"></select></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><textarea rows="3" class="form-control"></textarea></td>
+                                                                <td><input type="text" class="form-control fechaCump"></td>
+                                                                <td><input class="form-control responsableMedidasControl" placeholder="*"></td>
+                                                                <td><select class="form-control select2 selectPrioridadMedidas" style="width: 100%"></select></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><textarea rows="3" class="form-control"></textarea></td>
+                                                                <td><input type="text" class="form-control fechaCump"></td>
+                                                                <td><input class="form-control responsableMedidasControl" placeholder="*"></td>
+                                                                <td><select class="form-control select2 selectPrioridadMedidas" style="width: 100%"></select></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><textarea rows="3" class="form-control"></textarea></td>
+                                                                <td><input type="text" class="form-control fechaCump"></td>
+                                                                <td><input class="form-control responsableMedidasControl" placeholder="*"></td>
+                                                                <td><select class="form-control select2 selectPrioridadMedidas" style="width: 100%"></select></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="divSeccion3">
+                    <!-- Botón Agregar Evidencias -->
+                    <div class="col-sm-8 col-md-8 col-lg-8" style="padding-left: 0px;">
+                        <button id="btnModalEvidencias" title="Agregar Evidencias" class="evidencias btn btn-primary" type="button">
+                            <i class="fas fa-camera"></i>&nbsp;&nbsp;Agregar Evidencias
+                        </button>
+                    </div>
+                </div>
+
+                <!-- GUARDAR -->
+                <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 10px; margin-bottom: 10px;">
+                    <div class="text-center">
+                        <button class="btn btn-md btn-success" id="btnGuardar">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEmpleado" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Datos empleado subcontratista</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="nombreEmpleadoModal" class="form-label">Nombre:</label>
+                            <input type="text" name="nombreEmpleadoModal" id="nombreEmpleadoModal" class="form-control nuevoEmpleado" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="fechaNacimientoEmpleadoModal" class="form-label">Fecha nacimiento:</label>
+                            <input type="text" name="fechaNacimientoEmpleadoModal" id="fechaNacimientoEmpleadoModal" class="form-control nuevoEmpleado" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="puestoEmpleadoModal" class="form-label">Puesto:</label>
+                            <input type="text" name="puestoEmpleadoModal" id="puestoEmpleadoModal" class="form-control nuevoEmpleado" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarEmpleado">Guardar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="modalEvidencias" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Evidencias <i class="fas fa-images"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button class="btn btn-primary" id="botonAgregarEvidencia">
+                            <i class="fas fa-plus-square"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><label>Evidencias:</label></legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaEvidencias" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-arrow-right"></i> Continuar
+                </button>
+                <!-- <button class="btn btn-primary" id="botonGuardarEvidencias">
+                    <i class="fas fa-save"></i> Guardar
+                </button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

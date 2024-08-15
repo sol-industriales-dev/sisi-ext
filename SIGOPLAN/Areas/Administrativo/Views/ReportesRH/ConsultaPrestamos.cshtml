@@ -1,0 +1,178 @@
+@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@* <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" /> *@
+@* <link href="~/Content/style/default/easyui.css" rel="stylesheet" /> *@
+<link href="~/Content/style/css/Catalogos/AnexosMaquinariaStyle.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+@* <link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" /> *@
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Prestamos/Generales.css" rel="stylesheet" />
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>CONSULTA DE PRESTAMOS</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label>CC:</label>
+                            <select class="form-control no-padding" multiple="multiple" id="cboCC2"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label> Tipo de prestamo:</label>
+                            <select class="form-control" id="filtroTipoPrestamo">
+                                <option value="">--Seleccione--</option>
+                                <option value="SINDICATO">SINDICATO</option>
+                                <option value="EMPRESA">EMPRESA</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Estatus:</label>
+                            <select class="form-control" id="filtroStatus">
+                                <option value="">--Seleccione--</option>
+                                <option value="P">PENDIENTE</option>
+                                <option value="A">AUTORIZADO</option>
+                                <option value="R">RECHAZADO</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Monto de prestamo:</label>
+                            <select class="form-control" id="filtroMonto">
+                                <option value="">--Seleccione--</option>
+                                <option value="9999">Menor a $10,000.00</option>
+                                <option value="10000">Mayor o igual $10,000.00</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Fecha inicio:</label>
+                            <input type="text" class="form-control" id="filtroFechaInicio">
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="">Fecha fin:</label>
+                            <input type="text" class="form-control" id="filtroFechaFin">
+                        </div>
+                        <div class="col-lg-3">
+                            <button type=" button" class="btn btn-info margin-top" id="btnBuscarPrestamo"><span class="glyphicon glyphicon-search"></span>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tblPrestamos" class="table table-condensed table-hover table-striped text-center"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL ARCHIVOS ADJUNTOS -->
+<div id='mdlArchivos' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>ARCHIVOS</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="pull-left">
+                        <input type="file" id="txtArchivoAdjunto">
+                    </div><br><br>
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tablaArchivosAdjuntos" class="table stripe compact nowrap" style="width:99%;"></table>
+                        </div><br><br>
+                    </div>
+                    <div class="pull-right">
+                        <button id="btnGuardarArchivoAdjunto" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ARCHIVOS ADJUNTOS -->
+
+<!-- MODAL LISTADO DE AUTORIZANTES -->
+<div id='mdlListadoAutorizantes' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Autorizantes</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row seccion'>
+                    <div class="col-lg-12">
+                        <table id="tblListadoAutorizantes"
+                            class="table table-hover table-bordered compact table-striped"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE AUTORIZANTES -->
+
+@Html.Partial("reportViewerView", false)
+@Html.Action("_visorGrid")
+
+@* <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+    <script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script> *@
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/ReportesRH/Prestamos.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>

@@ -1,0 +1,273 @@
+﻿@{
+    var Menu = new SIGOPLAN.Controllers.BaseController();
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    //Layout = "~/Views/Shared/_LayoutPageV2.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+    var EmpresaID = Base.getEmpresaID();
+
+}
+
+<input id="inputEmpresaActual" value="@EmpresaID" style="display:none;">
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+
+<style>
+    #tablaFacultamientosFacturas_wrapper thead tr {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f) !important;
+    }
+
+    #tablaFacultamientosFacturas {
+        font-size: 12px;
+    }
+</style>
+
+
+@if (!Base.getAction("VistaCalendario"))
+{
+    <div class="row noMostrarMobile">
+        <center>
+            @if (EmpresaID == 1)
+            {
+                <img src="@Url.Content("~/Content/img/logo/logo0.png")" style="width:200px;">
+                @*<img src="~/Content/img/Logos/EMPRESA_CONSTRUPLAN.png" style="width: 200px;" />*@
+            }
+            else if (EmpresaID == 2)
+            {
+                <img src="@Url.Content("~/Content/img/logo/arrendadora.png")" style="width:200px;">
+                @*<img src="~/Content/img/Logos/EMPRESA_ARRENDADORA.png" style="width: 200px;" />*@
+            }
+            else if (EmpresaID == 3)
+            {
+                <img src="@Url.Content("~/Content/img/logo/colombia.png")" style="width:200px;">
+                @*<img src="~/Content/img/Logos/EMPRESA_COLOMBIA.png" style="width: 200px;" />*@
+            }
+            else if (EmpresaID == 4)
+            {
+                <img src="@Url.Content("~/Content/img/logo/cei.png")" style="width:200px;">
+            }
+            else if (EmpresaID == 5)
+            {
+                <img src="@Url.Content("~/Content/img/logo/integradora.png")" style="width:200px;">
+            }
+            else if (EmpresaID == 6)
+            {
+                
+                <img src="~/Content/img/Logos/EMPRESA_PERU.png" style="width: 200px;" />
+            }
+            else
+            {
+                <img src="@Url.Content("~/Content/img/logo/logo0.png")" style="width:200px;">
+            }
+        </center>
+    </div>
+    <div class="modal-body modal-body-ppal text-center modal-content-tamaño fondo flexContainer">
+
+        <div class="PanelMenuppal noMostrarMobile">
+            <div id="divMenuAccesoPpal" class="row text-center">
+
+            </div>
+        </div>
+
+        <!-- Menú para versión móvil -->
+    <div class="container-fluid width100 mostrarMobile noPadding">
+            <div class="row">
+                <div class="col-xs-12 noPadding">
+                    <div class="panel-group" id="accordion">
+
+                        <!-- Panel Compras -->
+                    <div class="panel panel-default">
+
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <i class="fas fa-money-bill"></i><br> Compras
+                                    </a>
+                                </h4>
+                            </div>
+
+                            <div id="collapseOne" class="panel-collapse collapse">
+
+                                <!-- Acordeón Compras -->
+                            <div class="panel-group" id="accordionCompras">
+
+                                    <!-- Subpanel Requisición -->
+                                <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="loadsData" tipoautorizacion=1 loaded=0 active=0 data-toggle="collapse" data-parent="#accordionCompras" href="#collapseRequisiciones">
+                                                    Requisiciones
+                                                </a>
+                                                <span class="pull-right checkAll"><i class="fas fa-check-double"></i></span>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseRequisiciones" class="panel-collapse collapse scrolleable">
+                                            <table tipoautorizacion=1 id="tablaReq" class="table table-condensed theadFixed"></table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subpanel Órdenes de Compra -->
+                                <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="loadsData" tipoautorizacion=2 loaded=0 active=0 data-toggle="collapse" data-parent="#accordionCompras" href="#collapseOC">
+                                                    Órdenes de Compra
+                                                </a>
+                                                <span class="pull-right checkAll"><i class="fas fa-check-double"></i></span>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseOC" class="panel-collapse collapse scrolleable">
+                                            <table tipoautorizacion=2 id="tablaOC" class="table table-condensed theadFixed">
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- Fin Acordeón Compras -->
+
+                        </div>
+                        </div>
+
+                        <!-- Panel Capital Humano -->
+                    <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                        <i class="fas fa-users"></i><br> Capital Humano
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="panel-collapse collapse">
+
+                                <!-- Acordeón Capital Humano -->
+                            <div class="panel-group" id="accordionCH">
+
+                                    <!-- Subpanel Requisición -->
+                                <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="loadsData" tipoautorizacion=3 loaded=0 active=0 data-toggle="collapse" data-parent="#accordionCH" href="#collapseFormato">
+                                                    Requisiciones<span class="badge">2</span>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseFormato" class="panel-collapse collapse">
+                                            <ul class="list-group" tipoautorizacion=3>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                                <li class="list-group-item">Formato de Cambio</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subpanel Aditiva / Deductiva -->
+                                <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="loadsData" tipoautorizacion=4 loaded=0 active=0 data-toggle="collapse" data-parent="#accordionCH" href="#collapseAditiva">
+                                                    Órdenes de Compra<span class="badge">6</span>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseAditiva" class="panel-collapse collapse">
+                                            <ul class="list-group" tipoautorizacion=4>
+                                                <li class="list-group-item">Aditiva 1</li>
+                                                <li class="list-group-item">Aditiva 2</li>
+                                                <li class="list-group-item">Aditiva 3</li>
+                                                <li class="list-group-item">Aditiva 4</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subpanel Órdenes de Compra -->
+                                <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="loadsData" tipoautorizacion=5 loaded=0 active=0 data-toggle="collapse" data-parent="#accordionCH" href="#collapsePlantilla">
+                                                    Plantilla Personal<span class="badge">6</span>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapsePlantilla" class="panel-collapse collapse">
+                                            <ul class="list-group" tipoautorizacion=5>
+                                                <li class="list-group-item">Plantilla 1</li>
+                                                <li class="list-group-item">Plantilla 2</li>
+                                                <li class="list-group-item">Plantilla 3</li>
+                                                <li class="list-group-item">Plantilla 4</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- Fin Acordeón Capital Humano -->
+
+                        </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- <button id="botonGoTop" class="btn btn-primary btn-sm"><i class="fas fa-arrow-alt-circle-up"></i></button> -->
+        <button id="botonAutorizar" class="btn btn-primary btn-sm">Autorizar</button>
+
+        </div>
+        <!-- Fin menú móvil -->
+
+</div>
+
+    <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+}
+else
+{
+    @RenderPage("~/Areas/Administrativo/Views/ReservacionVehiculo/Calendario.cshtml")
+}
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/js/SISTEMA/MenuPrincipalSistemasJS.js")"></script>
+
+<div id='mdlCapturaTipoCambio' class='modal fade' role='dialog' data-backdrop="static" data-keyboard="false">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header modal-bg text-center'>
+                <h1 class='modal-title'><i class='fas fa-dollar'></i>Tipo Cambio</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    @Html.Action("_capturaTipoCambio", "TipoCambio", new { Area = "Administrativo" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFacultamientosFacturas" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="labelModalFacultamientosFacturasTitulo"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12" style="margin-top: 10px; margin-bottom: 10px;">
+                        <h4><label id="labelMensajeFacultamientosFacturas" style="color: red;"></label></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaFacultamientosFacturas" class="table compact hover" style="width: 100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,197 @@
+﻿@{
+ViewBag.Title = "CapturaColaboradores";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/IndicadoresSeguridad/CapturaColaboradores.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/CapturaColaboradores.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<style>
+    .select2-selection {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 34px !important;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Captura Informacion Colaboradores</h2>
+    </div>
+
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+            <fieldset class="fieldset-custm">
+                <div class="row container-fluid">
+                    <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                        <legend class="legend-custm">Filtros:</legend>
+                        <div class="input-group col-md-12">
+                            <div class="col-lg-3">
+                                <label>Centro Costo:</label>
+                                <select class="form-control select2" id="selectCCFiltros"></select>
+                            </div>
+
+                            <div class='col-md-4 col-lg-4'>
+                                <label>Fecha:</label>
+                                <div class='input-group'>
+                                    <input id="txtFechaInicio" class="form-control" />
+                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                    <input id="txtFechaFin" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4" style="padding-left: 0px;">
+                                <button type="button" class="btn btn-primary" id="btnBuscar" style="margin-top: 24px; margin-right: 5px;">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+
+                                <button type="button" class="btn btn-primary" id="btnRegistrar" style="margin-top: 24px; margin-right: 5px;">
+                                    <span class="glyphicon glyphicon-plus"></span> Registrar Nuevo
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                            <legend class="legend-custm"></legend>
+                            <br>
+
+                            <table id="tblcolaboradores" class="table">
+                                <thead>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistro" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 60%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Información Colaboradores</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Centro Costo:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <select id="selectCCRegistro" class="form-control select2" style="width: 100%"></select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Horas Hombre:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input id="txtHorasHombre" class="form-control" type="number" disabled>
+                    </div>
+                </div>
+                <input type="checkbox" id="chkEsContratista" style="margin-top:9px;" /> <span id="lblContratista">Contratista</span> <!-- CONTROL PARA VERIFICAR SI ES CONTRATISTA -->
+                @* <input type="checkbox" id="chkEsContratista" data-on="Contratista" data-off="Construplan"> *@
+                <button type="button" id="btnAddPersonal" class="pull-right" style="font-size:medium; margin-top:2px;">
+                    <span class="glyphicon glyphicon-plus"></span> Agregar Personal
+                </button>
+
+                <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%;" border="1" id="tablaPadre">
+                    <thead class="bg-table-header table-responsive" style="text-align:center">
+                        <tr>
+                            <th>Cve.Emp</th>
+                            <th>Nombre</th>
+                            <th>LostDayEmp</th>
+                            <th>Clasificación</th>
+                            <th>Gestión</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblPlantilla"></tbody>
+                </table>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Lost Day:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        @*<input id="txtLostDay" class="form-control" type="number" />*@
+                        <div class="input-group">
+                            <input id="txtLostDay" type="text" class="form-control" aria-label="...">
+                            <span class="input-group-addon">
+                                <input type="checkbox" id="chkLost" aria-label="...">
+                            </span>
+                        </div><!-- /input-group -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Rango Fecha:</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <input id="txtFechaInicio" class="form-control" disabled />
+                    </div>
+                    <div class="col-lg-6">
+                        <input id="txtFechaFin" class="form-control" disabled />
+                    </div>
+                </div>
+                <div id="rowTablaHHT" class="row" style="display: none;">
+                    <div class="col-lg-12">
+                        <table id="tablaHHT" class="table table-bordered compact" width="100%"></table>
+                    </div>
+                    <div class="col-lg-12">
+                        <label id="labelTotalHoras" class="pull-right">Total Horas: 0</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnGetDatos" style="display: none;">Calcular horas</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarRegistro">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,166 @@
+﻿
+@{
+    ViewBag.Title = "BajaActivoFijo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<style>
+    .glyphicon-ok-sign {
+        color: green;
+        font-size: 20px;
+    }
+
+    table, td, th {
+        text-align: center;
+        border: 1px solid black;
+    }
+
+    .bg-table-header {
+        background-color: #EB7B0B !important;
+    }
+</style>
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Catalogo/BajaActivoFijoJS.js"></script>
+<div class="row">
+    <h2 class="text-center">Relación de Bajas del Módulo de Activo Fijo</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                <label>Tipo baja:</label>
+                <select class="form-control" id="cboTipo"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Inicio:</label>
+                <input class="form-control" id="dpInicio" type="text" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Fin:</label>
+                <input class="form-control" id="dpFin" type="text" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                <button type="button" class="btn btn-info margin-top" id="btnBuscar" style=" margin-left: 10px;">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+                <button type="button" class="btn btn-info margin-top hidden" id="btnImprimir">
+                    <span class="glyphicon glyphicon-print"></span> Imprimir
+                </button>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                <table class="table-condensed table-hover text-center no-margin">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <td colspan="2">
+                                Criterios para venta de equipo
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Grupo de máquina</td>
+                            <td>Mayor o igual a </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TC, MC, CF, CAR, EX</td>
+                            <td>15,000 hrs.</td>
+                        </tr>
+                        <tr>
+                            <td>CPT, RX, PV, BA, PF, BM</td>
+                            <td>12,000 hrs</td>
+                        </tr>
+                        <tr>
+                            <td>Equipo de transporte</td>
+                            <td>250,000 kms.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-lg-12 ">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Resultados Búsqueda:</legend>
+            <table id="tblInventario" class="table table-condensed table-hover text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="Economico" data-align="center" data-header-align="center">No Economico</th>
+                        <th data-column-id="Descripcion" data-align="center" data-header-align="center">Tipo Maquinaria</th>
+                        <th data-column-id="Horometro" data-align="center" data-header-align="center">Kilometraje / Horómetro</th>
+                        <th data-column-id="Promedio" data-formatter="Promedio" data-align="center" data-header-align="center">Promedio kilometraje / horómetro</th>
+                        <th data-column-id="NoAsignado" data-formatter="NoAsignado" data-align="center" data-header-align="center">No Asignado</th>
+                        <th data-column-id="VentaInterna" data-formatter="VentaInterna" data-align="center" data-header-align="center">Venta Interna</th>
+                        <th data-column-id="VentaExterna" data-formatter="VentaExterna" data-align="center" data-header-align="center">Venta Externa</th>
+                        <th data-column-id="TerminoVida" data-formatter="TerminoVida" data-align="center" data-header-align="center">Término de Vida Útil</th>
+                        <th data-column-id="Siniestro" data-formatter="Siniestro" data-align="center" data-header-align="center">Siniestro</th>
+                        <th data-column-id="Robo" data-formatter="Robo" data-align="center" data-header-align="center">Robo</th>
+                    </tr>
+                </thead>
+            </table>
+            <table class="table table-condensed table-hover text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th colspan="2">Concepto</th>
+                        <th>No Asignado</th>
+                        <th>Venta Interna</th>
+                        <th>Venta Externa</th>
+                        <th>Término de Vida Útil</th>
+                        <th>Siniestro</th>
+                        <th>Robo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <label>TOTAL</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlNoAsignado">0</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlExterna">0</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlInterna">0</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlTermino">0</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlSiniestro">0</label>
+                        </td>
+                        <td>
+                            <label id="lblTtlRobo">0</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label>% RELATIVO</label>
+                        </td>
+                        <td>
+                            <label id="lblP2NoAsignado">0,00 %</label>
+                        </td>
+                        <td>
+                            <label id="lblP2Externa">0,00 %</label>
+                        </td>
+                        <td>
+                            <label id="lblP2Interna">0,00 %</label>
+                        </td>
+                        <td>
+                            <label id="lblP2Termino">0,00 %</label>
+                        </td>
+                        <td>
+                            <label id="lblP2Siniestro">0,00 %</label>
+                        </td>
+                        <td>
+                            <label id="lblP2Robo">0,00 %</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

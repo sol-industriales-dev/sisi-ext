@@ -1,0 +1,1017 @@
+﻿@{
+ViewBag.Title = "CiclosTrabajo";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().privilegioCapacitacion();
+<!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+}
+
+<input id="inputPrivilegio" value="@privilegioCapacitacion" style="display: none;">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<!-- <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" /> -->
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CiclosTrabajo.css" rel="stylesheet" />
+
+<ul id="ulTabs" class="nav nav-tabs" style="margin-top: 33px;">
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <li>
+        <a data-toggle="tab" href="#tabCiclosTrabajo">
+            <h4>Ciclos de Trabajo</h4>
+        </a>
+    </li>
+    }
+
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <li>
+        <a data-toggle="tab" href="#tabSeguimientoAcciones">
+            <h4>Seguimiento Acciones</h4>
+        </a>
+    </li>
+    }
+
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <li>
+        <a data-toggle="tab" href="#tabDashboard">
+            <h4>Dashboard</h4>
+        </a>
+    </li>
+    }
+
+    @if (privilegioCapacitacion == 1)
+    {
+    <li>
+        <a data-toggle="tab" href="#tabCrear">
+            <h4>Crear</h4>
+        </a>
+    </li>
+    }
+</ul>
+
+<div id="divTabs" class="tab-content">
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <div id="tabCiclosTrabajo" class="tab-pane fade">
+        <div class="row text-center">
+            <h2>Registro Ciclos de Trabajo</h2>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="col-sm-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro de Costos</span>
+                                    <select id="selectCentroCosto" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Área</span>
+                                    <select id="selectArea" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio</span>
+                                    <input id="inputFechaInicio" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Fin</span>
+                                    <input id="inputFechaFin" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mrgTop">
+                                <label for="selectCicloTrabajo">Ciclos&nbsp;<input type="checkbox" id="checkboxTodosCiclos"></label>
+                                <select id="selectCicloTrabajo" class="form-control select2" multiple></select>
+                            </div>
+                            <div class="col-sm-4 mrgTop">
+                                <button class="btn btn-primary" id="botonBuscar"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+                                <button class="btn btn-primary" id="botonNuevoRegistro"><span class="glyphicon glyphicon-plus"></span> Nuevo</button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm">Resultado de búsqueda:</legend>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table id="tablaCiclosRegistro" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <div id="tabSeguimientoAcciones" class="tab-pane fade">
+        <div class="row text-center">
+            <h2>Acciones Ciclos de Trabajo</h2>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro de Costos</span>
+                                    <select id="selectCentroCostoSeguimiento" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio</span>
+                                    <input id="inputFechaInicioSeguimiento" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Fin</span>
+                                    <input id="inputFechaFinSeguimiento" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 mrgTop">
+                                <button class="btn btn-primary" id="botonBuscarSeguimiento"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 15px; border-radius: 0px !important;">
+                                <legend class="legend-custm">Resultado de búsqueda:</legend>
+                                <ul class="nav nav-tabs" style="margin-top: 15px;">
+                                    <li class="active" style="width: 50%; text-align: center;">
+                                        <a data-toggle="tab" href="#tabSeguimientoGeneral">
+                                            <h4 style="margin-top: 0px; margin-bottom: 0px;">General</h4>
+                                        </a>
+                                    </li>
+                                    <li style="width: 50%; text-align: center;">
+                                        <a data-toggle="tab" href="#tabSeguimientoDetalle">
+                                            <h4 style="margin-top: 0px; margin-bottom: 0px;">Detalle</h4>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tabSeguimientoGeneral" class="tab-pane fade active in">
+                                        <div class="row">
+                                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                                <div class="input-group" style="margin-top: 15px; margin-bottom: 15px;">
+                                                    <span class="input-group-addon">Seguimiento</span>
+                                                    <select id="selectSeguimiento" class="form-control">
+                                                        <option value="">--Seleccione--</option>
+                                                        <option value="1">Acciones del Ciclo de Trabajo</option>
+                                                        <option value="2">Propuestas de Personal Operativo</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divTablaSeguimientoAcciones" class="row" style="display: none;">
+                                            <div class="col-sm-1 col-md-1 col-lg-1 mrgTop">
+                                                <button id="botonExcelAcciones" class="btn btn-success">ACCIONES</button>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Total de Acciones</span>
+                                                    <input id="inputTotalAcciones" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Solventadas</span>
+                                                    <input id="inputSolventadasAcciones" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Proceso</span>
+                                                    <input id="inputProcesoAcciones" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2 col-md-2 col-lg-2 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">%</span>
+                                                    <input id="inputPorcentajeAcciones" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1 col-md-1 col-lg-1 mrgTop">
+
+                                            </div>
+                                            <div class="col-md-12 mrgTop" style="margin-top: 15px;">
+                                                <table id="tablaSeguimientoAcciones" class="table compact" style="width: 100%"></table>
+                                            </div>
+                                            <div class="col-md-12 mrgTop">
+                                                <button id="botonGuardarSeguimientoAcciones" class="btn btn-success pull-right"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                                            </div>
+                                        </div>
+                                        <div id="divTablaSeguimientoPropuestas" class="row" style="display: none;">
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Total de Propuestas</span>
+                                                    <input id="inputTotalPropuestas" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Solventadas</span>
+                                                    <input id="inputSolventadasPropuestas" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Proceso</span>
+                                                    <input id="inputProcesoPropuestas" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">%</span>
+                                                    <input id="inputPorcentajePropuestas" class="form-control text-center" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mrgTop" style="margin-top: 20px;">
+                                                <table id="tablaSeguimientoPropuestas" class="table compact table-bordered" style="width: 100%"></table>
+                                            </div>
+                                            <div class="col-md-12 mrgTop">
+                                                <button id="botonGuardarSeguimientoPropuestas" class="btn btn-success pull-right"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tabSeguimientoDetalle" class="tab-pane fade">
+                                        <div class="row margin-top">
+                                            <div class="col-md-12">
+                                                <div class="panel-group">
+                                                    <div class="panel panel-primary">
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title">
+                                                                <a data-toggle="collapse" href="#panelIndicadoresAccionesCicloTrabajo">
+                                                                    <i class="fas fa-chart-column"></i>
+                                                                    Indicadores acciones de ciclo de trabajo
+                                                                </a>
+                                                                <button id="botonConsultarIndicadoresAccionesCicloTrabajo" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="panelIndicadoresAccionesCicloTrabajo" class="panel-collapse collapse">
+                                                            <div class="panel-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-3">
+                                                                        <table class="table compact table-bordered" style="width: 100%">
+                                                                            <thead>
+                                                                                <tr style="color: #fff; background-color: #da6a1a;">
+                                                                                    <th class="text-center">Prioridad para accionar</th>
+                                                                                    <th class="text-center">Rango</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td class="text-center" style="color: #fff; background-color: rgb(192, 0, 0);">Alta (Urgente)</td>
+                                                                                    <td class="text-center">0% - 59%</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td class="text-center" style="color: #fff; background-color: rgb(255, 192, 0);">Media (Importante)</td>
+                                                                                    <td class="text-center">60% - 85%</td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td class="text-center" style="color: #fff; background-color: rgb(0, 176, 80);">Estándar (Dar seguimiento)</td>
+                                                                                    <td class="text-center">86% - 100%</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <div class="col-md-6 text-center">
+                                                                            <label style="font-size: 13px;">TOTAL ACCIONES</label>
+                                                                            <input id="inputSeguimientoDetalleTotalAcciones" class="form-control text-center">
+                                                                        </div>
+                                                                        <div class="col-md-6 text-center">
+                                                                            <label style="font-size: 13px;">AVANCE</label>
+                                                                            <input id="inputSeguimientoDetalleAvance" class="form-control text-center">
+                                                                        </div>
+                                                                        <div class="col-md-6 text-center">
+                                                                            <label style="font-size: 13px;">SOLVENTADAS</label>
+                                                                            <input id="inputSeguimientoDetalleSolventadas" class="form-control text-center">
+                                                                        </div>
+                                                                        <div class="col-md-6 text-center">
+                                                                            <label style="font-size: 13px;">PROCESO</label>
+                                                                            <input id="inputSeguimientoDetalleProceso" class="form-control text-center">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <table id="tablaAreasAcciones" class="table compact table-bordered" style="width: 100%"></table>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row margin-top">
+                                            <div class="col-md-12">
+                                                <div class="panel-group">
+                                                    <div class="panel panel-primary">
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title">
+                                                                <a data-toggle="collapse" href="#panelPorcentajeAccionesSolventadasArea">
+                                                                    <i class="fas fa-chart-column"></i>
+                                                                    % acciones solventadas por área
+                                                                </a>
+                                                                <button id="botonConsultarPorcentajeAccionesSolventadasArea" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="panelPorcentajeAccionesSolventadasArea" class="panel-collapse collapse">
+                                                            <div class="panel-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-12 text-center">
+                                                                        <div class="panel-body" style="height: 400px">
+                                                                            <div id="chartPorcentajeAccionesSolventadasArea"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row margin-top">
+                                            <div class="col-md-12">
+                                                <div class="panel-group">
+                                                    <div class="panel panel-primary">
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title">
+                                                                <a data-toggle="collapse" href="#panelTotalAccionesSolventadasArea">
+                                                                    <i class="fas fa-chart-column"></i>
+                                                                    Total de acciones solventadas por área
+                                                                </a>
+                                                                <button id="botonConsultarTotalAccionesSolventadasArea" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="panelTotalAccionesSolventadasArea" class="panel-collapse collapse">
+                                                            <div class="panel-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-12 text-center">
+                                                                        <div class="panel-body" style="height: 400px">
+                                                                            <div id="chartTotalAccionesSolventadasArea"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row margin-top">
+                                            <div class="col-md-12">
+                                                <div class="panel-group">
+                                                    <div class="panel panel-primary">
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title">
+                                                                <a data-toggle="collapse" href="#panelIndicadoresAccionesCicloTrabajoArea">
+                                                                    <i class="fas fa-chart-column"></i>
+                                                                    Indicadores acciones de ciclo de trabajo por área
+                                                                </a>
+                                                                <button id="botonConsultarIndicadoresAccionesCicloTrabajoArea" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="panelIndicadoresAccionesCicloTrabajoArea" class="panel-collapse collapse">
+                                                            <div class="panel-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-12 text-center">
+                                                                        <div class="panel-body" style="height: 400px">
+                                                                            <table id="tablaAreasAccionesDetalle" class="table compact" style="width: 100%"></table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row margin-top">
+                                            <div class="col-md-12">
+                                                <div class="panel-group">
+                                                    <div class="panel panel-primary">
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title">
+                                                                <a data-toggle="collapse" href="#panelHistoricoAccionesSolventadasArea">
+                                                                    <i class="fas fa-chart-column"></i>
+                                                                    Histórico de acciones solventadas por área
+                                                                </a>
+                                                                <button id="botonConsultarHistoricoAccionesSolventadasArea" class="btn btn-xs btn-default pull-right">Consultar</button>
+                                                            </h4>
+                                                        </div>
+                                                        <div id="panelHistoricoAccionesSolventadasArea" class="panel-collapse collapse">
+                                                            <div class="panel-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-3">
+                                                                        <div class="input-group">
+                                                                            <span class="input-group-addon">Área</span>
+                                                                            <select id="selectAreaSeguimiento" class="form-control" multiple></select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-12 text-center" style="margin-top: 5px;">
+                                                                        <div class="panel-body" style="height: 400px">
+                                                                            <div id="chartHistoricoAccionesSolventadasArea"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+    {
+    <div id="tabDashboard" class="tab-pane fade">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+
+                            <div class="col-sm-6 col-md-6 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro de Costos</span>
+                                    <select id="selectCentroCostoDashboard" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Área</span>
+                                    <select id="selectAreaDashboard" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio</span>
+                                    <input id="inputFechaInicioDashboard" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Fin</span>
+                                    <input id="inputFechaFinDashboard" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 mrgTop">
+                                <button class="btn btn-primary" id="botonBuscarDashboard"><span class="glyphicon glyphicon-search"></span>&nbsp;Buscar</button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row mrgTop">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item active">
+                                <a data-toggle="tab" href="#tabIndicador">
+                                    <h4 style="text-align: center;">Indicador</h4>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a data-toggle="tab" href="#tabDetalles">
+                                    <h4 style="text-align: center;">Detalles</h4>
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="tabIndicador" class="tab-pane fade in active hide">
+                                <div id="divIndicador" class="mrgTop">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <h1 id="h1CiclosRealizados" style="text-align: center;">CICLOS REALIZADOS&nbsp;</h1>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-2"></div>
+                                        <div class="col-sm-8">
+                                            <table id="tablaDashboardCiclos" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                        </div>
+                                        <div class="col-sm-2"></div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="graficaIndicadores"></div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <table id="tablaAspectosColaboladores" class="table compact table-bordered stripe" style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" rowspan="2">Total Ciclos</th>
+                                                        <th class="text-center" rowspan="2">Meses</th>
+                                                        <th class="text-center" colspan="3">Aspectos evaluado cumplidos por colaboradores</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Técnica operacional</th>
+                                                        <th>Comportamiento seguro</th>
+                                                        <th>Mantenimiento Técnico</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table id="tablaInspeccionesCumplidas" class="table compact table-bordered stripe" style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" rowspan="2">Total Ciclos</th>
+                                                        <th class="text-center" rowspan="2">Meses</th>
+                                                        <th class="text-center" colspan="3">Inspecciones que se han Cumplido (Prioridades)</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Críticos</th>
+                                                        <th>Medios</th>
+                                                        <th>Bajos</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-12 mrgTop">
+                                            <table id="tablaInspeccionesRealizarNuevamente" class="table compact table-bordered stripe" style="width: 100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="15">Inspecciones Que Deberán De Realizar Nuevamente</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabDetalles" class="tab-pane fade hide">
+                                <div id="divDetalles" class="mrgTop">
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tablaPorcentajes" class="table compact table-bordered" style="margin-top: 5px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2">PERSONAL OPERATIVO</th>
+                                                        <th>PROMEDIO GENERAL</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Ciclos Periódicos</td>
+                                                        <td id="tdCiclosPeriodicos">%</td>
+                                                        <td id="tdPromedioGeneral" rowspan="2">%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Ciclos Liberación</td>
+                                                        <td id="tdCiclosLiberacion">%</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <table id="tablaDetallesCiclos" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                            <br>
+                                            <table id="tablaDetallesCiclosRealizados" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                            <div id="graficaDetalles"></div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table id="tablaDetallesColaboradores" class="table compact table-bordered" style="width: 100%;"></table>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tablaDetallesAnual" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (privilegioCapacitacion == 1)
+    {
+    <div id="tabCrear" class="tab-pane fade">
+        <br>
+        <br>
+        <button class="btn btn-primary" id="btnNuevoRegistro"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+        <button class="btn btn-default" id="botonCiclosRequeridos">Ciclos Requeridos</button>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+
+                <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                    <legend class="legend-custm">Información</legend>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table id="tblCiclosTrabajo" class="table compact table-bordered" style="width: 100%"></table>
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="mdlRegistro" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+                <div class="modal-content">
+                    <div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="text-center">
+                            <h3><label id="title-modal">Registro Ciclos de Trabajo</label></h3>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                            <legend class="legend-custm">Datos Generales del Ciclo:</legend>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Título:</span>
+                                                    <input id="inputTitulo" class="form-control" placeholder="Título">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                                <span class="input-group-addon spanCustom">Descripción:</span>
+                                                <input id="inputDescripcion" class="form-control" placeholder="Descripción">
+                                            </div>
+                                            <div class="col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                                <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                                    <legend class="legend-custm">Tipo de Ciclo:</legend>
+                                                    <div id="divRadioTipoCiclo" style="margin-top: 12px;">
+                                                        <input type="radio" id="radioPeriodico" name="tipoCiclo" value="1">
+                                                        <label for="radioPeriodico">Periódico</label>
+                                                        <input type="radio" id="radioLiberacion" name="tipoCiclo" value="2">
+                                                        <label for="radioLiberacion">Liberación</label>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="col-sm-12 col-md-9 col-lg-9 mrgTop">
+                                                <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                                    <legend class="legend-custm">Departamentos:</legend>
+                                                    <select id="selectDepartamentoCrear" class="form-control" multiple></select>
+                                                </fieldset>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset class="fieldset-custm mrgTop" style="border-radius: 0px !important;">
+                                            <legend class="legend-custm">Agregar Criterio:</legend>
+                                            <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                                <span class="input-group-addon spanCustom">Criterio:</span>
+                                                <input id="inputCriterio" class="form-control" placeholder="Criterio">
+                                            </div>
+                                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">Ponderación:</span>
+                                                    <select id="selectPonderacion" class="form-control">
+                                                        <option value="">--Seleccione--</option>
+                                                        <option value="1">Bajo</option>
+                                                        <option value="2">Medio</option>
+                                                        <option value="3">Crítico</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-9 col-md-9 col-lg-9 mrgTop">
+                                                <button class="btn btn-primary pull-right" id="botonAgregarCriterio"><i class="fa fa-plus-sign"></i>&nbsp;Agregar</button>
+                                            </div>
+                                            <div class="col-md-12 mrgTop">
+                                                <table id="tablaCriterios" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="row mrgTop">
+                                        <button id="botonGuardarCiclo" class="btn btn-success pull-right"><i class="fa fa-save"></i>&nbsp;Guardar Información</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+
+<div class="modal fade" id="modalRegistroCiclo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Registro Ciclos de Trabajo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Datos Generales:</legend>
+                            <div class="col-sm-12 col-md-6 col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro de Costos:</span>
+                                    <select id="selectCentroCostoRegistroCiclo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha:</span>
+                                    <input id="inputFechaRegistroCiclo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Área</span>
+                                    <select id="selectAreaRegistroCiclo" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Ciclo Operativo:</span>
+                                    <select id="selectCicloRegistroCiclo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 col-lg-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Revisor:</span>
+                                    <input id="inputRevisorRegistroCiclo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 col-lg-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Colaborador:</span>
+                                    <input id="inputColaboradorRegistroCiclo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 col-lg-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Ciclo:</span>
+                                    <select id="selectTipoCicloRegistroCiclo" class="form-control">
+                                        <option value="">--Seleccione--</option>
+                                        <option value="1">Periódico</option>
+                                        <option value="2">Liberación</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <ul class="nav nav-tabs mrgTop">
+                            <li class="active" style="width: 50%; text-align: center;">
+                                <a data-toggle="tab" href="#tabPuntosRevision">
+                                    <h4 style="font-weight: bold;">Puntos de Revisión</h4>
+                                </a>
+                            </li>
+                            <li style="width: 50%; text-align: center;">
+                                <a data-toggle="tab" href="#tabPropuestasMejora">
+                                    <h4 style="font-weight: bold;">Propuestas de Mejora</h4>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabPuntosRevision" class="tab-pane fade in active">
+                                <fieldset class="fieldset-custm mrgTop" style="border-radius: 0px !important;">
+                                    <div class="col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Calificación:</span>
+                                            <input id="inputCalificacionRegistroCiclo" class="form-control text-center" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-3 col-lg-3 mrgTop">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">No. ECO:</span>
+                                            <input id="inputEconomicoRegistroCiclo" class="form-control text-center">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 mrgTop">
+                                        <div id="divAcreditoCiclo" style="display: inline-block;">
+                                            <label style="font-size: 15px; margin-top: 5px; display: inline-block;">¿Acreditó Ciclo?</label>
+                                            <div style="display: inline-block;">
+                                                <input type="checkbox" id="checkBoxAcreditoCiclo" class="regular-checkbox">
+                                                <label for="checkBoxAcreditoCiclo" style="margin-bottom: 1px;"></label>
+                                            </div>
+                                        </div>
+                                        <div id="divRequiereRetroalimentacion" style="display: inline-block;">
+                                            <label style="font-size: 15px; margin-top: 5px; display: inline-block;">¿Requiere Retroalimentación?</label>
+                                            <div style="display: inline-block;">
+                                                <input type="checkbox" id="checkBoxRequiereRetroalimentacion" class="regular-checkbox">
+                                                <label for="checkBoxRequiereRetroalimentacion" style="margin-bottom: 1px;"></label>
+                                            </div>
+                                        </div>
+                                        <button id="botonAccionRegistroCiclo" class="btn btn-sm btn-primary pull-right" style="margin-top: 2px;">Acción</button>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                        <table id="tablaRevisiones" class="table compact table-bordered stripe" style="width: 100%"></table>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Observaciones de Revisor:</span>
+                                            <input id="inputObservacionesRevisorRegistroCiclo" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Acciones Tomadas:</span>
+                                            <input id="inputAccionesTomadasRegistroCiclo" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Observaciones de Líder:</span>
+                                            <input id="inputObservacionesLiderRegistroCiclo" class="form-control">
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div id="tabPropuestasMejora" class="tab-pane fade">
+                                <fieldset class="fieldset-custm mrgTop" style="border-radius: 0px !important;">
+                                    <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                                        <button id="botonAgregarPropuesta" class="btn btn-sm btn-primary" style="margin-bottom: 5px;"><i class="fas fa-plus"></i>&nbsp;Agregar Propuesta</button>
+                                        <table id="tablaPropuestasMejora" class="table compact table-bordered stripe mrgTop" style="width: 100%"></table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarRegistroCiclo">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAccionRequerida" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <!-- <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Acción Requerida</label></h3>
+                </div>
+            </div> -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <label for="textAreaAccionRequerida">
+                            <h4>Descripción de la acción requerida:</h4>
+                        </label>
+                        <textarea id="textAreaAccionRequerida" class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <label for="selectMetodoAccionRequerida">Método:</label>
+                        <select id="selectMetodoAccionRequerida" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="1">Capacitación</option>
+                            <option value="2">Adiestramiento</option>
+                            <option value="3">Otra acción requerida</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <label for="selectCapacitacionAccionRequerida">Capacitación:</label>
+                        <select id="selectCapacitacionAccionRequerida" class="form-control select2"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <label for="selectCapacitacionAreaSeguimiento">Área del seguimiento</label>
+                        <select id="selectCapacitacionAreaSeguimiento" class="form-control select2" multiple></select>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <label for="selectCapacitacionInteresados">Interesados</label>
+                        <select id="selectCapacitacionInteresados" class="form-control select2" multiple></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonCancelarAccionRequerida" type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button id="botonGuardarAccionRequerida" type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCiclosRequeridos" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Ciclos Requeridos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <table id="tablaCiclosRequeridos" class="table compact table-bordered" style="width: 100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button id="botonGuardarCiclosRequeridos" type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_visorGrid")
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CiclosTrabajo.js"></script>

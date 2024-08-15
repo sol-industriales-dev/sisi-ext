@@ -1,0 +1,173 @@
+﻿@{
+ViewBag.Title = "CrearPersonalAutorizado";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionSeguridadController().privilegioCapacitacion();
+<!-- Privilegios:
+        NoAsignado = 0
+        Administrador = 1
+        Visor = 2
+        ControlDocumentos = 3
+        Instructor = 4
+    -->
+}
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/CapacitacionSeguridad/CapturaCursos.css" rel="stylesheet" />
+
+<style>
+    .select2-selection--single,
+    .select2-selection__rendered {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 35px !important;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Captura de autorizaciones</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+            <fieldset class="fieldset-custm">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Filtros:</legend>
+                            <div class="input-group col-md-12">
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectCursoAutorizado" class="form-label">Actividad Autorizada:</label>
+                                    <select id="selectCursoAutorizado" name="selectCursoAutorizado" class="form-control" multiple></select>
+                                </div>
+
+                                <!-- <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectCentroCosto" class="form-label">Centro de Costo:</label>
+                                    <select name="selectCentroCosto" id="selectCentroCosto" class="form-control" multiple></select>
+                                </div> -->
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <label for="selectDepartamento" class="form-label">Departamento:</label>
+                                    <select id="selectDepartamento" name="selectDepartamento" class="form-control" multiple></select>
+                                </div>
+
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                    <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 24px; margin-right: 5px;">
+                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                    </button>
+                                    @if (privilegioCapacitacion != 3) {
+                                    <button type="button" class="btn btn-primary" id="botonRegistrar" style="margin-top: 24px; margin-right: 5px;">
+                                        <span class="glyphicon glyphicon-plus"></span> Registrar Nuevo
+                                    </button>
+                                    }
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left:0px; padding-right:0px;">
+
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm">Información</legend>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table id="tablaListasAutorizacion" class="table compact table-bordered" style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalRegistro" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Captura de Listas de Autorización</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-3">
+                        <label for="inputClaveListaAutorizacion" class="form-label">Clave:</label>
+                        <input type="text" name="inputClaveListaAutorizacion" id="inputClaveListaAutorizacion" class="form-control validar">
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <label for="inputRevision" class="form-label">Revision:</label>
+                        <input type="text" name="inputRevision" id="inputRevision" class="form-control validar">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="selectCurso" class="form-label">Actividad:</label>
+                        <select name="selectCurso" id="selectCurso" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="textAreaNotaCurso" class="form-label">Nota:</label>
+                        <textarea class="form-control validar" name="textAreaNotaCurso" id="textAreaNotaCurso" cols="12" rows="2" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="textAreaObjetivo" class="form-label">Objetivo:</label>
+                        <textarea class="form-control validar" name="textAreaObjetivo" id="textAreaObjetivo" cols="12" rows="2" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="textAreaReferenciaNormativa" class="form-label">Referencia Normativa:</label>
+                        <textarea class="form-control validar" name="textAreaReferenciaNormativa" id="textAreaReferenciaNormativa" cols="12" rows="2" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- <div class="col-sm-12 col-md-6">
+                        <label for="selectCentroCostoCaptura" class="form-label">Centro de Costo:</label>
+                        <select name="selectCentroCostoCaptura" id="selectCentroCostoCaptura" class="form-control validar" style="width: 100%" multiple></select>
+                    </div> -->
+                    <div class="col-sm-12 col-md-12">
+                        <label for="selectDepartamentoCaptura" class="form-label">Departamento:</label>
+                        <select id="selectDepartamentoCaptura" name="states[]" class="form-control validar" style="width: 100%" multiple style="height: 34px !important;"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12" style="margin-top: 5px;">
+                        <button id="botonAgregarRenglon" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i>&nbsp;Agregar RFC</button>
+                        <table id="tablaRFC" class="compact table-bordered" style="width: 100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/CrearPersonalAutorizado.js"></script>

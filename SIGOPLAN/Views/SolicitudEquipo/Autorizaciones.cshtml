@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = "Autorizaciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-Autorizacion.css" rel="stylesheet" />
+<style>
+    .col-lg-2.ajustarDiv {
+        width: 20% !important;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>Autorización de Solicitudes de Equipo</h2>
+    </div>
+
+    <div id="divSolicitudesPendientes">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Filtros:</label></legend>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label>Tipo de Documento:</label>
+                            <select id="cboTipoFiltro" class="form-control">
+                                <option value="1">Pendientes</option>
+                                <option value="2">Autorizados</option>
+                                <option value="3">Rechazados</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Solicitudes Pendientes:</legend>
+                    <table id="tblSolicitudesPendientes" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Folio" data-width="25%">Folio</th>
+                                <th data-column-id="CCName" data-width="25%">Centro Costos</th>
+                                <th data-column-id="UsuarioSolicitud" data-width="25%">Usuario Solicita</th>
+                                <th data-column-id="Fecha" data-width="25%">Fecha</th>
+                                <th data-column-id="VerSolicitud" data-searchable="false" data-formatter="VerSolicitud" data-sortable="false" data-width="25px">Ver Solicitud</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div id="divAutorizacionSolicitudes" class="row hidden">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="clsFrame text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick" id="BntRegresar"></span>Vista Previa: <span class="glyphicon glyphicon-arrow-left cursorClick" id="btnAtras"></span> <span class="glyphicon glyphicon-arrow-right cursorClick" id="btnNext"></span></legend>
+                        <div class="row divEvidencia" style="display:block;">
+                            <div class="col-md-12">
+                                <center><button id="btnEvidencia" data-id="" class="btn btn-primary">Descargar Evidencia</button></center>
+                            </div>
+                        </div>
+                        <iframe id="report" align="middle" marginwidth="0"
+                                marginheight="0"
+                                hspace="0"
+                                vspace="0"
+                                frameborder="0"
+                                scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-sm-12 col-xs-12 col-md-12 col-lg-12 ajustarDiv">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"> Autorizadores:</legend>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblElaboro"></label></div>
+                            <div id="btnElaboro" class="panel-body">Quien Elaboro</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblGerente"></label></div>
+                            <div id="btnGerenteObra" class="panel-body">Gerente de Obra</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblGerenteDirector"></label></div>
+                            <div id="btnGerenteDirector" class="panel-body">Director Área</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-heading"><label id="lblDirector"></label></div>
+                                <div id="btnDirectorDivision" class="panel-body">Director División</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-heading"><label id="lblServicios"></label></div>
+                                <div id="btnDirectorServicios" class="panel-body">Director de Servicios</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-2 col-lg-2 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblAltaDireccion"></label></div>
+                            <div id="btnAltaDireccion" class="panel-body">Alta Dirección</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRechazo" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+
+                    <h3> Rechazo de Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnRechazoSave">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/js/Maquinaria/Inventario/AutorizacionesJS.js"></script>
+
+
+

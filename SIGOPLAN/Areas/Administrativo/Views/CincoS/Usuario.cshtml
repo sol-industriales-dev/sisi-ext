@@ -1,0 +1,345 @@
+﻿@{
+    ViewBag.Title = "Usuario";
+
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CincoS/Usuario.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="text-center">FILTRO DE BUSQUEDA</h5>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <div class="input-group-addon">CC</div>
+                                <select id="cboFiltroCC" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button id="btnFiltroNuevo" class="btn btn-success btnNaranja pull-right">
+                                <i class="fas fa-plus-circle"></i> Nuevo
+                            </button>
+
+                            <button id="btnFiltroBuscar" class="btn btn-success btnNaranja pull-right">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_auditores" aria-controls="tab_auditores" role="tab" data-toggle="tab">AUDITORES</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tab_facultamientos" aria-controls="tab_facultamientos" role="tab" data-toggle="tab">FACULTAMIENTOS</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tab_lideres" aria-controls="tab_lideres" id="btnTabLider" role="tab" data-toggle="tab">LIDERES 5S</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tab_subAreas" aria-controls="tab_subAreas" id="btnTabSubArea" role="tab" data-toggle="tab">SUB-ÁREAS</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tab_auditores">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="text-center">AUDITORES</h5>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="table-responsive">
+                                        <table id="tblAuditores" class="hover stripe order-column compact" style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="tab_facultamientos">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="text-center">FACULTAMIENTOS CREADOS</h5>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="input-group">
+                                                <div class="input-group-addon">Tipo de usuario</div>
+                                                <select id="cboFiltroPrivilegio" class="form-control"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <br>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="table-responsive">
+                                                <table id="tblFacultamientos" class="hover stripe order-column compact" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="tab_lideres">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="text-center">LIDERES 5S</h5>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="table-responsive">
+                                        <table id="tblLideres" class="hover stripe order-column compact" style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="tab_subAreas">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h5 class="text-center">SUB-AREA AUDITADA</h5>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <button id="btnSubAreaNuevo" class="btn btn-success btnNaranja pull-right">
+                                                <i class="fas fa-plus-circle"></i> Nuevo
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <br>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="table-responsive">
+                                                <table id="tblSubAreas" class="hover stripe order-column compact" style="width: 100%"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="mdlNuevoAuditor">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-center" id="tituloNuevoAuditor">Nuevo usuario</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Auditor</div>
+                                    <input type="text" id="txtNuevoAuditor" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Puesto</div>
+                                    <input type="text" id="txtNuevoPuesto" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Proyecto</div>
+                                    <input type="text" id="txtNuevoProyecto" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Proyecto asignado</div>
+                            <select id="cboNuevoCC" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-arrow-left"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarAuditor"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="mdlFacultamiento">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-center">Asignar facultamiento</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Auditor</div>
+                            <input type="text" id="txtFacultamientoAuditor" class="form-control" disabled>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Puesto</div>
+                            <input type="text" id="txtFacultamientoPuesto" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Privilegio</div>
+                            <select id="cboFacultamientoPrivilegio" class="form-control" multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-arrow-left"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarFacultamiento"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="mdlLider5s">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-center">EDITAR LIDER 5S</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Colaborador</div>
+                            <input type="text" id="txtLider" class="form-control" disabled>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Proyecto asignado</div>
+                            <select id="cboLiderCCs" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <div class="input-group-addon">Área operativa</div>
+                            <select id="cboLiderArea" class="form-control" multiple="multiple"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-arrow-left"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarLider"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="mdlSubArea">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-center">SUB AREA</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group">
+                            <div class="input-group-addon">Sub-area</div>
+                            <input type="text" id="txtSubArea" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-arrow-left"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarSubArea"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CincoS/Usuario.js"></script>

@@ -1,0 +1,306 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+    var descripcionEmpresa = "";
+    var moneda = "";
+    var monedaUs ="";
+    if (idEmpresa.getEmpresaID() == 3)
+    {
+        descripcionEmpresa = "Colombia";
+        moneda = "COP";
+    }
+    else if (idEmpresa.getEmpresaID() == 6)
+    {
+        descripcionEmpresa = "Perú";
+        moneda = "SOL";
+        monedaUs = "US";
+    }
+
+
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+@*<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />*@
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<style>
+    .blockUI {
+        z-index: 6000 !important;
+    }
+
+    .dataTables_scroll .dataTables_scrollHeadInner table thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+
+    .dataTables_scroll .dataTables_scrollHeadInner table thead tr,
+    th {
+        text-align: center;
+    }
+
+    #hdrCuentaConsultada {
+        margin-top: 0px;
+        padding-top: 0px;
+    }
+
+    .modal-bg h3 {
+        margin: 1%;
+        text-align: center;
+    }
+    .modificada {
+        background-color: #FFBF00 !important;
+    }
+    .eliminada {
+        background-color: #FF3C3C !important;
+        color: white  !important;
+    }
+    .btn-light {
+        color: #333 !important;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="text-center">
+                <h1>Conciliacion de Polizas</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Año</span>
+                                <select class="form-control" id="selectFiltroAnio"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Mes</span>
+                                <select class="form-control" id="selectFiltroMes"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">TP:</span>
+                                <input class="form-control" id="inputTpFiltro" />
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Poliza:</span>
+                                <input class="form-control" id="inputPolizaFiltro" />
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Monto:</span>
+                                <input class="form-control" type="number" id="inputMontoFiltro" />
+                            </div>
+                        </div>
+                                                
+                        <div class="col-sm-1">
+                            <button class="btn btn-primary" id="btnFiltroBuscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="col-sm-1 text-right">
+                            <button class="btn btn-success" id="btnCapturarPoliza">
+                                <i class="fas fa-plus"></i> Capturar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 id="hdrCuentaConsultada"></h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="hover stripe order-column" id="tblConversionPolizas" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+
+                                            <td colspan="6">@descripcionEmpresa</td>
+                                            <td colspan="6">Construplan</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Año</td>
+                                            <td>Mes</td>
+                                            <td>TP</td>
+                                            <td>Poliza</td>
+                                            <td>Total</td>
+                                            <td>Accion</td>
+                                            <td>Año</td>
+                                            <td>Mes</td>
+                                            <td>TP</td>
+                                            <td>Poliza</td>
+                                            <td>Total</td>
+                                            <td>Accion</td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPolizaDetalle">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Detalle póliza</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblPolizaDetalle" class="hover stripe order-column" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="7">TOTAL: </th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCapturaPoliza">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Nueva Sincronización</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Conversion</span>
+                            <input type='text' id='inputFechaConversion' class='form-control'>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 hide">
+                        <div class="input-group">
+                            <span class="input-group-addon">Aplica Fecha Poliza:</span>
+                            <input type='checkbox' id='inputaplicaFecha' class='form-control'>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <button class="btn btn-success" id="btnGenerarPoliza">
+                            <i class="fas fa-tasks"></i> Buscar Pendientes
+                        </button>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Seleccionar TODO</span>
+                            <input type='checkbox' id='inputSelectALL' class='form-control'>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblNuevaPoliza" class="hover stripe order-column" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <td colspan="7">@descripcionEmpresa</td>
+                                        @* <td colspan="6">Colombia</td> *@
+                                        <td colspan="2">Construplan</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Año</td>
+                                        <td>Mes</td>
+                                        <td>TP</td>
+                                        <td>Poliza</td>
+                                        <td>Fecha Poliza (@moneda)</td>
+                                        <td>Total (@moneda)</td>
+                                        <td>TotalUs (@monedaUs)</td>
+                                        <td>Total (MEX)</td>
+                                        <td>Estatus</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="btnConvertirPolizas">
+                    <i class="far fa-check-square"></i> Realizar Conversión
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Poliza/ConversionPoliza.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+
+
+
+<div id='mdlCapturaTipoCambio' class='modal fade' role='dialog' data-backdrop="static" data-keyboard="false">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header modal-bg text-center'>
+                <h1 class='modal-title'><i class='fas fa-dollar'></i>Tipo Cambio</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    @Html.Action("_capturaTipoCambio", "TipoCambio", new { Area = "Administrativo" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Action("_menuClick", "Mouse", new { Area = string.Empty })
+<!-- @Html.Action("_visorGrid", "Visor", new { Area = string.Empty }) -->
+@Html.Partial("reportViewerView")

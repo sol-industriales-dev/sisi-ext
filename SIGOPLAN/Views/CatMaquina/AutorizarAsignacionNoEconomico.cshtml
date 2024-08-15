@@ -1,0 +1,486 @@
+﻿@{
+    ViewBag.Title = "AutorizarAsginacionNoEconomico";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    #tblComparativoAdquisicionyRenta.dataTable tbody tr td,
+    #tblComparativoAdquisicionyRenta thead tr th,
+    #tblComparativoAdquisicionyRenta.dataTable,
+    .dataTables_scrollBody {
+        border: 0px solid #81bd72 !important;
+    }
+
+    #tblComparativoAdquisicionyRenta.dataTable thead {
+        font-size: 15px;
+        background-color: #81bd72;
+        color: white;
+    }
+
+    /* ALINEAR TABLAS A LA IZQUIERDA */
+    #tblComparativoAdquisicionyRenta tbody tr td {
+        white-space: nowrap !important;
+    }
+
+    #tblComparativoAdquisicionyRenta {
+        width: min-content !important;
+    }
+
+    .ui-widget-header {
+        background: #3556ae !important;
+    }
+
+    /**/
+
+    /*TABLAS*/
+    table.dataTable thead,
+    .bg-table-header {
+        font-size: 15px;
+        background-color: #3556ae !important;
+        color: white;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .disenioModal .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+    .disenioModal .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+
+    .disenioModal .modal-header .modal-title {
+        font-weight: bold;
+    }
+
+    .disenioModal .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .renglonCuadroPendiente td {
+        background-color: #ffff00 !important;
+    }
+
+    .renglonCuadroAutorizado td {
+        background-color: #0D8E2C !important;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    #tblM_AutorizarAsginacionNoEconomigo,
+    #tblM_AutorizarAsginacionNoEconomigo thead tr th {
+        font-size: 12px !important;
+    }
+</style>
+
+<div class="col-sm-12">
+    <br />
+    <fieldset class='fieldset-custm'>
+
+        <div class="center" style="text-align: center;">
+            <h2>Autorizar cuadro comparativo de maquinaria</h2><br>
+        </div>
+
+        <!-- CONTROLES DE FILTRO -->
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm"></legend><br>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Estado:</span>
+                        <select id="cboEstado" class="form-control">
+                            <option value="0">--TODOS--</option>
+                            <option value="3">AUTORIZADO</option>
+                            <option value="2">PENDIENTE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">Obra:</span>
+                        <input id="inputObra" class="form-control">
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha Cuadro:</span>
+                        <input id="inputFechaInicio" class="form-control">
+                        <span class="input-group-addon" style="padding:0px;"></span>
+                        <input id="inputFechaFin" class="form-control">
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <button type='button' class="btn btn-primary mrgTop" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    <button type='button' class="btn btn-primary mrgTop pull-right" id="botonNuevoCuadro"><i class="fas fa-plus"></i> Nuevo Cuadro</button>
+                </div>
+            </div>
+        </fieldset>
+        <br />
+        <!-- END: CONTROLES DE FILTRO -->
+
+        <!-- LISTADO -->
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'></legend>
+            <div class="row">
+                <div class="col-lg-12 table-responsive" style="width: 100%;">
+                    <br />
+                    <table id="tblM_AutorizarAsginacionNoEconomigo" class="table-bordered compact stripe order-column" style="width: 100%;"></table>
+                </div>
+            </div>
+        </fieldset><br><br>
+        <!-- END: LISTADO -->
+</div>
+
+<div id="dlgFormAdquisicion" title="" style="display:none;">
+    <form id="frmMaquinaFichaTecnica">
+        <input id="idAsignacion" type="hidden">
+        <input id="idComparativo" type="hidden">
+        <div class="container" style="width:100%;text-align: center;">
+            <h2 style="align:center;">Cuadro comparativo</h2>
+            <div class="col-lg-12"></div>
+            <div class="row">
+                <div class="col-lg-8"></div>
+                <div class="col-lg-4">
+                    <button type='button' class="btn btn-primary" id="btnAutorizar"><i class="fas fa-like"></i>&nbsp;Autorizar</button>
+                    <button type='button' class="btn btn-primary" id="btnReporteImprimir"><i class="fas fa-like"></i>&nbsp;Imprimir</button>
+
+                </div>
+            </div><br>
+            <div class="row">
+                <div class="col-lg-12 table-responsive table-bordered">
+                    <br />
+                    <table id="tblM_ComparativoAdquisicionyRenta" class="table-bordered stripe order-column"></table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 table-responsive table-bordered">
+                    <br />
+                    <table id="tblM_AutorizanteAdquisicion" class="table-bordered stripe order-column" style="width: 100%;"></table>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br>
+    <br>
+</div>
+
+<div id="dlgFormFinanciero" title="" style="display:none;">
+    <form id="frmMaquinaFichaTecnica">
+        @* <input id="idAsignacion" type="hidden">
+            <input id="idComparativo" type="hidden"> *@
+
+        <div class="container" style="width: 100%; text-align: center;">
+            <h2 style="align: center;">Cuadro comparativo financiero</h2>
+            @* <div class="col-lg-12"></div> *@
+            <div class="row">
+                @* <div class="col-lg-8"></div> *@
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4">
+                    <button type='button' class="btn btn-primary btn-block" id="btnAutorizarFinanciera"><i class="fas fa-check"></i>&nbsp;Autorizar</button>
+                </div>
+                <div class="col-lg-4"></div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6 table-responsive">
+                    <fieldset class='fieldset-custm'>
+                        <table id="tblM_ComparativoFinanciera" class="table-bordered stripe order-column"></table>
+                    </fieldset>
+                </div>
+                <div class="col-lg-3"></div>
+            </div><br>
+
+            <div class="row">
+                <fieldset class='fieldset-custm'><br>
+                    <div class="col-lg-12 table-responsive">
+                        <table id="tblM_AutorizantesFinanciera" class="table-bordered stripe order-column"></table>
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+    </form>
+    <br>
+    <br>
+</div>
+
+<div id="mdlImagen" title="" style="display:none;">
+    <form id="frmMaquinaFichaTecnica">
+        <center>
+            <h2>IMAGEN</h2>
+        </center>
+        <center>
+            <img id='MostrarImagen' />
+        </center>
+    </form>
+    <br>
+    <br>
+</div>
+
+<div id="dlgFormAdquisicionPrint" title="" style="display:none;" style="background-color: #3556ae !important;">
+    <form id="frmMaquinaFichaTecnica">
+        <input id="idAsignacion" type="hidden">
+        <input id="idComparativo" type="hidden">
+        <div class="container" style="width:100%;text-align: center;">
+            <h2 style="align:center;">Cuadro comparativo</h2>
+            <div class="col-lg-12"></div>
+            <div class="row">
+            </div><br>
+            <div id="contenidoPRINTadquisicion" style="text-align: center;">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <img src="~/Content/img/logo/logo.png" alt="" style="width:40%">
+                    </div>
+                    <div class="col-lg-6" style="text-align: center;">
+                        <span>
+                            <p style="font-weight:bold;">Gerencia de Adquisicion y Renta de Maquinaria y Equipo</p>
+                            <p style="font-weight:bold;font-size: 25px;">Cuadro Comparativo</p>
+                            <p style="font-weight:bold;" id="txtObrarpt"> </p><br>
+                            <p style="font-weight:bold;" id="txtNombreDelEquiporpt"></p>
+                        </span>
+                    </div>
+                    <div class="col-lg-3">
+                    </div>
+                </div><br>
+
+
+            </div>
+        </div>
+    </form>
+    <br>
+    <br>
+
+</div>
+
+<div class="modal fade" id="modalAsignarSolicitud">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Asignar Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label>Folio:</label>
+                        <input id="inputAsignarSolicitud" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarAsignacion"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlgFormAdquisicionNuevoCuadro" title="" style="display:none;" style="background-color: #3556ae !important;">
+    <form>
+        <input id="idAsignacionNuevoCuadro" type="hidden">
+        <div class="container" style="width:100%;text-align: center;">
+            <h2 style="align:center;">Cuadro comparativo</h2>
+            <div class="col-lg-12"></div>
+            <div class="row">
+                <div class="col-lg-6"></div>
+                <div class="col-lg-6">
+                    <button type="button" id="btnEliminarColumna" class="btn btn-primary">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" id="btnAgregarColumna" class="btn btn-primary">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                    <button type="button" id="btnNuevo" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div><br>
+
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Datos Cuadro Comparativo</legend>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Obra:</span>
+                            <input id="txtObra" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nombre del equipo:</span>
+                            <input id="txtNombreDelEquipo" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <label class="text-color" for="cboCC">Compra: </label>
+                        <input id="checkCompra" type="checkbox" />
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="text-color" for="cboCC">Renta: </label>
+                        <input id="checkRenta" type="checkbox" />
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="text-color" for="cboCC">Roc: </label>
+                        <input id="checkRoc" type="checkbox" />
+                    </div>
+                    <div class="col-lg-6"></div><br>
+                </div>
+            </fieldset><br>
+
+            <fieldset class='fieldset-custm'>
+                <div class="row">
+                    <div class="col-lg-12 table-responsive">
+                        <br />
+                        <table id="tblComparativoAdquisicionyRenta" class="" style="text-align: left"></table>
+                    </div>
+                    <div class="col-lg-5">
+                        <label class="text-color" for="cboCC">Tipo Moneda : </label>
+                        <input id="printTipoMoneda" class="form-group" />
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"> Autorizantes </legend>
+                        <div class="col-sm-12">
+                            <table class=" table table-condensed table table-striped text-center">
+
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="col-sm-6">Solicita:</th>
+                                        <th class="col-sm-4">Puesto:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-control autoriza" id="selAutSolicita1" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Gerente de Adquisición y Renta de Equipo" data-orden="1" placeholder="*"> </td>
+                                        <td class="text-center" style="vertical-align: middle;"><label>Gerente de Adquisición y Renta de Equipo</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <table class=" table table-condensed table table-striped text-center">
+
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="col-sm-6">Solicita:</th>
+                                        <th class="col-sm-4">Puesto:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-control autoriza" id="selAutSolicita2" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Director de División / Director de Proyectos Especiales. Director de Linea de Negocios" data-orden="1" placeholder="*"> </td>
+                                        <td class="text-center" style="vertical-align: middle;"><label>Director de División / Director de Proyectos Especiales. Director de Linea de Negocios</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <table class=" table table-condensed table table-striped text-center">
+
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="col-sm-6">Solicita:</th>
+                                        <th class="col-sm-4">Puesto:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-control autoriza" id="selAutSolicita3" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Director de Maquinaria y Equipo" data-orden="1" placeholder="*"> </td>
+                                        <td class="text-center" style="vertical-align: middle;"><label>Director de Maquinaria y Equipo</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <table class=" table table-condensed table table-striped text-center">
+
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="col-sm-6">Solicita:</th>
+                                        <th class="col-sm-4">Puesto:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-control autoriza" id="selAutSolicita4" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Director de Servicios" data-orden="1" placeholder="*"> </td>
+                                        <td class="text-center" style="vertical-align: middle;"><label>Director de Servicios</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12">
+                            <table class=" table table-condensed table table-striped text-center">
+
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="col-sm-6">Solicita:</th>
+                                        <th class="col-sm-4">Puesto:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-control autoriza" id="selAutSolicita5" data-id="" data-nombre="" data-tipo="Solicita" data-puesto="Director General" data-orden="1" placeholder="*"> </td>
+                                        <td class="text-center" style="vertical-align: middle;"><label>Director General</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br>
+    <br>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/html2pdf.bundle.min.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+<script type="text/javascript" src="~/Scripts/js/Maquinaria/Catalogo/AsignacionComparativos.js"></script>
+<script type="text/javascript">
+    (function () {
+        var Controlador = new AsignacioncomparativosController();
+        Controlador.Inicializar();
+    })();
+</script>

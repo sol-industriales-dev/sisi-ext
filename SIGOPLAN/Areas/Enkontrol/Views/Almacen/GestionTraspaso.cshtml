@@ -1,0 +1,212 @@
+﻿@{
+ViewBag.Title = "GestionTraspaso";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Almacen/GestionTraspaso.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Gestión Traspasos</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <div class="col-lg-3 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC Origen</span>
+                                <select id="selectCCOrigen" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Almacén Origen</span>
+                                <select id="selectAlmacenOrigen" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC Destino</span>
+                                <select id="selectCCDestino" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Almacén Destino</span>
+                                <select id="selectAlmacenDestino" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Folio Interno</span>
+                                <input id="inputFolioInterno" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mrgTop noPadLeft">
+                            <button class="btn btn-primary" id="btnBuscar"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+                            <button class="btn btn-success" id="btnGuardar"><span class="glyphicon glyphicon-floppy-disk"></span> Guardar</button>
+                            <button id="btnCargarExcel" class="btn btn-default" style="display: none;"><i class="fa fa-arrow-up"></i> Cargar Excel Traspaso Masivo</button>
+                            <button id="btnModalReporte" class="btn btn-default"><i class="fa fa-print"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-12 mrgTop">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#tabPendientes">Pendientes</a></li>
+                <li><a data-toggle="tab" href="#tabRechazados">Rechazados</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="tabPendientes" class="tab-pane fade in active">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="mrgTop" style="border: 1px solid black;">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="widget">
+                                            <div class="widget-header"></div>
+                                            <div class="widget-content">
+                                                <table id="tblTraspasosPendientes" style="width: 100%;"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div id="tabRechazados" class="tab-pane fade">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="mrgTop" style="border: 1px solid black;">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="widget">
+                                            <div class="widget-header"></div>
+                                            <div class="widget-content">
+                                                <table id="tblTraspasosRechazados" style="width: 100%;"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Comentarios:</legend>
+
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <textarea id="textAreaComentarios" class="form-control" rows="3" disabled></textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlUbicacionDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Ubicación </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblUbicacion" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="margin-top: 5px;">
+                    <button id="btnGuardarUbicacion" class="btn btn-primary"><i class="fa fa-save"></i> Capturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlCargarExcel" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Cargar Excel</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFileExcel" type="file">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarExcel" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlVerReporte" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Imprimible </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Almacén</span>
+                            <select id="selectAlmacenReporte" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 noPadLeft">
+                        <div class="input-group">
+                            <span class="input-group-addon">Número</span>
+                            <input id="inputNumeroReporte" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnImprimible" class="btn btn-primary"><i class="fa fa-eye"></i> Ver Imprimible</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Almacen/GestionTraspaso.js"></script>
+
+@Html.Partial("reportViewerView", false)

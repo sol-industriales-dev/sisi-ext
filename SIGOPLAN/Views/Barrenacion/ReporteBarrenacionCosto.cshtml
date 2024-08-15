@@ -1,0 +1,193 @@
+﻿<!-- Razor -->
+@{
+ViewBag.Title = "ReporteRendimiento";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Barrenacion/ReporteRendimiento.css" rel="stylesheet" />
+
+<!-- HTML -->
+<div class="row text-center titulo">
+    <h2>Reporte Costo Barrenación <i class="fas fa-calendar-day"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+
+    <div class="row">
+
+        <div class="col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Area Cuenta</span>
+                <select name="" id="comboAC" class="form-control"></select>
+            </div>
+        </div>
+
+        @*<div class="col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Tipo de pieza</span>
+                <select name="" id="comboTipoPieza" class="form-control">
+                    <option value="0">Todos</option>
+                </select>
+            </div>
+        </div>*@
+
+        <div class="col-md-2 col-lg-2">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha inicio:</span>
+                <input class="text-center form-control" type="text" id="inputFechaInicio">
+            </div>
+        </div>
+
+        <div class="col-md-2 col-lg-2">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha fin:</span>
+                <input class="text-center form-control" type="text" id="inputFechaFin">
+            </div>
+        </div>
+        <button id="botonBuscar" class="btn btn-primary pull-left">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+
+        <div class="col-md-2 col-lg-2 container-fluid pull-right">
+            <button id="botonAgregar" class="btn btn-info">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm"><label>Capturas:</label></legend>
+    <div class="col-md-12 col-lg-12 margin-top">
+        <table id="tablaPiezas" class="table table-fixed table-hover table-responsive table-striped">
+            <thead class="bg-table-header">
+        </table>
+    </div>
+</fieldset>
+
+
+
+
+@*modal*@
+<div class="modal fade" id="modalRegistroBarrenacionCosto" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Alta Barrenación Costo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label for="claveCurso" class="form-label">Mano de Obra:</label>
+                        <input type="number" id="txtMano" placeholder="Mano de Obra" class="form-control validar" maxlength="11" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="nombreCurso" class="form-label">Costo Renta:</label>
+                        <input type="number" id="txtCostoRenta" placeholder="Costo Renta" class="form-control validar" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="txtDiesel" class="form-label">Diesel:</label>
+                        <input type="number" id="txtDiesel" placeholder="Diesel" class="form-control validar" />
+                    </div>
+                    <div class="col-sm-3">
+                        @*<span class="input-group-addon">Fecha inicio:</span>*@
+                        <label for="txtDiesel" class="form-label">Fecha Costo:</label>
+                        <input class="text-center form-control" type="text" id="inputFechaCosto">
+                    </div>
+
+                </div>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Piezas:</label></legend>
+                    @*agregar Piezas*@
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button type="button" id="btnAddPieza" class="pull-right" style="font-size:medium; margin-top:2px;">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Piezas
+                            </button>
+                            <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%;" border="1" id="tablaPadrePieza">
+
+                                <thead class="bg-table-header table-responsive" style="text-align:center">
+                                    <tr>
+                                        <th>Pieza</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Total Pieza</th>
+                                        <th align="center">Eliminar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblPieza"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Prepended text-->
+                    <div class="input-group">
+                        <span class="input-group-addon">$</span>
+                        <input id="txtResumenPiezaTotal" name="prependedtext" class="form-control" placeholder="Total Pieza" type="text" required="" readonly>
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Otros:</label></legend>
+                    <div class="row" style="margin-top:6px;">
+                        <div class="col-sm-12">
+
+                            <button type="button" id="btnAddOtro" class="pull-right" style="font-size:medium; margin-top:2px;">
+                                <span class="glyphicon glyphicon-plus"></span> Agregar Otros
+                            </button>
+                            <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%;" border="1" id="tablaPadreOtro">
+
+                                <thead class="bg-table-header table-responsive" style="text-align:center">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Total Otro</th>
+                                        <th align="center">Eliminar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblOtro"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Prepended text-->
+                    <div class="input-group">
+                        <span class="input-group-addon">$</span>
+                        <input id="txtResumenOtroTotal" name="prependedtext" class="form-control" placeholder="Total Otro" type="text" required="" readonly>
+                    </div>
+                </fieldset>
+                <!-- Prepended text-->
+                <div class="row container-fluid">
+                    <div class="input-group col-lg-3 pull-right" style="margin-top:4px; margin-bottom: 4px">
+                        <span class="input-group-addon">$</span>
+                        <input id="txtTotalCostoBarrenacion" name="prependedtext" class="form-control" placeholder="Total Costo Barrenación" type="number" required="" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnGuardar" data-dismiss="modal">Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@Html.Partial("reportViewerView", false)
+
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+@*<script src="~/Scripts/js/Maquinaria/Barrenacion/ReporteRendimiento.js"></script>*@
+<script src="~/Scripts/js/Maquinaria/Barrenacion/ReporteBarrenacionCosto.js"></script>

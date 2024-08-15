@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "Reporte de Comparativa de Tipos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/default/easyui.css" rel="stylesheet" />
+<link href="~/Content/style/icon.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/RepComparativaTipos.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<script src="@Url.Content("~/Scripts/Utilities/jquery.easyui.min.js")" type="text/javascript"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/RepComparativaTipos.js" type="text/javascript"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js" type="text/javascript"></script>
+
+<div class="row">
+    <h2 class="text-center">Reporte Comparativa de Tipos</h2>
+</div>
+<center>
+    <div class="row form-group">
+        <div class="col-lg-12">
+
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="col-lg-2 form-group">
+                    <label>Centro Costos:</label>
+                    <select class="form-control no-padding" id="tbCentroCostos"></select>
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Tipo de Equipo:</label>
+                    <select class="form-control" id="cboFiltroTipo" title="Seleccione:"></select>
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Grupo de Equipo:</label>
+                    <select class="form-control" id="cboFiltroGrupo" title="Seleccione:"></select>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="col-lg-6 no-padding">
+                        <label for="fechaIni">Fecha Inicio:</label>
+                        <input type="text" id="fechaIni" class="form-control" />
+                    </div>
+                    <div class="col-lg-6 no-padding-right">
+                        <label for="fechaFin">Fecha Fin:</label>
+                        <input type="text" id="fechaFin" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-1 form-group">
+                    <button type="button" class="btn btn-info margin-top pull-right" id="btnAplicarFiltros">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm"><label id="tituloLegend"></label></legend>
+                <div class="col-lg-12">
+                    <div class="row divTooltip" style="text-align:left; display:none;">
+                        <span style='font-style: italic;'>*Dar doble click sobre un valor para ver su desglose</span>
+                        <button class="btn btn-info pull-right" id="btnReporte">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            Imprimir
+                        </button>
+                        <button class="btn btn-info pull-right" id="btnRegresar" style="display:none;">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                            Regresar
+                        </button>
+                    </div>
+
+                    <div class="row form-group">
+                        <div id="divMain_Table">
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <canvas id="myChart" height="200" width="590"></canvas>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</center>
+<div class="modal fade" id="modalMes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row text-center form-group">
+                    <h3><label id="tituloModalMaquina"></label></h3>
+                </div>
+                <div>
+                    <div id="tableGrupos" class="hidden col-lg-12">
+
+                    </div>
+                    <div id="tableInsumos" class="hidden col-lg-12">
+
+                    </div>
+                    <center><div id="loadingData" class="loader hidden text-center"></div></center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+<div class="modal fade" id="modalMensaje" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Alerta</h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="text-center">
+                    <label id="lblMensaje"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary margin-top" data-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="modal fade" id="modalReportes" role="dialog">
+        <div class="modal-dialog containerReporteH container-fluid" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                    </div>
+                </div>
+                <div class="modal-body">
+
+                    <center>
+                        <div class='myIframe divFrameV'>
+                            <iframe id="report" align="middle" marginwidth="0"
+                                    marginheight="0"
+                                    hspace="0"
+                                    vspace="0"
+                                    frameborder="0"
+                                    scrolling="no"></iframe>
+                        </div>
+                    </center>
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+@*<div class="modal fade" tabindex="-1" role="dialog" id="modalReportes">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Reporte</h4>
+                </div>
+                <div class="modal-body">
+                    <div class='myIframe'>
+                        <iframe id="report" align="middle"></iframe>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->*@

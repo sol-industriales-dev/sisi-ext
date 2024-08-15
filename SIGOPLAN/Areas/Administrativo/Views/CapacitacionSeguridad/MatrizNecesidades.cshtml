@@ -1,0 +1,979 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "MatrizNecesidades";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/fixedheader/3.1.6/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/CapacitacionSeguridad/MatrizNecesidades.css" rel="stylesheet" />
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Matriz de Necesidades <i class="fas fa-chart-bar"></i></h2>
+</div>
+<input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+    <div class="row">
+
+        <div class="col-xs-12 col-md-5">
+            <div class="input-group">
+                <span class="input-group-addon">CC Construplan</span>
+                <select name="" id="comboCplan" class="form-control comboChange" multiple></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-5">
+            <div class="input-group">
+                <span class="input-group-addon">CC Arrendadora</span>
+                <select name="" id="comboArr" class="form-control comboChange" multiple></select>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row margin-top">
+
+        <div class="col-xs-12 col-md-5">
+            <div class="input-group">
+                <span class="input-group-addon">Área Operativa</span>
+                <select id="comboArea" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-5">
+            <div class=" input-group">
+                <span class="input-group-addon">Clasificación</span>
+                <select id="comboClasificacion" class="form-control" multiple></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-2">
+            <button id="botonBuscar" class="btn btn-primary pull-right">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+
+    </div>
+
+</fieldset>
+
+<!-- Tabs -->
+<div class="row margin-top">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="divTabs">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tabGeneral" aria-controls="tabGeneral" role="tab" data-toggle="tab">General</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tabDetalle" aria-controls="tabDetalle" role="tab" data-toggle="tab">Detalle</a>
+                </li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <!-- tab general -->
+                <div role="tabpanel" class="tab-pane fade in active" id="tabGeneral">
+
+                    <div class="row margin-top">
+                        <!-- Panel Indicadores Globales -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-indicadoresGlobales">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelIndicadoresGlobales">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Indicadores Globales
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelIndicadoresGlobales" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <h3>Porcentaje de Avance Global:
+                                                        <span id="spanPorcentajeGlobal" class="label label-primary">
+                                                            0 %
+                                                        </span>
+                                                    </h3>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <h3>Total de Personal:
+                                                        <span id="spanTotalPersonal"
+                                                            class="label label-primary">0</span>
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row margin-top">
+
+                                                <div class="col-xs-12 col-md-4" style="display: none;">
+                                                    <table
+                                                        class="table table-responsive table-bordered table-condensed ocultarThead">
+                                                        <thead>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bodyTablaRequeridos">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-xs-12 col-md-4" style="display: none;">
+                                                    <table
+                                                        class="table table-responsive table-bordered table-condensed ocultarThead">
+                                                        <thead>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bodyTablaCapacitados">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-xs-12 col-md-4" style="display: none;">
+                                                    <table
+                                                        class="table table-responsive table-bordered table-condensed ocultarThead">
+                                                        <thead>
+                                                            <tr>
+                                                                <th></th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="bodyTablaRestantes">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-xs-12 col-md-3">
+                                                    <table id="tablaPrioridades"
+                                                        class="table table-responsive table-bordered table-condensed">
+                                                    </table>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6">
+                                                    <table id="tablaIndicadoresGlobales"
+                                                        class="table table-responsive table-bordered table-condensed">
+                                                    </table>
+                                                </div>
+                                                <div class="col-xs-12 col-md-3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top">
+                        <!-- Panel Porcentaje Total Clasificación -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-porcentajeTotalClasificacion">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelPorcentajeTotalClasificacion">
+                                                <i class="fas fa-percent"></i>
+                                                Porcentaje Total por Clasificación
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelPorcentajeTotalClasificacion" class="panel-collapse collapse">
+                                        <div class="panel-body" style="height: 400px">
+                                            <div id="chartPorcentajeTotalClasificacion"></div>
+                                            @* <canvas id="chartPorcentajeTotalClasificacion"></canvas> *@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top">
+                        <!-- Panel Listado Personal Activo -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-personalActivo">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelPersonalActivo">
+                                                <i class="fas fa-list-alt"></i>
+                                                Personal Activo
+                                            </a>
+                                            <button id="botonConsultarPersonalActivo"
+                                                class="btn btn-xs btn-default pull-right">Consultar</button>
+                                        </h4>
+                                    </div>
+                                    <div id="panelPersonalActivo" class="panel-collapse collapse">
+                                        <div class="panel-body">
+
+                                            <div class="row">
+                                                <div class="col-xs-10 flexContainer">
+                                                    <span><i class='fas fa-circle infoHover cCumplido'></i>
+                                                        Vigente
+                                                    </span>
+                                                    <span><i class='fas fa-circle infoHover cValidacion'></i>
+                                                        Validación
+                                                    </span>
+                                                    <span><i class='fas fa-circle infoHover cProximoVencer'></i>
+                                                        Próximo
+                                                        a vencer</span>
+                                                    <span><i class='fas fa-circle infoHover cProgramado'></i>
+                                                        Programado
+                                                    </span>
+                                                    <span><i class='fas fa-circle infoHover cExpirado'></i>
+                                                        Expirado
+                                                    </span>
+                                                    <span><i class='fas fa-circle infoHover cNoAplica'></i>
+                                                        No Aplica
+                                                    </span>
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    <button id="botonExportarExcel" class="btn botonExcel pull-right">
+                                                        <i class="far fa-file-excel"></i> Exportar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row margin-top">
+                                                <div class="col-xs-12">
+                                                    <table id="tablaPersonalActivo"
+                                                        class="table table-condensed table-hover table-striped text-center">
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="margin-bottom: 100px;">
+                        <!-- Panel Estadísticas Individuales -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary oculto" id="div-estadisticas">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelEstadisticas">
+                                                <i class="fas fa-list-alt"></i>
+                                                Estadísticas Individuales Por Capacitación
+                                            </a>
+                                            <button id="botonConsultarEstadisticasIndividuales"
+                                                class="btn btn-xs btn-default pull-right">Consultar</button>
+                                        </h4>
+                                    </div>
+                                    <div id="panelEstadisticas" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <table id="tablaEstadisticas"
+                                                class="table table-condensed table-hover table-striped text-center">
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Fin tab general -->
+
+                <!-- tab detalle -->
+                <div role="tabpanel" class="tab-pane fade" id="tabDetalle" style="margin-bottom: 100px;">
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel Protocolos Fatalidad -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelProtocolos">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Protocolos Fatalidad
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelProtocolos" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeProtocolo"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadProtocolo"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel Normativo -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelNormativo">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Normativo
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelNormativo" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeNormativo"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadNormativo"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel General -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelGeneral">
+                                                <i class="fas fa-globe-americas"></i>
+                                                General
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelGeneral" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeGeneral"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadGeneral"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel Formativo -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelFormativo">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Formativo
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelFormativo" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeFormativo"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadFormativo"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel Instructivo Operativo -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelInstructivoOperativo">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Instructivo Operativo
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelInstructivoOperativo" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeInstructivo"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadInstructivo"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top" style="display: none;">
+                        <!-- Panel Técnico Operativo -->
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#panelTecnicoOperativo">
+                                                <i class="fas fa-globe-americas"></i>
+                                                Técnico Operativo
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panelTecnicoOperativo" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartPorcentajeTecnico"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-md-6 text-center">
+                                                    <div class="panel-body" style="height: 400px">
+                                                        <canvas id="chartCantidadTecnico"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divGraficasOperativas">
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse"
+                                                    href="#panelMandoAdministrativoProtocoloFatalidad">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Administrativo - Protocolos Fatalidad
+                                                </a>
+                                                <button id="botonConsultarMandoAdministrativoProtocoloFatalidad"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoAdministrativoProtocoloFatalidad"
+                                            class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoAdministrativoProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoAdministrativoProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoMedioProtocoloFatalidad">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Medio - Protocolos Fatalidad
+                                                </a>
+                                                <button id="botonConsultarMandoMedioProtocoloFatalidad"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoMedioProtocoloFatalidad" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoMedioProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoMedioProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoOperativoProtocoloFatalidad">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Operativo - Protocolos Fatalidad
+                                                </a>
+                                                <button id="botonConsultarMandoOperativoProtocoloFatalidad"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoOperativoProtocoloFatalidad" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoOperativoProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoOperativoProtocoloFatalidad"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoAdministrativoNormativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Administrativo - Normativo
+                                                </a>
+                                                <button id="botonConsultarMandoAdministrativoNormativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoAdministrativoNormativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoAdministrativoNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoAdministrativoNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoMedioNormativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Medio - Normativo
+                                                </a>
+                                                <button id="botonConsultarMandoMedioNormativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoMedioNormativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas id="chartPorcentajeMandoMedioNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas id="chartCantidadMandoMedioNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoOperativoNormativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Operativo - Normativo
+                                                </a>
+                                                <button id="botonConsultarMandoOperativoNormativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoOperativoNormativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoOperativoNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas id="chartCantidadMandoOperativoNormativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse"
+                                                    href="#panelMandoAdministrativoTecnicoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Administrativo - Técnico Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoAdministrativoTecnicoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoAdministrativoTecnicoOperativo"
+                                            class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoAdministrativoTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoAdministrativoTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoMedioTecnicoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Medio - Técnico Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoMedioTecnicoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoMedioTecnicoOperativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoMedioTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoMedioTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoOperativoTecnicoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Operativo - Técnico Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoOperativoTecnicoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoOperativoTecnicoOperativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoOperativoTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoOperativoTecnicoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse"
+                                                    href="#panelMandoAdministrativoInstructivoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Administrativo - Instructivo Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoAdministrativoInstructivoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoAdministrativoInstructivoOperativo"
+                                            class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoAdministrativoInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoAdministrativoInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" href="#panelMandoMedioInstructivoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Medio - Instructivo Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoMedioInstructivoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoMedioInstructivoOperativo" class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoMedioInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoMedioInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse"
+                                                    href="#panelMandoOperativoInstructivoOperativo">
+                                                    <i class="fas fa-globe-americas"></i>
+                                                    Mando Operativo - Instructivo Operativo
+                                                </a>
+                                                <button id="botonConsultarMandoOperativoInstructivoOperativo"
+                                                    class="btn btn-xs btn-default pull-right">Consultar</button>
+                                            </h4>
+                                        </div>
+                                        <div id="panelMandoOperativoInstructivoOperativo"
+                                            class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartPorcentajeMandoOperativoInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center">
+                                                        <div class="panel-body" style="height: 400px">
+                                                            <canvas
+                                                                id="chartCantidadMandoOperativoInstructivoOperativo"></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.1.6/js/dataTables.fixedHeader.min.js"></script>
+    <script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+    <script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+    <script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+    <script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+    <script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+    <script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/MatrizNecesidades.js"></script>

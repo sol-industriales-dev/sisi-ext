@@ -1,0 +1,389 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpleado = (string)ViewBag.idEmpleado;
+    var ccEmpleado = (string)ViewBag.ccEmpleado;
+    var tipoDePrestamo = (string)ViewBag.tipoDePrestamo;
+    var statusPrestamo = (string)ViewBag.statusPrestamo;
+}
+
+<!-- CSS -->
+@* <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" /> *@
+<link href="~/Content/style/css/Catalogos/AnexosMaquinariaStyle.css" rel="stylesheet" />
+@* <link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+    @* <link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" /> *@
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/RecursosHumanos/Prestamos/Generales.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Prestamos/DashboardPrestamos.css" rel="stylesheet" />
+@* <link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" /> *@
+<!-- CSS -->
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>GESTION DE PRESTAMOS</h2>
+        </div>
+    </div>
+
+    <input type="hidden" id="idEmpleado" value="@idEmpleado" />
+    <input type="hidden" id="ccEmpleado" value="@ccEmpleado" />
+    <input type="hidden" id="tipoDePrestamo" value="@tipoDePrestamo" />
+    <input type="hidden" id="statusPrestamo" value="@statusPrestamo" />
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>CC:</label>
+                            <select class="form-control no-padding" multiple="multiple" id="cboCC3"></select>
+                        </div>
+                        <div class="col-lg-2" style="">
+                            <label>Tipo de prestamo:</label>
+                            <select class="form-control" id="filtroTipoPrestamo">
+                                <option value="">--Seleccione--</option>
+                                <option value="SINDICATO">SINDICATO</option>
+                                <option value="MayorIgualA10">MAYOR O IGUAL A $10,000.00</option>
+                                <option value="MenorA10">MENOR A $10,000.00</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2" style="">
+                            <label>Estatus del prestamo:</label>
+                            <select class="form-control" id="filtroStatus">
+                                <option value="">--Seleccione--</option>
+                                <option value="P">PENDIENTE</option>
+                                <option value="A">AUTORIZADO</option>
+                                <option value="C">CANCELADO</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-1">
+                            <button type=" button" class="btn btn-info margin-top" id="btnBuscarGestion">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <!-- BODY -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="divGridContainer" class="scroll divPadding">
+                                <table id="tblPrestamosGestion"
+                                       class="table table-condensed table-hover table-striped text-center"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+<!-- MODAL CONSULTA PRESTAMO -->
+<div id="ModalConsultaPrestamo" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <legend class="modal-title">Informacion de Prestamo</legend>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" style="background-color: #f5f5f5;">Datos:</legend>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Folio:</label>
+                                <input class="form-control" id="inputFolio" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Fecha captura:</label>
+                                <input class="form-control" id="inputFechaCaptura" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Centro Costos:</label>
+                                <input class="form-control" id="inputCC" readonly>
+                                <input type="hidden" id="CC" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">Puesto:</label>
+                                <input type="text" class="form-control" id="inputPuesto" readonly><input type="hidden"
+                                                                                                         id="puesto" readonly>
+                            </div>
+                            <br>
+                            <div class="col-md-6 highlightInput">
+                                <label class="">Nombre Trabajador:</label>
+                                <input type="text" class="form-control" id="inputTrabajador" readonly><input type="hidden" id="inputClaveEmp" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="">Empresa:</label>
+                                <input type="text" class="form-control" id="inputEmpresa" readonly>
+                            </div>
+                            <div class="col-md-3 highlightInput">
+                                <label class="">Nomina:</label>
+                                <input class="form-control" id="inputNomina" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Sueldo Base:</label>
+                                <input class="form-control" id="inputSueldoBase" readonly>
+                            </div>
+                            <br>
+                            <div class="col-md-3">
+                                <label class="">Fecha de Ingreso:</label>
+                                <input class="form-control" id="inputFechaIngreso" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Complemento:</label>
+                                <input class="form-control" id="inputComplemento" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Total Neto:</label>
+                                <input class="form-control" id="inputTotalN" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Total Mensual:</label>
+                                <input class="form-control" id="inputTotalM" readonly>
+                            </div>
+                            <br>
+                            <div class="col-md-3 highlightInput">
+                                <label class="">Cantidad a Descontar :</label>
+                                <input class="form-control , validar" id="inputCantDescontar" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Otros Descuentos:</label>
+                                <input class="form-control , validar" id="inputOtrosDesc" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="">Cantidad Maxima a prestar:</label>
+                                <input class="form-control , validar" id="inputCantMax" readonly>
+                            </div>
+                            <div class="col-md-3 highlightInput">
+                                <label class="">Cantidad Solicitada:</label>
+                                <input class="form-control , validar" id="inputCantSoli" readonly>
+                            </div>
+                            <br>
+                            <div class="col-md-3">
+                                <label>Tipo prestamo:</label>
+                                <select id="tipoPrestamo" class="form-control select2" disabled>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="MayorIgualA10">MAYOR O IGUAL A $10,000.00</option>
+                                    <option value="MenorA10">MENOR A $10,000.00</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label> Tipo de Puesto:</label>
+                                <select class="form-control select2" id="tipoPuesto" disabled>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="SINDICALIZADO">SINDICALIZADO</option>
+                                    <option value="NO SINDICALIZADO">NO SINDICALIZADO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label> Solicitud de Prestamo de:</label>
+                                <select class="form-control" id="tipoSolicitud" disabled>
+                                    <option value="CHEQUE FAUSTINO RAYGOZA TIRADO">
+                                        CHEQUE FAUSTINO RAYGOZA
+                                        TIRADO
+                                    </option>
+                                    <option value="TRANSFERENCIA/CUENTA DE NOMINA">
+                                        TRANSFERENCIA/CUENTA DE
+                                        NOMINA
+                                    </option>
+                                    <option value="CHEQUE COLABORADOR">CHEQUE COLABORADOR</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5 highlightInput">
+                                <label> Plazo de pago:</label>
+                                <select class="form-control" id="formaPago" name="Plazo a pagar.." disabled>
+                                    <option value="12 Quincenas">12 Quincenas</option>
+                                    <option value="24 Semanas">24 Semanas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5 highlightInput">
+                                <label> Motivo del prestamo:</label>
+                                <select class="form-control" id="MotivoPres" name="Motivo de prestamo.." disabled>
+                                    <option value="1">Salud</option>
+                                    <option value="2">Defunción</option>
+                                    <option value="3">Daños Vivienda</option>
+                                    <option value="4">Apoyo economico escolar</option>
+                                    <option value="5">Sindicato</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 highlightInput">
+                                <label class="">Justificacion del prestamo:</label>
+                                <textarea class="form-control" id="inputJustificacion" rows="3" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" style="background-color: #f5f5f5;">Autorizantes:</legend>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="">RESPONSABLE DEL CC:</label>
+                                <input class="form-control" id="idResponsableCC" readonly>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="">GERENTE/DIRECTOR DE CAPITAL HUMANO:</label>
+                                <input class="form-control" id="idCapitalHumano" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="">GERENTE/DIRECTOR DE AREA:</label>
+                                <input class="form-control" id="idGerenteOdirector" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="">DIRECTOR LINEA DE NEGOCIO:</label>
+                                <input class="form-control" id="idDirectorLineaN" readonly>
+
+                            </div>
+                            <div class="col-md-4">
+                                <label class="">DIRECTOR GENERAL:</label>
+                                <input class="form-control" id="idDirectorGeneral" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <br>
+            <div class="modal-footer">
+
+
+                <button type="button" class="btn btn-success" id="btnAutorizar" style="display: none;">
+                    <i class="fas fa-user-check"></i> AUTORIZAR
+                </button>
+
+                <button type="button" class="btn btn-warning" id="btnRechazar" style="display: none;">
+                    <i class="fas fa-user-times"></i> RECHAZAR
+                </button>
+
+                <button type="button" class="btn btn-success" id="btnGuardar" style="display: none;">
+                    <i class="fa fa-save"></i> GUARDAR
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CONSULTA PRESTAMO -->
+<!-- MODAL LISTADO DE AUTORIZANTES -->
+<div id='mdlListadoAutorizantes' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Autorizantes</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row seccion'>
+                    <div class="col-lg-12">
+                        <table id="tblListadoAutorizantes"
+                               class="table table-hover table-bordered compact table-striped"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>
+                    <i class='fa fa-arrow-left'></i>&nbsp;Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE AUTORIZANTES -->
+<!-- MODAL ARCHIVOS ADJUNTOS -->
+<div id='mdlArchivos' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>ARCHIVOS</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="pull-left">
+                        <input type="file" id="txtArchivoAdjunto">
+                    </div><br><br>
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tablaArchivosAdjuntos" class="table stripe compact nowrap" style="width:99%;"></table>
+                        </div><br><br>
+                    </div>
+                    <div class="pull-right">
+                        <button id="btnGuardarArchivoAdjunto" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ARCHIVOS ADJUNTOS -->
+<!-- MODAL COMENTARIO RECHAZO -->
+<div id='mdlComentario' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>COMENTARIO RECHAZO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <textarea name="" id="txtComentario" cols="60" rows="10" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL COMENTARIO RECHAZO -->
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+@* <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+    <script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+    <script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script> *@
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/ReportesRH/Prestamos.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment.min.js"></script>
+<!-- SCRIPTS -->

@@ -1,0 +1,393 @@
+﻿@{
+        ViewBag.Title = "AltaProveedorColombia";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var numpro = (string)ViewBag.numpro;
+}
+<script type="text/javascript">
+    function showContent() {
+            element = document.getElementById("divPersonaFisica");
+            check = document.getElementById("chkPersonaFisica");
+            if (check.checked) {
+                element.style.display = 'block';                
+            }
+            else {
+                element.style.display = 'none';
+            }
+    }
+
+    function soloNumeros(e){
+	var key = window.Event ? e.which : e.keyCode
+	return (key >= 48 && key <= 57)
+}
+</script>
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Enkontrol/AltaProveedor/AltaProveedor.css" rel="stylesheet" />
+
+<br>
+<br>
+     <div class="col-lg-12">
+            <div class="seccion">
+                   <div class="row">
+                        <h2 class="margin-top:0;font-weight:bold;width:500px;display:inline-block; text-center">Catálogo de Proveedores</h2>
+                    </div>
+           
+                    <input type="hidden" id="numpro" value="@numpro" />
+                    <input type="hidden" id="inpIdProv" />
+                    <input type="hidden" id="inpCancelado" />
+                
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class='col-lg-3'>
+                            </div>
+                            <div class='col-lg-3'>
+                            </div>
+                            <div class="col-lg-5">
+                            </div>
+                            <div class="col-lg-1">
+                                <button type="button" data-toggle="modal" class="btn btn-primary"
+                                id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+             </div>
+          </div>  
+<div class='col-lg-12'>   
+    <div class="seccion">
+        <h4 style="margin-top:0;font-weight:bold;"><i class='fa fa-table'></i>&nbsp;&nbsp;&nbsp;Proveedores</h4>
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="TblCom_sv_proveedores" class="table table-condensed table-hover table-striped text-center"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+   <div id="mdlNuevoProveedor" class='modal fade' role='dialog'>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                 
+                        <div class="row">
+                        <div class='col-lg-12'> 
+
+                    <!-- DATOS GENERALES -->
+                            <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabGeneral"
+                                    href="#collapseOne">DATOS GENERALES</a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                      
+                            <div class="row"> 
+                               <div class='col-lg-4'>
+                                    <label><span class="puntoRojo">* CAMPOS OBLIGATORIOS</span></label>
+                                </div>   
+                                <div class='form-group col-lg-12'>                                       
+                                    <div class="col-lg-2"> 
+                                        <label><span class="puntoRojo">*</span>Proveedor: </label>
+                                        <input id="inpNumProv" class="form-control" maxlength="4" onKeyPress="return soloNumeros(event)" ></input>
+                                    </div>
+                                    <div class='col-lg-2'>
+                                         <label>Persona Fisica:</label>
+                                         <input id='chkPersonaFisica' class='form-control' type="checkbox"
+                                         onchange="javascript:showContent()" ></input>
+                                    </div>
+                                    <div class='col-lg-2'>
+                                        <label>Obliga CFDI</label>
+                                        <input id='chkObligaCfi' class='form-control' type="checkbox"></input>
+                                    </div>
+                                    <div class='col-lg-2'>
+                                        <label>Factoraje:</label>
+                                        <input id='chkFactoraje' class='form-control' type="checkbox"></input>
+                                    </div>   
+                                    <div class='col-lg-2'>
+                                        <label>Autoretenedor:</label>
+                                        <input id='chkAutoretenedor' class='form-control' type="checkbox"></input>                                
+                                    </div>  
+                                        <div class='col-lg-2'>
+                                        <label>Convenio nomina:</label>
+                                        <input id='chkConvenioNomina' class='form-control' type="checkbox"></input>                                
+                                    </div>                                                                                                                         
+                                </div>
+                               
+                                  <div class='form-group col-lg-12'>    
+                                        <div id="divPersonaFisica" style="display: none;">   
+                                            <div class="col-lg-2">
+                                                <label>Nombres: </label>
+                                                <input id="inpNombres" class="form-control" maxlength="100"></input>
+                                            </div>
+                                            <div class="col-lg-3"> 
+                                                <label>Apellido paterno: </label>
+                                                <input id="inpApePaterno" class="form-control" maxlength="60"></input>
+                                            </div>
+                                            <div class="col-lg-3"> 
+                                                <label>Apellido materno: </label>
+                                                <input id="inpApeMaterno" class="form-control" maxlength="60"></input>
+                                            </div>   
+                                        </div>  
+                                     </div> 
+                                    <div class='form-group col-lg-12'>              
+                                       <div class='col-lg-3'>
+                                            <label><span class="puntoRojo">*</span>Nombre:</label>
+                                            <input id='inpNombreProv' class='form-control' maxlength="120" ></input>
+                                       </div>
+                                        <div class='col-lg-2'>
+                                            <label><span class="puntoRojo">*</span>Nombre corto:</label>
+                                            <input id='inpNombreCorto' class='form-control' maxlength="20" ></input>
+                                        </div>
+                                        <div class='col-lg-5'>
+                                            <label><span class="puntoRojo">*</span>Dirección:</label>
+                                            <input id='inpDireccion' class='form-control' maxlength="120" ></input>
+                                        </div>   
+                                         <div class='col-lg-2'>
+                                            <label><span class="puntoRojo">*</span>Codigo Postal:</label>
+                                            <input id='inpPostal' class='form-control' maxlength="10"></input>
+                                        </div>                                  
+                                    </div>  
+                                    <div class='form-group col-lg-12'>    
+                                         <div class='col-lg-3'>
+                                            <label><span class="puntoRojo">*</span>NIT:</label>
+                                            <input id='inpRfc' class='form-control' maxlength="9"></input>
+                                        </div>       
+                                        <div class='col-lg-1'>
+                                            <label>DV:</label>
+                                            <input id='inpNITDV' class='form-control' maxlength="1"></input>
+                                        </div>             
+                                        <div class='col-lg-5'>
+                                            <label><span class="puntoRojo">*</span>Ciudad</label>
+                                            <select id='cboCiudad' class='form-control select2'>
+                                            <option value="" selected>--Seleccione</option></select>
+                                        </div>   
+                                        <div class='col-lg-2'>
+                                          <label>Nacionalidad:</label>
+                                          <input id='inpNacionalidad' class='form-control' maxlength="40"></input>
+                                        </div> 
+                                    </div>     
+                                    <div class='form-group col-lg-12'> 
+                                        <div class='col-lg-3'>
+                                            <label>Delegacion o municipio:</label>
+                                            <input id='inpDelegacion' class='form-control' maxlength="60"></input>
+                                        </div>
+                                        <div class='form-group col-lg-3'>
+                                            <label>Colonia:</label>
+                                            <input id='inpColonia' class='form-control' maxlength="60"></input>
+                                        </div> 
+                                          <!-- <div class='col-lg-2'>
+                                            <label>Tipo identificacion:</label>
+                                               <select class="form-control" id="cboTipoIdentificacion">
+                                                    <option value="" selected>--Seleccione</option>
+                                                    <option value="12">Tarjeta de identidad</option>
+                                                    <option value="13">Cédula de ciudadanía</option>
+                                                    <option value="21">Tarjeta de Extranjero</option>
+                                                    <option value="22">Cédula de Extranjero</option>
+                                                 </select> 
+                                        </div>  -->
+                                              <!-- <div class='col-lg-2'> -->
+                                            <!-- <label>ID:</label>
+                                            <input id='inpNumIdentificacion' class='form-control' onKeyPress="return soloNumeros(event)"></input>
+                                        </div>  -->
+                                        <div class='form-group col-lg-3'>
+                                            <label>Regimen tributario:</label>
+                                               <select class="form-control" id="cboTipoRegimen">
+                                               <!-- <option value="0" selected>--Seleccione</option> -->
+                                                 </select> 
+                                        </div> 
+                                        <div class='form-group col-lg-3'>
+                                            <label>Tipo Proveedor:</label>
+                                            <select id='cboTipoProv' class='form-control'></select> 
+                                            <!-- <option value="" selected>--Seleccione</option></select> -->
+                                        </div>
+                                        <div class='form-group col-lg-3'>
+                                            <label>Tipo de Tercero:</label>
+                                            <select id='cboTipoTercero' class='form-control'></select> 
+                                            <!-- <option value="" selected>--Seleccione</option></select> -->
+                                        </div>                                                              
+                                        <div class='form-group col-lg-3'>
+                                            <label>Tipo de operación:</label>
+                                            <select id='cboTipoOperacion' class='form-control'></select> 
+                                            <!-- <option value="" selected>--Seleccione</option></select> -->
+                                        </div>    
+                                    </div>    
+                                </div>
+                            </div>                                    
+                        </div>                                                                
+                    </div>  
+                    <!-- END: DATOS GENERALES -->
+
+                    <!-- OTROS DATOS -->
+                        <div class="panel-group" id="tabOtros">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabOtros"
+                                        href="#collapseTwo">OTROS DATOS</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="col-lg-12">     
+                                            <div class="row">  
+                                                <div class="form-group col-lg-12">                                                                                                
+                                                    <div class='form-group col-lg-4'>
+                                                        <label><span class="puntoRojo">*</span>Responsable</label>
+                                                        <input id='inpResponsable' class='form-control' maxlength="40"></input>
+                                                    </div>
+                                                    <div class='form-group col-lg-2'>
+                                                        <label>Teléfono 1:</label>
+                                                        <input id='inpTelefono1' class='form-control' maxlength="15"></input>
+                                                    </div>
+                                                    <div class='form-group col-lg-2'>
+                                                        <label>Teléfono 2:</label>
+                                                        <input id='inpTelefono2' class='form-control' maxlength="15"></input>
+                                                    </div>   
+                                                    <!-- <div class='form-group col-lg-2'>
+                                                        <label>Curp:</label>
+                                                        <input id='inpCurp' class='form-control' maxlength="18"></input>
+                                                    </div>    -->
+                                                    <div class='form-group col-lg-2'>
+                                                        <label><span class="puntoRojo">*</span>Moneda:</label>
+                                                        <select id='cboTipoMoneda' class='form-control'></select>
+                                                    </div>  
+                                                     <div class='form-group col-lg-2'>
+                                                        <label>Fax:</label>
+                                                        <input id='inpFax' class='form-control' maxlength="15"></input>
+                                                    </div>  
+                                                    <div class='form-group col-lg-3'>
+                                                        <label>Email:</label>
+                                                        <input id='inpEmail' class='form-control' maxlength="100"></input>
+                                                    </div>  
+                                                     <div class='form-group col-lg-2'>
+                                                        <label>Cuenta Bancaria:</label>
+                                                        <input id='inpCuentaBancaria' class='form-control'></input>
+                                                    </div> 
+                                                    <div class='form-group col-lg-3'>
+                                                        <label><span class="puntoRojo">*</span>Tipo Movimiento:</label>
+                                                        <select id='cboTipoMovBase' class='form-control'></select>                                             
+                                                    <div>                            
+                                                </div>   
+                                            
+                                            </div>
+                                              <div class="row">  
+                                                <div class='form-group col-lg-12'>                                      
+                                                    <div class='col-lg-2'>
+                                                        <label><span class="puntoRojo">*</span>Límite de credito:</label>
+                                                        <input id='inpLineaCredito' class='form-control' maxlength="14"></input>
+                                                    </div>
+                                                    <div class='col-lg-2'>
+                                                        <label><span class="puntoRojo">*</span>Condición pago</label>  
+                                                        <input id='inpCondicionPago' class='form-control' placeholder='Dias.' maxlength="3" onKeyPress="return soloNumeros(event)"></input>
+                                                    </div>   
+                                                    <div class='col-lg-2'>
+                                                        <label></span>Lada:</label>  
+                                                        <input id='inpLada' class='form-control' onKeyPress="return soloNumeros(event)"></input>
+                                                    </div> 
+                                                    <div class='col-lg-2'>
+                                                        <label></span>Descuento:</label>  
+                                                        <input id='inpDescuento' class='form-control' onKeyPress="return soloNumeros(event)"></input>
+                                                    </div> 
+                                                    <div class='col-lg-2'>
+                                                        <label></span>Base Iva:</label>  
+                                                        <input id='inpBaseIva' class='form-control' placeholder=".00" onKeyPress="return soloNumeros(event)"></input>
+                                                    </div>   
+                                                </div>  
+                                                <div class='col-lg-12'>
+                                                     <div class="col-lg-12">
+                                                        <label>Beneficiario: </label>
+                                                        <input id="inpBeneficiario" class="form-control"></input>
+                                                     
+                                               
+                                                    </div>
+                                                </div>                                               
+                                           </div>
+                                        </div>
+                                    </div> 
+                                </div>                                  
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+                                                
+                            
+                    <!-- END: OTROS DATOS -->
+                        
+                    <!-- ADJUNTAR ARCHIVOS -->
+                    <div class="panel-group" id="tabAdjuntar">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabAdjuntar"
+                                        href="#collapseFour">
+                                        ADJUNTAR ARCHIVOS
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseFour" class="panel-collapse collapse" aria-expanded="true">
+                                    <div class="panel-body">
+                                            <div class="col-lg-12">
+                                            <input type="file" id="txtArchivoAdjunto">
+                                                            <label class="label labelNombre" id=""> Ningún
+                                                                Archivo Seleccionado</label>
+                                                                <br>
+                                                <div class="table-responsive">
+                                                    <table id="tablaArchivosAdjuntos" class="table stripe compact nowrap" style="width:99%;"></table>
+                                                </div>
+                                            </div>                                                              
+                                        </div>
+                                    </div>
+                                </div>               
+                            </div>  
+                     
+                    <!-- END: ADJUNTAR ARCHIVOS -->   
+
+                    <!-- SOCIOS-->
+                        <div class="panel-group" id="tabSocios" style="display: none;">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#tabSocios"
+                                            href="#collapseFive">
+                                            SOCIOS
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseFive" class="panel-collapse collapse" aria-expanded="true">
+                                        <div class="panel-body">
+                                        <div class="col-lg-12">                                             
+                                            <label>Socios:</label> 
+                                                <textarea class="form-control" id="inpInfoSocio" rows="5"></textarea>                                    
+                                            </div>                             
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div> 
+                  
+                   <!-- END: SOCIOS -->   
+                    <div class="modal-footer">
+                        <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                                class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                        <button type="button" id="btnCrearEditarProv" class="btn btn-primary"><i
+                                class="fas fa-save"></i>&nbsp;Guardar Proveedor</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Proveedores/AltaProveedorColombia.js"></script>

@@ -1,0 +1,306 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    ViewBag.Title = "Balance General";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/BalanceGeneral.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+    <div class="row">
+        <div class="col-sm-12 text-center titulo">
+            <h4 id="hdrTitulo">GRUPO CONSTRUCCIONES PLANIFICADAS, S.A DE C.V.</h4>
+            <h4 id="hdrSubtitulo">BALANCE GENERAL</h4>
+            <h5>(EN MILLARES)</h5>
+        </div>
+    </div>
+
+
+    <fieldset class="fieldset-custm mrgTop">
+        <legend class="legend-custm">Filtros:</legend>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 no-padding no-margin">
+            <div class="input-group no-padding no-margin">
+                <div class="input-group-addon">Empresas</div>
+                <select id="ftrSelectEmpresa" class="form-control">
+                    <option value="Todos">TODAS</option>
+                    <option value="1" selected>CONSTRUPLAN</option>
+                    <option value="2">ARRENDADORA</option>
+                    <option value="4">EICI</option>
+                    <option value="5">INTEGRADORA</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2" style="padding-left:25px;">
+            <div class="input-group">
+                <div class="input-group-addon">Corte</div>
+                <input id="ftrInputFechaCorte" class="form-control date-picker" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 no-padding no-margin">
+            <div class="input-group">
+                <div class="input-group-addon">CC: </div>
+                <select id="ftrSelectCC" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+            <div class="input-group">
+                <div class="input-group-addon">Tipo: </div>
+                <select id="ftrSelectTipo" class="form-control">
+                    <option value="1">ACTIVOS</option>
+                    <option value="2">PASIVOS</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 no-padding no-margin">
+            <button id="fltrBtnBuscar" class="btn btn-info "><i class="fas fa-search"></i> Buscar</button>
+            <button id="fltrBtnReporte" class="btn btn-warning ">Reporte</button>
+            <button id="fltrBtnIndicadores" class="btn btn-success ">Indicadores</button>
+        </div>
+    </fieldset>
+
+
+    <fieldset class="fieldset-custm mrgTop">
+        <legend class="legend-custm">Datos</legend>
+        <div class="table-responsive">
+            <table id="tblBalance" class="hover stripe compact" style="width:100%;"></table>
+        </div>
+    </fieldset>
+
+    <div class="modal fade" id="modalBanco">
+        <div class="modal-dialog modal-lg" style="width: 95%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Bancos</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaBanco" class="hover stripe compact" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">CONCEPTO</th>
+                                        <th colspan="4">MES</th>
+                                        <th colspan="4">ACUMULADO</th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCuenta">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Cuentas por cobrar</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaCuenta" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalObra">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Obras por aprobar</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaObra" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalParteRelacionada">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Partes relacionadas</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaParteRelacionada" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAlmacen">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Almacén de materiales</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaAlmacen" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalInversion">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Inversión en subsidiarias</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaInversion" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDocumento">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>Documentos por pagar</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaDocumento" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tablaDocumentoPuras" class="hover stripe compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalIndicadores">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="text-center">
+                        <h3>COMPARATIVO DE INDICADORES</h3>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <figure class="highcharts-figure">
+                                <div id="gfxIndicadoresRazonCirculante"></div>
+                            </figure>
+                        </div>
+                        <div class="col-sm-6">
+                            <figure class="highcharts-figure">
+                                <div id="gfxIndicadoresDeudaCapitalNeto"></div>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <figure class="highcharts-figure">
+                                <div id="gfxIndicadoresPruebaAcido"></div>
+                            </figure>
+                        </div>
+                        <div class="col-sm-6">
+                            <figure class="highcharts-figure">
+                                <div id="gfxIndicadoresRazonEndeudamiento"></div>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <figure class="highcharts-figure">
+                                <div id="gfxEbitda"></div>
+                            </figure>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <figure class="highcharts-figure">
+                                <div id="gfxDeudaEbitda"></div>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/EstadoFinanciero/BalanceGeneral.js"></script>

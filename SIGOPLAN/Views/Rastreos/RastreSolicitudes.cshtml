@@ -1,0 +1,161 @@
+﻿@{
+    ViewBag.Title = "RastreSolicitudes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    .progress-bar-AsignacionPendiente {
+        background-color:red;
+    }
+    .progress-bar-Asignacion {
+        background-color:#8E44AD;
+    }
+    .progress-bar-Trabajando {
+        background-color:#5cb85c;
+    }
+    .progress-bar-PendienteCompraRenta {
+        background-color:#d9534f;
+    }
+    .progress-bar-CalidadEnvio {
+        background-color:#DC7633;
+    }
+    .progress-bar-CalidadRecepcion {
+        background-color:#337ab7;
+    }
+    .progress-bar-CalidaEnvioTMC {
+        background-color:#5bc0de;
+    }
+    .progress-bar-CalidaRecepcionTMC {
+        background-color:#566573;
+    }
+    .progress-bar-Calidad {
+        background-color: #DC7633;
+    }
+
+    .progress-bar-ControER {
+        background-color: #566573;
+    }
+
+    .indicadores {
+        width: 143px !important;
+        border: 1px solid black;
+        cursor: not-allowed;
+        font-size: smaller;
+        font-weight: bolder;
+        font-stretch: extra-condensed;
+    }
+</style>
+<script src="~/Scripts/js/Maquinaria/Inventario/RastreoSolicitudesJS.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros</legend>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+                    <label>Folio:</label>
+                    <input class="form-control" id="tbFolio" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+                    <label>Economico:</label>
+                    <input class="form-control" id="tbEconomico" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2">
+                    <label>Estado</label>
+                    <select class="form-control" id="cboEstados">
+                        <option value="">
+                            Todos
+                        </option>
+                        <option value="1">
+                            Asignación
+                        </option>
+                        <option value="2">
+                            Control Calidad Envío
+                        </option>
+                        <option value="3">
+                            Control Envío
+                        </option>
+                        <option value="4">
+                            Control Calidad Recepción
+                        </option>
+                        <option value="5">
+                            Control Recepción
+                        </option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-1 form-group">
+                    <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-5">
+                    <div class="col-md-4">
+                        <div class="input-group" title="Asignación Pendiente">
+                            <span class="input-group-addon btn-block progress-bar-AsignacionPendiente"></span>
+                            <span class="form-control indicadores">Asignación Pendiente</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Asignación">
+                            <span class="input-group-addon btn-block progress-bar-Asignacion"></span>
+                            <span class="form-control indicadores">Asignación</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Trabajando">
+                            <span class="input-group-addon btn-block progress-bar-Trabajando"></span>
+                            <span class="form-control indicadores">Trabajando</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Pendiente Compra/Renta">
+                            <span class="input-group-addon btn-block progress-bar-PendienteCompraRenta"></span>
+                            <span class="form-control indicadores">Pendiente Compra/Renta</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Calidad/Envío">
+                            <span class="input-group-addon btn-block progress-bar-CalidadEnvio"></span>
+                            <span class="form-control indicadores">Calidad/Envío</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Calidad/Recepción">
+                            <span class="input-group-addon btn-block progress-bar-CalidadRecepcion"></span>
+                            <span class="form-control indicadores">Calidad/Recepción</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Calidad/Envió TMC">
+                            <span class="input-group-addon btn-block progress-bar-CalidaEnvioTMC"></span>
+                            <span class="form-control indicadores">Calidad/Envió TMC</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group" title="Calidad/Recepción TMC">
+                            <span class="input-group-addon btn-block progress-bar-CalidaRecepcionTMC"></span>
+                            <span class="form-control indicadores">Calidad/Recepción TMC</span>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Rastreo de Solicitudes</legend>
+                <table id="tblRastreoAsignados" class="table table-responsive table-striped">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th data-column-id="Folio" data-align="center" data-header-align="center" data-width="10%">Folio Solicitud</th>
+                            <th data-column-id="Economico" data-formatter="Economico" data-align="center" data-header-align="center" data-width="6%">Economico</th>
+                            <th data-column-id="Descripcion" data-formatter="Economico" data-align="center" data-header-align="center" data-width="6%">Descripción</th>
+                            <th data-column-id="LugarOrigen" data-align="center" data-header-align="center" data-width="10%">Lugar Origen</th>
+                            <th data-column-id="LugarRecepcion" data-align="center" data-header-align="center" data-width="10%">Lugar Destino</th>
+                            <th data-column-id="FechaPromesa" data-sortable="false" data-align="center" data-header-align="center" data-width="6%">Fecha Promesa</th>
+                            <th data-column-id="Rastreo" data-formatter="Rastreo" data-sortable="false" data-align="center" data-header-align="center" data-width="30%">Estado Rastreo</th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>

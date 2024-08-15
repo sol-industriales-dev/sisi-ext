@@ -1,0 +1,270 @@
+﻿@{
+    ViewBag.Title = "gestionFacultamientos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var facultamiento = new SIGOPLAN.Areas.ControlObra.Controllers.ControlObraController().GetPrivilegioUsuario();
+}
+
+@if (facultamiento == 1)
+{
+    <link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+    <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+    <link href="~/Content/style/css/ControlObra/ControlObra2.css" rel="stylesheet" />
+    <link href="~/Content/style/css/Subcontratistas/EstiloGeneral.css" rel="stylesheet" />
+    <link href="~/Content/select2.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            $('#cboProyecto').select2();
+        });
+        $(document).ready(function () {
+            $('#cboOrdenDeCambio').select2();
+        });
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#cboUsuario').select2();
+        });
+        $(document).ready(function () {
+            $('#cboCCMultiple').select2();
+        });
+    </script>
+    <center>
+        <h2><b>Gestión de facultamientos</b></h2>
+    </center>
+
+    <!-- PANEL: FILTROS -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default panel-principal panelFiltro">
+                <div class="panel-heading">
+                    <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class='input-group'>
+                                <span class='input-group-addon'>CC: </span>
+                                <select id='cboProyecto' class='form-control'></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class='input-group'><span class='input-group-addon'>Privilegios: </span>
+                                <select class="form-control" id="cboFiltroPrivilegio">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">ADMINISTRADOR</option>
+                                    <option value="2">GESTON OC</option>
+                                    <option value="3">VISOR</option>
+                                    <option value="4">INTERESADOS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="" class="btn btn-primary" id="btnBuscar" style="background-color: rgb(237, 125, 49)"><span class="glyphicon glyphicon-search"></span>
+                                Buscar</button>
+                            <button type="button" class="btn btn-primary" style="background-color: rgb(237, 125, 49)" id="btnNuevo">
+                                <span class="glyphicon glyphicon-plus"></span> Nuevo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: FILTROS -->
+
+    @* <fieldset class="fieldset-custm">
+        <legend class="legend-custm">Gestion de firmas</legend>
+
+        <div class="container-fluid" style='width:100%;'>
+        <div class="row">
+        <table id='tblGestionDeFirmas'
+        class='table table-hover table-fixed table-bordered compact dataTable no-footer'
+        style="text-align-last: center;"></table>
+        </div>
+        </div>
+
+        </fieldset> *@
+
+
+
+    <div class="container-fluid">
+        @* <div id="divTabs">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+            <a href="#tabFacultamiento" aria-controls="tabFacultamiento" role="tab"
+            data-toggle="tab">Facultamiento</a>
+            </li>
+            @* <li role="presentation">
+            <a href="#tabSubcontratista" aria-controls="tabSubcontratista" role="tab"
+            data-toggle="tab">Subcontratista</a>
+            </li>
+
+            </ul> *@
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tabFacultamiento" style="margin-bottom: 100px;">
+                <div class="row margin-top">
+                    <div class="col-xs-12 ">
+                        @* <div class="row">
+                            <button type="button" class="btn btn-info margin-top" id="btnNuevo">
+                            <span class="glyphicon glyphicon-search"></span> Nuevo
+                            </button>
+                            </div> *@
+                    </div>
+                    <fieldset class="fieldset-custm">
+
+                        <div class="container-fluid" style='width:100%;'>
+                            <div class="row">
+                                <table id='tblGestionDeFirmas' class="table compact table-bordered" style="text-align-last: center;"></table>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </div>
+            </div>
+
+
+            @* <div role="tabpanel" class="tab-pane fade" id="tabSubcontratista" style="margin-bottom: 100px;">
+                <div class="row margin-top">
+                <div class="col-xs-12 ">
+                <div class="col-md-4 col-lg-4">
+                <label>Subcontratista:</label>
+                <select class="form-control" id="cboSubcontratista"></select>
+                </div>
+                <button type="button" class="btn btn-info margin-top" id="btnBuscarSubcontratista">
+                <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+                <button type="button" class="btn btn-info margin-top" id="btnNuevoSubcontratista">
+                <span class="glyphicon glyphicon-search"></span> Nuevo
+                </button>
+                </div>
+                <div class="col-md-12">
+                <div class=" row">
+                <div id="divGridContainer" class="scroll divPadding">
+                <table id="tblGestionDeFirmasSubcontratista"
+                class="table table-condensed table-hover table-striped text-center">
+                </table>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div> *@
+        </div>
+    </div>
+
+    <div id='mdlGestionFacultamiento' class='modal fade' role='dialog'>
+        <div class='modal-dialog modal-lg'>
+            <div class='modal-content'>
+                <div class='modal-header text-center'>
+                    <h1 class='modal-title'><i class='fa fa-dollar'></i>Agregar facultamiento</h1>
+                </div>
+                <div class='modal-body'>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <div class='input-group'><span class='input-group-addon'>Usuario :</span>
+                                <input type="hidden" id="inpClaveEmpleado" class="form-control ui-autocomplete-input" autocomplete="off"></input>
+                                <input id="inpUsuario" class="form-control ui-autocomplete-input" autocomplete="off"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <div class='input-group'><span class='input-group-addon'>Seleccionar CC:</span>
+                                <select id="cboCCMultiple" class="js-example-basic-multiple" name="states[]" multiple="multiple"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <div class='input-group'><span class='input-group-addon'>Privilegios: </span>
+                                <select class="form-control" id="cboPrivilegio">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">ADMINISTRADOR</option>
+                                    <option value="2">GESTON OC</option>
+                                    <option value="3">VISOR</option>
+                                    <option value="4">INTERESADOS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i>
+                        regresar</button>
+                    <button type='button' class='btn btn-primary' id='btnGuardar'><span class="glyphicon glyphicon-save"></span>
+                        Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modalNuevoSubcontratista" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <legend class="modal-title">ALTA DE FIRMA REP. LEGAL SUBCONTRATISTA</legend>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Subcontratista:</label>
+                                <input class="form-control" id="inputSubcontratista" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Nombre completo:</label>
+                                <input class="form-control" id="inputNombreCompleto" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Correo:</label>
+                                <input class="form-control" id="inputCorreo" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Contrato:</label>
+                                <input class="form-control" id="inputContrato" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script src="~/Scripts/Utilities/SignaturePaD/signature_pad.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+    <script src="~/Scripts/js/ControlObra/GestionDeProyectos/OrdenDeCambio/gestionFacultamientos.js"></script>
+    <script src="~/Scripts/select2.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
+}
+else
+{
+    <h1 class="text-center">Su usuario no tiene acceso a este módulo.</h1>
+}

@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "CapturaInformePreliminar";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/IndicadoresSeguridad/CapturaInformePreliminar.css" rel="stylesheet" />
+
+<link href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Gestión de Incidentes</h2>
+    </div>
+
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+            <fieldset class="fieldset-custm">
+                <div class="row container-fluid">
+                    <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                        <legend class="legend-custm">Filtros:</legend>
+                        <div class="input-group col-md-12 col-lg-12">
+                            <div class="col-md-3">
+                                <label style="font-weight: bold;">División:</label>
+                                <select class="form-control" id="selectDivision" multiple></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label style="font-weight: bold;">Linea de Negocio:</label>
+                                <select class="form-control" id="selectLineaNegocio" multiple></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label style="font-weight: bold;">Centro Costo:</label>
+                                <select class="form-control select2" id="selectCCFiltros"></select>
+                            </div>
+                            <div class='col-md-3'>
+                                <label style="font-weight: bold;">Fecha:</label>
+                                <div class='input-group'>
+                                    <input id="inputFechaInicio" class="form-control" />
+                                    <span class='input-group-addon' style='padding:0px;'></span>
+                                    <input id="inputFechaFin" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label style="font-weight:bold;">Tipo de accidente:</label>
+                                <select class="form-control" id="selectTipoAccidente"> </select>
+                            </div>
+                            <div class="col-md-2 col-lg-2" style="display: none;">
+                                <label style="font-weight:bold;">Supervisor:</label>
+                                <select class="form-control select2" id="selectSupervisor"></select>
+                            </div>
+                            <div class="col-md-2 col-lg-2" style="display: none;">
+                                <label style="font-weight:bold;">Departamento:</label>
+                                <select class="form-control" id="selectDepartamento"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label style="font-weight:bold;">Estatus:</label>
+                                <select class="form-control" id="selectEstatus"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-primary" id="btnBuscar" style="margin-top: 24px; margin-right: 5px;">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-md-4">
+                        <h4>Total de Accidentes: <span id="spanTotalAccidentes"></span></h4>
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <h4>Total de Accidentes Investigables: <span id="spanTotalAccidentesInvestigables"></span></h4>
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <h4>Accidentes Investigables Completos: <span id="spanPorcentajeAccidentesInvestigablesCompletos"></span></h4>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                            <legend class="legend-custm"></legend>
+                            <button type="button" class="btn btn-primary pull-right" id="btnRegistrar" style="margin-top: 24px; margin-right: 5px;">
+                                <span class="glyphicon glyphicon-plus"></span> Registrar Nuevo
+                            </button>
+                            <br>
+
+                            <table id="tblInformes" class="table table-hover">
+                                <thead>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRegistro" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Información Preliminar</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-sm-4 col-md-2">
+                        <label for="claveEmpleado" class="form-label">Clave Empleado:</label>
+                        <input type="text" name="claveEmpleado" id="claveEmpleado" placeholder="" class="form-control claveEmpleado" />
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <label for="nombreEmpleado" class="form-label">Nombre Empleado:</label>
+                        <input type="text" name="nombreEmpleado" id="nombreEmpleado" disabled class="form-control validar" />
+                    </div>
+
+                    <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="checkboxExterno">
+                                Externo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2 col-md-2">
+                        <label for="txtFechaIngreso" class="form-label">Fecha Ingreso:</label>
+                        <input id="txtFechaIngreso" name="txtFechaIngreso" class="form-control validar" />
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                        <label for="txtPuestoEmpleado" class="form-label">Puesto Empleado:</label>
+                        <input id="txtPuestoEmpleado" name="txtPuestoEmpleado" class="form-control validar" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="selectDepartamentoEmpleado" class="form-label">Departamento:</label>
+                        <select name="selectDepartamentoEmpleado" id="selectDepartamentoEmpleado" style="width: 100%" class="form-control select2 validar"></select>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-2 col-md-2">
+                        <label for="claveSupervisor" class="form-label">Clave Supervisor:</label>
+                        <input type="text" name="claveSupervisor" id="claveSupervisor" class="form-control" />
+                    </div>
+
+                    <div class="col-sm-10 col-md-5">
+                        <label for="txtSupervisorEmpleado" class="form-label">Supervisor:</label>
+                        <input id="txtSupervisorEmpleado" name="txtSupervisorEmpleado" disabled class="form-control validar" />
+                    </div>
+
+                    <div class="col-sm-12 col-md-5" id="divContratista">
+                        <div class="form-group">
+                            <label for="selectContratista" class="form-label">Contratista:</label>
+                            <select type="text" name="selectContratista" id="selectContratista" class="form-control select2" style="width: 100%"></select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-9 col-md-9">
+                        <label for="selectCCRegistro" class="form-label">Centro Costo:</label>
+                        <select id="selectCCRegistro" name="selectCCRegistro" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                    <div class="col-sm-3 col-md-3">
+                        <label for="txtFechaIncidente" class="form-label">Fecha Incidente:</label>
+                        <input autocomplete="off" id="txtFechaIncidente" name="txtFechaIncidente" class="form-control validar" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <label for="claveEmpleadoInformo" class="form-label">Clave Empleado Informó:</label>
+                        <input type="text" name="claveEmpleadoInformo" id="claveEmpleadoInformo" placeholder="" class="form-control validar claveEmpleadoInformo" />
+                    </div>
+
+                    <div class="col-sm-8 col-md-7">
+                        <label for="nombreEmpleadoInformo" class="form-label">Nombre Empleado Informó:</label>
+                        <input type="text" name="nombreEmpleadoInformo" id="nombreEmpleadoInformo" disabled class="form-control validar" />
+                    </div>
+
+                    <div class="col-sm-2 col-md-2">
+                        <label for="txtFechaInforme" class="form-label">Fecha Informe:</label>
+                        <input id="txtFechaInforme" name="txtFechaInforme" class="form-control validar" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="txtTipoLesion" class="form-label">Tipo Lesión o Daño:</label>
+                        <textarea id="txtTipoLesion" name="txtTipoLesion" rows="1" style="width: 100%;"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="txtDescripcionIncidente" class="form-label">Descripición Incidente:</label>
+                        <textarea id="txtDescripcionIncidente" class="validar" name="txtDescripcionIncidente" rows="3" style="width: 100%;"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <label for="txtAccionInmediata" class="form-label">Acción correctiva / preventiva realizada inmediatamente:</label>
+                        <textarea id="txtAccionInmediata" class="validar" name="txtAccionInmediata" rows="3" style="width: 100%;"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8 col-md-8 col-lg-8">
+                        <label class="text-center">Procedimientos Violados</label>
+                        <select id="selectProcedimientosViolados" class="formo-control select2" multiple style="width: 100%"></select>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <label class="text-center">¿Es accidente investigable?:</label>
+                        <div class="inline-radio" id="divAplicaRIA">
+                            <div><input type="radio" name="aplicaRIA" value="1"><label class="text-center">Si</label>
+                            </div>
+                            <div><input type="radio" name="aplicaRIA" value="0"><label class="text-center">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="divNoRIA">
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <label for="selectClasificacionIncidente" class="form-label">Clasificación
+                                Incidente:</label>
+                            <select id="selectClasificacionIncidente" name="selectClasificacionIncidente" class="form-control select2 validar" style="width: 100%"></select>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6">
+                            <label for="selectRiesgo" class="form-label">Evaluación de Riesgo:</label>
+                            <select id="selectRiesgo" name="selectRiesgo" class="form-control select2 validar" style="width: 100%"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="divSubclasificacion">
+
+                    <div class="col-xs-6">
+                        <label for="selectSubclasificacionIncidente" class="form-label">Subclasificación Incidente:</label>
+                        <select id="selectSubclasificacionIncidente" name="selectSubclasificacionIncidente" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                </div>
+
+                <div class="row margin-top" id="divInfoExtraAccidente">
+
+                    <div class="col-xs-12 col-sm-4">
+                        <label for="selectTipoContacto" class="form-label">Tipo de contacto</label>
+                        <select name="selectTipoContacto" id="selectTipoContacto" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4">
+                        <label for="selectAgenteImplicado" class="form-label">Objeto/Equipo/Substancia causante:</label>
+                        <select name="selectAgenteImplicado" id="selectAgenteImplicado" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-4" id="divParteCuerpo">
+                        <label for="selectParteCuerpo" class="form-label">Parte del cuerpo:</label>
+                        <select name="selectParteCuerpo" id="selectParteCuerpo" class="form-control select2 validar" style="width: 100%"></select>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarRegistro"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalCorreos" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Enviar Correos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Usuarios</span>
+                            <select id="slMCorreos" class=" form-control" multiple="true" style="width:100%;"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="btn btn-primary" id="btnSendMail">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+
+                <!-- <a id="btnSendMail" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Enviar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEvidencias" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Evidencias <i class="fas fa-images"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC - Folio - Fecha</span>
+                            <input readonly class="text-center form-control" type="text" id="inputInformacionEvidencia">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button class="btn btn-primary pull-right" id="botonAgregarEvidencia">
+                            <i class="fas fa-plus-square"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><label>Evidencias:</label></legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaEvidencias" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="botonGuardarEvidencias">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEvidenciasRIA" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Evidencias <i class="fas fa-images"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC - Folio - Fecha</span>
+                            <input readonly class="text-center form-control" type="text" id="inputInformacionEvidenciaRIA">
+                        </div>
+                    </div>
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button class="btn btn-primary pull-right" id="botonAgregarEvidenciaRIA">
+                            <i class="fas fa-plus-square"></i> Agregar
+                        </button>
+                    </div> -->
+                </div>
+
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><label>Evidencias:</label></legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaEvidenciasRIA" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <!-- <button class="btn btn-primary" id="botonGuardarEvidencias">
+                    <i class="fas fa-save"></i> Guardar
+                </button> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Input para cargar informe preliminar -->
+<input class="form-control" hidden id="inputArchivoInforme" type="file" />
+
+@Html.Action("_visorGrid")
+
+@Html.Partial("reportViewerView", false)
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+@*<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>*@
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/CapturaInformePreliminar.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<center><h2>Matriz De Riesgo</h2></center>
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/ControlObra2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/Gestor.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/Estilo.css" rel="stylesheet" />
+<script src="~/Scripts/moment.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#cboProyecto').select2();
+    });
+</script>
+
+<div class="container-fluid">
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'>Filtros : </legend>
+        <div class='col-md-6 col-lg-6'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Centros de costo</span>
+                <select type='text' id='cboProyecto' class='form-control select2'></select>
+            </div>
+        </div>
+        <div class='col-md-4 col-lg-4'>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <button type="button" class="btn btn-primary" id="btnNuevo">Nuevo</button>
+            <button type="button" class="btn btn-primary" id="btnBuscar">Buscar</button>
+        </div>
+    </fieldset>
+
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'>Resultados : </legend>
+        <div class='table-responsive'>
+            <table id='tblMatrizDeRiesgo' class='table table-hover table-fixed table-bordered compact dataTable no-footer'>
+                <thead class='bg-table-header'>
+                </thead>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<div id='mdlMatrizDeRiesgo' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-xl'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Nueva Matriz de riesgo</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="container-fluid">
+                    <div class='row'>
+                        <div class='col-md-12 col-lg-12'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Contrato</span>
+                                <select type='text' id='cboContratos' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class='row'>
+                        <div class='col-md-6 col-lg-6'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>centro de costo</span>
+                                <select type='text' id='cboCC' class='form-control select2'></select>
+                            </div>
+                        </div>
+
+                        <div class='col-md-6 col-lg-6'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Elaboro</span>
+                                <select type='text' id='inpElaboro' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class='row'>
+                        <div class='col-md-4 col-lg-4'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>No Proyecto</span>
+                                <input type='text' id='inpNoProyecto' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Fase de proyecto</span>
+                                <input type='text' id='cboCC' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Fecha</span>
+                                <input type='text' id='dtFecha' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-md-3 col-lg-3'>
+                            <h4>Definir escala de severidad</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class='col-md-3 col-lg-3'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>BAJA</span>
+                                <input type='inpBaja' id='id' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-1 col-lg-1' style="padding: 0px;width: 3px;">
+                            <h4>-</h4>
+                        </div>
+                        <div class='col-md-3 col-lg-3'>
+                            <input type='inpBajaFin' id='id' class='form-control'>
+                        </div>
+
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class='col-md-3 col-lg-3'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>MEDIA</span>
+                                <input type='inpMedia' id='id' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-1 col-lg-1' style="padding: 0px;width: 3px;">
+                            <h4>-</h4>
+                        </div>
+                        <div class='col-md-3 col-lg-3'>
+                            <input type='inpMediaFin' id='id' class='form-control'>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class='col-md-3 col-lg-3'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>ALTA</span>
+                                <input type='inpAlta' id='id' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-1 col-lg-1' style="padding: 0px;width: 3px;">
+                            <h4>-</h4>
+                        </div>
+                        <div class='col-md-3 col-lg-3'>
+                            <input type='inpAltaFin' id='id' class='form-control'>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnSave"><i class='fa fa-save'></i> Guardar</button>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+<script src="~/Scripts/js/ControlObra/MatrizDeRiesgo/MatrizDeRiesgo.js"></script>
+<script src="~/Scripts/select2.js"></script>

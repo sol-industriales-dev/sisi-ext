@@ -1,0 +1,244 @@
+﻿@{
+    ViewBag.Title = "RevisionCuadrilla";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/MAZDA/RevisionCuadrilla.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 id="txtEncabezado" class="text-center">Revisión Cuadrilla</h2>
+    </div>
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divPlanAct">
+            <fieldset id="fieldPlanAct" class="fieldset-custm" style="border-radius: 0px !important;">
+                <div class="container-fluid">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="col-lg-12" style="padding-left: 0px; padding-right: 0px; margin-bottom: 5px;">
+                            <fieldset id="fieldBusquedaAC" class="">
+                                <legend class="legend-custm">Cuadrilla</legend>
+
+                                <div class="col-lg-3" style="padding-left: 0px;">
+                                    <select class="form-control" id="selectCuadrilla"></select>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div id="divCuadrillaGeneral" class="col-lg-12" style="padding-left: 0px; padding-right: 0px; display: none;">
+                            <fieldset id="fieldBusquedaCuadrilla" class="fieldset-custm">
+                                <legend class="legend-custm">Capturar</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-2" style="padding-left: 0px;">
+                                        <label>Mes:</label>
+                                        <select class="form-control" id="selectMes">
+                                            <option value="">--Seleccione--</option>
+                                            <option value="1">ENERO</option>
+                                            <option value="2">FEBRERO</option>
+                                            <option value="3">MARZO</option>
+                                            <option value="4">ABRIL</option>
+                                            <option value="5">MAYO</option>
+                                            <option value="6">JUNIO</option>
+                                            <option value="7">JULIO</option>
+                                            <option value="8">AGOSTO</option>
+                                            <option value="9">SEPTIEMBRE</option>
+                                            <option value="10">OCTUBRE</option>
+                                            <option value="11">NOVIEMBRE</option>
+                                            <option value="12">DICIEMBRE</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2" style="padding-left: 0px;">
+                                        <label>Técnico:</label>
+                                        <select class="form-control" id="selTecnicoCua"></select>
+                                    </div>
+                                    <div class="col-lg-2" style="padding-left: 0px;">
+                                        <label>Ayudantes:</label>
+                                        <select class="form-control" id="selAyudanteCua" multiple="multiple"></select>
+                                    </div>
+                                    <div class="col-lg-3" style="padding-left: 0px;">
+                                        <button class="btn btn-primary" id="btnShowMdlCua" style="margin-top: 25px;"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                                        <legend class="legend-custm"></legend>
+                                        <table id="tblRevisionActividades" class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                            <thead class="bg-table-header">
+                                                <tr>
+                                                    <th class="text-center col-lg-1" rowspan="2">FRECUENCIA</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ÁREA</th>
+                                                    <th class="text-center col-lg-4" rowspan="2">ACTIVIDADES</th>
+                                                    <th class="text-center col-lg-1">SE REALIZO</th>
+                                                    <th class="text-center col-lg-3" rowspan="2">ESTATUS</th>
+                                                </tr>
+                                                <tr>
+                                                    <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                            <tfoot></tfoot>
+                                        </table>
+                                        <div id="divObservaciones" style="margin-top: 5px; display: none;">
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObsCua" class="form-control" style="border-radius: 0px; height: 100px;"></textarea>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="divCuadrillaAC" class="col-lg-12" style="padding-left: 0px; padding-right: 0px; display: none;">
+                            <div class="container-fluid" style="padding-left: 0px; padding-right: 0px;">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                                    <fieldset id="fieldBusquedaAC" class="fieldset-custm">
+                                        <legend class="legend-custm">Capturar</legend>
+                                        <div class="input-group col-md-12">
+                                            <div class="col-lg-2">
+                                                <label>Equipo:</label>
+                                                <select class="form-control" id="selectEquipo"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Tonelaje:</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control text-right" id="inputTonelaje" />
+                                                    <span class="input-group-addon">Toneladas</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Area:</label>
+                                                <select class="form-control" id="selectArea"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Periodo:</label>
+                                                <select class="form-control" id="selectPeriodo"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Técnico:</label>
+                                                <select class="form-control" id="selTecnico"></select>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label>Ayudantes:</label>
+                                                <select class="form-control" id="selAyudante" multiple="multiple"></select>
+                                            </div>
+                                            <div class="col-lg-3" style="margin-top: 5px;">
+                                                <button class="btn btn-default" id="btnLimpiar"><span class="fa fa-eraser"></span> Limpiar</button>
+                                                <button class="btn btn-primary" id="btnShowMdl"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <fieldset class="fieldset-custm" style="margin-top: 5px;">
+                                            <legend class="legend-custm"></legend>
+                                            <table class="table text-center" style="margin-top: 5px; margin-bottom: 0px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th data-column-id="" data-formatter="" data-header-align="center" class="text-center" style="border: 2px solid black; background-color: #ddd;">ACTIVIDADES DE MANTENIMIENTO DE AIRES ACONDICIONADOS</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <table id="tblCondensador" class="table text-center" style="margin-bottom: 0px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th class="text-center col-lg-7" rowspan="2">CONDENSADOR</th>
+                                                        <th class="text-center col-lg-1">SE REALIZO</th>
+                                                        <th class="text-center col-lg-4" rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <table id="tblEvaporador" class="table text-center" style="margin-top: 5px; margin-bottom: 10px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center col-lg-7" rowspan="2">EVAPORADOR</th>
+                                                        <th data-header-align="center" class="text-center col-lg-1">SE REALIZO</th>
+                                                        <th data-header-align="center" class="text-center col-lg-4" rowspan="2">OBSERVACIONES</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-header-align="center" class="text-center">SI <span class="glyphicon glyphicon-ok"></span> NO <span class="glyphicon glyphicon-remove"></span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot></tfoot>
+                                            </table>
+                                            <label>Observaciones:</label>
+                                            <textarea id="inputObs" class="form-control" style="border-radius: 0px; height: 100px;"></textarea>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="mdlEvidencia">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleria"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-2">
+                        <div class="custom-file-upload">
+                            <label for="inputEvidencias" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Evidencia
+                            </label>
+                            <input type="file" id="inputEvidencias" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnGuardar"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="mdlEvidenciaCua">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3><label><i class="fa fa-photo"></i> Evidencia</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12" id="divGaleriaCua"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-2">
+                        <div class="custom-file-upload">
+                            <label for="inputEvidenciasCua" class="custom-file-upload">
+                                <i class="fa fa-photo"></i> Evidencia
+                            </label>
+                            <input type="file" id="inputEvidenciasCua" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnGuardarCua"><span class="glyphicon glyphicon-floppy-save"></span> Guardar Revisión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/MAZDA/RevisionCuadrilla.js"></script>

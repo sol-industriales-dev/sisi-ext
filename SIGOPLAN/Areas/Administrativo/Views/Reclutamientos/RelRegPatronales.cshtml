@@ -1,0 +1,253 @@
+﻿@{
+    var empresa = (int)ViewBag.Empresa;
+
+    ViewBag.Title = "Relacion de registros patronales";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@if (empresa == 6) {
+    <input id="txtEmpresa" style="display: none;" value="6">;
+}else if (empresa == 3){
+    <input id="txtEmpresa" style="display: none;" value="3">;
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- SOLICITUDES -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>RELACION DE REGISTROS PATRONALES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <!-- <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Puesto</span>
+                                <select class="form-control" id="cboFiltroPuesto" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div> -->
+                        <div class="pull-right">
+                            <!-- <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar</button> -->
+                            <button type="button" class="btn btn-primary" id="btnFiltroNewRegPat">Nuevo</button>
+                            <!-- <button type="button" class="btn btn-primary" id="btnFiltroLimpiar">Limpiar</button> -->
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE SOLICITUDES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblRH_EK_Registros_Patronales" class="table table-hover compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<!-- MODAL CC -->
+<div id='mdlCC' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>CCs: <span id="spanCCRegPatTitle"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="marginBottom pull-right">
+                        <button id ="btnCCNuevo" class="btn btn-primary"><i class="fas fa-plus"></i>&nbsp;CC</button>
+                    </div>
+                </div>
+                <div class='row'>
+                    <table id="tblCCs" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CC -->
+
+<!-- MODAL ADD CC -->
+<div id='mdlAddCC' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Añadir CCs: <span id="spanAddCCRegPatTitle"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">CC</span>
+                            <select class="form-control" id="cboAddCC" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnAddCCAñadir"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD CC -->
+
+<!-- MODAL ADD CC -->
+<div id='mdlCERegPat' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Crear Registro Patronal</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-3" style="margin-top: 2.5%;">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">No. Registro Patronal</span>
+                            <input type="text" id="txtCERegPatNumero" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                    </div>
+                    <div id="divArchivoActa" class="col-sm-3">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Archivo Acta</legend>
+                            <label id="botonArchivoActa" for="inputArchivoActa" class="btn btn-sm btn-default"><i class="fa fa-upload"></i></label>
+                            <label id="labelArchivoActa" class="labelArchivo"></label>
+                            <input id="inputArchivoActa" type="file" class="inputArchivoActa" accept="application/pdf, image/*" style="display: none;">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Razon Social</span>
+                            <input type="text" id="txtCERegPatDescripcion" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre Corto</span>
+                            <input type="text" id="txtCERegPatNomCorto" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>                
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Direccion</span>
+                            <input type="text" id="txtCERegPatDireccion" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Colonia</span>
+                            <input type="text" id="txtCERegPatColonia" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Codigo Postal</span>
+                            <input type="number" id="txtCERegPatCodigo" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Localidad</span>
+                            <input type="text" id="txtCERegPatLocalidad" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "Departamento" : "Estado")</span>
+                            <select class="form-control" id="cboCERegPatEstado" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "Provinicia" : "Ciudad")</span>
+                            <select class="form-control" id="cboCERegPatCuidad" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Giro</span>
+                            <input type="text" id="txtCERegPatGiro" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">RFC de la Empresa</span>
+                            <input type="text" id="txtCERegPatRFCEmpresa" class="form-control" maxlength="13">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Registro Patronal</span>
+                            <input type="text" id="txtCERegPatClave" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Representante Legal</span>
+                            <input type="text" id="txtCERegPatRepresentante" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">RFC Representante</span>
+                            <input type="text" id="txtCERegPatRFCRepresentate" class="form-control" maxlength="13">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCERegPatAñadir">&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD CC -->
+
+<!-- END: MODALES -->
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/RelRegPatronales.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>

@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "GestionTelefonica";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/js/Encuestas/GestionTelefonica.js"></script>
+
+<style>
+    .ui-autocomplete {
+        z-index: 9999;
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="row">
+        <h2 class="text-center">Gestión de Encuestas Telefónicas</h2>
+    </div>
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros búsqueda:</legend>
+                <div class="row form-group">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <div class="col-lg-2">
+                            <label> Título</label>
+                            <input type="text" id="txtTitulo" class="form-control" />
+                        </div>
+                        <div class="col-lg-3">
+                            <label> Descripción</label>
+                            <input type="text" id="txtDescripcion" class="form-control" />
+                        </div>
+                        <div class="col-lg-3">
+                            <label> Departamento</label>
+                            <input type="text" id="txtDepartamento" class="form-control" />
+                        </div>
+                        <div class="col-lg-1">
+                            <button class="btn btn-info margin-top" id="btnAplicarFiltros">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divEncuestas">
+            <fieldset id="fieldTablaEncuesta" style="border: 1px solid black;">
+                <div class="container-fluid">
+                    <div class="row" id="rowTabla">
+                        <div class="widget">
+                            <div class="widget-header"></div>
+                            <div class="widget-content">
+                                <table id="tblDataEncuestas" style="width: 100%;">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dialogNotificacionUsuarios" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Administrar Usuarios</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm" style="margin-bottom: 5px;">
+                    <legend class="legend-custm">Agregar Usuario</legend>
+
+                    @*<div class="col-lg-3" style="padding-left: 0px;">
+                        <label>Número de Empleado:</label>
+                        <input type="number" class="form-control col-lg-3" id="txtIgNumeroEmpleado">
+                    </div>*@
+                    <div class="col-lg-5">
+                        <label>Nombre de Empleado:</label>
+                        <input type="text" class="form-control col-lg-3" id="lblIgNombre">
+                    </div>
+                    <div class="col-lg-4">
+                        <button class="btn btn-success" id="btnAgregarUsuarioNoti" style="margin-top: 25px;">
+                            <span class="glyphicon glyphicon-plus"></span> Agregar
+                        </button>
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <div class="container-fluid">
+                        <div class="row" id="rowTabla">
+                            <div class="widget">
+                                <div class="widget-header"></div>
+                                <div class="widget-content" style="height: 50vh; overflow-y: auto;">
+                                    <table id="tblDataUsuariosNoti" style="width: 100%; margin-top: 5px;">
+                                        <thead>
+                                            <tr style="border: 1px solid black;">
+                                                <th class="text-center col-lg-4">Nombre</th>
+                                                <th class="text-center col-lg-3">Puesto</th>
+                                                <th class="text-center col-lg-2">Correo</th>
+                                                <th class="text-center col-lg-1">Telefónica</th>
+                                                <th class="text-center col-lg-1">Notificación</th>
+                                                <th class="text-center col-lg-1"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <a id="btnGuardar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-disk" style="font-size: medium;"></span> Guardar</a>
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>

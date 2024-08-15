@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = "Doconut Lean MVC Viewer";
+}
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="https://doconut.com" target="_blank">Lean</a>&nbsp;<div class="loader"></div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Sample Files
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.doc');">Word Doc</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.xls');">Excel File Doc</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.ppt');">Power Point</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.pdf');">Acrobat Pdf</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.tif');">Tif File</a></li>
+                        <li><div class="dropdown-divider"></div></li>
+                        <li><a class="dropdown-item" target="_blank" href="http://try.doconut.com/viewer.aspx">More Formats...</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="javascript:void(0);" onclick="OpenUpload();">Upload File</a>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Navigation
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.GotoPage(1);">First</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Next(false);">Previous</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Next(true);">Next</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.GotoPage(parseInt(objctlDoc.TotalPages()));">Last</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Rotate
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(1);">90</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(2);">180</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(3);">270</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="RotateDocument(0);">None</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Flip
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="FlipDocument('X');">X</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="FlipDocument('Y');">Y</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="FlipDocument('XY');">XY</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="FlipDocument('');">None</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Zoom
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(true);">In</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(false);">Out</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(25);">25 %</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(100);">100 %</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('width');">Fit Width</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('height');">Fit Height</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('');">Fit None</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Thumbnails
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.ThumbSize('small');">Small</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.ThumbSize('normal');">Normal</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.ThumbSize('large');">Large</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.HideThumbs(true);">Hide Thumbs</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.HideThumbs(false);">Show Thumbs</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.HideSplitter(true);">Splitter Off</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.HideSplitter(false);">Splitter On</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="javascript:void(0);" onclick="CloseDocument();">Close</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" onclick="PrintDocument();">Print</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" onclick="ExportPdf();">Export</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" onclick="GoFS();">Full Screen</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Document</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+
+                <div id="dropZoneForm" class="dropzone">
+                    <div class="dz-message">
+                        Click or drop your document here
+                    </div>
+                    <div>
+                        <div class="fallback">
+                            <input name="file" id="file" type="file" />
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Page Content -->
+
+<div class="row">
+
+    <div class="col-lg-12 text-center">
+        <div id="divDocViewer">
+            <!-- The viewer instance name -->
+            <div id="div_ctlDoc"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <!-- jQuery & Bootstrap -->
+    <script src="~/Content/scripts/jquery.min.js"></script>
+    <script src="~/Content/scripts/bootstrap.min.js"></script>
+
+    <!-- Drop Zone JS (For upload) -->
+    <script type="text/javascript" src="~/Content/scripts/dropzone/dropzone.js"></script>
+
+    <!-- Thickbox (For print) -->
+    <script src="~/Content/scripts/thickbox-compressed.js"></script>
+
+    <!-- Main Viewer Related Scripts -->
+    <script src="~/Content/scripts/splitter.js"></script>
+    <script src="~/Content/scripts/docViewer.js"></script>
+    <script src="~/Content/scripts/documentLinks.js"></script>
+
+    <!-- Viewer functions -->
+    <script src="~/Content/scripts/docViewer.UI.js"></script>
+}
+
+@section css{
+
+    <!-- Drop zone css (for upload)-->
+    <link rel="stylesheet" href="~/Content/scripts/dropzone/basic.css" />
+    <link rel="stylesheet" href="~/Content/scripts/dropzone/dropzone.css" />
+
+    <!-- Bootstrap & Main Viewer css -->
+    <link rel="stylesheet" href="~/Content/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Content/css/viewer.css">
+
+    <!-- Thickbox (For print) -->
+    <link rel="stylesheet" href="~/Content/css/thickbox.css" />
+
+    <style>
+        #divDocViewer {
+            width: 100%;
+            border-radius: 6px;
+            background-color: whitesmoke;
+            border: 1px grey;
+            margin-top: 10px;
+        }
+
+        /* IMP: This css is required to prevent bootstrap css from shrinking the main viewer */
+
+        .row {
+            margin-right: 0;
+            margin-left: 0
+        }
+
+        /* end css */
+
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+}

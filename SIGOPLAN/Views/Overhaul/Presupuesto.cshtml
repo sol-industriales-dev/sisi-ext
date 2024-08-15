@@ -1,0 +1,620 @@
+﻿
+@{
+    ViewBag.Title = "Presupuesto";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Overhaul/PresupuestoOverhaul.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/wow/animate.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/rowgroup/1.1.1/css/rowGroup.dataTables.min.css" rel="stylesheet" />
+
+<h2 class="text-center">Presupuesto</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"></legend>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs" id="ulNuevo">
+            <li><a id="tabPresupuesto" data-toggle="tab" href="#presupuesto">Nuevo Presupuesto</a></li>
+            <li class="active"><a id="tabAutorizacion" data-toggle="tab" href="#autorizacion">Autorización</a></li>
+            @*<li><a id="tabAvance" data-toggle="tab" href="#avance">Avance de Presupuesto</a></li>*@
+        </ul>
+        <div class="tab-content">
+            @*Presupuesto*@
+            <div id="presupuesto" class="tab-pane">
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 no-padding-right">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding-right">
+                            <fieldset class="fieldset-custm fielset-Filtros">
+                                <legend class="legend-custm">Filtros</legend>
+                                <div class="col-md-12 col-lg-12 bloqueSeparar">
+                                    <div class="col-md-12 col-lg-12 no-padding">
+                                        <label>Modelo:</label>
+                                        <select class="form-control" id="cboModeloPresupuesto"></select>
+                                    </div>
+                                    <div class="col-md-12 col-lg-12 no-padding">
+                                        <label>Año:</label>
+                                        <select class="form-control" id="cboAnioPresupuesto"></select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no-padding-right">
+                            <fieldset class="fieldset-custm fielset-Filtros">
+                                <legend class="legend-custm">Presupuestos Calendarizados</legend>
+                                <div class="col-md-12 col-lg-12 bloqueSeparar">
+                                    <button type="button" class="btn btn-info margin-top" style="width:100%;" id="btnPresCalendario">
+                                        <span class="glyphicon glyphicon-open"></span> Abrir
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 no-padding">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Presupuesto</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <table id="tblPresupuesto" class="table table-hover table-striped text-center tablaPres" aria-busy="false"></table>
+                                <div class="modal fade" id="modalAumento" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                    <div class="modal-dialog modal-md" style="" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header modal-bg">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                <div class="text-center">
+                                                    <h3><label id="lbAumento"></label></h3>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body text-center modal-content-tamaño">
+                                                <div class="container-fluid">
+                                                    <form novalidate="novalidate">
+                                                        <div class="row" style="width:100%; text-align:center;">
+                                                            <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                                <legend class="legend-custm">DATOS</legend>
+                                                                <div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                                    <div class="input-group">
+                                                                        <span class="input-group-addon">Diferencia (USD):</span>
+                                                                        <input type="number" style="text-align:right;" class="form-control" id="txtAumento" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                                    <div class="input-group">
+                                                                        <span class="input-group-addon">Comentario:</span>
+                                                                        <textarea class="form-control" id="txtComentario" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                @*<div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                        <div class="input-group">
+                                                            <label class="input-group-btn">
+                                                                <span class="btn btn-primary">
+                                                                    Cargar Archivo&hellip; <input type="file" style="display: none;" onchange='$("#upload-file-info").val($(this).val());' multiple>
+                                                                </span>
+                                                            </label>
+                                                            <input id="upload-file-info" class="form-control" />
+                                                        </div>
+                                                    </div>*@
+                                                                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-12 footer" style="text-align:center">
+                                                                    <button type="button" class="btn btn-info margin-top pull-right" id="btnGuardarAumento">
+                                                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                                    </button>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="modalDetallesComponente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header modal-bg">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                <div class="text-center">
+                                                    <h3><label id="title-modal-historial"></label></h3>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body text-center modal-content-tamaño">
+                                                <div class="container-fluid">
+                                                </div>
+                                            </div>
+                                            <div class="modal-body text-center modal-content-tamaño">
+                                                <div class="container-fluid">
+                                                    <form id="frmDetallesHistorial" novalidate="novalidate">
+                                                        <div class="row">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend id="lgHistorial" class="legend-custm">DETALLES HISTORIAL COMPONENTE</legend>
+                                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                                    <table id="gridDetallesHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                        <thead class="bg-table-header" style="color:white">
+                                                                            <tr>
+                                                                                <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                                <th data-column-id="horasCiclo" class="text-center" style="">HORAS CICLO</th>
+                                                                                <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS ACUMULADAS</th>
+                                                                                <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                                <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                                <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody></tbody>
+                                                                    </table>
+                                                                </div>
+
+                                                            </fieldset>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="modalArchivoHistorial" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                    <div class="modal-dialog modal-md" style="" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header modal-bg">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                <div class="text-center">
+                                                    <h3><label>Archivos Historial</label></h3>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body text-center modal-content-tamaño">
+                                                <div class="container-fluid">
+                                                    <form novalidate="novalidate">
+                                                        <div class="row" style="width:100%; text-align:center;">
+                                                            <fieldset class="fieldset-custm">
+                                                                <legend class="legend-custm">ARCHIVOS</legend>
+                                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                    <table id="tblArchivosHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                        <thead class="bg-table-header">
+                                                                            <tr>
+                                                                                <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                                <th data-column-id="FechaCreacion" class="text-left" style="" data-formatter="fecha">FECHA</th>
+                                                                                <th data-column-id="nombre" class="text-left" style="">NOMBRE</th>
+                                                                                <th data-column-id="descargar" class="text-left" style="" data-formatter="descargar">DESCARGAR</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            @*Autorización*@
+            <div id="autorizacion" class="tab-pane fade in active">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Filtros</legend>
+                            <div class="col-md-12 col-lg-12 bloqueSeparar">
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Modelo:</span>
+                                        <select class="form-control" id="cboModeloAutorizacion"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Año:</span>
+                                        <select class="form-control" id="cboAnioAutorizacion"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CC:</span>
+                                        <select class="form-control" id="cboCCAutorizacion" multiple="multiple"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div>
+                        <div class="modal fade" id="modalAutorizacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+                            <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header modal-bg">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <div class="text-center">
+                                            <h3><label id="title-modal"></label></h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <table id="tblPresAutorizacion" class="table table-hover table-striped text-center tablaPres" aria-busy="false"></table>
+                                        <div class="modal fade" id="modalAumento" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                            <div class="modal-dialog modal-md" style="" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header modal-bg">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                        <div class="text-center">
+                                                            <h3><label id="lbAumento"></label></h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-body text-center modal-content-tamaño">
+                                                        <div class="container-fluid">
+                                                            <form novalidate="novalidate">
+                                                                <div class="row" style="width:100%; text-align:center;">
+                                                                    <fieldset class="fieldset-custm" style="width:100%; text-align:center;">
+                                                                        <legend class="legend-custm">DATOS</legend>
+                                                                        <div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                                            <div class="input-group">
+                                                                                <span class="input-group-addon">Nuevo Presupuesto (USD):</span>
+                                                                                <input type="number" style="text-align:right;" class="form-control" id="txtAumento" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                                            <div class="input-group">
+                                                                                <span class="input-group-addon">Comentario:</span>
+                                                                                <textarea class="form-control" id="txtComentario" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                        @*<div class="col-md-12 col-lg-12 noPadLeft" style="padding:5px">
+                                                                            <div class="input-group">
+                                                                                <label class="input-group-btn">
+                                                                                    <span class="btn btn-primary">
+                                                                                        Cargar Archivo&hellip; <input type="file" style="display: none;" onchange='$("#upload-file-info").val($(this).val());' multiple>
+                                                                                    </span>
+                                                                                </label>
+                                                                                <input id="upload-file-info" class="form-control" />
+                                                                            </div>
+                                                                        </div>*@
+                                                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-12 footer" style="text-align:center">
+                                                                            <button type="button" class="btn btn-info margin-top pull-right" id="btnGuardarAumento">
+                                                                                <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                                                            </button>
+                                                                        </div>
+                                                                    </fieldset>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*<div class="modal fade" id="modalDetallesComponente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header modal-bg">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                    <div class="text-center">
+                                                        <h3><label id="title-modal-historial"></label></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body text-center modal-content-tamaño">
+                                                    <div class="container-fluid">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body text-center modal-content-tamaño">
+                                                    <div class="container-fluid">
+                                                        <form id="frmDetallesHistorial" novalidate="novalidate">
+                                                            <div class="row">
+                                                                <fieldset class="fieldset-custm">
+                                                                    <legend id="lgHistorial" class="legend-custm">DETALLES HISTORIAL COMPONENTE</legend>
+                                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                                        <table id="gridDetallesHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                            <thead class="bg-table-header" style="color:white">
+                                                                                <tr>
+                                                                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                                                                    <th data-column-id="cicloVidaHoras" class="text-center" style="">HORAS CICLO</th>
+                                                                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="">HORAS ACUMULADAS</th>
+                                                                                    <th data-column-id="reciclado" class="text-center" style="" data-formatter="reciclado">GENERAL</th>
+                                                                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="">LOCACIÓN</th>
+                                                                                    <th data-column-id="archivos" class="text-center" style="" data-formatter="archivos">ARCHIVOS</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody></tbody>
+                                                                        </table>
+                                                                    </div>
+
+                                                                </fieldset>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="modalArchivoHistorial" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                                        <div class="modal-dialog modal-md" style="" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header modal-bg">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                    <div class="text-center">
+                                                        <h3><label>Archivos Historial</label></h3>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body text-center modal-content-tamaño">
+                                                    <div class="container-fluid">
+                                                        <form novalidate="novalidate">
+                                                            <div class="row" style="width:100%; text-align:center;">
+                                                                <fieldset class="fieldset-custm">
+                                                                    <legend class="legend-custm">ARCHIVOS:</legend>
+                                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                                        <table id="tblArchivosHistorial" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                                            <thead class="bg-table-header">
+                                                                                <tr>
+                                                                                    <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                                                    <th data-column-id="FechaCreacion" class="text-left" style="" data-formatter="fecha">FECHA</th>
+                                                                                    <th data-column-id="nombre" class="text-left" style="">NOMBRE</th>
+                                                                                    <th data-column-id="descargar" class="text-left" style="" data-formatter="descargar">DESCARGAR</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </fieldset>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+                                    </div>
+                                    <div class="modal-footer text-center modal-content-tamaño">
+                                        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                            <div>
+                                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalAceptar">
+                                                    <span class="glyphicon glyphicon-floppy-disk"></span> Aceptar
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar" data-dismiss="modal">
+                                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Presupuesto</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <table id="tblAutorizacion" class="table table-hover table-striped text-center" aria-busy="false">
+                                    <thead class="bg-table-header"> </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            @* Avance *@
+            <div id="avance" class="tab-pane">
+                <div class="row form-group" >
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Filtros</legend>
+                            <div class="col-md-12 col-lg-12 bloqueSeparar">
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Modelo:</span>
+                                        <select class="form-control" id="cboModeloAvance"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Año:</span>
+                                        <select class="form-control" id="cboAnioAvance"></select>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CC:</span>
+                                        <select class="form-control" id="cboCCAvance" multiple="multiple"></select>
+                                    </div>
+                                </div> -->
+                                <!-- <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Conjunto:</span>
+                                        <select class="form-control" id="cboConjuntoAvance"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Subconjunto:</span>
+                                        <select class="form-control" id="cboSubconjuntoAvance" disabled></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Programado:</span>
+                                        <select class="form-control" id="cboProgramadoAvance">
+                                            <option value="0">Programado</option>
+                                            <option value="1">No Programado</option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                                <div class="col-md-3 col-lg-3 noPadLeft">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Estado:</span>
+                                        <select class="form-control" id="cboEstatusAvance">
+                                            <option value="1">Activo</option>
+                                            <option value="2">Cerrado</option>
+                                        </select>
+                                    </div>
+                                </div> 
+                                <div class="col-lg-2">
+                                    <button type='button' class="btn btn-primary" id="btnReporte"><i class="glyphicon glyphicon-file"></i> Reporte</button>
+                                </div>
+
+                                 @*<div class="row">
+                                    <div class="col-lg-10"></div>
+                                    <div class="col-lg-2">
+                                        <button type='button' class="btn btn-primary" id="btnReporte"><i class="glyphicon glyphicon-file"></i> Reporte</button>
+                                    </div>
+                                </div><br>*@
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+              
+                <div class="row form-group">
+                      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                          @*<fieldset class="fieldset-custm">
+                              <legend class="legend-custm">Avance General de Presupuesto Atrasado</legend>
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                  <table id="tblAvanceGeneralAtrasado" class="table table-hover table-striped text-center" aria-busy="false"></table>
+                              </div>
+                          </fieldset>*@
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Avance General de Presupuesto</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <table id="tblAvanceGeneral" class="table table-hover table-striped text-center" aria-busy="false"></table>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Avance por Modelo</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <table id="tblAvance" class="table table-hover table-striped text-center" aria-busy="false"></table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+
+<div id="mdlCrearAgrupacion" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl" style="width:100%">
+        <div class="modal-content" style="width:100%">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>detalle por modelo</h1>
+            </div>
+            <div class="modal-body" style="width:100%">
+                <!-- SECCION DE CONTROLES -->
+                
+                <div class="seccion" style="width:100%">
+                            <legend class="legend-custm">Avance por modelo</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 " style="width:100%">
+                                <table id="tblAvanceDetalle" class="table table-hover table-striped text-center" aria-busy="false" style="width:100%"></table>
+                            </div>
+
+                </div>
+                <!-- END: SECCION DE CONTROLES -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalReporteInversion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:80%;" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal"></label></h3>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 noPadding">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Filtros</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 noPadding">
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group noPadding">
+                                <label>Obra:</label>
+                                <select class="form-control" id="cboObraInversion"></select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Acotaciones</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 noPadding">
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group noPadding">
+                                <div class="col-xs-4 col-xs-4 col-md-4 col-lg-4 form-group noPadding">
+                                    <span class="dotAcotacion" style="background-color:rgb(92, 184, 92);vertical-align: middle;margin-bottom: 5px;"></span>
+                                </div>
+                                <div class="col-xs-8 col-xs-8 col-md-8 col-lg-8 form-group noPadding">
+                                    <label>Overhaul <br />General</label>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group noPadding">
+                                <div class="col-xs-4 col-xs-4 col-md-4 col-lg-4 form-group noPadding">
+                                    <span class="dotAcotacion" style="background-color:rgb(32, 77, 116);vertical-align: middle;margin-bottom: 5px;"></span>
+                                </div>
+                                <div class="col-xs-8 col-xs-8 col-md-8 col-lg-8 form-group noPadding">
+                                    <label>Cambio <br />de Motor</label>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group noPadding">
+                                <div class="col-xs-4 col-xs-4 col-md-4 col-lg-4 form-group noPadding">
+                                    <span class="dotAcotacion" style="background-color:rgb(255, 140, 26);vertical-align: middle;margin-bottom: 5px;"></span>
+                                </div>
+                                <div class="col-xs-8 col-xs-8 col-md-8 col-lg-8 form-group noPadding">
+                                    <label>Componentes <br />Desfasados</label>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group noPadding">
+                                <div class="col-xs-4 col-xs-4 col-md-4 col-lg-4 form-group noPadding">
+                                    <span class="dotAcotacion" style="background-color:rgb(105, 105, 105);vertical-align: middle;margin-bottom: 5px;"></span>
+                                </div>
+                                <div class="col-xs-8 col-xs-8 col-md-8 col-lg-8 form-group noPadding">
+                                    <label>Remoción <br />Aplicada</label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 ">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Detalles Calendario</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <table id="tblInversion" class="table table hover row-border compact">
+                                <thead class="bg-table-header"></thead>
+                                <tfoot style="font-size:16px !important;">
+                                    <tr>
+                                        <th colspan="10" style="text-align:right">Total:</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+            <div class="modal-footer text-center modal-content-tamaño">
+                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="reporteAvance">
+    @Html.Partial("reportViewerView")
+</div> 
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Overhaul/PresupuestoOverhaulJS.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>

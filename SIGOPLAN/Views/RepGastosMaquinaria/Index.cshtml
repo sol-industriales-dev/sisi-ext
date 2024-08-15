@@ -1,0 +1,227 @@
+﻿@{
+    ViewBag.Title = "Reporte de Gastos X Maquinaria";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+@*<link href="~/Content/style/default/easyui.css" rel="stylesheet" />*@
+<link href="~/Content/style/icon.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-RepGastosMaquina.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<script src="~/Scripts/js/Maquinaria/Reporte/RepGastosMaquina.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+
+<div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="text-center"><label id="title"></label></h2>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Filtros:</legend>
+
+                <div class="col-lg-4 form-group">
+                    <label>Tipo de Equipo:</label>
+                    <select class="form-control" id="cboFiltroTipo" title="Seleccione:"></select>
+                </div>
+                <div class="col-lg-4 form-group">
+                    <label>Grupo de Equipo:</label>
+                    <select class="form-control" id="cboFiltroGrupo" title="Seleccione:"></select>
+                </div>
+                @*<div class="col-lg-4 form-group">
+                        <label>Modelo:</label>
+                        <select class="form-control" id="cboFiltroModelo" title="Seleccione:"></select>
+                    </div>*@
+                <div class="col-lg-4 form-group">
+                    <label>No Economico:</label>
+                    <select class="form-control" id="cboFiltroNoEconomico" title="Seleccione:"></select>
+                </div>
+                <div class="col-lg-4">
+                    <div class="col-lg-6 no-padding">
+                        <label for="fechaIni">Fecha Inicio:</label>
+                        <input type="text" id="fechaIni" class="form-control" />
+                    </div>
+                    <div class="col-lg-6 no-padding-right">
+                        <label for="fechaFin">Fecha Fin:</label>
+                        <input type="text" id="fechaFin" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-8 form-group">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnAplicarFiltros">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+                    @*<button type="button" class="btn btn-info margin-top pull-left" id="btnReporte">
+                            <span class="glyphicon glyphicon-search"></span> Imprimir
+                        </button>*@
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros text-center">
+                <legend class="legend-custm"><label id="tituloLegend"></label></legend>
+                <div class="col-lg-12 text-center">
+                    <label id="titleTotalGeneral"></label>
+                </div>
+                <div class="col-lg-10 text-left" id="divGrafica">
+                    <label id="notaGrafica" class="hide">*Click en la barra para ver el desglose</label>
+                    <canvas id="myChart" height="200" width="590"></canvas>
+                </div>
+                <div class="col-lg-2 text-left form-group  margin-top" id="divDatosMaquina">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading ">Datos Maquinaria</div>
+                        <div class="panel-body">
+                            <table class="table" id="infoMaquina">
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Nombre:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblNombre" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Marca:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblMarca" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Modelo:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblModelo" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Fecha Compra:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblFechaCompra" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Costo Adquisicion:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblSaldo" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <label>Costo por OVERHAUL:</label>
+                                        </div>
+                                        <div class="divider"></div>
+                                        <div>
+                                            <label>*Costo Activo Fijo:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblCostoXOverhaul" class="labelFont"></label>
+                                        </div>
+                                        <div class="divider"></div>
+                                        <div>
+                                            <label>*Costo Aplicado:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblCostoXOverhaulAplicado" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td hidden>
+                                        <div>
+                                            <label>Valor Depreciación:</label>
+                                        </div>
+                                        <div>
+                                            <label id="lblDepreciacion" class="labelFont"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade " id="modalMes" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label id="title-modal"></label></h3>
+                    </div>
+                </div>
+                <div class="modal-body container-fluid">
+                    <div class="row text-center form-group">
+                        <h3><label id="tituloModalMaquina"></label></h3>
+                    </div>
+
+
+                    <div id="divTipo" class="col-lg-12">
+                        <table id="grid_RepMensual" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="update" data-formatter="update" data-align="center">Ver Grupo</th>
+                                    <th data-column-id="descripcion" data-align="center" data-header-align="center">Descripción Tipo</th>
+                                    <th data-column-id="importe" data-align="center" data-header-align="center">Importe</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div id="tableGrupos" class="hidden col-lg-12">
+
+                    </div>
+                    <div id="tableInsumos" class="hidden col-lg-12">
+
+                    </div>
+                    <center><div id="loadingData" class="loader hidden text-center"></div></center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalReportes" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <center>
+                        <div class='myIframe'>
+                            <iframe id="report" align="middle"></iframe>
+                        </div>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

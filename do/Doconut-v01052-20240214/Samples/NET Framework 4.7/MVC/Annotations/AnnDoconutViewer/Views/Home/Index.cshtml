@@ -1,0 +1,133 @@
+﻿@{
+    ViewBag.Title = "Annotations - Doconut Asp.Net MVC Document Viewer";
+}
+
+<style>
+
+    .form-group label {
+        color: gray;
+        font-weight: bolder;
+        margin-top: .5rem;
+        margin-bottom: 0;
+    }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="https://doconut.com" target="_blank">Annotations - MVC</a>&nbsp;<div class="loader"></div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            @Html.Partial("_Menu");
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="row">
+    <div class="col-lg-12 text-center">
+        <div id="divDocViewer">
+            <div id="div_@ViewBag.ViewerID"></div>
+        </div>
+    </div>
+</div>
+
+<!-- File upload modal -->
+
+@Html.Partial("_FileUpload")
+
+
+<!-- Annotation properties modal -->
+
+@Html.Partial("_AnnProperties")
+
+
+
+@section css {
+
+    @* CSS for the Viewer *@
+    @Html.Raw(ViewBag.ViewerCSS)
+
+    <!-- Dropzone (upload) -->
+    <link href="/scripts/dropzone/basic.css" rel="stylesheet" />
+    <link href="/scripts/dropzone/dropzone.css" rel="stylesheet" />
+
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+}
+
+
+@section scripts {
+
+
+    <!-- Viewer header scripts include-->
+    @Html.Raw(ViewBag.ViewerScripts)
+
+    <!-- Bootstrap 4 JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <!-- Touch support for annotations -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- Drop Zone JS (For upload) -->
+    <script type="text/javascript" src="~/scripts/dropzone/dropzone.js"></script>
+
+
+    <script language="javascript" type="text/javascript">
+
+        Dropzone.autoDiscover = false; // required if using Dropzone
+
+       // Global variables
+
+        var annMode = false;        // the see if annotation mode is ON or not
+        var objctlDoc = null;       // Server object id is "ctlDoc"
+        var loader = $(".loader");
+        var isMobile = false;
+        var resizing = false;
+        var docViewerDiv = $("#divDocViewer");
+        var w = 0;
+        var h = 0;
+        var globalToken = "";  // token variable, for current document
+
+
+        loader.hide();
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            isMobile = true;
+        }
+
+        function ctlDoc_DoubleClick()
+        {  
+            objctlDoc.Zoom(true);
+        }
+
+        $(window).on("load", function () {
+
+            /* Init code for viewer */
+            @Html.Raw(ViewBag.ViewerInit)
+
+            globalToken = '@ViewBag.globalToken';
+
+            Resize();
+        });
+
+        $(window).resize(function () {
+            Resize();
+        });
+
+        if (isMobile) {
+            $(window).on("orientationchange", function (event) { Resize(event.orientation); });
+        }
+        else {
+            $(window).on("resize", function () { Resize(); });
+        }
+
+    </script>
+
+    <!-- All viewer related scripts -->
+    <script src="/Scripts/viewer.js"></script>
+
+    <!-- All annnotation related scripts -->
+    <script src="/Scripts/annotations.js"></script>
+
+}

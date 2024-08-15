@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "PropuestaPagos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Propuesta/ResumeProveedor.css" rel="stylesheet" />
+<style>
+    input[type=checkbox] {
+        -ms-transform: scale(2);
+        -moz-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        transform: scale(2);
+        margin: 1px;
+
+    }
+</style>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script>
+    var _gpGuardar = @ViewBag.Guardar;
+    var _gpEmpresa = @ViewBag.Empresa;
+</script>
+<h2 class="text-center">Programación de Pagos</h2>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-search"></i> Buscar</legend>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button id="btnProvLimit" type='button' class='btn btn-default'> Proveedor</button>
+            </span>
+            <input id='txtProvMin' type='text' class='form-control' />
+            <span class='input-group-btn' style='width:0px;'></span>
+            <input id='txtProvMax' type='text' class='form-control' />
+        </div>
+    </div>
+    <div class="col-md-2 cboCC">
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button type='button' class='btn btn-default'> CC</button>
+            </span>
+            <select class="form-control" style="text-align-last: center;" multiple="multiple" id="cboCC"></select>
+        </div>
+    </div>
+    <div class='col-md-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>F. Corte</span>
+            <input type="text" id="txtFechaCorte" value="@(new DateTime(DateTime.Now.Year, 12, 31).ToShortDateString())" class="form-control">
+        </div>
+    </div>
+    <div class='col-md-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>F. Pago</span>
+            <input type="text" id="txtFechaPago" class="form-control">
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <button type="button" class="btn btn-primary" id="btnBuscar"><i class='fa fa-search'></i> Búscar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardar"><i class='fa fa-save'></i> Guardar</button>
+    </div>
+    <div class="col-md-12">
+        <button type="button" class="btn btn-primary pull-right" id="btnTodo">Seleccionar todo</button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-calendar-day"></i> Concentrado</legend>
+    <div>
+        <table id='tblProgramacionPagos' class='display compact' style="width:100%">
+            <thead class='bg-table-header'>
+                <tr>
+                    <th colspan="7" class="fondoTotal text-center">@(ViewBag.Empresa == 6 ? "Saldo S/. " : "Saldo M.N. ")<span id='txtPropHTotal'></span>@(ViewBag.Empresa == 6 ? " / Capturado S/. " : " / Capturado M.N. ")<span id='txtPropHSel'></span></th>
+                    <th class="fondoTotal"></th>
+                    <th colspan="6" class="fondoTotal text-center">Saldo DLLS:<span id='txtPropHTotalDll'></span> / Capturado DLLS: <span id='txtPropHSelDll'></span></th>
+                </tr>
+                <tr>
+                    <th width="5%">PDF</th>
+                    <th width="5%">XML</th>
+                    <th>Factura</th>
+                    <th>Vence</th>
+                    <th>TM</th>
+                    <th>CC</th>
+                    <th>AC</th>
+                    <th>OC</th>
+                    <th>Concepto</th>
+                    <th>Saldo</th>
+                    <th></th>
+                    <th>Monto</th>
+                    <th>TMB</th>
+                    <th>TMP</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th colspan="10">
+                        <div class="pull-left" style="display: inline-block;">
+                            <div class="etiquetaRenglon" style="background-color: #5DADE2;"></div><label>Maquinaria: Activo Fijo</label>
+                        </div>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Facturado</span>
+            <input type='text' id='txtPropFFac' class='form-control text-right' disabled>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Pagado</span>
+            <input type='text' id='txtPropFPag' class='form-control text-right' disabled>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Max. Pago</span>
+            <input type='text' id='txtPropFMax' class='form-control text-right' disabled>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Solicitado</span>
+            <input type='text' id='txtPropFSol' class='form-control text-right' disabled>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Recibido</span>
+            <input type='text' id='txtPropFRec' class='form-control text-right' disabled>
+        </div>
+    </div>
+</fieldset>
+@Html.Partial("reportViewerView", false)
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Propuesta/ProgramacionPagos.js"></script>

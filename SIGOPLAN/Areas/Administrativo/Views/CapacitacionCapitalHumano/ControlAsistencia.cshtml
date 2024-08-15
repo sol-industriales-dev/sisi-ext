@@ -1,0 +1,806 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "Control de Asistencia";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var controller = new SIGOPLAN.Areas.Administrativo.Controllers.RecursosHumanos.Capacitacion.CapacitacionCapitalHumanoController();
+    var esControlAsistencia = controller.esControlAsistencia();
+    var moduloOperativo = controller.checarModuloCapacitacionOperativa();
+    var PuedeEliminarControlAsistencia = controller.PuedeEliminarControlAsistencia();
+}
+
+
+<!-- CSS -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Capacitacion/ControlAsistencia.css" rel="stylesheet" />
+
+
+<!-- HTML -->
+<input type="hidden" id="inputPuedeEliminarControlAsistencia" value=@PuedeEliminarControlAsistencia.ToString()>
+
+<div class="row text-center margin-top">
+    <h2>Control de Asistencia <i class="fas fa-tasks"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="input-group">
+                <span class="input-group-addon">Centro de Costos</span>
+                <select name="" id="comboCC" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="input-group">
+                <span class="input-group-addon">Estado</span>
+                <select id="comboEstado" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row margin-top">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha Inicio:</span>
+                <input class="text-center form-control" type="text" id="inputFechaInicio">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha Fin:</span>
+                <input class="text-center form-control" type="text" id="inputFechaFin">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <button id="botonBuscar" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                @if (esControlAsistencia)
+                {
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <button id="botonCargaMasiva" class="btn btn-primary pull-right">Carga Masiva</button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <button id="botonNuevo" class="btn btn-primary pull-right">
+                            <i class="fas fa-plus"></i> Nuevo
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Resultado:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="tablaControlAsistencia" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                    </thead>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAltaListaAsistencia" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Nueva lista de asistencia <i class="fas fa-clipboard-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <!-- Datos generales -->
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fas fa-bars"></i> Datos generales</legend>
+
+                    <div class="row">
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Centro de Costos</span>
+                                <select name="" id="comboAltaCC" class="form-control"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha:</span>
+                                <input class="text-center form-control" type="text" id="inputFechaCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Duración:</span>
+                                <input class="text-center form-control" disabled type="text" id="inputDuracionCurso">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave curso:</span>
+                                <input class="text-center form-control" type="text" id="inputClaveCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre curso:</span>
+                                <input class="text-center form-control" type="text" id="inputNombreCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <span id="spanClasificacionCurso" class="label"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="checkboxValidacion">
+                                    Validación
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave instructor:</span>
+                                <input class="text-center form-control" type="text" id="inputClaveInstructor">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre instructor:</span>
+                                <input class="text-center form-control" type="text" id="inputNombreInstructor">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="checkboxExterno">
+                                    Externo
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top" id="divExterno">
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Instructor externo:</span>
+                                <input class="text-center form-control" type="text" id="inputInstructorExterno">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Empresa:</span>
+                                <input class="text-center form-control" type="text" id="inputEmpresaExterna">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Lugar:</span>
+                                <input class="text-center form-control" type="text" id="inputLugarCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Horario:</span>
+                                <input class="text-center form-control" type="text" id="inputHorarioCurso">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarInfoCurso" info="objetivo">
+                                    <i class="fas fa-bullseye"></i> Objetivos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarInfoCurso" info="tema">
+                                    <i class="fas fa-info-circle"></i> Temas principales
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarInfoCurso" info="referencia">
+                                    <i class="fas fa-gavel"></i> Referencias normativas
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarInfoCurso" info="nota">
+                                    <i class="fas fa-sticky-note"></i> Notas
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- Lista de asistentes -->
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><i class="fas fa-users"></i> Asistentes</legend>
+
+                    <div class="row">
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave:</span>
+                                <input class="text-center form-control" type="text" id="inputClaveEmpleado">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre:</span>
+                                <input class="text-center form-control" type="text" id="inputNombreEmpleado">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button id="botonAgregarAsistente" class="btn btn-primary"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaAsistentes" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                </fieldset>
+
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                @if (esControlAsistencia)
+                {
+                    <button id="botonCrearListaAsistencia" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ver info de control asistencia -->
+<div class="modal fade" id="modalDetallesControlAsistencia" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Detalles del control de asistencia <i class="fas fa-clipboard-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <!-- Datos generales -->
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><i class="fas fa-bars"></i> Datos generales</legend>
+
+                    <div class="row">
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Centro de Costos</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleCC">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleFechaCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Duración:</span>
+                                <input class="text-center form-control" disabled type="text" id="inputDetalleDuracionCurso">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Clave curso:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleClaveCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre curso:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleNombreCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <span id="spanDetalleClasificacionCurso" class="label"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Empresa externa:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleEmpresaExterna">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre instructor:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleNombreInstructor">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Lugar:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleLugarCurso">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Horario:</span>
+                                <input disabled class="text-center form-control" type="text" id="inputDetalleHorarioCurso">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row margin-top">
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarDetalleInfoCurso" info="objetivo">
+                                    <i class="fas fa-bullseye"></i> Objetivos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarDetalleInfoCurso" info="tema">
+                                    <i class="fas fa-info-circle"></i> Temas principales
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarDetalleInfoCurso" info="referencia">
+                                    <i class="fas fa-gavel"></i> Referencias normativas
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                            <div class="flexContainer">
+                                <button class="btn btn-primary mostrarDetalleInfoCurso" info="nota">
+                                    <i class="fas fa-sticky-note"></i> Notas
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!-- Lista de asistentes -->
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><i class="fas fa-users"></i> Asistentes</legend>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaAsistentesDetalles" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cargar exámenes -->
+<div class="modal fade" id="modalExamenes" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Gestión de exámenes y aprobación <i class="fas fa-tasks"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm margin-top">
+                            <legend class="legend-custm">
+                                <i class="fas fa-info-circle"></i> Control de asistencia
+                            </legend>
+
+                            <div class="row margin-top">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro de Costos</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenCC">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenFechaCurso">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row margin-top">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre instructor:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenNombreInstructor">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre curso:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenNombreCurso">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </fieldset>
+                    </div>
+
+                    <div id="divAutorizantes" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm margin-top">
+                            <legend class="legend-custm">
+                                <i class="fas fa-user-check"></i> Autorización
+                            </legend>
+
+                            <p>* En caso de aplicar para autorización, se deberá definir a los autorizantes, RFC y Razón
+                                Social.</p>
+
+                            <div class="row margin-top">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Coordinador CMCAP</span>
+                                        <input class="text-center form-control" type="text" id="inputJefeDepartamento">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Coordinador de CSH:</span>
+                                        <input class="text-center form-control" type="text" id="inputCoordinadorCSH">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row margin-top">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Secretario de CSH:</span>
+                                        <input class="text-center form-control" type="text" id="inputSecretarioCSH">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Gerente de Proyecto:</span>
+                                        <input class="text-center form-control" type="text" id="inputGerenteProyecto">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Razón Social:</span>
+                                        <select id="selectRazonSocial" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">RFC:</span>
+                                        <input class="text-center form-control" type="text" id="inputRFC" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div>
+
+                <div class="row margin-top">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"><i class="fas fa-users"></i> Asistentes</legend>
+                            <div class="row margin-top">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tablaExamenes" class="table table-condensed table-hover table-striped text-center">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                @if (esControlAsistencia)
+                {
+                    <button id="botonGuardarExamenes" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Input para cargar lista de asistencia -->
+<input class="form-control" hidden id="inputArchivoControlAsistencia" type="file" />
+
+@Html.Partial("reportViewerView", false)
+
+<div class="modal fade" id="modalCargaMasiva">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Carga Masiva</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFile" type="file">
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12" style="margin-top: 10px;">
+                        <label>Estructura de carpetas:</label>
+                        <span>Archivo ZIP -> Carpeta CC. -> Carpeta Código Curso -> Carpeta Clave Instructor -> Carpeta Lugar -> Carpeta Fecha -> Carpeta Hora -> Archivos Exámenes y Archivo Control de Asistencia</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button id="botonGuardarCargaMasiva" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDC3" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>DC-3 <i class="fas fa-tasks"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm margin-top">
+                            <legend class="legend-custm">
+                                <i class="fas fa-info-circle"></i> Control de asistencia
+                            </legend>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro de Costos</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenCCDC3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenFechaCursoDC3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre instructor:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenNombreInstructorDC3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre curso:</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputExamenNombreCursoDC3">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="display: none;">
+                        <fieldset class="fieldset-custm margin-top">
+                            <legend class="legend-custm">
+                                <i class="fas fa-user-check"></i> Autorización
+                            </legend>
+
+                            <p>* En caso de aplicar para autorización, se deberá definir a los autorizantes, RFC y Razón Social.</p>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Coordinador CMCAP</span>
+                                        <input class="text-center form-control" type="text" id="inputJefeDepartamentoDC3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Coordinador de CSH:</span>
+                                        <input class="text-center form-control" type="text" id="inputCoordinadorCSHDC3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Secretario de CSH:</span>
+                                        <input class="text-center form-control" type="text" id="inputSecretarioCSHDC3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Gerente de Proyecto:</span>
+                                        <input class="text-center form-control" type="text" id="inputGerenteProyectoDC3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Razón Social:</span>
+                                        <select id="selectRazonSocialDC3" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">RFC:</span>
+                                        <input class="text-center form-control" type="text" id="inputRFCDC3" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div>
+
+                <div class="row margin-top">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"><i class="fas fa-users"></i> Asistentes</legend>
+                            <div class="row margin-top">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="tablaDC3" class="table table-condensed table-hover table-striped text-center">
+                                        <thead class="bg-table-header">
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                @if (esControlAsistencia)
+                {
+                    <button id="botonGuardarDC3" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Capacitacion/ControlAsistencia.js"></script>

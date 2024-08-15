@@ -1,0 +1,560 @@
+﻿@{
+    ViewBag.Title = "rptAnalisisFrecuenciaParos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<script src="~/Scripts/Utilities/chart/Chart.labelPie.js"></script>
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Captura/OT/rptAnalisisFrecuenciaParosJS.js"></script>
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+@Html.Partial("reportViewerView", false)
+
+<style>
+    .candaraFont13 {
+        font-family: "Candara, Georgia, serif";
+        font-size: 13px;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h3 class="text-center">
+            <label>ANALISIS FRECUENCIA DE PARO</label>
+        </h3>
+    </div>
+    <img id="canvas_link" class="hide" />
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>CC</label>
+                    <select class="form-control" id="cboCC" multiple></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class=" row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Fecha Inicio:
+                            </label>
+                            <input class="form-control" id="txtFechaIncioFiltro" type="text" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Fecha Fin:
+                            </label>
+                            <input class="form-control" id="txtFechaFinFiltro" type="text" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class=" row">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Horometro Inicial:
+                            </label>
+                            <input class="form-control" id="txtHorometroInicial" type="text" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>
+                                Horometro Final:
+                            </label>
+                            <input class="form-control" id="txtHorometroFinal" type="text" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Motivo Paro</label>
+                    <select class="form-control" id="cboMotivoParo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Tipo Paro:</label>
+                    <select class="form-control " id="cboTipoParo">
+                        <option value="0">Todos</option>
+                        <option value="1">Paro Programado</option>
+                        <option value="2">Paro no Programado</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Condicion Paro:</label>
+                    <select class="form-control" id="cboCondicionParo">
+                        <option value="0">Todos</option>
+                        <option value="1">Preventivo</option>
+                        <option value="2">Correctivo</option>
+                        <option value="3">Predictivo</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Grupo de Maquina:</label>
+                    <select class="form-control" id="cboGrupo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Modelo de Maquina:</label>
+                    <select class="form-control" id="cboModelo" disabled></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Economico:</label>
+                    <select class="form-control" id="cboNoEconomico"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Condicion Equipo:</label>
+                    <select class="form-control" id="cboEstatusEquipo">
+                        <option value="0">Todos</option>
+                        <option value="1"> Maquinaria en stand by</option>
+                        <option value="2"> Maquinaria trabajando</option>
+                        <option value="3"> Falta de Tramo</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 margin-top">
+                            <button type="button" id="btnCargar" class="btn btn-default btn-block">
+                                Cargar
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 margin-top">
+                            <button type="button" id="btnVerGraficas" class="btn btn-default btn-block">
+                                Frecuencia
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 margin-top hide">
+                            <button type="button" id="btnGraficaMantenimientos" class="btn btn-default btn-block">
+                                Mantenimiento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Reporte Datos:</legend>
+                <table class="table table-responsive table-fixed" id="tblfrecuenciaParo">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th>No.</th>
+                            <th>MOTIVO PARO</th>
+                            <th>FRECUENCIA PARO</th>
+                            <th>TIEMPO PARO</th>
+                            <th>HORAS HOMBRE</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleParoEquipo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <button type="button" id="btnVerReporte" class="btn btn-default btn-block">
+                            Ver Reporte
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblDetalleTiposParo" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>FOLIO</th>
+                                            <th>HORMETRO</th>
+                                            <th>ECONOMICO</th>
+                                            <th>TIEMPO PARO</th>
+                                            <th>TIEMPO MUERTO</th>
+                                            <th>METODO SOLUCION</th>
+                                            <th>HORAS HOMBRE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGraficasFrecuencias" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style=" width: 1350px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalGraficas"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <button type="button" id="btnExportarGrafica" class="btn btn-default btn-block">
+                            EXPORTAR
+                        </button>
+                    </div>
+                </div>
+                <div class=" row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="panel-heading" style="padding: 0px;">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#tabPareto">GRAFICAS DE PARETO</a>
+                                </li>
+                                <li class="text-right">
+                                    <a data-toggle="tab" href="#tabCentroCostos">GRAFICAS CENTRO COSTOS</a>
+                                </li>
+                                <li class="text-right">
+                                    <a data-toggle="tab" href="#tabTendencia">GRAFICAS TENDENCIA</a>
+                                </li>
+                                <li class="text-right">
+                                    <a data-toggle="tab" href="#tabVentanaHorasHombre"> HORAS HOMBRE</a>
+                                </li>
+                                <li class="text-right">
+                                    <a data-toggle="tab" href="#tabVentanaGeneral">TIPOS MANTENIMIENTO</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="tabPareto" class="tab-pane fade in active">
+                                    <ul class="nav nav-tabs" style="text-align: center !important;margin: 0 auto !important;width: 16%;border-bottom: none;">
+                                        <li class="active"><a data-toggle="tab" href="#tabVentanaTiempoOT">Tiempo </a></li>
+                                        <li><a data-toggle="tab" href="#tabVentanaFrecuenciaParo">Frecuencia</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tabVentanaTiempoOT" class="tab-pane fade in active">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine4" width="1300" height="400" class="candaraFont13"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tabVentanaFrecuenciaParo" class="tab-pane fade">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine2" width="1300" height="400"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tabCentroCostos" class="tab-pane fade in">
+                                    <ul class="nav nav-tabs" style="text-align: center !important;margin: 0 auto !important;width: 16%;border-bottom: none;">
+                                        <li class="active"><a data-toggle="tab" href="#tabVentanaTiemposCC">Tiempo </a></li>
+                                        <li><a data-toggle="tab" href="#tabVentanaFrecuenciaParoCC">Frecuencia</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tabVentanaTiemposCC" class="tab-pane fade in active">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <table id="tblTiemposOTCC" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th>Centro Costos</th>
+                                                                <th>Tiempos por CC(Horas)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine10" width="1300" height="300"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tabVentanaFrecuenciaParoCC" class="tab-pane fade in">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <table id="tblFrecuenciaParoPorCC" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th>Centro Costos</th>
+                                                                <th>Total Frecuencias</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine12" width="1300" height="300"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tabTendencia" class="tab-pane fade ">
+                                    <ul class="nav nav-tabs" style="text-align: center !important;margin: 0 auto !important;width: 22%;border-bottom: none;">
+                                        <li class="active"><a data-toggle="tab" href="#tabVentanaTiempoTendencia">TIEMPO </a></li>
+                                        <li><a data-toggle="tab" href="#tabVentanaFrecuenciaParoTendencia">FRECUENCIA</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tabVentanaTiempoTendencia" class="tab-pane fade in active">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <table id="tblTiemposOTTendencia" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th>Centro Costos</th>
+                                                                <th>Mes</th>
+                                                                <th>Tendencia de Tiempos(Horas)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine11" width="1300" height="300"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tabVentanaFrecuenciaParoTendencia" class="tab-pane fade in">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <table id="tblFrecuenciaParoTendencia" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th>Centro Costos</th>
+                                                                <th>Mes</th>
+                                                                <th>Tendencia Frecuencia Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <canvas id="LineWithLine13" width="1300" height="300"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div id="tabVentanaHorasHombre" class="tab-pane fade in">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <canvas id="LineWithLine3" width="1300" height="400"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tabVentanaGeneral" class="tab-pane fade">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <table id="tblGeneralMantenimientos" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th>Tipo de Paro</th>
+                                                        <th>Frecuencia</th>
+                                                        <th>Tiempo (Horas)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <ul class="nav nav-tabs" style="text-align: center !important;margin: 0 auto !important;width: 16%;border-bottom: none;">
+                                        <li class="active"><a data-toggle="tab" href="#tabVentanaTiempoPie">Tiempo </a></li>
+                                        <li><a data-toggle="tab" href="#tabVentanaFrecuenciaParoPie">Frecuencia</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tabVentanaTiempoPie" class="tab-pane fade in active">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend class="legend-custm">Grafica Tiempo</legend>
+                                                        <canvas id="LineWithLine14" width="1000" height="400"></canvas>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend class="legend-custm">Grafica Tendencia Tiempo</legend>
+                                                        <canvas id="LineWithLine15" width="1000" height="400"></canvas>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tabVentanaFrecuenciaParoPie" class="tab-pane fade">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend class="legend-custm">Grafica Frecuencia</legend>
+                                                        <canvas id="LineWithLine5" width="1000" height="400"></canvas>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <fieldset class="fieldset-custm">
+                                                        <legend class="legend-custm">Grafica Tendencia Mantenimiento</legend>
+                                                        <canvas id="LineWithLine9" width="1300" height="400"></canvas>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalGraficasTiposParos" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style=" width: 1350px;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalTiposParo"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="panel-heading" style="padding: 0px;">
+                    <ul class="nav nav-tabs">
+                        <li class="text-right">
+                            <a data-toggle="tab" href="#tabVentanaPreventivo" data-grafica="3">Preventivo</a>
+                        </li>
+                        <li class="text-right">
+                            <a data-toggle="tab" href="#tabVentanaCorrectivo" data-grafica="6">Correctivo</a>
+                        </li>
+                        <li class="text-right">
+                            <a data-toggle="tab" href="#tabVentanaPredictivo" data-grafica="6">Predictivo</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+
+                        <div id="tabVentanaPreventivo" class="tab-pane fade in">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table id="tblFrecuenciasPreventivo" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Obra</th>
+                                                <th>Frecuencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                        <canvas id="LineWithLine6" width="1300" height="400"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tabVentanaCorrectivo" class="tab-pane fade in">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table id="tblFrecuenciaCorrectivo" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Obra</th>
+                                                <th>Frecuencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+
+
+                                    <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                        <canvas id="LineWithLine7" width="1300" height="400"></canvas>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tabVentanaPredictivo" class="tab-pane fade in">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table id="tblFrecuenciaPredictivo" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Obra</th>
+                                                <th>Frecuencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="chart-container" style="position: relative; height:40vh; width:95vw">
+                                            <canvas id="LineWithLine8" width="1300" height="400"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

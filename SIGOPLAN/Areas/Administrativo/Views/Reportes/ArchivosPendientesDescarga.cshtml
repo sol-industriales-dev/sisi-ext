@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "ArchivosPendientesDescarga";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<style type="text/css">
+    .input-group .form-control {
+        z-index: 1;
+    }
+    span.label-danger:hover{
+        cursor: pointer;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center" style=" margin-top: 0;margin-bottom: 0;">
+            Reporte Cadena Productiva
+        </h2>
+    </div>
+    <div class="row" id="ListaVencimientos">
+        <div class="row">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Parametros Descarga</legend>
+                    <div class="col-lg-12">
+                        <div class="col-lg-2">
+                            <label>Tipo Factoraje:</label>
+                            <select class='form-control claveIF' id="cboFactoraje">
+                                <option value='V'>Vencido</option>
+                                <option value='N'>Normal</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label>IF:</label>
+                            <select class='form-control claveIF' id="cboBancos">
+                                <option value=''>--Seleccionar--</option>
+                                <option value='3217'>BANORTE</option>
+                                <option value='6544'>BANAMEX</option>
+                                <option value='32046'>SCOTIABANK</option>
+                                <option value='1097745'>MONEX</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Fecha Emision:</label>
+                            <input class="form-control" id="tbFechaEmision" />
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Fecha Vencimiento:</label>
+                            <input class="form-control" id="tbFechaVencimiento" />
+                        </div>
+                        <div class='col-md-2 col-lg-1'>
+                            <button id='' type='button' class='btn btn-primary margin-top' data-toggle='modal' data-target='#mdlNafin'><i class='fa fa-list'></i> Nafin</button>
+                        </div>
+                        <div class='col-md-2 col-lg-1'>
+                            <button id='btnEnvioCorreos' type='button' class='btn btn-primary margin-top' data-toggle='modal'><i class='fa fa-list'></i> Enviar Notificación</button>
+                        </div>
+                    </div>
+                    <input id="hdnIdEliminar" hidden value="0"/>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Lista Documentos:</legend>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tabPendientes">Pendientes</a></li>
+                        <li><a data-toggle="tab" href="#tabAplicadas">Aplicados</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tabPendientes" class="tab-pane fade in active">
+                            <label>*Recuerde Cambiar el IF,Fecha Emision y Fecha Vencimiento para hacer la descarga del archivo.</label>
+                            <table id="tblVencimiento" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="numProveedor" data-align="center" data-searchable="true"># Proveedor</th>
+                                        <th data-column-id="numNafin" data-align="center" data-searchable="true"># Nafin</th>
+                                        <th data-column-id="proveedor" data-align="center">Proveedor</th>
+                                        <th data-column-id="saldoFactura" data-align="center" data-searchable="false">Monto</th>
+                                        <th data-column-id="fechaS" data-align="center" data-searchable="false">Fecha Emision</th>
+                                        <th data-column-id="fechaVencimientoS" data-align="center" data-searchable="false">Fecha Vencimiento</th>
+                                        <th data-column-id="Descarga" data-formatter="descargar" data-align="center" data-header-align="center" data-searchable="false">Descarga</th>
+                                        <th data-column-id="Imprimir" data-formatter="imprimir" data-align="center" data-header-align="center" data-searchable="false">Imprimir</th>
+                                        <th data-column-id="Excel" data-formatter="excel" data-align="center" data-header-align="center" data-searchable="false">Excel</th>
+                                        <th data-column-id="Eliminar" data-formatter="eliminar" data-align="center" data-header-align="center" data-searchable="false">Eliminar</th>
+                                        <th data-column-id="vobo" data-formatter="vobo" data-align="center" data-searchable="false">VoBo</th>
+                                        <th data-column-id="estado" data-formatter="estado" data-align="center" data-header-align="center" data-searchable="false">Estado</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div id="tabAplicadas" class="tab-pane fade">
+                            <div class="col-lg-2">
+                                <label>Fecha Vencimiento:</label>
+                                <input class="form-control" id="tbFiltroEmision" />
+                            </div>
+                            <div class="col-lg-1 margin-top">
+                                <button type="button" class="btn btn-primary" id="btnBuscar"><span class="glyphicon glyphicon-search"> Buscar</span></button>
+                            </div>
+                            <div class="col-lg-1 margin-top">
+                                <button type="button" class="btn btn-primary" id="btnRefresh"><span class="glyphicon glyphicon-refresh"> Recargar</span></button>
+                            </div>
+                            <table id="tblAplicados" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="numProveedor" data-align="center" data-searchable="true"># Proveedor</th>
+                                        <th data-column-id="numNafin" data-align="center" data-searchable="true"># Nafin</th>
+                                        <th data-column-id="proveedor" data-align="center">Proveedor</th>
+                                        <th data-column-id="factoraje" data-align="center" data-searchable="false">Factoraje</th>
+                                        <th data-column-id="banco" data-align="center" data-searchable="false">Banco</th>
+                                        <th data-column-id="saldoFactura" data-align="center" data-searchable="false">Monto</th>
+                                        <th data-column-id="fechaS" data-align="center" data-searchable="false">Fecha Emision</th>
+                                        <th data-column-id="fechaVencimientoS" data-align="center" data-searchable="false">Fecha Vencimiento</th>
+                                        <th data-column-id="Descarga" data-formatter="descargar" data-align="center" data-header-align="center" data-searchable="false">Descarga</th>
+                                        <th data-column-id="Imprimir" data-formatter="imprimir" data-align="center" data-header-align="center" data-searchable="false">Imprimir</th>
+                                        <th data-column-id="Excel" data-formatter="excel" data-align="center" data-header-align="center" data-searchable="false">Excel</th>
+                                        <th data-column-id="Eliminar" data-formatter="eliminar" data-align="center" data-header-align="center" data-searchable="false">Eliminar</th>
+                                        @*<th data-column-id="Alerta" data-formatter="alerta" data-align="center" data-header-align="center" data-searchable="false">Alerta</th>*@
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalEliminar" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <i class="fa fa-warning warning"></i>
+                Eliminar
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <label class="form-control">
+                        Al eliminar la cadena productiva no se podrá volver a recuperar. ¿Desea continuar?
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <label id="lblPlantillaMensaje"></label>
+                <button type="button" id="btnEliminar" class="btn btn-danger">Eliminar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='mdlNafin' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'>Catálogo Nafin</h1>
+            </div>
+            <div class='modal-body'>
+                @Html.Partial("_numeroNafin")
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Reportes/ArchivosPendientesDescarga.js"></script>

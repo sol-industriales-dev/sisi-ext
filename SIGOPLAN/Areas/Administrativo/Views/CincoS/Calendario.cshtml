@@ -1,0 +1,447 @@
+﻿@{
+    ViewBag.Title = "CheckList";
+
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/CincoS/CheckList.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="~/Content/style/js-year-calendar.min.css" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="text-center">FILTRO DE BUSQUEDA</h5>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <div class="input-group-addon">CC</div>
+                                <select id="cboFiltroCC" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <div class="input-group-addon">AÑO</div>
+                                <select id="cboFiltroAño" class="form-control">
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <button id="btnFiltroExportar" class="btn btn-success  pull-right">
+                                Exportar
+                            </button>
+
+                            <button id="btnFiltroBuscar" class="btn btn-success btnNaranja pull-right">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="text-center">CHECKLIST CREADOS</h5>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12" style="background-color: white;">
+                            <div id="calendar" class=""></div>
+                            <div class="divHidden" style="position: absolute; opacity: 0.0;">
+                                <div id="calendarHidden" class=""
+                                    style="width:800px !important; background-color: white;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CE CHECKLIST -->
+<div id="mdlCEChecklist" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title"><span id="titleCEChecklist"></span> CHECKLIST</h3>
+            </div>
+            <div class='modal-body'>
+                <div class="col-sm-12">
+                    <div class="row marginBottom">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Datos generales</legend>
+                            <div class="row marginBottom">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre</span>
+                                        <input type="text" class="form-control" id="txtCECheckistNombre"
+                                            autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CC Construplan</span>
+                                        <select class="form-control" id="cboCEChecklistCC"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Área</span>
+                                        <select class="form-control" id="cboCEChecklistArea"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Lideres área</span>
+                                        <select class="form-control" id="cboCEChecklistLideres"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row marginBottom">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Puntos inspeccionados</legend>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <fieldset class='fieldset-custm'>
+                                        <legend class='legend-custm'></legend>
+                                        <div class="col-sm-10">
+                                            <div class="row marginBottom">
+                                                <fieldset class='fieldset-custm'>
+                                                    <legend class='legend-custm'>Inspecciones: </legend>
+                                                    <div class="col-sm-12">
+                                                        <textarea name="" id="txtCEChecklistInspecciones" cols="120"
+                                                            rows=""></textarea>
+
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="row marginBottom">
+                                                <div class="col-sm-6">
+                                                    <input type="checkbox" id="chkCECEChecklistClasificar" /><span>
+                                                        Clasificar</span>
+                                                    <input type="checkbox" id="chkCECEChecklistLimpieza" /><span>
+                                                        Limpieza</span>
+                                                    <input type="checkbox" id="chkCECEChecklistOrden" /><span>
+                                                        Orden</span>
+                                                    <input type="checkbox" id="chkCECEChecklistEstandarizar" /><span>
+                                                        Estandarizar</span>
+                                                    <input type="checkbox" id="chkCECEChecklistDisciplina" /><span>
+                                                        Disciplina</span>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Sub-área</span>
+                                                        <select class="form-control"
+                                                            id="cboCEChecklistSubArea"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 " style="padding-top: 50px;" align="center">
+                                            <button class="btn"
+                                                style="color: white; background-color: rgb(237, 125, 49);"
+                                                id="btnCEInspeccion">AGREGAR</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>CLASIFICAR</td>
+                                            <td><span id="txtCEChecklistClasificar"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>ORDEN</td>
+                                            <td><span id="txtCEChecklistOrden"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>LIMPIEZA</td>
+                                            <td><span id="txtCEChecklistLimpieza"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>ESTANDARIZACION</td>
+                                            <td><span id="txtCEChecklistEstandarizacion"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>DISCIPLINA</td>
+                                            <td><span id="txtCEChecklistDisciplina"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                                <div class="col-sm-2 " align="center">
+                                    <table class="tblTotalizador">
+                                        <tr>
+                                            <td>TOTAL</td>
+                                            <td><span id="txtCEChecklistTotal"></span></td>
+                                        </tr>
+                                    </table>
+                                    <div></div>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table id="tblCEChecklistInspecciones" class="hover stripe order-column compact"
+                                            style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' class='btn btn-success' id="btnCEChecklistGuardar"></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL CE CHECKLIST -->
+
+<!-- MODAL CE CHECKLIST -->
+<div id="mdlCEChecklist" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title"><span id="titleCEChecklist"></span> CHECKLIST</h3>
+            </div>
+            <div class='modal-body'>
+                <div class="col-sm-12">
+                    <div class="row marginBottom">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Datos generales</legend>
+                            <div class="row marginBottom">
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre</span>
+                                        <input type="text" class="form-control" id="txtCECheckistNombre"
+                                            autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CC Construplan</span>
+                                        <select class="form-control" id="cboCEChecklistCC"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Área</span>
+                                        <select class="form-control" id="cboCEChecklistArea"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Lideres área</span>
+                                        <select class="form-control" id="cboCEChecklistLideres"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row marginBottom">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Puntos inspeccionados</legend>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <fieldset class='fieldset-custm'>
+                                        <legend class='legend-custm'></legend>
+                                        <div class="col-sm-10">
+                                            <div class="row marginBottom">
+                                                <fieldset class='fieldset-custm'>
+                                                    <legend class='legend-custm'>Inspecciones: </legend>
+                                                    <div class="col-sm-12">
+                                                        <textarea name="" id="txtCEChecklistInspecciones" cols="120"
+                                                            rows=""></textarea>
+
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="row marginBottom">
+                                                <div class="col-sm-6">
+                                                    <input type="checkbox" class="checkbox-round"
+                                                        id="chkCECEChecklistClasificar" /><span> Clasificar</span>
+                                                    <input type="checkbox" class="checkbox-round"
+                                                        id="chkCECEChecklistLimpieza" /><span> Limpieza</span>
+                                                    <input type="checkbox" class="checkbox-round"
+                                                        id="chkCECEChecklistOrden" /><span> Orden</span>
+                                                    <input type="checkbox" class="checkbox-round"
+                                                        id="chkCECEChecklistEstandarizar" /><span> Estandarizar</span>
+                                                    <input type="checkbox" class="checkbox-round"
+                                                        id="chkCECEChecklistDisciplina" /><span> Disciplina</span>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Sub-área</span>
+                                                        <select class="form-control"
+                                                            id="cboCEChecklistSubArea"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <button class="btn" id="btnCEInspeccion">AGREGAR</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-2 totalizador">
+                                    <span>CLASIFICAR</span><span id="txtCEChecklistClasificar"></span>
+                                </div>
+                                <div class="col-sm-2 totalizador">
+                                    <span>ORDEN</span><span id="txtCEChecklistOrden"></span>
+                                </div>
+                                <div class="col-sm-2 totalizador">
+                                    <span>LIMPIEZA</span><span id="txtCEChecklistLimpieza"></span>
+                                </div>
+                                <div class="col-sm-2 totalizador">
+                                    <span>ESTANDARIZACION</span><span id="txtCEChecklistEstandarizacion"></span>
+                                </div>
+                                <div class="col-sm-2 totalizador">
+                                    <span>DISCIPLINA</span><span id="txtCEChecklistDisciplina"></span>
+                                </div>
+                                <div class="col-sm-2 totalizador">
+                                    <span>TOTAL</span><span id="txtCEChecklistTotal"></span>
+                                </div>
+                            </div>
+                            <div class="row marginBottom">
+                                <div class="col-sm-12">
+                                    <div class="table-responsive">
+                                        <table id="tblCEChecklistInspecciones" class="hover stripe order-column compact"
+                                            style="width: 100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' class='btn btn-success' id="btnCEChecklistGuardar"></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL CE CHECKLIST -->
+
+<!-- MODAL CE CHECKLIST -->
+<div id="mdlCalendario" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title">CALENDARIZAR AUDITORIA</h3>
+            </div>
+            <div class='modal-body'>
+                <div class="row marginBottom">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">CHECKLIST</span>
+                            <input type="text" class="form-control" id="txtCalendarioChecklist" autocomplete="off"
+                                readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">PROYECTO</span>
+                            <select class="form-control" id="cboCalendarioCC"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row marginBottom">
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <span class="input-group-addon">FECHAS</span>
+                            <select class="form-control" id="cboCalendarioFechas"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="input-group">
+                            <input type="date" class="form-control" id="fechaCalendario">
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="btn btn-success btn-sm" id="btnCalendarioAgregarFecha"><i
+                                class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' class='btn btn-success' id="btnCalendarioGuardar">Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i
+                        class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL CE CHECKLIST -->
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/CincoS/Calendario.js"></script>
+<script src="~/Scripts/js-year-calendar.min.js"></script>
+<script src="~/Scripts/js-year-calendar.es.js"></script>
+<script src="~/Scripts/dom-to-image.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.js"></script>

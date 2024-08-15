@@ -1,0 +1,194 @@
+﻿@{
+    ViewBag.Title = "ReporteBitacoraResguardos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<style>
+    .mrgTop {
+        margin-top: 5px;
+    }
+</style>
+
+<h2 class="text-center">Reporte Bitácora de Resguardos</h2>
+
+<fieldset class="fieldset-custm" style="margin-top: 33px;">
+    <legend class="legend-custm"></legend>
+
+    <div class="col-sm-12 mrgTop">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Centro de Costo</legend>
+
+            <div class="col-md-11 col-lg-11 mrgTop">
+                <div class="input-group">
+                    <span class="input-group-addon">Inicial:</span>
+                    <input id="inputCentroCostoInicio" class="form-control" style="width: 10%;">
+                    <input id="inputCentroCostoInicioDesc" class="form-control" disabled style="width: 90%;">
+                </div>
+            </div>
+            <div class="col-md-1 col-lg-1 mrgTop">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#mdlCC" id="btnCCInicio"><i class="fa fa-align-justify"></i></button>
+            </div>
+
+            <div class="col-md-11 col-lg-11 mrgTop">
+                <div class="input-group">
+                    <span class="input-group-addon">Final:</span>
+                    <input id="inputCentroCostoFin" class="form-control" style="width: 10%;">
+                    <input id="inputCentroCostoFinDesc" class="form-control" disabled style="width: 90%;">
+                </div>
+            </div>
+            <div class="col-md-1 col-lg-1 mrgTop">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#mdlCCfin" id="btnCCFinal"><i class="fa fa-align-justify"></i></button>
+            </div>
+
+        </fieldset>
+    </div>
+
+    <div class="col-sm-12 mrgTop">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Empleado</legend>
+
+            <div class="col-md-11 col-lg-11 mrgTop">
+                <div class="input-group">
+                    <span class="input-group-addon">Inicial:</span>
+                    <input id="inputEmpleadoInicio" class="form-control" style="width: 10%;">
+                    <input id="inputEmpleadoInicioDesc" class="form-control" disabled style="width: 90%;">
+                </div>
+            </div>
+            <div class="col-md-1 col-lg-1 mrgTop">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#mdlPersonal" id="btnPersonalInicio"><i class="fa fa-align-justify"></i></button>
+            </div>
+            <div class="col-md-11 col-lg-11 mrgTop">
+                <div class="input-group">
+                    <span class="input-group-addon">Final:</span>
+                    <input id="inputEmpleadoFin" class="form-control" style="width: 10%;">
+                    <input id="inputEmpleadoFinDesc" class="form-control" disabled style="width: 90%;">
+                </div>
+            </div>
+            <div class="col-md-1 col-lg-1 mrgTop">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#mdlPersonalfin" id="btnPersonalFinal"><i class="fa fa-align-justify"></i></button>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-sm-12 mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Número(s) de Serie:</span>
+            <input id="inputNumeroSerie" class="form-control">
+        </div>
+    </div>
+
+    <div class="col-sm-3 mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Estatus:</span>
+            <select id="selectEstatus" class="form-control" multiple>
+                <option value="Todos">Todos</option>
+                <option value="1" estatus="V">Vigentes</option>
+                <option value="2" estatus="P">Parciales</option>
+                <option value="3" estatus="D">Devueltos</option>
+                <option value="4" estatus="C">Cancelados</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-4 noPadLeft mrgTop">
+        <button id="btnReporte" class="btn btn-primary"><i class="fa fa-file"></i> Reporte</button>
+        <button id="botonReporte" class="btn btn-primary"><i class="fa fa-file"></i> Excel</button>
+    </div>
+</fieldset>
+
+
+
+<div id='mdlCC' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Centros de costo</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <table id='tblCentrosCostos' class='table compact table-hover table-striped'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlPersonal' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Personal</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <table id='tblPersonal' class='table compact table-hover table-striped'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id='mdlCCfin' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Centros de costo</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <table id='tblCentrosCostosFin' class='table compact table-hover table-striped'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlPersonalfin' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Personal</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <table id='tblPersonalFin' class='table compact table-hover table-striped'></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+
+
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Almacen/Resguardo/ReporteBitacoraResguardos.js"></script>
+<script src='~/Scripts/select2.js'></script>

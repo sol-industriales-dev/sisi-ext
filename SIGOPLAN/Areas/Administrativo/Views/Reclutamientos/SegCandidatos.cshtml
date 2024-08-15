@@ -1,0 +1,833 @@
+﻿@{
+    ViewBag.Title = "Catálogo de fases";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/SegCandidatos.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+
+            <!-- FASES -->
+            <div id="divFases">
+                <button class="btn btn-primary pull-right" id="btnRegresarSegCandidatos"><i class="fas fa-undo-alt"></i>&nbsp;Regresar</button>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <fieldset class='fieldset-custm'>
+                            <h4><span id="lblNombreCandidato"></span></h4>
+                            <h4><span id="lblNombrePuesto"></span></h4>
+                            <h4><span id="lblEstatusSeguimiento"></span></h4>
+                        </fieldset>
+                    </div>
+                </div><br>
+                <div id="divSetFases"></div>
+
+                <table id="tblRH_REC_Actividades" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+            </div>
+            <!-- END: FASES -->
+
+            <div id="divSeguimientoCandidatos">
+                <div class="panel panel-default">
+                    <!-- PANEL SEGUIMIENTO CANDIDATOS -->
+                    <div class="panel-heading text-center">
+                        <h2>SEGUIMIENTO DE CANDIDATOS</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select style="width: 100%;" name="" id="cboFiltroCC" class="form-control" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select style="width: 100%;" name="" id="txtFiltroEstatus" class="form-control">
+                                    <option value="0" selected>Todos</option>
+                                    <option value="1">Pendientes</option>
+                                    <option value="2">Contratados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-success hidden" id="btnFiltroRegistrarEmpleado">Registrar empleado</button>
+                            <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar</button>
+                        </div>
+                    </div>
+                    <!-- LISTADO DE CANDIDATOS -->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tblRH_REC_SegCandidatos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE CANDIDATOS -->
+                <!-- END: PANEL SEGUIMIENTO CANDIDATOS -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- VER OBSERVACIÓN -->
+<div id='mdlVerObservacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Observación</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtCEObservacionActividad" class="inputTextArea" cols="30" rows="10"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnCEObservacionActividad" class='btn btn-success'>Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: VER OBSERVACIÓN -->
+
+<!-- VER EVIDENCIAS -->
+<div id='mdlVerEvidencias' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Evidencias</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <input id='txtCrearArchivo' type="file" multiple/>
+                        <table id="tblRH_REC_Evidencias" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnCrearArchivoActividad" class='btn btn-success'>Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: VER EVIDENCIAS -->
+
+<!-- VER CALIFICAION -->
+<div id='mdlVerCalificacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Calificación</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Calificación</span>
+                            <input type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success'>Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: VER CALIFICAION -->
+
+<!-- MODAL ADD PUESTO -->
+<div id='mdlSendNotificante' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Introducir Notificante</h1>
+            </div>
+            <div class='modal-body'>
+                <input style="display:none;" type="text" id="txtSendClave" class="form-control" disabled>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre Usuario</span>
+                            <input type="text" id="txtSendNombre" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' data-dismiss='modal' id="btnSendEnviar"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD PUESTO -->
+
+<!-- CREAR/EDITAR ENTREVISTA INICIAL -->
+<div id='mdlCrearEditarEntrevistaInicial' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Entrevista inicial</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre(s)</span>
+                            <input type="text" id="txtCEEntrevistaInicialNombreCompleto" class="form-control" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Escolaridad</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEscolaridad"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Edad</span>
+                            <input type="number" id="txtCEEntrevistaInicialEdad" class="form-control" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Estado civil</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEstadoCivil"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input type="checkbox" id="chkCEEntrevistaInicialBrutoNeto" data-toggle="toggle" data-on="Bruto" data-off="Neto" data-onstyle="success" data-offstyle="primary" data-width="146">
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Expectativa salarial mensual</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialExpectativaSalarial" placeholder="$" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Lugar de nacimiento</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialLugarNacimiento" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Puesto solicitado</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialPuestoSolicitado" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Experiencia laboral</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialExperienciaLaboral" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Sector de la ciudad</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialSectorCiudad" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Tiempo en la ciudad (Años)</span>
+                            <input type="number" class="form-control" id="txtCEEntrevistaInicialTiempoEnLaCiudad" placeholder="Años" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEEntrevistaInicialEntrevistasAnteriores" data-toggle="toggle" data-on="Entrevistas anteriores" data-off="Entrevistas anteriores" data-onstyle="success" data-offstyle="danger" data-width="265">
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Medio de reclutamiento</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialPlataforma"></select>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEEntrevistaInicialFamiliarEnLaEmpresa" data-toggle="toggle" data-on="Familiar en la empresa" data-off="Familiar en la empresa" data-onstyle="success" data-offstyle="danger" data-width="265">
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom" style="display: none;">
+                            <span class="input-group-addon">Teléfono</span>
+                            <input type="number" class="form-control" id="txtCEEntrevistaInicialTelefono" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); maxLength=10">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" style="display: none;">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Documentación</legend>
+                            <select class="form-control" id="cboCEEntrevistaInicialDocumentacion">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">Completo</option>
+                                <option value="2">Incompleto</option>
+                                <option value="3">Pendiente</option>
+                            </select>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom' id="divFamiliaEnLaEmpresa" style="display:none;">
+                            <legend class='legend-custm'>Familia en la empresa</legend>
+                            <textarea class="inputTextArea" placeholder="Indicar a la familia dentro de la empresa." id="txtCEEntrevistaInicialFamiliaEnLaEmpresa" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Familia</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialFamilia" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Empleos</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialEmpleos" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Características personales del candidato</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialCaracteristicasPersonalesCandidato" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Comentarios del entrevistador</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialComentariosEntrevistador" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="date" class="form-control" id="txtCEEntrevistaInicialFechaEntrevista" value="" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 marginBottom">
+                        <input type="checkbox" id="chkCEEntrevistaInicialAvanza" data-toggle="toggle" data-on="Avanza" data-off="Avanza" data-onstyle="success" data-offstyle="danger" data-width="410">
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" id="divCEEntrevistaInicialAvanza" style="display: none;">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Motivo no avanza</legend>
+                            <textarea class="inputTextArea" id="txtCEEntrevistaInicialComentariosAvanza" cols="30" rows="6" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 marginBottom">
+                        <input type="checkbox" id="chkCEEntrevistaInicialDisposicionHorario" data-toggle="toggle" data-on="Disposición de horario" data-off="Disposición de horario" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="410">
+                        <!-- <div class="input-group marginBottom">
+                            <span class="input-group-addon">Disposición de horario</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialDisposicionHorario" value="" autocomplete="off" style="text-transform:uppercase" onchange="this.value = this.value.toUpperCase();">
+                        </div> -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Entrevistó</span>
+                            <select class="form-control" id="cboCEEntrevistaInicialEntrevisto"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom" style="display:none">
+                            <span class="input-group-addon">Resultado</span>
+                            <input type="text" class="form-control" id="txtCEEntrevistaInicialResultado" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <!-- <button type='button' class='btn btn-success' id="btnCEEntrevistaInicial"><span id="spanTitleBtnCEEntrevistaInicial"></span></button> -->
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR ENTREVISTA INICIAL -->
+
+<div id='modalExamenMedico' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Examen Médico / Antidoping</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelDatosGenerales">DATOS GENERALES</a>
+                                    </h4>
+                                </div>
+                                <div id="panelDatosGenerales" class="panel-collapse">
+                                    <div class="panel-body">
+                                        <div class="col-md-7 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">NOMBRE:</span>
+                                                <input id="inputNombre" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">EDAD:</span>
+                                                <input id="inputEdad" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">TEL.:</span>
+                                                <input id="inputTelefono" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">DIRECCIÓN:</span>
+                                                <input id="inputDireccion" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ESCOLARIDAD:</span>
+                                                <select id="selectEscolaridad" class="form-control">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option value="1">PRIMARIA</option>
+                                                    <option value="2">SECUNDARIA</option>
+                                                    <option value="3">PREPARATORIA</option>
+                                                    <option value="4">UNIVERSIDAD</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">OTRA (Especifique):</span>
+                                                <input id="inputOtraEscolaridad" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ESTADO CIVIL:</span>
+                                                <select id="selectEstadoCivil" class="form-control">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option value="1">SOLTERO</option>
+                                                    <option value="2">CASADO</option>
+                                                    <option value="3">UNION LIBRE</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">OTRA (Especifique):</span>
+                                                <input id="inputOtroEstadoCivil" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">HIJOS:</span>
+                                                <input id="inputHijos" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='row'>
+                    <div class="col-md-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelPerfilLaboral">PERFIL LABORAL</a>
+                                    </h4>
+                                </div>
+                                <div id="panelPerfilLaboral" class="panel-collapse">
+                                    <div class="panel-body">
+                                        <div class="col-md-12 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">PUESTO ANTERIOR:</span>
+                                                <select id="selectPuestoAnterior" class="form-control select2"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">PUESTO A OCUPAR:</span>
+                                                <select id="selectPuestoOcupar" class="form-control select2"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='row'>
+                    <div class="col-md-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelDatosMedicos">DATOS MÉDICOS</a>
+                                    </h4>
+                                </div>
+                                <div id="panelDatosMedicos" class="panel-collapse">
+                                    <div class="panel-body">
+                                        <div class="col-md-12 marginTop">
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="border: 2px solid black;">
+                                                            <div class="col-md-6 marginTop">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">ALCOHOLISMO:</span>
+                                                                    <select id="selectAlcoholismo" class="form-control">
+                                                                        <option value="">--Seleccione--</option>
+                                                                        <option value="1">SÍ</option>
+                                                                        <option value="2">NO</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 marginTop">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">TIPO SANGUÍNEO:</span>
+                                                                    <input id="inputTipoSanguineo" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 marginTop marginBottom">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">OBSERVACIONES:</span>
+                                                                    <input id="inputObservacionesAlcoholismo" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td style="border: 2px solid black;">
+                                                            <div class="col-md-12 marginTop">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">TABAQUISMO:</span>
+                                                                    <select id="selectTabaquismo" class="form-control">
+                                                                        <option value="">--Seleccione--</option>
+                                                                        <option value="1">SÍ</option>
+                                                                        <option value="2">NO</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 marginTop marginBottom">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">OBSERVACIONES:</span>
+                                                                    <input id="inputObservacionesTabaquismo" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="border: 2px solid black;">
+                                                            <div class="col-md-12 marginTop">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">TOXICOMANÍA:</span>
+                                                                    <select id="selectToxicomania" class="form-control">
+                                                                        <option value="">--Seleccione--</option>
+                                                                        <option value="1">SÍ</option>
+                                                                        <option value="2">NO</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 marginTop marginBottom">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">OBSERVACIONES:</span>
+                                                                    <input id="inputObservacionesToxicomania" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td style="border: 2px solid black;">
+                                                            <div class="col-md-12 marginTop">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">USA LENTES:</span>
+                                                                    <select id="selectLentes" class="form-control">
+                                                                        <option value="">--Seleccione--</option>
+                                                                        <option value="1">SÍ</option>
+                                                                        <option value="2">NO</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-12 marginTop marginBottom">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon">OBSERVACIONES:</span>
+                                                                    <input id="inputObservacionesLentes" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">A. VISUAL:</span>
+                                                <input id="inputVisual" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">A. AUDITIVA:</span>
+                                                <input id="inputAuditiva" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">T.A.:</span>
+                                                <input id="inputTA" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">PULSO:</span>
+                                                <input id="inputPulso" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">MARCHA PUNTA:</span>
+                                                <input id="inputMarchaPunta" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">TALÓN:</span>
+                                                <input id="inputTalon" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ROMBERG:</span>
+                                                <input id="inputRomberg" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ARCOS DE FLEXIÓN:</span>
+                                                <input id="inputArcosFlexion" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ANTECEDENTES FAMILIARES:</span>
+                                                <input id="inputAntecedentesFamiliares" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">HEREDO FAMILIAR DE:</span>
+                                                <input id="inputHeredoFamiliar" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">ANTECEDENTES:</span>
+                                                <select id="selectAntecedentes" class="form-control" multiple>
+                                                    <option value="Todos">--Todos--</option>
+                                                    <option value="1">QUIRÚRGICOS</option>
+                                                    <option value="2">TRAUMÁTICOS</option>
+                                                    <option value="3">ALÉRGICOS</option>
+                                                    <option value="4">TATUAJES</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">TRATAMIENTO:</span>
+                                                <input id="inputTratamiento" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">RAYOS "X":</span>
+                                                <input id="inputRayosX" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class='row'>
+                    <div class="col-md-12">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" href="#panelOtros">OTROS</a>
+                                    </h4>
+                                </div>
+                                <div id="panelOtros" class="panel-collapse">
+                                    <div class="panel-body">
+                                        <div class="col-md-6 marginTop">
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">MENARCA</span>
+                                                    <input id="inputMenarca" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">V.S.A.</span>
+                                                    <input id="inputVSA" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">No. DE GESTAS</span>
+                                                    <input id="inputNumeroGestas" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">RITMO</span>
+                                                    <input id="inputRitmo" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">M.P.F.</span>
+                                                    <input id="inputMPF" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">P.I.E.</span>
+                                                    <input id="inputPIE" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 marginTop">
+                                            <div class="col-md-12 marginTop">
+                                                <label>SUSTANCIAS (5 REACTIVOS)</label>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">OPI</span>
+                                                    <input id="inputOPI" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">MET</span>
+                                                    <input id="inputMET" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">COC</span>
+                                                    <input id="inputCOC" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">AMP</span>
+                                                    <input id="inputAMP" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 marginTop">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">THC</span>
+                                                    <input id="inputTHC" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <p>DE ACUERDO A LAS PRUEBAS REALIZADAS PREESCRIBO A ESTA PERSONA COMO:</p>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <label>PERSONA APTA PARA REALIZAR LAS ACTIVIDADES REQUERIDAS POR EL PUESTO:</label>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <div class="radioBtn btn-group">
+                            <a class="btn btn-success notActive" data-toggle="radioApto" apto="1"><i class="fa fa-check"></i>&nbsp;SÍ</a>
+                            <a class="btn btn-danger notActive" data-toggle="radioApto" apto="0"><i class="fa fa-times"></i>&nbsp;NO</a>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <label>OBSERVACIONES:</label>
+                        <textarea id="textareaObservacionesGenerales" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="botonGuardarExamenMedico" class='btn btn-success'>Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/SegCandidatos.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>

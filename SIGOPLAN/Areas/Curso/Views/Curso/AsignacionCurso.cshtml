@@ -1,0 +1,435 @@
+﻿@{
+    ViewBag.Title = "AsignacionCurso";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/summernote/summernote.css")">
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote-es-ES.js")"></script>
+<link href="~/Content/style/css/Cursos/Cursos.css" rel="stylesheet" />
+<script src="~/Scripts/js/Cursos/AsignacionCursos.js"></script>
+<link href="/Content/style/PanelSwitch.css" rel="stylesheet"> @*agregar al check de cursos usuario aspectos d ediseño en check*@
+<div class="container-fluid">
+    <div class="row ">
+        <h1 class="text-center">Asignacion de Cursos</h1>
+        <h2 class="text-center" id="hFolio"></h2>
+        <ul class="nav nav-tabs pull-left ">
+
+
+            <li class="active"><input id="tab2" class="inputtab" type="radio" name="tabs" checked><label class="lblDepto" id="lbltab2" for="tab2">Asignar Departamento</label></li>
+            <li><input id="tab3" class="inputtab" type="radio" name="tabs"><label class="lblUsuario" id="lbltab3" for="tab3">Asignar Usuario</label></li>
+            <li><input id="tab1" class="inputtab" type="radio" name="tabs"><label id="lbltab1" class="lblCurso" for="tab1">Visualizar Curso</label></li>
+        </ul>
+    </div>
+</div>
+@*asignacion Departamento*@
+<div class="row form-group" id="departamento">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row form-group">
+            <div class="col-xs-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <h3 class="text-left">Filtro:</h3>
+                    <div class="row form-group">
+                        <div class="col-xs-12 col-md-12 col-lg-12">
+                            <div class="col-lg-2">
+                                <label>#Departamento</label>
+                                <input type="text" id="txtIdDepto" class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Abreviación Departamento</label>
+                                <input type="text" id="txtNomDepto" class="form-control" />
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="col-lg-12">
+                                    <label> Descripción</label>
+                                    <input type="text" id="descripcionCurso" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-default margin-top" id="btnAplicarFiltros">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Departamento:</label></legend>
+                    <div class="table-responsive">
+                        <table id="tblDeptos" class="table table-striped table-fixed">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="id">Operacion</th>
+                                    <th data-column-id="abreviacion">Abreviación</th>
+                                    <th data-column-id="descripcion">Descripción</th>
+                                    <th data-column-id="verPerfil" data-formatter="verPerfil" data-sortable="false" data-searchable="false" data-width="25px">Curso</th>
+
+                            </thead>
+                        </table>
+                    </div>
+                </fieldset>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+@*visualizacion cursos*@
+<div class="row form-group" id="cursos" hidden>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row form-group">
+            <div class="col-xs-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <h3 class="text-left">Filtro:</h3>
+                    <div class="row form-group">
+                        <div class="col-xs-12 col-md-12 col-lg-12">
+                            <div class="col-lg-2">
+                                <label>#Curso</label>
+                                <input type="text" id="txtIdCurso" class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Nombre Curso</label>
+                                <input type="text" @*id="txtNombreCurso"*@ class="form-control" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Numero de Folio:</label>
+                                <input type="text" @*id="NumFolio"*@ class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Estado:</label>
+                                <select id="chgEstado" class="form-control no-padding">
+                                    <option value="1">Todos</option>
+                                    <option value="2">Pendientes</option>
+                                    <option value="3">Completo</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-default margin-top" id="btnAplicarFiltros">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Cursos:</label></legend>
+                    <div class="table-responsive">
+                        <table id="tblCursos" class="table table-striped table-fixed">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="id">Operacion</th>
+                                    <th data-column-id="nombreCurso">Nombre Curso</th>
+                                    <th data-column-id="folio">Folio</th>
+                                    <th data-column-id="descripcion">Descripcion</th>
+                                    <th data-formatter="btn-detalle">Detalle</th>
+
+                            </thead>
+                        </table>
+                    </div>
+                </fieldset>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+@*asignacion usuario*@
+<div class="row form-group" id="Usuario" hidden>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row form-group">
+            <div class="col-xs-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <h3 class="text-left">Filtro:</h3>
+                    <div class="row form-group">
+                        <div class="col-xs-12 col-md-12 col-lg-12">
+                            <div class="col-lg-2">
+                                <label>#Curso</label>
+                                <input type="text" @*id="txtIdCurso"*@ class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Nombre Curso</label>
+                                <input type="text" id="txtNombreCurso" class="form-control" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Numero de Folio:</label>
+                                <input type="text" @*id="NumFolio"*@ class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Estado:</label>
+                                <select id="chgEstado" class="form-control no-padding">
+                                    <option value="1">Todos</option>
+                                    <option value="2">Pendientes</option>
+                                    <option value="3">Completo</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-default margin-top" id="btnAplicarFiltros">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Usuarios:</label></legend>
+                    <div class="table-responsive">
+                        <table id="tblUsuarios" class="table table-condensed table-hover table-striped text-center">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="id" data-width="25px">Clave</th>
+                                    <th data-column-id="Nombre" data-searchable="false" data-width="25%">Nombre</th>
+                                    <th data-column-id="Correo" data-searchable="false" data-width="25%">Correo</th>
+                                    <th data-column-id="Usuario" data-width="25%">Usuario</th>
+                                    <th data-column-id="Estatus" data-searchable="false" data-width="30px">Estatus</th>
+                                    <th data-column-id="verPerfil" data-formatter="verPerfil" data-sortable="false" data-searchable="false" data-width="25px">Curso</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+@*asignacion curso a departamento- usuario*@
+<div class="modal fade  modalg" id="CursoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialogg" role="document">
+        <div class="modal-content modal-contentg">
+            <div class="modal-header modal-bg modal-headerg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCurso"></label><label style="margin-left:3px;" id="lblDato"></label></h3>
+                </div>
+            </div>
+
+            <div class="modal-body modal-bodyg container-fluid ">
+                <fieldset class="fieldset-custm" style="margin-top:10px;">
+                    <h3>Filtro:</h3>
+                    <div class="row form-group">
+                        <div class="col-xs-12 col-md-12 col-lg-12">
+                            <div class="col-lg-2">
+                                <label>#Curso</label>
+                                <input type="text" @*id="txtIdCurso"*@ class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Nombre Curso</label>
+                                <input type="text" @*id="txtNombreCurso"*@ class="form-control" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Numero de Folio:</label>
+                                <input type="text" id="NumFolio" class="form-control no-padding" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>Estado:</label>
+                                <select id="chgEstado" class="form-control no-padding">
+                                    <option value="1">Todos</option>
+                                    <option value="2">Pendientes</option>
+                                    <option value="3">Completo</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-default margin-top" id="btnAplicarFiltros">
+                                    <span class="glyphicon glyphicon-search"></span> Buscar
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm" style="margin-top:10px;">
+                    <table id="tblCurUsr">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="id" data-width="25px">Clave</th>
+                                <th data-column-id="nombreCurso" data-width="10px">Nombre Curso</th>
+                                <th data-column-id="folio" data-searchable="false" data-width="25px">Folio</th>
+                                <th data-column-id="descripcion" data-width="25%">Descripcion</th>
+                                <th data-formatter="btn-detalle" data-column-id="detalle" data-searchable="false" data-width="15px">Detalle</th>
+                                <th data-formatter="check-asignar" data-column-id="check-asignar" data-width="25px">Asignar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        <div class="modal-footer modal-footerg">
+            <a data-dismiss="modal" id="btnGuardarAsignacionUsuario" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span>Cerrar</a>
+        </div>
+    </div>
+</div>
+@*nuevo usuario*@
+<div class="nuevoUsuario" hidden id="step-2">
+    <div class="row">
+        <div class="col-lg-12 form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"><label id="lblTituloUsuarios">Perfil:</label></legend>
+                <label class="hidden" id="lblIdUsuario"></label>
+                <div class="col-lg-3 form-group">
+                    <label>Nombre:</label>
+                    <input id="txtNombre" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Apellido Paterno:</label>
+                    <input id="txtApPaterno" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Apellido Materno:</label>
+                    <input id="txtApMaterno" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Correo:</label>
+                    <input id="txtCorreo" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Nombre de Usuario:</label>
+                    <input id="txtUsuario" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Nueva Contraseña:</label>
+                    <input id="txtContrasena" class="form-control" type="text" min="0" />
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label>Confirmar Contraseña:</label>
+                    <input id="txtConfirContrasena" class="form-control" type="password" min="0" />
+                </div>
+
+                <div class="col-lg-3 form-group">
+                    <label>Centro Costos:</label>
+                    <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
+                </div>
+
+                <div class="row text-right">
+                    <div class="col-lg-12">
+                        <button id="btnguardarUsnuevo" class="btn btn-primary pull-right" type="button">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div id="divarbol2" class="col-lg-12">  </div>
+<div id="divarbol3" class="col-lg-12">  </div>
+
+
+
+@*trabajo modal 7/12/17*@
+<div class="modal fade  modalg" id="modalDetCurso" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialogg" role="document">
+        <div class="modal-content modal-contentg">
+            <div class="modal-header modal-bg modal-headerg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCurso">#Curso</label></h3>
+                </div>
+            </div>
+
+            <div class="modal-body modal-bodyg container-fluid CuerpoModalDet" style="text-align:center">
+            </div>
+        </div>
+        <div class="modal-footer modal-footerg">
+            @*<a data-dismiss="modal" id="btnAceptarB" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> Aceptar</a>*@
+            <a data-dismiss="modal" id="btnCancelarC" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span>Cerrar</a>
+        </div>
+    </div>
+</div>
+
+@*Modal Paginado*@
+<div tabindex="-1" id="modalPaginado" class="modal fade modalg" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-fix modal-lg modal-dialogg ">
+        <div class="modal-content modal-contentg">
+            <div class="modal-header text-center modal-bg modal-headerg ">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h3 class="modal-title" id="idTitulopag"></h3>
+            </div>
+            <div class="modal-body modal-bodyg ajustar-texto">
+                <h5></h5>
+                <div class="row container-fluid">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Paginado del Curso:</legend>
+                        <div class="col-lg-12">
+                            <h3> </h3>
+                            <table class=" table table-condensed table-hover  text-center table-responsive " style="border:1px solid black; width:100%; margin-top:4px;" border="1" id="tablaModalPag">
+                                <thead class="bg-table-header table-responsive" style="text-align:center">
+                                    <tr>
+                                        <th rowspan="2" class="col-lg-2">Pagina</th>
+                                        <th rowspan="2">Descripción</th>
+                                        <th rowspan="2">Estatus</th>
+                                        <th rowspan="2" class="col-lg-1">Contenido</th>
+                                        @*<th rowspan="2" class="col-lg-1">Remover</th>*@
+                                    </tr>
+                                </thead>
+                                <tbody id="tblPlantilla"></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer modal-footerg">
+                @*<a data-dismiss="modal" id="btnAceptarB" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> Aceptar</a>*@
+                <a data-dismiss="modal" id="btnCancelarC" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*modal contenido paginado*@
+<div class="modal fade modalg" id="modalpag" tabindex="2" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-dialog-fix modal-dialogg" role="document">
+        <div class="modal-content modal-contentg">
+            <div class="modal-header text-center modal-bg modal-headerg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="titulocontenido"></h3>
+            </div>
+            <div class="modal-body ajustar-texto modal-bodyg" style="margin-top:15px">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm" id="paginaNum"></legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        @*<div id="summernote" style="height:100px; width:100px;"></div>*@
+                                        <div id="summernote" class="modal-summer"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer modal-footerg">
+                @*<button type="button" class="btn btn-default" data-dismiss="btnBorrar">Borrar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnAceptarD">Aceptar</button>*@
+                <a data-dismiss="modal" id="btnCancelarC" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*sexy raddi buttons*@
+
+
+
+
+@*<div id="radioBtn" class="btn-group">
+        <a class="btn btn-primary btn-sm active" data-toggle="happy" data-title="Y">YES</a>
+        <a class="btn btn-primary btn-sm notActive" data-toggle="happy" data-title="N">NO</a>
+    </div>
+    <input type="hidden" name="happy" id="happy">*@
+
+
+
+

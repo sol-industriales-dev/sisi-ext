@@ -1,0 +1,763 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/starrr.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Subcontratistas/EstiloGeneral.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>ADMINISTRACIÓN DE EVALUACIONES SUBCONTRATISTAS</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default panel-principal panelFiltro">
+                <div class="panel-heading">
+                    <h5 class="text-center">FILTRO DE BÚSQUEDA</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon botonNaranja">Estatus</span>
+                                <select id="selectEstatus" class="form-control">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">PENDIENTES POR ASIGNAR</option>
+                                    <option value="2">EVALUACIÓN ASIGNADA</option>
+                                    <option value="3">ESTATUS DE EVALUACIÓN</option>
+                                    <option value="4">COMPROMISOS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select id="selectProyecto" class="form-control select2"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Subcontratista</span>
+                                <select id="selectSubcontratista" class="form-control select2"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-1">
+                            <button id="botonBuscar" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="divGeneral">
+                <div class="panel panel-default panel-principal panelFiltro">
+                    <div class="panel-heading">
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-2" style="text-align: center;">
+                                <label style="display: block;">Pendientes por asignar</label>
+                                <input id="inputPendientesAsignar" class="form-control text-center inputIndicador" disabled>
+                            </div>
+
+                            <div class="col-sm-2" style="text-align: center;">
+                                <label style="display: block;">Asignadas</label>
+                                <input id="inputAsignadas" class="form-control text-center inputIndicador" disabled>
+                            </div>
+
+                            <div class="col-sm-2" style="text-align: center;">
+                                <label style="display: block;">Autorizadas</label>
+                                <input id="inputAutorizadas" class="form-control text-center inputIndicador" disabled>
+                            </div>
+
+                            <div class="col-sm-2" style="text-align: center;">
+                                <label style="display: block;">Cumplimiento</label>
+                                <input id="inputCumplimiento" class="form-control text-center inputIndicador" disabled>
+                            </div>
+                            <div class="col-sm-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default panel-principal panelFiltro">
+                    <div class="panel-heading">
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="tablaEvaluaciones" class="table compact" style="width: 100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divCompromisos" style="display: none;">
+                <div class="panel panel-default panel-principal panelFiltro">
+                    <div class="panel-heading">
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="col-sm-12">
+                                    <label style="display: block; text-align: center;">Requerimientos Evaluados</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <table id="tablaRequerimientosEvaluados" class="table compact dataTable" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Total Requerimientos Evaluados</th>
+                                                <th>Requerimientos Aprobados</th>
+                                                <th>Requerimientos No Aprobados</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="celdaTotalRequerimientosEvaluados" class="text-center"></td>
+                                                <td id="celdaRequerimientosAprobados" class="text-center"></td>
+                                                <td id="celdaRequerimientosNoAprobados" class="text-center"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="col-sm-12">
+                                    <label style="display: block; text-align: center;">Compromisos Por Evaluación</label>
+                                </div>
+                                <div class="col-sm-12">
+                                    <table id="tablaCompromisosPorEvaluacion" class="table compact dataTable" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Total De Compromisos</th>
+                                                <th>Promedio Cumplimiento</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="celdaTotalCompromisos" class="text-center"></td>
+                                                <td id="celdaPromedioCumplimiento" class="text-center"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default panel-principal panelFiltro">
+                    <div class="panel-heading">
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="tablaCompromisos" class="table compact" style="width: 100%"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalAsignacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Asignar Evaluación</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <fieldset class="fieldset-custm fieldsetNaranja text-center">
+                            <legend class="legend-custm" style="border-radius: 5px; font-size: 14px; font-weight: bold;">Fecha de Ejecución del Proyecto</legend>
+                            <div class="row">
+                                <div class="col-sm-6 text-center">
+                                    <label>Fecha Inicial</label>
+                                    <input id="inputFechaInicial" class="form-control text-center" autocomplete="off">
+                                </div>
+                                <div class="col-sm-6 text-center">
+                                    <label>Fecha Final</label>
+                                    <input id="inputFechaFinal" class="form-control text-center" autocomplete="off">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <fieldset class="fieldset-custm fieldsetNaranja">
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <label>Especialidad (Servicio Contratado)</label>
+                                    <input id="inputEspecialidad" class="form-control text-center" disabled>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6 text-center">
+                                    <label>Estado</label>
+                                    <input id="inputEstado" class="form-control text-center" disabled>
+                                </div>
+                                <div class="col-sm-6 text-center">
+                                    <label>Municipio</label>
+                                    <input id="inputMunicipio" class="form-control text-center" disabled>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6 text-center">
+                                    <label>Evaluación Inicial</label>
+                                    <input id="inputEvaluacionInicial" class="form-control text-center" disabled>
+                                </div>
+                                <div class="col-sm-6 text-center">
+                                    <label>Evaluación Final</label>
+                                    <input id="inputEvaluacionFinal" class="form-control text-center" disabled>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <label>Evaluaciones Requeridas (Periódicas)</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div id="divEvaluaciones" class="col-sm-12 text-center" style="min-height: 150px; max-height: 150px; overflow: auto; background-color: white !important;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-danger' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cancelar</button>
+                <button id="botonGuardarAsignacion" type="button" class="btn btn-success"><i class='fa fa-save'></i>&nbsp;Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalActualizarEvaluacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Actualizar Evaluación</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <label>Si desea cambiar la fecha de evaluación indique y notifique al administrador.</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-sm-6 mrgTop'>
+                        <label>Fecha de Evaluación</label>
+                        <input id="inputFechaEvaluacionActualizar" class="form-control text-center" autocomplete="off">
+                    </div>
+                    <div class='col-sm-6 mrgTop'>
+                        <label>Solicitante</label>
+                        <input id="inputSolicitante" class="form-control">
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <label>Motivo de Cambio</label>
+                        <textarea id="textareaMotivo" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button id="botonNotificarActualizacionEvaluacion" type="button" class="btn botonNaranja">Notificar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalAutorizarCambioEvaluacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Autorizar Cambio Evaluación</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <label>Si desea cambiar la fecha de evaluación indique y notifique al administrador.</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-sm-6 mrgTop'>
+                        <label>Fecha de Evaluación</label>
+                        <input id="inputFechaEvaluacionAutorizar" class="form-control text-center" autocomplete="off" disabled>
+                    </div>
+                    <div class='col-sm-6 mrgTop'>
+                        <label>Solicitante</label>
+                        <input id="inputSolicitanteAutorizar" class="form-control" disabled>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <label>Motivo de Cambio</label>
+                        <textarea id="textareaMotivoAutorizar" class="form-control" rows="3" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <label>Comentario Autorizante</label>
+                        <textarea id="textareaComentarioAutorizante" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button id="botonRechazarCambioEvaluacion" type="button" class="btn btn-danger" estatus="3">Rechazar</button>
+                <button id="botonAutorizarCambioEvaluacion" type="button" class="btn btn-success" estatus="2">Aprobar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalSoporte' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 95%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Proceso de evaluación</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Elementos</legend>
+                            <select id="selectElemento" class="form-control"></select>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-2 mrgTop">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Indicadores</legend>
+                            <button class="btn btn-block indicadorEstrella"> 0 - 25 Pésimo<br>
+                                <i class="fa fa-star" style="color: #FA0101;"></i>
+                            </button>
+                            <button class="btn btn-block indicadorEstrella"> 26 - 50 Malo<br>
+                                <i class="fa fa-star" style="color: #FA8001;"></i>
+                                <i class="fa fa-star" style="color: #FA8001;"></i>
+                            </button>
+                            <button class="btn btn-block indicadorEstrella"> 51 - 75 Regular<br>
+                                <i class="fa fa-star" style="color: #FAFF01;"></i>
+                                <i class="fa fa-star" style="color: #FAFF01;"></i>
+                                <i class="fa fa-star" style="color: #FAFF01;"></i>
+                            </button>
+                            <button class="btn btn-block indicadorEstrella"> 76 - 90 Aceptable<br>
+                                <i class="fa fa-star" style="color: #018001;"></i>
+                                <i class="fa fa-star" style="color: #018001;"></i>
+                                <i class="fa fa-star" style="color: #018001;"></i>
+                                <i class="fa fa-star" style="color: #018001;"></i>
+                            </button>
+                            <button class="btn btn-block indicadorEstrella"> 91 - 100 Excediendo Expectativas<br>
+                                <i class="fa fa-star" style="color: #0180FF;"></i>
+                                <i class="fa fa-star" style="color: #0180FF;"></i>
+                                <i class="fa fa-star" style="color: #0180FF;"></i>
+                                <i class="fa fa-star" style="color: #0180FF;"></i>
+                                <i class="fa fa-star" style="color: #0180FF;"></i>
+                            </button>
+                        </fieldset>
+                        <button id="inputCalificacionGlobal" class="btn btn-block indicadorEstrella mrgTop"></button>
+                    </div>
+                    <div id="divRequerimientos" class="col-sm-10 mrgTop">
+
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarSoporte" type="button" class="btn btn-success" style="display: none;"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalRetroalimentacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Proceso de retroalimentación</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop text-center'>
+                        <label id="labelRequerimientoRetroalimentacion"></label>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Comentario:</span>
+                            <textarea id="textareaComentario" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Plan de Acción:</span>
+                            <textarea id="textareaPlanAccion" class="form-control" rows="3" disabled></textarea>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Responsable</span>
+                            <input id="inputResponsable" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Compromiso</span>
+                            <input id="inputFechaCompromiso" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <button id="botonEstrellaRetroalimentacion" class="btn btn-block indicadorEstrella">Ponderación&nbsp;&nbsp;&nbsp;
+                            <i class="fa fa-star" style="color: #FAFF01;"></i>
+                            <i class="fa fa-star" style="color: #FAFF01;"></i>
+                            <i class="fa fa-star" style="color: #FAFF01;"></i>
+                            <i class="fa fa-star" style="color: #FAFF01;"></i>
+                            <i class="fa fa-star" style="color: #FAFF01;"></i>
+                        </button>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="input-group">
+                            <span class="input-group-addon">Calificación</span>
+                            <input id="inputCalificacion" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cerrar</button>
+                <button id="botonGuardarRetroalimentacion" type="button" class="btn btn-primary"><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalSeguimientoFirmas' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 80%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 id="tituloModalSeguimientoFirmas" class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <table id="tablaFirmas" class="table compact" style="width: 100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalGraficas' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 80%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Gráficas por Subcontratista</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="panel panel-default panel-principal panelFiltro">
+                            <div class="panel-heading">
+                                <h5 class="text-center">Cumplimiento a carga de soportes</h5>
+                            </div>
+                            <div class="panel-body" style="height: 400px">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="chartCumplimientoCargaSoportes"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-sm-12 mrgTop'>
+                        <div class="panel panel-default panel-principal panelFiltro">
+                            <div class="panel-heading">
+                                <h5 class="text-center">Histórico de carga de soportes</h5>
+                            </div>
+                            <div class="panel-body" style="height: 400px">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="chartHistoricoCargaSoportes"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-times'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+
+
+
+
+
+
+
+<div id='mdlComentario' class='modal fade' role='dialog' style="z-index: 999999999 !important; overflow-y: auto;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>PROCESO DE RETROALIMENTACIÓN <br>
+                    <h5><label id="txtTituloClick" for=""></label></h5>
+                </h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div class='row'>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentario:</span>
+                                    <textarea name="" id="inpComentario" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Plan de acción:</span>
+                                    <textarea name="" id="inpPlanDeAccion" class="form-control" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Responsable:</span>
+                                    <input name="" id="inpResponsable" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class='row'>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha compromiso:</span>
+                                    <input name="" id="inpFechaCompromiso" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class='row'>
+                            @* <div class="col-md-12">
+                                <label >Calificacion : </label>
+                                <select id="inpEvaluacion" class="form-control" name="select">
+                                <option style="color: white;font-weight:bold;" class="boton-pesimo" value="25" selected>Pesimo</option>
+                                <option style="color: white;font-weight:bold;" class="boton-malo" value="50">Malo</option>
+                                <option style="color: black;font-weight:bold;" class="boton-regular" value="70">Regular</option>
+                                <option style="color: white;font-weight:bold;" class="boton-aceptable" value="90">Aceptable</option>
+                                <option style="color: white;font-weight:bold;" class="boton-excediendo" value="100">Excediendo las espectativas</option>
+                                </select>
+                                </div> *@
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Calificacion : </span>
+                                    <div style="border:1px dotted gray;height: 32px;">
+                                        <div class="starrr" data-calificacion="0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-primary' id='btnGuardar'><i class='fa fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlPreguntarPrimero' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Preguntar Primero</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div id='containerPreguntarPrimero'>
+
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' class='btn btn-primary' id='btnGuardarPreguntarPrimero'><i class='fa fa-save'></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlFormulario' class='modal fade' role='dialog' style="overflow-y: auto;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content' style="right: 200px; width: 1300px;">
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Proceso de evaluación</h1>
+                <h4 id='txtUsuario'></h4>
+                <h4 id='txtNombreEvaluacion'></h4>
+                <h4 id='txtFechaPeriodo'></h4>
+                <input id=" inpCorreo" type="" name="" value="" style="display: none;">
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="container-fluid" id="ContenidoSubirArchivos">
+
+                        <fieldset class="fieldset-custm">
+
+                            <!-- MENU Y LISTADO DE ESTATUS -->
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div id="contenido23">
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                    <div class="col-md-2">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlGraficasPorSubcontratista' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Graficas por SubContratista</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title text-center">
+                                            <a data-toggle="collapse" href="#panel3">
+                                                Grafica de subcontratista por Calificacion en cada Evaluacion
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panel3" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="col-lg-12">
+                                                <div style="margin-left: auto; margin-right: auto">
+                                                    <figure class="highcharts-figure">
+                                                        <div id="gpxSubPorCalificacionMensual" style="margin-left:auto; margin-right:auto;"></div>
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel-group">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title text-center">
+                                            <a data-toggle="collapse" href="#panel4">
+                                                Grafica de totalizador por elementos
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="panel4" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <div class="col-lg-12">
+                                                <div style="margin-left: auto; margin-right: auto">
+                                                    <figure class="highcharts-figure">
+                                                        <div id="gpxGraficaSubxCalificacion" style="margin-left:auto; margin-right:auto;"></div>
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlPlantillas' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Previsualizador de plantilla asignada</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <div id='divicionesxPlantilla'>
+
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/starrr.js"></script>
+<script src="~/Scripts/js/SubContratistas/Evaluacion/AdministracionEvaluacion.js"></script>

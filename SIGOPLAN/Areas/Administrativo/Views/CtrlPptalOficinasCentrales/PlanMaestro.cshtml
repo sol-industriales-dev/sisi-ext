@@ -1,0 +1,295 @@
+﻿@{
+    ViewBag.Title = "Capturas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+<!-- CSS -->
+<link href='~/Content/style/datatables/jquery.dataTables.css' rel='stylesheet' />
+@* <link href='~/Content/select2.css' rel='stylesheet' /> *@
+<link href='~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/PlanMaestro.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID: FILTROS -->
+<div class='container-fluid'>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>PLAN MAESTRO</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class='col-lg-2'>
+                            <label>Año</label>
+                            <select id='cboFiltroAnio' class='form-control select2'></select>
+                        </div>
+                        <div class='col-lg-8'>
+                            <label>CC</label>
+                            <select id='cboFiltroCC' class='form-control select2'></select>
+                        </div>
+                        <div class='pull-right' style="margin-top: 25px;">
+                            <button type='button' class='btn btn-primary' id='btnFiltroBuscar'><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                            <button type='button' class='btn btn-primary marginRight' id='btnFiltroNuevo'><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class='col-xs-12'>
+                            <table id='tblAF_CtrlPptalOfCe_RN_PlanMaestro' class='table table-hover table-bordered compact' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID: FILTROS -->
+
+<!-- MODAL CREAR/EDITAR PLAN MAESTRO -->
+<div id='mdlCE_PM' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCE_PM'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row marginBottom'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCE_PM_Anio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCE_PM_CC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Misión del área (CC)</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class='col-lg-12'>
+                                        <textarea id="txtCE_PM_MisionArea" placeholder="INGRESAR MISIÓN DEL ÁREA (CC)." class="inputTextArea" cols="30" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading text-center">
+                                <h4>Objetivo específico medible</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class='col-lg-12'>
+                                        <textarea id="txtCE_PM_ObjetivoEspecificoMedible" placeholder="INGRESAR OBJETIVO ESPECÍFICO MEDIBLE." class="inputTextArea" cols="30" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class='col-lg-12'>
+                        <label>Meta</label>
+                        <input type="text" id="txtCE_PM_Meta" placeholder="INGRESAR META." class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+
+                <!-- ROW: MEDICIONES Y/O INDICADORES -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="pull-right" style="margin-bottom: 0.5%;">
+                            <button type='button' class='btn btn-danger' id='btnCE_PM_Mediciones_EliminarIndicadorFijo'><i class="fas fa-minus"></i></button>
+                            <button type='button' class='btn btn-success' id='btnCE_PM_Mediciones_NuevoIndicador'><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- SECCIÓN MEDICIONES Y/O INDICADORES -->
+                <span id="spanNuevaSeccionMedicionIndicador"></span>
+                <!-- END: SECCIÓN MEDICIONES Y/O INDICADORES -->
+                <!-- END: ROW: MEDICIONES Y/O INDICADORES -->
+
+                <!-- RECURSOS NECESARIOS -->
+                <div class='row'>
+                    <div class='col-sm-12'>
+                        <div class='panel panel-default panel-principal'>
+                            <div class='panel-heading text-center'>
+                                <h4>RECURSOS NECESARIOS</h4>
+                            </div>
+                            <div class='panel-body'>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="pull-right" style="margin-bottom: 0.5%;">
+                                            <button type='button' class='btn btn-primary' id='btnCE_PM_RN_NuevoConcepto' style="display: none;"><i class="fas fa-plus"></i>&nbsp;Nuevo concepto</button>
+                                            <button type='button' class='btn btn-primary' id='btnCE_PM_RN_NuevaAgrupacion' style="display: none;"><i class="fas fa-plus"></i>&nbsp;Nueva Agrupación</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- SECCIÓN AGRUPACIONES -->
+                                <span id="spanNuevaSeccionAgrupaciones"></span>
+                                <!-- END: SECCIÓN AGRUPACIONES -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: RECURSOS NECESARIOS -->
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_PM'><span id='lblTitleBtnCE_PM'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PLAN MAESTRO -->
+
+<!-- MODAL CREAR/EDITAR AGRUPACIÓN -->
+<div id='mdlCE_PM_RN_Agrupacion' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCE_PM_RN_Agrupacion'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCE_PM_RN_Anio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCE_PM_RN_CC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Agrupación</label>
+                        <input type='text' placeholder="INGRESAR AGRUPACIÓN." id='txtCE_PM_RN_Agrupacion' class='form-control' />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_PM_RN_Agrupacion'><span id='lblTitleBtnCE_PM_RN_Agrupacion'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR AGRUPACIÓN -->
+
+<!-- MODAL CREAR/EDITAR CONCEPTO -->
+<div id='mdlCE_PM_RN_Concepto' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCE_PM_RN_Concepto'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class='col-lg-4'>
+                        <label>Año</label>
+                        <select id='cboCE_PM_RN_ConceptoAnio' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                    <div class='col-lg-8'>
+                        <label>CC</label>
+                        <select id='cboCE_PM_RN_ConceptoCC' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-lg-12'>
+                        <label>Agrupación</label>
+                        <select id='cboCE_PM_RN_ConceptoAgrupacion' class='form-control select2' disabled='disabled'></select>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Concepto</label>
+                        <input type='text' placeholder="INGRESAR CONCEPTO." id='txtCE_PM_RN_ConceptoConcepto' class='form-control' autocomplete="off" disabled='disabled' />
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-12'>
+                        <label>Cantidad</label>
+                        <input type='text' placeholder="INGRESAR CANTIDAD." id='txtCE_PM_RN_ConceptoCantidad' class='form-control' autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_PM_RN_Concepto'><span id='lblTitleBtnCE_PM_RN_Concepto'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CONCEPTO -->
+
+<!-- MODAL CREAR/EDITAR MEDICIONES Y/O INDICADORES -->
+<div id='mdlCEMedicionIndicador' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i><span id='lblTitleCEMedicionIndicador'></span></h4>
+            </div>
+            <div class='panel-body'>
+                <div class='row'>
+                    <div class='col-lg-6'>
+                        <label>Indicador</label>
+                        <input type="text" id="txtCE_Indicador" placeholder="INGRESAR INDICADOR." class="form-control" autocomplete="off" />
+                    </div>
+                    <div class='col-lg-6'>
+                        <label>Fuente de datos</label>
+                        <input type="text" id="txtCE_FuenteDatos" placeholder="INGRESAR FUENTE DE DATOS." class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-6'>
+                        <label>Responsable</label>
+                        <select id="cboCE_UsuarioResponsable" class="form-control select2"></select>
+                    </div>
+                    <div class='col-lg-6'>
+                        <label>Meta</label>
+                        <input type="text" id="txtCE_Meta" placeholder="INGRESAR META." class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_MedicionIndicador'><span id='lblTitleBtnCE_MedicionIndicador'></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR AGRUPACIÓN -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- SCRIPTS -->
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/moment.min.js'></script>
+<script src='~/Scripts/datetime-moment.js'></script>
+@* <script src='~/Scripts/select2.js'></script> *@
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src='~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/PlanMaestro.js'></script>
+<script src='~/Scripts/Utilities/datatables/jquery.dataTables.js'></script>

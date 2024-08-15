@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "Reporte Minutas Pendientes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/js/SeguimientoAcuerdos/ReporteMinutasPendientes.js"></script>
+
+<!-- Content Header (Page header) -->
+<style type="text/css">
+    .dataTables_processing {
+        font-size: 30px !important;
+        font-weight: bolder;
+    }
+</style>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Departamento</span>
+                <select class="form-control" multiple="multiple" id="cboDepartamento"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha inicio</span>
+                <input type='text' class="form-control" id="txtFechaInicio" value="@(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToShortDateString())" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon">Fecha fin</span>
+                <input type='text' class="form-control" id="txtFechaFin" value="@DateTime.Now.ToShortDateString()" />
+            </div>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" id="btnCargar" class="btn btn-default">
+                Cargar
+            </button>
+        </div>
+    </div>
+</fieldset>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Datos</legend>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tblData" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Minuta</th>
+                        <th>Creador minuta</th>
+                        <th>Departamento</th>
+                        <th>Actividades pendientes</th>
+                        <th>Actividades finalizadas</th>
+                        <th>Actividades total</th>
+                        <th>Lista Asistencia</th>
+                        <th>Minuta</th>
+                    </tr>
+                </thead>
+            </table>
+        </div><!-- /.content -->
+    </div>
+</fieldset>
+
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,189 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "Capturra de KPI";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    .fixCell {
+        font-size: 150px !important;
+    }
+
+    .clsEncabezado {
+        text-align: center;
+        font-weight: bold;
+        background: #A9DFBF;
+    }
+
+    .clsEncabezadoColumnas {
+        text-align: center;
+        font-weight: bold;
+        background: #F5B041;
+    }
+
+    .clsBlanco {
+        background: #EAECEE;
+    }
+
+    .clsEncabezadoCodigos {
+        background: #AED6F1;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .clsTotales {
+        background: #2C3E50 !important;
+        text-align: center !important;
+        font-weight: bold;
+        color: white !important;
+        cursor: none !important;
+    }
+
+    div.outTable {
+        overflow-y: auto;
+        position: relative;
+    }
+
+    #tlbNew {
+        position: relative;
+        border-collapse: collapse;
+    }
+
+    td,
+    th {
+        padding: 0.25em;
+    }
+
+    #tlbNew thead th {
+        position: -webkit-sticky; /* for Safari */
+        position: sticky;
+        top: 0;
+    }
+
+        #tlbNew thead th:last-child {
+            left: 0;
+            z-index: 1;
+        }
+
+    #tlbNew tbody th {
+        position: -webkit-sticky; /* for Safari */
+        position: sticky;
+        left: 0;
+        border-right: 1px solid #CCC;
+        font-size: smaller !important;
+        text-wrap: none;
+    }
+
+    #tblDisplayRow {
+        display: none;
+        position: absolute;
+    }
+
+        #tblDisplayRow thead td {
+            border: 1px solid red;
+        }
+
+        #tblDisplayRow tbody td {
+            border: 1px solid red;
+        }
+
+    .table {
+        font-size: smaller !important;
+    }
+
+        .table input {
+            font-size: smaller !important;
+            height: 30px;
+            padding: 5px 10px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-radius: 3px;
+        }
+</style>
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h3>Captura de Reporte del día</h3>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros</legend>
+            <div class="col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Area Cuenta:</label>
+                    <select class="form-control" id="cboCC"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Grupo:</label>
+                    <select class="form-control" id="cboGrupoEquipo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Modelo:</label>
+                    <select class="form-control" id="cboModeloEquipo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Fecha:</label>
+                    <input class="form-control" id="inputFecha" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <label>Turno:</label>
+                    <select class="form-control" id="cboTurno">
+                        <option value="1">Turno 1</option>
+                        <option value="2">Turno 2</option>
+                        <option value="3">Turno 3</option>
+                        <option value="4">Turno 4</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="margin-top">
+                        <button type="button" class="btn btn-primary" id="btnBuscar">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="button" class="btn btn-primary" id="btnGuardar">
+                            <i class="fas fa-save"></i> Captura
+                        </button>
+                      
+                    </div>
+
+
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <br />
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Plantilla</legend>
+            <div class="outTable">
+                <table class="table compact" id="tlbNew">
+                    <thead id="theadID"></thead>
+                    <tbody id="tbodyID"></tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+
+
+<table id="tblDisplayRow">
+    <thead>
+        <tr>
+            <td>H Ultimo:</td>
+        </tr>
+        <tr>
+            <td>H Actual:</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><label id="lblHoroUltimo"></label> </td>
+            <td><label id="lblHoroActual"></label> </td>
+        </tr>
+    </tbody>
+</table>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/js/Maquinaria/KPI/CapturaKPI.js"></script>

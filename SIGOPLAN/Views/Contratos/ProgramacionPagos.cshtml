@@ -1,0 +1,507 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<style>
+    .modal {
+        overflow-y: auto;
+    }
+
+    .row.RenderBody {
+        height: 90% !important;
+    }
+
+    input.inputcta {
+        height: 25px;
+    }
+
+    /**
+    #tblPolizas input {
+        height: 25px;
+    }*/
+
+    /*   #tblPolizas input[type=text] {
+            height: 25px;
+            width: 57px;
+        }
+            */
+    button.inputBuscarCuentas,
+    .inputscta,
+    .inputsscta,
+    .inputDigito {
+        padding: 0;
+    }
+
+
+    table {
+        margin: 0 auto;
+        width: 1000px;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+
+    tr[role='row'] {
+        text-align: center;
+    }
+
+    .modal .hasDatepicker {
+        z-index: 1051 !important;
+    }
+
+    .blockUI {
+        z-index: 1052 !important;
+    }
+
+    #tablaProgramacion {
+        width: 100% !important;
+    }
+
+    th {
+        font-size: 12px;
+    }
+
+    td,
+    .inputFontS {
+        font-size: 11px;
+    }
+
+    input[type="text"].monto {
+        height: 25px !important;
+    }
+
+    .checkProgramar {
+        height: 20px !important;
+    }
+
+    .checkButton {
+        height: 20px !important;
+    }
+
+    #tablaCtas {
+        width: -webkit-fill-available !important;
+    }
+</style>
+
+@Html.Partial("reportViewerView", false)
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h3>Programación pagos</h3>
+    </div>
+    <div class="row">
+        <div class="row">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Menú</legend>
+                <div class="col-xs-4 col-md-2 col-lg-2" style="padding:0;">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha Inicio</span>
+                        <input id="inputFechaInicio" class="form-control" type="text">
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-2 col-lg-2" style="padding:0;">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha Final</span>
+                        <input id="inputFechaFin" class="form-control" type="text">
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-2 col-lg-2">
+                    <div class="input-group">
+                        <span class="input-group-addon">Filtro</span>
+                        <select class="form-control" id="cboEstatus" style="padding: 0;">
+                            <option value="0">Pendientes</option>
+                            <option value="1">Programados</option>
+                            <option value="2">Aplicados</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Institucion</span>
+                        <select class="form-control" id="cboInstitucion" multiple></select>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Empresa:</span>
+                        <select class="form-control" id="comboEmpresa">
+                            @switch ((int)ViewBag.EmpresaActual)
+                            {
+                                case 1:
+                                    <option value="1">Construplan:</option>
+                                    break;
+                                case 2:
+                                    <option value="2">Arrendadora:</option>
+                                    break;
+                                case 3:
+                                    <option value="3">Colombia:</option>
+                                    break;
+                                case 6:
+                                    <option value="6">Perú:</option>
+                                    break;
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-3 col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Moneda:</span>
+                        <select class="form-control" id="inpuntMoneda">
+                            <option value="1">Nacional:</option>
+                            <option value="2">Dolar:</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-md-3 col-lg-3">
+                    <div class="lg-12">
+                        <div class="col-lg-4">
+                            <button type="button" class="btn btn-primary" id="btnBuscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="col-lg-4 ">
+                            <button type="button" class="btn btn-primary" id="btnPoliza">
+                                <i class="fas fa-file-invoice-dollar"></i> Poliza
+                            </button>
+                        </div>
+                        <div class="col-lg-4">
+                            <button type="button" class="btn btn-primary" id="btnGuardarPagos">
+                                <i class="far fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Información</legend>
+                    <div class="col-lg-8 pull-left">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <button type="button" class="btn btn-primary" id="btnReporteProgramado">
+                                    <i class="fas fa-print"></i> Reporte
+                                </button>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo Cambio:</span>
+                                <input id="tipoCambioTabla" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Captura:</span>
+                                <input id="inputFechaCaptura" class="form-control" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 pull-right">
+                        <div class="input-group">
+                            <label id="lblDeselect" class="pull-right">Quitar Seleccion:</label>
+                            <span class="input-group-addon">
+                                <input type="checkbox" id="btnDeselect" checked>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" id="divTablaProgramacion">
+                        <table id="tablaProgramacion" class="hover stripe order-column compact" style="width:100%">
+                            <thead style="background: #E67E22;">
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="col-lg-12" id="divTablaGenPropuesta">
+                        <table id="tablaGenPropuesta" class="hover stripe order-column compact" style="width:100%">
+                            <thead style="background: #E67E22;">
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalPolizaProgramados">
+    <div class="modal-dialog modal-lg" style="width:100%">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#F5B041">
+                <div class="text-center">
+                    <h3>Poliza de Pagos.</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">
+                                Datos Poliza
+                            </legend>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Poliza</span>
+                                    <input id="inputFechaPoliza" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Poliza</span>
+                                    <input id="inputPoliza" class="form-control" type="text" disabled>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Poliza</span>
+                                    <input id="inputTipoPoliza" class="form-control" type="text" value="03" disabled>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">GeneradaPor</span>
+                                    <input id="inputGenerada" class="form-control" type="text" disabled value="CONTABILIDAD">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Empresa:</span>
+                                    <select class="form-control" id="comboEmpresaPoliza">
+                                        @switch ((int)ViewBag.EmpresaActual)
+                                        {
+                                            case 1:
+                                                <option value="1">Construplan:</option>
+                                                break;
+                                            case 2:
+                                                <option value="2">Arrendadora:</option>
+                                                break;
+                                            case 3:
+                                                <option value="3">Colombia:</option>
+                                                break;
+                                            case 6:
+                                                <option value="6">Perú:</option>
+                                                break;
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-md-3 col-lg-3 pull-right">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo de cambio</span>
+                                    <input type="text" class="form-control" id="inputTipoCambio" disabled />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3 pull-right">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha cambio</span>
+                                    <input type="text" class="form-control" id="inputFechaCambio" />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3 pull-right">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Institución</span>
+                                    <select class="form-control" id="cboInstitucionPP"></select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Cambio:</span>
+                                    <select class="form-control" id="cboTipocampo">
+                                        <option value="1">Nacional</option>
+                                        <option value="2">Dolares</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Pagos Programados</legend>
+                            <div class="col-lg-12">
+                                <div class="col-sm-12 mrgTop">
+                                    <table id="tblPagosProgramados" class="hover stripe order-column compact" style="width:100%">
+                                        <thead style="background: #E67E22;">
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">
+                                Detalle Polizas
+                            </legend>
+                            <div class="col-sm-12 mrgTop">
+                                <table id="tblPolizas" class="hover stripe order-column compact" style="width:100%">
+                                    <thead style="background: #E67E22;">
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2">Totales:</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-primary" id="btnGuardarPoliza"><i class="fas fa-save"></i> Guardar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalGeneral" class="modal fade" data-backdrop="static">
+    <div>
+        <div class="modal-content" id="divmodal">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><label>Lista de Cuentas</label> <i class="fas fa-money-check"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="col-lg-12">
+                    <table id="tablaCtas" class="table table-fixed table-hover table-responsive table-striped compact">
+                        <thead class="bg-table-header">
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleProgramacionPagos" class="modal fade" data-backdrop="static">
+    <div>
+        <div class="modal-content" id="divmodal">
+            <div class="modal-header color-header">
+                <div class="text-center">
+                    <h3 class="text-center"><label>Detalle Contrato.</label> <i class="fas fa-money-check"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="col-lg-12">
+
+                    <table id="tableDetalleProgramacionPagos" class="hover stripe order-column" style="width:100%">
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="far fa-window-close"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Contratos/ProgramacionPagos.js"></script>
+<script src='~/Scripts/moment-with-locales.js'></script>

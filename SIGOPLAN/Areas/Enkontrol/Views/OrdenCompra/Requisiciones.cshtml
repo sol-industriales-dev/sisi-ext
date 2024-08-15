@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "Requisiciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/OrdenCompra/Requisiciones.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<style>
+    #tblRequisiciones,
+    #tblCom_ProveedoresLinks {
+        font-size: 12px;
+    }
+
+    #tblRequisiciones_wrapper th,
+    #tblRequisiciones_wrapper td {
+        border: 1px solid #ddd;
+    }
+</style>
+
+<h2 class="text-center">Requisiciones sin O.C.</h2>
+<input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+
+    <div class="col-md-12 col-lg-12">
+        <label>Centro Costo</label>
+        <select id="multiSelectCC" class="form-control select2" multiple="multiple"></select>
+    </div>
+    <div class="col-md-4 col-lg-4 mrgTop" id="divFamiliaInsumo">
+        <div class="input-group">
+            <span class="input-group-addon">Familia Insumos</span>
+            <select id="multiSelectFamiliaInsumos" class="form-control" multiple="multiple"></select>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-4 mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Compradores</span>
+            <select id="multiSelectCompradores" class="form-control" multiple="multiple"></select>
+        </div>
+    </div>
+
+    <div class='col-md-4 mrgTop'>
+        <div class='input-group'>
+            <span class="input-group-addon">Fecha Inicio</span>
+            <input id="inputFechaInicio" class="form-control" />
+            <span class='input-group-addon'>Fecha Fin</span>
+            <input id="inputFechaFin" class="form-control" />
+        </div>
+    </div>
+
+    <div class='col-md-4' id="divAreaCuenta">
+        <div class='input-group' style="margin-top: 5px;" >
+            <span class='input-group-addon'>Área-Cuenta</span>
+            <select id='selectAreaCuenta' class='form-control'></select>
+        </div>
+    </div>
+
+    <div class="col-md-1 col-lg-1 mrgTop">
+        <button id="btnBuscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm mrgTop">
+    <div class="table-responsive col-md-12 col-lg-12 mrgTop">
+        <table id="tblRequisiciones" class="compact marginBottom5" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalEnviarRequisicion" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="labelTituloModalEnviarRequisicion">Enviar Requisición</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="selectCapacitacionAccionRequerida">Correos:</label>
+                        <textarea id="textareaCorreosEnviarRequisicion" class="form-control" rows="5" title="Ingrese el listado de correos aquí"></textarea>
+                    </div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <label style="color:red">ATENCIÓN: No combinar proveedores.</label>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button id="botonConfirmarEnvioCorreo" type="button" class="btn btn-primary">Enviar&nbsp;<i class="fa fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: LISTADO DE LINKS/ CREAR-EDITAR PROVEEDOR LINK -->
+<div id='mdlListadoLinks' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 95% !important;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>GENERAR LINK</h1>
+            </div>
+            <div class='modal-body'>
+                <!-- LISTADO LINKS -->
+                <div id="divListadoLinks">
+                    <div class='row'>
+                        <div class='col-lg-10'>
+                            <div class="input-group">
+                                <span class="input-group-addon">Proveedor</span>
+                                <select id='cbo_CEProveedorLink_FiltroProveedor' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-xs-2'>
+                            <button type='button' id="btnNuevoProveedorLink" class='btn btn-primary pull-right' style="margin-bottom: 5px;"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='col-xs-12'>
+                            <table id='tblCom_ProveedoresLinks' class='table table-hover table-bordered compact' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO LINKS -->
+                <!-- CREAR/EDITAR PROVEEDOR LINK -->
+                <div id="divCEProveedorLink">
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <div class="input-group">
+                                <span class="input-group-addon">Proveedor</span>
+                                <select id='cbo_CEProveedorLink_Proveedor' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <div class="input-group">
+                                <span class="input-group-addon">Número requisición</span>
+                                <input id='txt_CEProveedorLink_NumRequisicion' class='form-control' disabled='disabled' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: CREAR/EDITAR PROVEEDOR LINK -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnCENuevoProveedorLink" class='btn btn-success'><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                <button type='button' id="btnCENuevoProveedorLinkCerrar" class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' id="btnCENuevoProveedorLinkCancelar" class='btn btn-default'><i class='fa fa-arrow-left'></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END:LISTADO DE LINKS -->
+
+<!-- MODAL: LISTADO DE LINKS/ CREAR-EDITAR PROVEEDOR LINK -->
+<div id='mdlListadoCorreosProveedor' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width: 95% !important;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>GENERAR LINK</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-md-12">
+                        <label for="selectCapacitacionAccionRequerida">Correos:</label>
+                        <textarea id="txtCorreosProveedorLink" class="form-control" rows="5" title="Ingrese el listado de correos."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnEnviarCorreoLinkProveedor" class='btn btn-success'><i class="fas fa-save"></i>&nbsp;Enviar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END:LISTADO DE LINKS -->
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/OrdenCompra/Requisiciones.js"></script>
+<script src='~/Scripts/select2.js'></script>
+
+@Html.Partial("reportViewerView", false)

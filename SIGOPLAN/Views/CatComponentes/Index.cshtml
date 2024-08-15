@@ -1,0 +1,332 @@
+﻿@{
+    ViewBag.Title = "Catálogo Componentes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="~/Content/style/css/Maquinaria/Catalogos/Style-Componentes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Catalogo/Componente.js"></script>
+<div class="row">
+    <h2 class="text-center">Catálogo de Componentes</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-10">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            @*<div class=" col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <label>Grupo Maquina:</label>
+                <select class="form-control" id="cboFiltroGrupo"></select>
+                </div>
+                <div class=" col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <label>Modelo:</label>
+                <select class="form-control" id="cboFiltroModelo">
+                </select>
+                </div>
+                <div class=" col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Prefijo Maquina:</label>
+                <input class="form-control" id="txtFiltroPrefijo" type="text" />
+                </div>*@
+            <div class=" col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                <label>No Componente:</label>
+                <input class="form-control" id="txtFiltroNoComponente" type="text" />
+            </div>
+            @*<div class=" col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <label>Descripcion:</label>
+                <input class="form-control" id="txtFiltroDescripcion" type="text" />
+                </div>*@
+
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Conjunto:</label>
+                <select class="form-control" id="cboConjunto"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Subconjunto:</label>
+                <select class="form-control" id="cboSubconjunto" disabled>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Area Cuenta:</label>
+                <select class="form-control" id="cboCC"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboFiltroEstatus">
+                    <option value="1">ACTIVO</option>
+                    <option value="0">INACTIVO</option>
+                </select>
+            </div>
+            <div class=" col-xs-12 col-sm-12 col-md-1 col-lg-2">
+                <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscar_Componente">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+                <button type="button" class="btn btn-warning margin-top pull-right" id="btnModificar_Componente">
+                    <span class="glyphicon glyphicon-edit"></span> Modificar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Componente:</legend>
+            <button type="button" class="btn btn-success margin-top" id="btnNuevo_Componente">
+                <span class="glyphicon glyphicon-plus"></span> Nuevo
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Componentes:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="grid_Componente" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th data-column-id="update" data-formatter="update" data-align="center"
+                                data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                            <th data-column-id="delete" data-formatter="delete" data-align="center"
+                                data-header-align="center" data-sortable="false" data-width="6%">Deshabilitar</th>
+                            @*<th data-column-id="id" data-align="center" data-header-align="center"
+                                data-sortable="false">Id</th>*@
+                            @*<th data-column-id="conjunto" data-align="center" data-header-align="center"
+                                data-sortable="false">Conjunto</th>
+                                <th data-column-id="subConjunto" data-align="center"
+                                data-header-align="center">Sub-Conjunto</th>*@
+                            <th data-column-id="noComponente" data-align="center" data-header-align="center"
+                                data-sortable="false">No Serie</th>
+                            @*<th data-column-id="descripcion" data-align="center" data-header-align="center"
+                                data-sortable="false">Descripción</th>*@
+                            @*<th data-column-id="conjunto" data-align="center" data-header-align="center"
+                                data-sortable="false">Conjunto</th>*@
+                            <th data-column-id="subConjunto" data-align="center" data-header-align="center"
+                                data-sortable="false">Sunconjunto</th>
+                            <th data-column-id="cicloVidaHoras" data-align="center" data-header-align="center"
+                                data-sortable="false">Ciclo de vida en hrs</th>
+                            <th data-column-id="garantia" data-align="center" data-header-align="center"
+                                data-sortable="false">Garantía</th>
+                            <th data-column-id="estatus" data-align="center" data-header-align="center">Estatus</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modalComponente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmComponentes">
+
+                        <div class="row">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Datos Componente:</legend>
+                                <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" id="divEncabezado">
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 pull-right">
+                                        <label>No Componente:</label>
+                                        <input class="form-control" id="txtModalnoComponente" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 pull-left">
+                                    <label>Estatus:</label>
+                                    <select class="form-control" id="cboModalEstatus">
+                                        <option value="1">ACTIVO</option>
+                                        <option value="0">INACTIVO</option>
+                                    </select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Grupo Maquina:</label>
+                                    <select class="form-control" id="cboModalGrupoMaquina"></select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Modelo:</label>
+                                    <select class="form-control" id="cboModalModeloMaquina"></select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Nombre Corto:</label>
+                                    <select class="form-control" id="cboModalModalModeloPrefijo"></select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Centro Costos:</label>
+                                    <select id="cboModalCentroCostos" class="form-control"></select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Conjunto:</label>
+                                    <select id="cboModalConjunto" class="form-control"></select>
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>SubConjunto:</label>
+                                    <select id="cboModalSubConjunto" class="form-control"></select>
+                                </div>
+
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3 form-group">
+                                    <label>Posición:</label>
+                                    <select id="cboModalPosicion" class="form-control"></select>
+                                </div>
+
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                    <label>Descripción:</label>
+                                    <input class="form-control" id="txtModalDescripcion" type="text" />
+                                </div>
+                                @*<div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                    <label>No Serie:</label>
+                                    <input class="form-control" id="txtModalNoSerie" />
+                                    </div>*@
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                    <label>Número de parte:</label>
+                                    <select class="form-control" id="cboModaldNumParte"></select>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                    <label>Marca:</label>
+                                    <select class="form-control" id="cboModalMarcaComponente">
+                                    </select>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 form-group">
+                                    <label>Proveedor:</label>
+                                    <select class="form-control" id="cboModalProveedor">
+                                        <option value=''>--Seleccione--</option>
+                                        <option value="0">PROVEEDOR 1</option>
+                                        <option value="1">PROVEEDOR 2 </option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>Costo:</label>
+                                    <input type="number" min="0" value="0" class="form-control" id="txtCosto" />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>Ciclo de Vida en Horas:</label>
+                                    <input type="number" min="0" value="0" class="form-control"
+                                        id="txtModalHoraCiclo" />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>Horas Ciclo Actual:</label>
+                                    <input type="number" min="0" value="0" class="form-control"
+                                        id="txtModalHoraCicloActual" />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>Horas Acumuladas:</label>
+                                    <input type="number" min="0" value="0" class="form-control"
+                                        id="txtModalHoraAcumuladas" />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3 ">
+                                    <label>Fecha de alta:</label>
+                                    <input type="text" id="txtModalFecha" class="form-control">
+                                </div>
+                                <div class=" col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                                    <label>Locación:</label>
+                                    <select id="cboModalLocacion" class="form-control"></select>
+                                </div>
+                                <div id="divFechaInstalacion" class="col-xs-3 col-xs-3 col-md-3 col-lg-3 "
+                                    style="display: none">
+                                    <label>Fecha instalación:</label>
+                                    <input type="text" id="txtModalFechaInstalacion" class="form-control">
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label>*El número consecutivo mostrado no es el número consecutivo final.</label>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                <div>
+                                    <button type="button"
+                                        class="btn btn-primary margin-top modal-margin-rigth pull-right"
+                                        id="btnModalGuardar_Componente">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button"
+                                        class="btn btn-default margin-top modal-margin-rigth pull-right"
+                                        id="btnModalCancelar_Componente" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalComponenteModificar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modalModificar"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmModificarComponentes">
+
+                        <div class="row">
+                            <fieldset class="fieldset-custm" style="text-align:left !important">
+                                <legend class="legend-custm">Modificar:</legend>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <input id="cbCicloVidaHoras" type="checkbox" name="cicloVidaHoras" value="">
+                                    <b>Ciclo de Vida en Horas:</b><br>
+                                    <input type="number" min="0" value="0" class="form-control"
+                                        id="txtModalModificarHoraCiclo" disabled />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <input id="cbGarantia" type="checkbox" name="garantia" value="">
+                                    <b>Garantía:</b><br>
+                                    <input type="number" min="0" value="0" class="form-control"
+                                        id="txtModalModificarGarantia" disabled />
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <input id="cbEstatus" type="checkbox" name="estatus" value=""> <b>Estatus:</b><br>
+                                    <select class="form-control" id="cboModalModificarEstatus" disabled>
+                                        <option value="1">ACTIVO</option>
+                                        <option value="0">INACTIVO</option>
+                                    </select>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group">
+                                <div>
+                                    <button type="button"
+                                        class="btn btn-primary margin-top modal-margin-rigth pull-right"
+                                        id="btnModalModificarGuardar">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button"
+                                        class="btn btn-default margin-top modal-margin-rigth pull-right"
+                                        id="btnModalModificarCancelar" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

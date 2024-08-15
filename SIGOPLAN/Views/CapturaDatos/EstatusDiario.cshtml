@@ -1,0 +1,245 @@
+﻿
+@{
+    ViewBag.Title = "DatosDiarios";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<style>
+    #tblComparativoFinanciero_info {
+        display: none;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+        table.dataTable tbody tr td,
+        table thead tr th,
+        table.dataTable,
+        .dataTables_scrollBody {
+            border: 0px solid #ffffff !important;
+        }
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .disenioModal .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+        .disenioModal .modal-header .titleHeader {
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-title {
+            font-weight: bold;
+        }
+
+        .disenioModal .modal-header .modal-subtitle {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* ALINEAR TABLAS A LA IZQUIERDA */
+    #tblComparativoAdquisicionyRenta tbody tr td {
+        white-space: nowrap !important;
+    }
+
+    #tblComparativoAdquisicionyRenta {
+        width: min-content !important;
+    }
+
+    #tblComparativoFinanciero tbody tr td {
+        white-space: nowrap !important;
+    }
+
+    #tblComparativoFinanciero {
+        width: min-content !important;
+    }
+
+        #tblComparativoFinanciero tbody tr:first-child {
+            font-size: 15px !important;
+            background-color: #3556ae !important;
+            color: white !important;
+        }
+
+    .ui-widget-header {
+        background: #3556ae !important;
+    }
+
+    /**/
+    .highcharts-figure, .highcharts-data-table table {
+    min-width: 310px; 
+    max-width: 800px;
+    margin: 1em auto;
+}
+
+#container {
+    height: 400px;
+}
+
+.columnaGris {
+    background-color: #d0cece;
+}
+.columnaMahogany {
+    background-color: #f4b084;
+}
+
+.noBorder{
+    border: 0px !important;
+}
+.list-group-item > .badge {
+    float: left;
+    margin-right:5px;
+}
+.list-group-item {
+    padding: 3px 10px;
+    height: 30px; 
+}
+</style>
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/jquery.datetimepicker.min.css" rel="stylesheet" />
+
+
+<div class="col-sm-12">
+    <fieldset class='fieldset-custm'>
+        <legend class="legend-custm" align="center">Estatus Diario</legend><br>
+  
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-group" style="font-size:smaller;">
+                    <li class="list-group-item"><span class="badge">1</span>Al cambiar el estatus de un equipo automaticamente se limpiaran los demas campos de ese equipo</li>
+                    <li class="list-group-item"><span class="badge">2</span>El tiempo de reparación toma como fecha de inicio la fecha proyectada y como fecha fin de toma la fecha real si esta capturada</li>
+                    <li class="list-group-item"><span class="badge">3</span>Si no esta capturada la fecha real entonces toma como fecha fin la fecha y hora actual, indicando en tiempo de reparacion las horas que van desde la fecha inicio a la fecha actual</li>
+                    <li class="list-group-item"><span class="badge">4</span>La fecha proyectada solo es de referencia pero no se usa en el calculo del tiempo de reparacion</li>
+                </ul>
+            </div>
+        </div>
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros</legend><br>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Obra:</span>
+                        <select id="cboProyecto" class="form-control"></select>
+                    </div>
+                </div> 
+               <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Fecha:</span>
+                        <input id="dtFecha" class="form-control" />
+                    </div>
+                </div> 
+                <div class="col-lg-3">
+                    <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    <button type='button' class="btn btn-primary" id="btnCapturaDatosDiarios"><i class="fas fa-save"></i>&nbsp;Guardar Captura</button>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group pull-right">
+                        <button type='button' style="display:none;" class="btn btn-primary" id="btnImprimir"><i class="fas fa-search"></i>&nbsp;Imprimir</button>
+                        <span id="lblEstatus" class="input-group-addon">---</span>
+                    </div>
+                </div> 
+            </div>
+        </fieldset>
+        <br />
+        
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'>Datos</legend>
+            <div class="row">
+                <div class="col-lg-12 table-responsive table-bordered" style="width: 100%;font-size:10px;">
+                    <br />
+                      <table id="tblmDatosDiarios" class='table table-condensed table-hover table-striped text-center' style="max-height:600px;font-size:10px;">
+                          <tfoot>
+                              <tr>
+                                  <td colspan="2">Equipos Activos:</td>
+                                  <td colspan="1" style="text-align:center;"><span id="cantActivos">0</span></td>
+                                  <td colspan="1"><span id="porActivos">0%</span></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                              </tr>
+                              <tr>
+                                  <td colspan="2">Equipos Inactivos:</td>
+                                  <td colspan="1" style="text-align:center;"><span id="cantInactivos">0</span></td>
+                                  <td colspan="1"><span id="porInactivos">0%</span></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                                  <td class="noBorder"></td>
+                              </tr>
+                          </tfoot>
+                      </table>
+                    <br />
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </fieldset>
+    </fieldset>
+</div>
+
+<div class="modal fade" id="modalResumen" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:90%;">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Resumen</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Nota: Favor de validar que la informacion mostrada es correcta ya que al presionar el boton enviar, se enviara correo a todos los involucrados con estos datos</p>
+                        <table id='tblResumen' class='table display compact ' style="width:100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Regresar
+                </button>
+                <a id="btnEnviar" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Guardar y Enviar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("reportViewerView", false)
+
+
+
+<script src="~/Scripts/Utilities/wizardjs.js"></script>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/jquery.datetimepicker.full.js"></script>
+<script src="~/Scripts/js/Maquinaria/Captura/DatosDiarios/EstatusDiario.js"></script>

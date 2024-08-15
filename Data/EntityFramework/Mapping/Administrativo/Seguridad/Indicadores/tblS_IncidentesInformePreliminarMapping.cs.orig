@@ -1,0 +1,60 @@
+﻿using Core.Entity.Administrativo.Seguridad.Indicadores;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Data.EntityFramework.Mapping.Administrativo.Seguridad.Indicadores
+{
+    class tblS_IncidentesInformePreliminarMapping : EntityTypeConfiguration<tblS_IncidentesInformePreliminar>
+    {
+        public tblS_IncidentesInformePreliminarMapping()
+        {
+            HasKey(x => x.id);
+            Property(x => x.id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity).HasColumnName("id");
+            Property(x => x.folio).HasColumnName("folio");
+            Property(x => x.claveEmpleado).HasColumnName("claveEmpleado");
+            Property(x => x.personaInformo).HasColumnName("personaInformo");
+            Property(x => x.cc).HasColumnName("cc");
+            Property(x => x.fechaInforme).HasColumnName("fechaInforme");
+            Property(x => x.fechaIncidente).HasColumnName("fechaIncidente");
+            Property(x => x.fechaIngresoEmpleado).HasColumnName("fechaIngresoEmpleado");
+            Property(x => x.departamentoEmpleado).HasColumnName("departamentoEmpleado");
+            Property(x => x.claveSupervisor).HasColumnName("claveSupervisor").IsOptional();
+            Property(x => x.supervisorEmpleado).HasColumnName("supervisorEmpleado");
+            Property(x => x.tipoLesion).HasColumnName("tipoLesion");
+            Property(x => x.descripcionIncidente).HasColumnName("descripcionIncidente");
+            Property(x => x.accionInmediata).HasColumnName("accionInmediata");
+            Property(x => x.terminado).HasColumnName("terminado");
+            Property(x => x.aplicaRIA).HasColumnName("aplicaRIA");
+            Property(x => x.riesgo).HasColumnName("riesgo");
+            Property(x => x.esExterno).HasColumnName("esExterno");
+            Property(x => x.nombreExterno).HasColumnName("nombreExterno");
+            Property(x => x.claveContratista).HasColumnName("claveContratista");
+            Property(x => x.rutaPreliminar).HasColumnName("rutaPreliminar");
+            Property(x => x.rutaRIA).HasColumnName("rutaRIA");
+            Property(x => x.estatusAvance).HasColumnName("estatusAvance");
+
+            Property(x => x.tipoAccidente_id).HasColumnName("tipoAccidente_id");
+            HasRequired(x => x.TiposAccidente).WithMany(x => x.InformesPreliminares).HasForeignKey(d => d.tipoAccidente_id);
+<<<<<<< Updated upstream
+            Property(x => x.subclasificacionID).HasColumnName("subclasificacionID");
+=======
+
+            HasMany(x => x.procedimientosViolados)
+                .WithMany(x => x.lstInformes)
+                .Map(ip =>
+                {
+                    ip.MapLeftKey("idInformePreliminar");
+                    ip.MapRightKey("idProcedimientoViolado");
+                    ip.ToTable("tblS_IncidentesInformePreliminarProcedimientoViolado");
+                });
+>>>>>>> Stashed changes
+
+            ToTable("tblS_IncidentesInformePreliminar");
+        }
+    }
+}

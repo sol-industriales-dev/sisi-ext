@@ -1,0 +1,813 @@
+﻿@using Core.DTO.Maquinaria.Inventario;
+@using Core.Entity.Maquinaria.Inventario.ControlCalidad;
+
+@model ControlCalidadDTO
+@{
+ViewBag.Title = "Preguntas";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Style-Calidad.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/wizardjs.js"></script>
+@*
+<link href="~/Content/style/default/easyui.css" rel="stylesheet" />*@
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Inventario/CalidadFormatJS.js"></script>
+
+<style>
+    h4.panel-title {
+        font-size: 12px;
+        font-weight: bold;
+        color: #0E2D5F;
+        height: 16px;
+        line-height: 16px;
+    }
+
+    .noPadding {
+        padding: 0px;
+    }
+</style>
+<iframe id="report" class="hide" style="background-color:#676768" align="middle"></iframe>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h2>Control Calidad</h2>
+            <label class="hidden" id="lblIdSolicitud">@Model.solicitudID</label>
+            <label class="hidden" id="lblIdAsignacion">@Model.objControlCalidad.IdAsignacion</label>
+            <label class="hidden" id="lblIdCalidad">@Model.objControlCalidad.id</label>
+            <label class="hidden" id="lblIdEconomico">@Model.objControlCalidad.IdEconomico</label>
+        </div>
+    </div>
+    <div class="stepwizard">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step">
+                <a href="#step-1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                <p>Paso 1</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p>Paso 2</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                <p>Paso 3</p>
+            </div>
+        </div>
+    </div>
+    <div class="setup-content" id="step-1">
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Generales:</legend>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Control:</label>
+                    <label class="hidden" id="lblTipoControl">@Model.objControlCalidad.TipoControl</label>
+                    @if (Model.objControlCalidad.TipoControl == 1 || Model.objControlCalidad.TipoControl == 3)
+                    {
+                    <input type="text" class="form-control" id="txtTipoControl" value="Envio" disabled />
+                    }
+                    else
+                    {<input type="text" class="form-control" id="txtTipoControl" value="Recepcion" disabled />}
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>No Folio.</label>
+                    <input type="text" class="form-control" id="txtFolio" value="@Model.objControlCalidad.Folio" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>No ECO.</label>
+                    <input type="text" class="form-control" id="txtNoEconomico" value="@Model.objControlCalidad.NoEconomico" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Fecha</label>
+                    <input type="text" class="form-control" id="txtDateTime" value="@Model.objControlCalidad.FechaCaptura" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum hide">
+                    <label>Horometro:</label>
+                    <input id="txtHorometro" class="form-control" type="number" value="@Model.objControlCalidad.Horometro" data-horometro="@Model.objControlCalidad.Horometro" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Obra</label>
+                    <input type="text" class="form-control" id="txtObra" value="@Model.objControlCalidad.Obra" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Origen</label>
+                    <input type="text" class="form-control" id="txtOrigen" value="@Model.objControlCalidad.CcOrigen" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Destino</label>
+                    @if (Model.objControlCalidad.TipoControl >= 3)
+                    {
+                    <select class="form-control" id="cboDestinos">
+                        <option value="1010">TALLER MECANICO CENTRAL</option>
+                        <option value="1015">PATIO MAQUINARIA HERMOSILLO</option>
+                        <option value="1097">ENVIO PROVEEDOR</option>
+                        <option value="10997">VENTA EQUIPO</option>
+                        @*<option value="1">OBRA</option>*@
+                        <option value="1">Obra: @Model.objControlCalidad.CcDestino</option>
+                    </select>
+                    }
+                    else
+                    {
+                    <input type="text" class="form-control" id="txtDestino" value="@Model.objControlCalidad.CcDestino" disabled />
+                    }
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Destino Descripción</label>
+                    <input type="text" class="form-control" value="@Model.objControlCalidad.CcDestino" id="txtDesDestino" disabled />
+                </div>
+            </fieldset>
+        </div>
+
+
+        <div class="row">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Datos Maquinaria</legend>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Descripción:</label>
+                    <input id="txtDescripcion" class="form-control" type="text" value="@Model.objInfoMaquina.descripcion" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Marca:</label>
+                    <input id="txtMarcaMaquina" class="form-control" type="text" value="@Model.objInfoMaquina.marca.descripcion" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Modelo:</label>
+                    <input id="txtModeloMaquina" class="form-control" type="text" value="@Model.objInfoMaquina.modeloEquipo.descripcion" disabled />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Serie:</label>
+                    <input id="txtSerieMaquina" class="form-control" type="text" value="@Model.objInfoMaquina.noSerie" disabled />
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Motor</legend>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Marca:</label>
+                    <input id="txtMarcaMotor" class="form-control" value="@Model.objControlCalidad.MarcaMotor" type="text" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Modelo:</label>
+                    <input id="txtModeloMotor" class="form-control" value="@Model.objControlCalidad.ModeloMotor" type="text" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Serie:</label>
+                    <input id="txtSerieMotor" class="form-control" value="@Model.objControlCalidad.SerieMotor" type="text" />
+                </div>
+            </fieldset>
+        </div>
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Traslado</legend>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Compañia:</label>
+                    <input id="txtCompania" class="form-control" value="@Model.objControlCalidad.CompañiaTraslado" type="text" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group-custum">
+                    <label>Vehículo (Placas):</label>
+                    <input id="txtVehiculo" class="form-control" value="@Model.objControlCalidad.VehiculoTraslado" type="text" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    <label>Operador :</label>
+                    <input id="txtOperador" class="form-control" value="@Model.objControlCalidad.OperadorTraslado" type="text" />
+                </div>
+            </fieldset>
+        </div>
+        <div class="row">
+            <button class="btn btn-primary nextBtn btn-lg pull-right" type="button">
+                Siguiente
+            </button>
+        </div>
+    </div>
+    <div class="setup-content" id="step-2">
+        <div class="row">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Preguntas:</legend>
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    <label class="hidden" id="totalGrupos">@Model.lstGrupos.Count</label>
+                    <label class="hidden" id="totalPreguntas">@Model.lstPreguntas.Count</label>
+
+                    @foreach (var objGrupo in Model.lstGrupos)
+                    {
+                    if (objGrupo.Id == 1)
+                    {
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="heading-@objGrupo.Id" data-toggle="collapse" data-parent="#accordion" href="#collapse-@objGrupo.Id" aria-expanded="true" aria-controls="collapse-@objGrupo.Id">
+                            <h4 class="panel-title">
+                                <a role="button">
+                                    @objGrupo.Descripcion
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse-@objGrupo.Id" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-@objGrupo.Id">
+                            <div class="panel-body noPadding">
+
+                                @{
+                                var listaPreguntasGrupo = Model.lstPreguntas.Where(x => x.IdGrupo == objGrupo.Id).ToList();
+                                List<tblM_CatPreguntasCalidad> list1 = new List<tblM_CatPreguntasCalidad>();
+                                        List<tblM_CatPreguntasCalidad> list2 = new List<tblM_CatPreguntasCalidad>();
+
+                                                for (var x = 0; x < listaPreguntasGrupo.Count(); x++) { if (x < (listaPreguntasGrupo.Count() / 2) + 1) { list1.Add(listaPreguntasGrupo[x]); } else { list2.Add(listaPreguntasGrupo[x]); } } for (int x=0; x < 2; x++) { <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                                    <table id="Table" class="table table-condensed table-hover table-striped text-center tableCuestionario">
+                                                        <thead class="bg-table-header">
+                                                            <tr>
+                                                                <th>Pregunta</th>
+                                                                <th>No Tiene</th>
+                                                                <th>Bueno</th>
+                                                                <th>Regular</th>
+                                                                <th>Malo</th>
+                                                                <th>Cantidad</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if (x == 0)
+                                                            {
+                                                            foreach (var objPreguntas in list1)
+                                                            {
+                                                            <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                                <td class="value" data-option="0">
+                                                                    @objPreguntas.Pregunta
+                                                                </td>
+                                                                <td class="null"></td>
+                                                                <td class="bueno"></td>
+                                                                <td class="regular"></td>
+                                                                <td class="malo"></td>
+                                                                <td><input id="inp-@objPreguntas.Id" type="number" class="cantidad" min="0" value="0" /></td>
+
+                                                            </tr>
+
+                                                            }
+                                                            }
+                                                            else
+                                                            {
+                                                            foreach (var objPreguntas in list2)
+                                                            {
+                                                            <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                                <td class="value" data-option="0">
+                                                                    @objPreguntas.Pregunta
+                                                                </td>
+                                                                <td class="null"></td>
+                                                                <td class="bueno"></td>
+                                                                <td class="regular"></td>
+                                                                <td class="malo"></td>
+                                                                <td><input id="inp-@objPreguntas.Id" type="number" class="cantidad" min="0" value="0" /></td>
+
+                                                            </tr>
+
+                                                            }
+                                                            }
+
+                                                        </tbody>
+                                                    </table>
+                            </div>
+                            }
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+                else if (objGrupo.Id == 4)
+                {
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading-@objGrupo.Id" data-toggle="collapse" data-parent="#accordion" href="#collapse-@objGrupo.Id" aria-expanded="true" aria-controls="collapse-@objGrupo.Id">
+                        <h4 class="panel-title">
+                            <a role="button">
+                                @objGrupo.Descripcion
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse-@objGrupo.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-@objGrupo.Id">
+                        <div class="panel-body noPadding">
+
+                            @{
+                            var listaPreguntasGrupo = Model.lstPreguntas.Where(x => x.IdGrupo == objGrupo.Id).ToList();
+                            List<tblM_CatPreguntasCalidad> list1 = new List<tblM_CatPreguntasCalidad>();
+                                    List<tblM_CatPreguntasCalidad> list2 = new List<tblM_CatPreguntasCalidad>();
+
+                                            for (var x = 0; x < listaPreguntasGrupo.Count(); x++) { if (x < (listaPreguntasGrupo.Count() / 2) + 1) { list1.Add(listaPreguntasGrupo[x]); } else { list2.Add(listaPreguntasGrupo[x]); } } for (int x=0; x < 2; x++) { <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                                <table id="Table" class="table table-condensed table-hover table-striped text-center tableCuestionario">
+                                                    <thead class="bg-table-header">
+                                                        <tr>
+                                                            <th>Pregunta</th>
+                                                            <th>Marca</th>
+                                                            <th>Medida</th>
+                                                            <th>Serie</th>
+                                                            <th>% de vida util</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (x == 0)
+                                                        {
+                                                        foreach (var objPreguntas in list1)
+                                                        {
+                                                        <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                            <td>
+                                                                @objPreguntas.Pregunta
+                                                            </td>
+                                                            <td><input id="mar-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="med-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="ser-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="vid-@objPreguntas.Id" type="text" class="form-control" /></td>
+
+                                                        </tr>
+
+                                                        }
+                                                        }
+                                                        else
+                                                        {
+                                                        foreach (var objPreguntas in list2)
+                                                        {
+
+
+                                                        <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                            <td>
+                                                                @objPreguntas.Pregunta
+                                                            </td>
+                                                            <td><input id="mar-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="med-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="ser-@objPreguntas.Id" type="text" class="form-control" /></td>
+                                                            <td><input id="vid-@objPreguntas.Id" type="text" class="form-control" /></td>
+
+                                                        </tr>
+
+
+                                                        }
+                                                        }
+
+                                                    </tbody>
+                                                </table>
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+        </div>
+        }
+        else
+        {
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading-@objGrupo.Id" data-toggle="collapse" data-parent="#accordion" href="#collapse-@objGrupo.Id" aria-expanded="true" aria-controls="collapse-@objGrupo.Id">
+                <h4 class="panel-title">
+                    <a role="button">
+                        @objGrupo.Descripcion
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse-@objGrupo.Id" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-@objGrupo.Id">
+                <div class="panel-body noPadding">
+                    <div class="panel-body noPadding">
+
+                        @{
+                        var listaPreguntasGrupo = Model.lstPreguntas.Where(x => x.IdGrupo == objGrupo.Id).ToList();
+                        List<tblM_CatPreguntasCalidad> list1 = new List<tblM_CatPreguntasCalidad>();
+                                List<tblM_CatPreguntasCalidad> list2 = new List<tblM_CatPreguntasCalidad>();
+
+                                        for (var x = 0; x < listaPreguntasGrupo.Count(); x++) { if (x < (listaPreguntasGrupo.Count() / 2) + 1) { list1.Add(listaPreguntasGrupo[x]); } else { list2.Add(listaPreguntasGrupo[x]); } } for (int x=0; x < 2; x++) { <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                            <table id="Table" class="table table-condensed table-hover table-striped text-center tableCuestionario">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th>Pregunta</th>
+                                                        <th>No Tiene</th>
+                                                        <th>Bueno</th>
+                                                        <th>Regular</th>
+                                                        <th>Malo</th>
+                                                        <th>Cantidad</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (x == 0)
+                                                    {
+                                                    foreach (var objPreguntas in list1)
+                                                    {
+
+                                                    <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                        @if (objPreguntas.TipoPregunta == 2)
+                                                        {
+                                                        <td class="value" data-option="0">
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-6">
+                                                                        Marca:<input id="mar-@objPreguntas.Id" type="text" />
+                                                                    </div>
+                                                                    <div class="col-lg-6">
+                                                                        Serie:<input id="ser-@objPreguntas.Id" type="text" />
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+
+
+                                                        </td>
+                                                        }
+                                                        else
+                                                        {
+                                                        <td class="value" data-option="0">
+                                                            @objPreguntas.Pregunta
+                                                        </td>
+                                                        }
+
+                                                        <td class="null"></td>
+                                                        <td class="bueno"></td>
+                                                        <td class="regular"></td>
+                                                        <td class="malo"></td>
+                                                        <td><input id="inp-@objPreguntas.Id" type="number" class="cantidad" min="0" value="0" /></td>
+
+                                                    </tr>
+
+                                                    }
+                                                    }
+                                                    else
+                                                    {
+                                                    foreach (var objPreguntas in list2)
+                                                    {
+                                                    <tr id="tr-@objPreguntas.Id" data-tipo="@objPreguntas.TipoPregunta" data-respuesta="0">
+                                                        @if (objPreguntas.TipoPregunta == 2)
+                                                        {
+                                                        <td class="value" data-option="0">
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-6">
+                                                                        Marca:<input id="mar-@objPreguntas.Id" type="text" />
+                                                                    </div>
+                                                                    <div class="col-lg-6">
+                                                                        Serie:<input id="ser-@objPreguntas.Id" type="text" />
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        }
+                                                        else
+                                                        {
+                                                        <td class="value" data-option="0">
+                                                            @objPreguntas.Pregunta
+                                                        </td>
+                                                        }
+                                                        <td class="null"></td>
+                                                        <td class="bueno"></td>
+                                                        <td class="regular"></td>
+                                                        <td class="malo"></td>
+                                                        <td><input id="inp-@objPreguntas.Id" type="number" class="cantidad" min="0" value="0" /></td>
+
+                                                    </tr>
+
+                                                    }
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                    </div>
+                    }
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+    }
+
+    }
+</div>
+</fieldset>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Observaciones:</legend>
+    <textarea id="txtObservaciones" class="form-control" value="@Model.objControlCalidad.Observaciones" type="text">@Model.objControlCalidad.Observaciones</textarea>
+</fieldset>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    @*<button class="btn btn-primary pull-right margin-top" type="button" id="btnGuardar">
+        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+    </button>*@
+    <button class="btn btn-primary nextBtn btn-lg pull-right" type="button">
+        Siguiente
+    </button>
+</div>
+</div>
+</div>
+<div class="setup-content" id="step-3">
+    <div class="row">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm fielset-Filtros">
+                    <legend class="legend-custm">Verificaciones:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        <label>HOROMETROS:</label>
+                        <input type="number" class="form-control" id="tbHorometro" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <label>KILOMETRAJE:</label>
+                        <input type="number" class="form-control" id="tbKilometraje" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        @if (Model.objControlCalidad.TipoControl == 1 || Model.objControlCalidad.TipoControl == 5)
+                        {
+                        <label>
+                            FECHA ENVIO:
+                        </label>
+                        }
+                        else
+                        { <label>
+                            FECHA RECEPCION:
+                        </label>
+                        }
+
+                        <input type="text" class="form-control" id="tbFechaTipoControl" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        <label>Días traslado:</label>
+                        <input type="number" class="form-control" id="tbDiasTransalado" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        <label>Combustible tanque 1:</label>
+                        <select class="form-control" id="cboTanque1">
+                            <option value="0">Vacío</option>
+                            <option value="1">1/4</option>
+                            <option value="2">1/2</option>
+                            <option value="3">3/4</option>
+                            <option value="4">lleno</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        <label>COMBUSTIBLE TANQUE 2:</label>
+                        <select class="form-control" id="cboTanque2">
+                            <option value="0">Vacío</option>
+                            <option value="1">1/4</option>
+                            <option value="2">1/2</option>
+                            <option value="3">3/4</option>
+                            <option value="4">lleno</option>
+                        </select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>REPORTE DE FALLA:</label>
+                        <select class="form-control" id="cboFallas">
+                            <option value="false">NO</option>
+                            <option value="true" selected>SI</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>COPIA DE FACTURA:</label>
+                        <select class="form-control" id="cboFactura">
+                            <option value="true">SI</option>
+                            <option value="false" selected>NO</option>
+                        </select>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>PED. ADUANAL:</label>
+                        <select class="form-control" id="cboPedAduana">
+                            <option value="true">SI</option>
+                            <option value="false" selected>NO</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>CONTROL DE CALIDAD:</label>
+                        <select class="form-control" id="cboControlCalida">
+                            <option value="true" selected>SI</option>
+                            <option value="false">NO</option>
+
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>MANUAL DE OPERACION:</label>
+                        <select class="form-control" id="cboManualOperacion">
+                            <option value="true" selected>SI</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>MANUAL DE MANTTO.:</label>
+                        <select class="form-control" id="cboManualMantenimiento">
+                            <option value="true" selected>SI</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                        <label>BITACORA:</label>
+                        <select class="form-control" id="cboBitacora">
+                            <option value="true">SI</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " style="display:none;">
+                        <label>PLACAS:</label>
+                        <select class="form-control" id="cboPlacas">
+                            <option value="2" selected>No Aplica</option>
+                            <option value="0">NO</option>
+                            <option value="1">SI</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-8 ">
+                        <label>NOTAS:</label>
+                        <input class="form-control" id="txtAreaNota" />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divSetFotografico">
+                        <label>SET FOTOGRAFICO:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoSetFotografico" accept="application/pdf, image/*" class="form-control requiered" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divSOS">
+                        <label>S.O.S:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoSOS" accept="application/pdf, image/*" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divInformeRehabilitacion">
+                        <label>INFORME REHABILITACION:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoRehabilitacion" accept="application/pdf, image/*" class="form-control requiered" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divDN">
+                        <label>DN:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoDN" accept="application/pdf, image/*" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divBitacora">
+                        <label>BITACORA:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoBitacora" accept="application/pdf, image/*" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divBitacora">
+                        <label>CheckList:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoCheckList" accept="application/pdf, image/*" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divVidaAceites">
+                        <label>Vida de Aceites:</label>
+                        <div class="form-group">
+                            <input type="file" id="inputArchivoVidaAceites" accept="application/pdf, image/*" class="form-control" />
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-11 col-lg-11">
+                <fieldset class="fieldset-custm fielset-Filtros">
+                    <legend class="legend-custm">Autorización:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <div class="panel panel-default fix-Panel-row">
+                            <div class="panel-heading">Transporte</div>
+                            <div class="panel-body bg-success">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Compañia
+                                        </label>
+                                        <select class="form-control" id="tbCompania">
+                                            @*<option value="9000">EMPRESAS MATCO SA DE CV</option>
+                                            <option value="2147">KOMATSU MAQUINARIAS MEXICO SA DE CV</option>
+                                            <option value="106">DISTRIBUIDORA MEGAMAK SA DE CV</option>
+                                            <option value="2541">ROAD MACHINERY CO SA DE CV</option>*@
+                                            <option value="0">EXTERNO</option>
+                                            @switch (baseController.getEmpresaID())
+                                            {
+                                                case 2:
+                                                    <option value="0">ARRENDADORA</option>
+                                                    break;
+                                                default:
+                                                    <option value="0">CONSTRUPLAN</option>
+                                                    break;
+                                            }
+                                        </select>
+                                        @*<input class="form-control" type="text" id="tbCompania" />*@
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Responsable
+                                        </label>
+                                        <input class="form-control" type="text" id="tbResponsable" />
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Transporte
+                                        </label>
+                                        <input class="form-control" type="text" id="tbTransporte" />
+                                        @*<select class="form-control" id="tbTransporte"></select>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <div class="panel panel-default fix-Panel-row">
+                            <div class="panel-heading"><label id="lblResponsableEnvio">Responsable Envío</label></div>
+                            <div class="panel-body bg-success">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Nombre
+                                        </label>
+                                        <select class="form-control" id="tbNombreResponsableEnvio"></select>
+                                        @* <input class="form-control" type="text" id="tbNombreResponsableEnvio" />*@
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Compañia
+                                        </label>
+                                        <input class="form-control" type="text" id="tbCompaniaResponsableEnvio" style="display:none;" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <div class="panel panel-default fix-Panel-row">
+                            <div class="panel-heading"><label id="lblResponsableRecepcion">Responsable Recepcion</label></div>
+                            <div class="panel-body bg-success">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Nombre
+                                        </label>
+                                        @*<input class="form-control" type="text" id="tbNombreResponsableRecepcion" />*@
+                                        <select class="form-control" id="tbNombreResponsableRecepcion"></select>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                        <label>
+                                            Compañia
+                                        </label>
+                                        <input class="form-control" type="text" id="tbCompaniaResponsableRecepcion" style="display:none;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1">
+                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnGuardar">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalControl" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Confirmación de Guardado</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Datos de Envio/Recepción:</legend>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <label>
+                                    Lugar Envio
+                                </label>
+                                <input class="form-control" id="txtConEnvio" type="text" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                <label>
+                                    Lugar Recepción
+                                </label>
+                                <input class="form-control" id="txtConRecepcion" type="text" readonly />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <div>
+                            <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar">
+                                <span class="glyphicon glyphicon-floppy-disk"></span> Aceptar
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal">
+                                <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/moment-with-locales.js"></script>

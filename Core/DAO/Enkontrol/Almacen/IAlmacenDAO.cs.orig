@@ -1,0 +1,103 @@
+﻿using Core.DTO.Almacen;
+using Core.DTO.Enkontrol;
+using Core.DTO.Enkontrol.Alamcen;
+using Core.DTO.Enkontrol.Requisicion;
+using Core.DTO.Enkontrol.Tablas;
+using Core.DTO.Principal.Generales;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace Core.DAO.Enkontrol.Almacen
+{
+    public interface IAlmacenDAO
+    {
+        List<ComboDTO> FillComboCC();
+        List<ComboDTO> FillComboCCTodos();
+        
+        List<ValuacionDTO> getInsumos(int almacenID, string cc);
+        bool guardarTraspasos(string ccOrigen, int almacenOrigen, string ccDestino, int almacenDestino, string comentarios, List<ValuacionDTO> insumos);
+        Dictionary<string, object> getTraspasosPendientes(string ccOrigen, int almacenOrigen, string ccDestino, int almacenDestino, int folioInterno);
+        Dictionary<string, object> getTraspasosPendientesOrigen(string ccOrigen, int almacenOrigen, string ccDestino, int almacenDestino, int numeroRequisicion);
+        Dictionary<string, object> getTraspasosRechazados(string ccOrigen, int almacenOrigen, string ccDestino, int almacenDestino, int folioInterno);
+        Dictionary<string, object> guardarAutorizacionesTraspasos(List<TraspasoDTO> listaAutorizados, bool esDirecto = false);
+        Dictionary<string, object> guardarAutorizacionesTraspasosOrigen(List<TraspasoDTO> listaAutorizados);
+        Dictionary<string, object> getInformacionInsumo(FiltrosExistenciaInsumoDTO filtros);
+        Dictionary<string, object> getInsumosCatalogo(InsumoCatalogoDTO filtros);
+        Dictionary<string, object> getInformacionInsumoCatalogo(int insumo);
+        Dictionary<string, object> guardarNuevoInsumo(InsumoCatalogoDTO insumo);
+        Dictionary<string, object> getTipoGrupo(int tipo, int grupo);
+        dynamic getUnidades(string term);
+        MemoryStream crearExcelInsumos();
+        bool cargarExcel(HttpPostedFileBase archivo);
+        Dictionary<string, object> getNuevaDevolucionEntrada(int almacenID);
+        dynamic getDevolucionEntrada(int almacenID, int numero);
+        Dictionary<string, object> getCentroCosto(string cc);
+        List<entradasAlmacenDTO> guardarDevolucionEntrada(MovimientoEnkontrolDTO movimiento);
+        Dictionary<string, object> getNuevaDevolucionSalida(int almacenID);
+        dynamic getDevolucionSalida(int almacenID, int numero);
+        List<salidasAlmacenDTO> guardarDevolucionSalida(MovimientoEnkontrolDTO movimiento);
+        dynamic getEntradasCompra(int almacen, string cc, int numeroOrdenCompra);
+        Dictionary<string, object> getNuevaEntradaInventarioFisico(int almacenID);
+        dynamic getEntradaInventarioFisico(int almacenID, int numero);
+        List<entradasAlmacenDTO> guardarEntradaInventarioFisico(MovimientoEnkontrolDTO movimiento);
+        List<entradasAlmacenDTO> getReporteEntradaFisico(int almacen, int numero);
+        Dictionary<string, object> getNuevaSalidaInventarioFisico(int almacenID);
+        dynamic getSalidaInventarioFisico(int almacenID, int numero);
+        List<salidasAlmacenDTO> guardarSalidaInventarioFisico(MovimientoEnkontrolDTO movimiento);
+        List<salidasAlmacenDTO> ImprimirMovimientoSalidaInventarioFisico(int almacen, int numero);
+        bool checarUbicacionesValidas(List<MovimientoDetalleEnkontrolDTO> entradas);
+        Dictionary<string, object> getNuevaSalidaConsumo(int almacenID);
+        dynamic getSalidaConsumo(int almacenID, int numero);
+        Dictionary<string, object> guardarSalidaConsumo(MovimientoEnkontrolDTO movimiento);
+        Dictionary<string, object> guardarSalidaConsumoOrigen(MovimientoEnkontrolDTO movimiento);
+        List<HistorialInsumoDTO> getHistorialInsumo(int almacen, int insumo);
+        List<EmpleadoPendienteLiberacionDTO> getEmpleadosPendientesLiberacion();
+        void guardarBajas(List<EmpleadoPendienteLiberacionDTO> empleados);
+        List<HistorialInsumoDTO> getCatalogoUbicaciones(int almacenID);
+        List<ComboDTO> FillComboTipoMovimiento();
+        MovimientoEnkontrolDTO cargarMovimiento(int almacen, int tipo_mov, int numero);
+        dynamic checarAccesoAlmacenista(int almacen);
+        List<salidasAlmacenDTO> imprimirMovimientoSalidaConsumo(int almacen, int numero);
+        List<salidasAlmacenDTO> imprimirMovimientoSalidaDevolucion(int almacen, int numero);
+        void insertTraspasosPendientes();
+        List<UbicacionDetalleDTO> getExistencias(int empresa, int insumo, int almacen);
+        bool cargarExcelTraspasoMasivo(HttpPostedFileBase archivo);
+        dynamic checkPermisoTraspasoMasivo();
+        List<salidasAlmacenDTO> imprimirMovimientoEntradaTraspaso(int almacen, int numero);
+        List<salidasAlmacenDTO> imprimirMovimientoSalidaTraspaso(int almacen, int numero);
+        List<CentroCostoDTO> getCentrosCosto();
+        Dictionary<string, object> getNuevaSalidaConsultaTraspaso(int almacenID);
+        Dictionary<string, object> getNuevaEntradaConsultaTraspaso(int almacenID);
+        Tuple<dynamic, List<salidasAlmacenDTO>> getSalidaConsultaTraspaso(int almacenID, int numero);
+        Tuple<dynamic, List<salidasAlmacenDTO>> getEntradaConsultaTraspaso(int almacenID, int numero);
+        bool checkMaquinaStandBy(string cc);
+        bool checarPermisosFamilias(int almacen, List<int> insumos);
+        bool checarPermisoAreaCuenta();
+        List<RequisicionDTO> ObtenerComprasPendientes(string cc, int estatus, int almacen, DateTime fechaInicio, DateTime fechaFin);
+        bool corregirUbicacionesSalidas();
+
+        #region ABD de Almacén
+        List<si_almacenDTO> GetAlmacenes();
+        List<MovimientosDTO> ObtenerMovimientos();
+        Dictionary<string, object> GuardarAlmacen(si_almacenDTO datos);
+        #endregion
+        Dictionary<string, object> getUsuarioEnkontrolByID(int empleado);
+
+<<<<<<< Updated upstream
+        #region Inventario Físico
+        Dictionary<string, object> cargarExistenciasAlmacen(int almacen, DateTime fecha, bool existentes);
+        #endregion
+=======
+        bool EliminarAlmacen(int almacen);
+
+        Dictionary<string, object> ObtenerAlmacenEditaroAgregar(int almacen);
+        bool EditarAlmacen(si_almacenDTO datos);
+        
+>>>>>>> Stashed changes
+    }
+}

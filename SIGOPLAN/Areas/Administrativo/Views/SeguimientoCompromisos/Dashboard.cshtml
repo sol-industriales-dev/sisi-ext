@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .ui-datepicker-calendar {
+        display: none;
+    }
+
+    .ui-datepicker {
+        z-index: 9999 !important;
+    }
+
+    .select2-selection {
+        max-height: 142px;
+        overflow: auto;
+    }
+
+    #tablaActividadesVencer_wrapper table tr,
+    #tablaActividadesCumplidas_wrapper table tr {
+        font-size: 12px;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Dashboard</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-md-12">
+            <label>Agrupaciones:&nbsp;<input type="checkbox" id="checkboxTodosCentroCosto"></label>
+            <select class="form-control select2" id="selectCentroCosto" multiple></select>
+        </div>
+        <div class="col-md-3">
+            <button type="button" class="btn btn-primary" id="botonResultados" style="margin-top: 5px;">
+                <i class="fas fa-search"></i> Resultados
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <div class="row margin-top">
+        <div class="col-sm-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse">Progreso de arranque</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="min-height: 400px">
+                                    <div id="chartProgresoArranque"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse">Avance por categoría</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="min-height: 400px">
+                                    <div id="chartAvanceCategoria"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse">Desempeño por área</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="min-height: 400px">
+                                    <div id="chartDesempenoArea"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse">Actividades Próximas a Vencer</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center">
+                                    <table id="tablaActividadesVencer" class="table table-hover compact" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse">Actividades Cumplidas</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center">
+                                    <table id="tablaActividadesCumplidas" class="table table-hover compact" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/SeguimientoCompromisos/Dashboard.js"></script>

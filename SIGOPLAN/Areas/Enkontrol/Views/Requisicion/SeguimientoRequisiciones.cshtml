@@ -1,0 +1,247 @@
+﻿@{
+    ViewBag.Title = "Seguimiento";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var controller = new SIGOPLAN.Areas.Enkontrol.Controllers.Compras.RequisicionController();
+    var esAdministrador = controller.esAdministrador();
+    var permisoAuditoriaEliminarReqOC = controller.permisoAuditoriaEliminarReqOC();
+    var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+@* <link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" /> *@
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+
+
+
+<style>
+    .noPadLeft {
+        padding-left: 0px;
+    }
+
+    .noPadRight {
+        padding-right: 0px;
+    }
+
+    #tblRequisiciones thead tr th,
+    #tblRequisiciones_wrapper thead tr th {
+        background-color: #81bd72;
+        color: #fff;
+        border: 1px solid black;
+    }
+
+    #tblRequisiciones th,
+    #tblRequisiciones td,
+    #tblRequisiciones_wrapper th,
+    #tblRequisiciones_wrapper td,
+    #tablaSurtido {
+        font-size: 10px;
+        padding: 4px 5px;
+    }
+
+    .requisicionNoAutorizada,
+    .compraNoAutorizada {
+        background: red;
+    }
+
+    .compraVencida {
+        background: blue;
+        color: white;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    .select2-selection {
+        min-height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        margin-top: 2px;
+    }
+
+    .select2-selection__arrow {
+        margin-top: 3px;
+    }
+
+    .select2-selection {
+        max-height: 142px !important;
+        overflow: auto !important;
+    }
+
+    .select2-selection__arrow {
+        display: none;
+    }
+</style>
+
+<h2 class="text-center">Seguimiento Requisiciones</h2>
+<input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
+<center>
+    <ul>
+        <li style='display: table-cell;padding-left:10px !important;'>
+            <div class="input-group" title="Estatus" style="height:27px;">
+                <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Autorizacion</span>
+                <span class="input-group-addon" style="background-color:red;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">No Autorizada</span>
+            </div>
+        </li>
+        <li style='display: table-cell;padding-left:10px !important;'>
+            <div class="input-group" title="Estatus" style="height:27px;">
+                <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Compra</span>
+                <span class="input-group-addon" style="background-color:red;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">No Autorizada</span>
+            </div>
+        </li>
+        <li style='display: table-cell;padding-left:10px !important;'>
+            <div class="input-group" title="Estatus" style="height:27px;">
+                <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Entrada</span>
+                <span class="input-group-addon" style="background-color:blue;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">Fuera de tiempo estimado</span>
+            </div>
+        </li>
+    </ul>
+</center>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="col-md-12 col-lg-12 noPadLeft">
+        <label for="multiSelectCC">Centro Costos&nbsp;<input type="checkbox" id="checkboxTodosCC"></label>
+        <select id="multiSelectCC" class="form-control select2" multiple="multiple"></select>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft mrgTop" id="divInsumo">
+        <div class="input-group">
+            <span class="input-group-addon">Tipo Insumo</span>
+            <select id="multiSelectTipoInsumo" class="form-control" multiple="multiple"></select>
+        </div>
+    </div>
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Filtro Compras:</span>
+            <select id="comboFiltroCompra" class="form-control">
+                <option value="0">Todas</option>
+                <option value="1">Compradas</option>
+                <option value="2">No Compradas</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Comprador Sugerido:</span>
+            <select id="selectComprador" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Requisitores</span>
+            <select id="selRequisitores" class="form-control"></select>
+        </div>
+    </div>
+
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Inicial</span>
+            <input id='inputFechaInicial' class='form-control'>
+        </div>
+    </div>
+
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop">
+        <div class="input-group">
+            <span class="input-group-addon">Fecha Final</span>
+            <input id='inputFechaFinal' class='form-control'>
+        </div>
+    </div>
+
+    <div class="col-md-2 col-lg-3 noPadLeft mrgTop" id="divConsigna">
+        <div class="input-group">
+            <span class="input-group-addon">Consigna</span>
+            <select id="selectConsigna" class="form-control">
+                <option value="0">--Todas--</option>
+                <option value="1">CONSIGNA</option>
+                <option value="2">NO CONSIGNA</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-lg-3 noPadLeft" style="margin-top: 5px;">
+        <button id="btnBuscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+        <button id="btnImprimir" class="btn btn-primary"><i class="fa fa-print"></i> Imprimir</button>
+        @if (esAdministrador || permisoAuditoriaEliminarReqOC)
+        {
+            <button id="botonAuditoria" class="btn btn-default"><i class="fa fa-tasks"></i> Auditoria</button>
+        }
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Requisiciones</legend>
+
+    <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+        <table id="tblRequisiciones" class="table compact marginBottom5" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalAuditoria" ro le="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Requisiciones y Compras Afectadas </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <span>A continuación se muestran las requisiciones y órdenes de compra que se verán afectadas en el proceso:</span>
+                <hr>
+                <label>Requisiciones No Autorizadas (Eliminación):</label>
+                <table id="tablaRequisicionesNoAutorizadas" class="table table-bordered" width="100%"></table>
+                <hr>
+                <label>Órdenes de Compra No Autorizadas (Eliminación):</label>
+                <table id="tablaComprasNoAutorizadas" class="table table-bordered" width="100%"></table>
+                <hr>
+                <label>Órdenes de Compra Autorizadas sin Entradas (Cancelación):</label>
+                <table id="tablaComprasAutorizadasSinEntradas" class="table table-bordered" width="100%"></table>
+            </div>
+            <div class="modal-footer">
+                <button id="botonConfirmar" class="btn btn-primary"><i class="fa fa-save"></i> Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSurtido" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 98%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Surtido </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="max-height: 70vh; overflow-y: auto; padding-left: 0px; padding-right: 0px;">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px; padding-left: 0px; padding-right: 0px;">
+                        <table id="tablaSurtido" class="table table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/SeguimientoRequisiciones.js"></script>
+
+@Html.Partial("reportViewerView", false)

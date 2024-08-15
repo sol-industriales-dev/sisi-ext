@@ -1,0 +1,271 @@
+﻿@{
+    ViewBag.Title = "Gestión PQ";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/DocumentosPorPagar/GestionPQ.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center">GESTIÓN DE PQs</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select class="form-control" id="cboxEstatus">
+                                    <option value="true">Vigentes</option>
+                                    <option value="false">Terminados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="divFechaCorte">
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha corte</span>
+                                    <input type="text" class="form-control" id="inputFechaCorte" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+
+                        </div>
+                        <div class="col-sm-2 pull-right">
+                            <button class="btn btn-info pull-right" id="btnRegistrarPQ"><i class="fas fa-plus"></i> Registrar PQ</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <table id="tblPQs" class="hover stripe order-column compact" style="width:100%;">
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="panel-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPQ" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3 class="modal-title" id="modalPQTitulo"></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="cboxBancoRegPQ" class="col-sm-4 control-label">Banco</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="cboxBancoRegPQ"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCtaAbonoRegPQ" class="col-sm-4 control-label">Cuenta Abono</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputCtaAbonoRegPQ"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCtaCargoRegPQ" class="col-sm-4 control-label">Cuenta Cargo</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputCtaCargoRegPQ"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputFechaFirmaRegPQ" class="col-sm-4 control-label">Fecha firma</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputFechaFirmaRegPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputFechaVencimientoRegPQ" class="col-sm-4 control-label">Fecha vencimiento</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputFechaVencimientoRegPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cboxCCRegPQ" class="col-sm-4 control-label">CC</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="cboxCCRegPQ"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cboxMonedaRegPQ" class="col-sm-4 control-label">Moneda</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="cboxMonedaRegPQ"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputImporteRegPQ" class="col-sm-4 control-label">Importe</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputImporteRegPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputInteresRegPQ" class="col-sm-4 control-label">% Interes</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputInteresRegPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div id="divTipoCambio" style="display:none;">
+                        <div class="form-group">
+                            <label for="inputTipoCambioRegPQ" class="col-sm-4 control-label">Tipo cambio</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="inputTipoCambioRegPQ" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputImporteMNRegPQ" class="col-sm-4 control-label">Importe en MN</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="inputImporteMNRegPQ" disabled autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputArchivoRegPQ" class="col-sm-4 control-label">Documento</label>
+                        <div class="col-sm-8">
+                            <input type="file" class="form-control" id="inputArchivoRegPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-sm-2 pull-left">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
+                    </div>
+                    <div class="col-sm-3 pull-right">
+                        <button class="btn btn-primary pull-right" id="btnGuardarPQ"><i class="fas fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPoliza" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3 class="modal-title" id="modalPolizaTitulo"></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha movimiento</span>
+                            <input type="text" class="form-control" autocomplete="off" id="inputFechaPolizaPQ">
+                        </div>
+                    </div>
+                    <div class="col-sm-3 pull-right">
+                        <div class="input-group pull-right">
+                            <span class="input-group-addon">Tipo cambio</span>
+                            <input type="text" class="form-control" autocomplete="off" id="inputTipoCambioPolizaPQ" disabled>
+                        </div>
+                    </div>
+                    @*<div class="col-sm-3 pull-right">
+                        <div class="input-group pull-right">
+                            <span class="input-group-addon">Fecha tipo cambio</span>
+                            <input type="text" class="form-control" autocomplete="off" id="inputFechaTipoCambioPolizaPQ">
+                        </div>
+                    </div>*@
+                </div>
+                <br />
+                <div class="row" id="divRenovacion">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha firma</span>
+                            <input type="text" class="form-control" autocomplete="off" id="inputFechaFirmaPolizaPQ">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha vencimiento</span>
+                            <input type="text" class="form-control" autocomplete="off" id="inputFechaVencimientoPolizaPQ">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">% Interes</span>
+                            <input type="text" class="form-control" id="inputInteresPolizaPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="file" class="form-control" id="inputArchivoRenovacionPQ" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblPoliza" class="hover stripe order-column compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-sm-2 pull-left">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
+                    </div>
+                    <div class="col-sm-3 pull-right">
+                        <button class="btn btn-primary pull-right" id="btnGuardarPoliza"><i class="fas fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Contratos/GestionPQ.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+
+@Html.Action("_menuClick", "Mouse")
+@Html.Action("_visorGrid", "Visor")

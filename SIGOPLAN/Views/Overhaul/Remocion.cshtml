@@ -1,0 +1,283 @@
+﻿
+@{
+    ViewBag.Title = "Remocion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<script src="~/Scripts/js/Maquinaria/Overhaul/RemocionJS.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/UtilsOverhaul/ImageTools.js"></script>
+<h2 class="text-center">Remocion de Componentes</h2>
+
+<style>
+    input[type="file"] { display: none; }
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+    .form-control { text-align:center; }
+
+
+     h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+    .btn-primary:hover {
+        background-color: #624de2 !important;
+        border-color: #624de2 !important;
+    }
+
+  
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+@Html.Partial("ModalImagen")
+ 
+
+<div class="row form-group" id="contenido">
+    <div class="col-lg-12 text-center">
+        <fieldset class="fieldset-custm fielset-Datos">
+            <legend class="legend-custm">Datos de la Máquina: <i class="fa fa-truck" aria-hidden="true"></i></legend>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-12 text-center">
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <label>Económico:</label>
+                    <input class="form-control" id="txtNoEconomico" data-id="" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <label>Modelo:</label>
+                    <input class="form-control" id="txtModelo" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-2">
+                    <label>Horas:</label>
+                    <input type="number" min="0" value="0" class="form-control" id="txtHoras" disabled />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                    <label>Serie:</label>
+                    <input class="form-control" id="txtSerieMaquina" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-10 col-lg-5">
+                    <label>Area cuenta:</label>
+                    <input type="text" id="txtCC" class="form-control" data-id="" disabled>
+                </div>
+            </div>
+
+        </fieldset>
+        <fieldset class="fieldset-custm fielset-Datos">
+            <legend class="legend-custm">Datos del Componente Removido: <i class="fa fa-wrench" aria-hidden="true"></i></legend>
+
+            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-9 form-group">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+                    <label>Descripción:</label>
+                    <input class="form-control" id="txtDescripcionComponente" data-id="" data-garantia="" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                    <label>Número de parte:</label>
+                    <input class="form-control" id="txtNumParteComponente" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                    <label>Serie:</label>
+                    <input class="form-control" id="txtSerieComponenteRemovido" type="text" disabled />
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-2">
+                    <label>Horas ciclo:</label>
+                    <input type="number" min="0" value="0" class="form-control" id="txtHorasComponenteRemovido" disabled />
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-2">
+                    <label>Fecha instalación:</label>
+                    <input class="form-control" id="txtFechaInstalacion" data-fechanum="" disabled />
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-2 ">
+                    <label>Fecha remocion:</label>
+                    <input type="text" id="txtFecha" class="form-control">
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3 form-group">
+                    <label>Motivo remoción:</label>
+                    <select class="form-control" id="cboMotivo">
+                        <option value=''>--Seleccione--</option>
+                        <option value="0">VIDA UTIL</option>
+                        <option value="1">FALLA</option>
+                        <option value="2">ESTRATEGIA</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3 form-group">
+                    <label>Remueve:</label>
+                    <select class="form-control" id="cboEmpresaResponsable"></select>
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-4 col-lg-2">
+                    <label>Garantía:</label>
+                    <select class="form-control" id="cboGarantia">
+                        <option value="1">SI</option>
+                        <option value="0">NO</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3 form-group">
+                    <label>Destino:</label>
+                    <select class="form-control" id="cboDestino"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                    <label>Comentario:</label>
+                    <textarea class="form-control" id="txtacomentario" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+            </div>
+            <div class="col-xs-12 col-xs-12 col-md-6 col-lg-3 form-group" style="text-align: center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Imagen serie:</legend>
+                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group text-center" style="text-align: center">
+                        <button id="btncargarImgRemovido" class="btn btn-info"> <i class="fa fa-upload"></i>   Seleccionar imagen</button>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <input type="file" class="form-control btn btn-info" id="inCargarImgRemovido" accept="image/*">
+                        <img id="imgRemovido" src="" style="max-width: 200px;" data-toggle="modal" data-target="#mdlImagen">
+                        <!-- <button id="btnAbrirModalImagen" data-toggle="modal" data-target="#mdlImagen" class="btn btn-info"> <i class="fa fa-upload"></i>   Vista Previa</button> -->
+                    </div>
+                </fieldset>
+            </div>
+
+        </fieldset>
+        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group" style="padding-right:0;padding-left:0;">
+            <fieldset class="fieldset-custm fielset-Datos">
+                <legend class="legend-custm">Datos del Componente Instalado: <i class="fa fa-wrench" aria-hidden="true"></i></legend>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-12">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Serie:</label>
+                        <select class="form-control" id="cboSerieComponenteInstalado"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 form-group">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" style="padding-right:0px; padding-left:0px;">
+                            <label>Fecha instalación:</label>
+                            <input class="form-control" id="txtFechaInstalacionComponente" type="text" autocomplete="off" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group" style="padding-right:0px; padding-left:0px;">
+                            <label>Empresa que instala:</label>
+                            <select class="form-control" id="cboEmpresaInstalacion"></select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 form-group">
+                        <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group" style="text-align:center;padding-right:0px; padding-left:0px;">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Imagen serie:</legend>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                    <button id="btncargarImgInstalado" class="btn btn-info"> <i class="fa fa-upload"></i>   Seleccionar imagen</button>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                    <input type="file" class="form-control btn btn-info pull-left" id="inCargarImgInstalado" accept="image/*">
+                                    <img id="imgInstalado" src="" style="max-width: 200px;" data-toggle="modal" data-target="#mdlImagen">
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-6 form-group" style="display:none">
+            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Personal que participó: <i class="fa fa-users" aria-hidden="true"></i></legend>
+                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-10">
+                                <label>Personal:</label>
+                                <input type="text" id="txtPersonal" class="form-control">
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                <button type="button" class="btn btn-info margin-top btn-circle" id="btnAgregarEmpleado" disabled>
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="gridPersonal" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="usuarioID" class="text-center" style="display:none;" data-formatter="usuarioID" data-identifier="true" data-type="numeric" data-visible="false">
+                                            <a href="javascript:void(0);" class="column-header-anchor ">
+                                                <span class="text">usuarioID</span><span class="icon glyphicon "></span>
+                                            </a>
+                                        </th>
+                                        <th data-column-id="quitar" class="text-left" style="" data-formatter="quitar">
+                                            <a href="javascript:void(0);" class="column-header-anchor sortable">
+                                                <span class="text">Quitar</span><span class="icon glyphicon "></span>
+                                            </a>
+                                        </th>
+                                        <th data-column-id="usuario" class="text-left" style="">
+                                            <a href="javascript:void(0);" class="column-header-anchor sortable">
+                                                <span class="text">Usuario</span><span class="icon glyphicon "></span>
+                                            </a>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody><tr><td colspan="4" class="no-results">No se encontró información</td></tr></tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>  
+        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+            <button id="btnEnviarReporte" class="btn btn-primary pull-right"> <i class="glyphicon glyphicon-floppy-disk"></i>   Guardar</button>
+        </div>
+    </div>      
+</div>

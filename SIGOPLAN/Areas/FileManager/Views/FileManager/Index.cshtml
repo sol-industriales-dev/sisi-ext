@@ -1,0 +1,495 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "File Manager";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/FileManager/Webix.css" rel="stylesheet" />
+<link href="~/Content/style/css/FileManager/FileManager.css" rel="stylesheet" />
+<link href="~/Content/style/css/FileManager/General.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- HTML -->
+<div hidden id="noAcceso" class="row text-center">
+    <h2 class="label label-danger">Sin acceso</h2>
+    <p>Este usuario no cuenta con los permisos suficientes para utilizar el gestor de archivos.</p>
+</div>
+
+<!-- CONTAINER -->
+<br>
+<div class='container-fluid'>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>GESTOR DOCUMENTAL</h2>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12'>
+            <!-- PANEL FILTROS -->
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTROS</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-4">
+                            <label for='cboFiltroObraCerrada'>Estatus obra</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboFiltroObraCerrada' class='form-control select2'>
+                                    <option value="--Seleccione una opción--">--Seleccione una opción--</option>
+                                    <option value="2">Todo</option>
+                                    <option value="0" selected>Abierta</option>
+                                    <option value="1">Cerrada</option>
+                                </select>
+                            </div>
+                        </div><br>
+                        <div class="col-lg-4 pull-right">
+                            <button class="btn btn-primary" id="btnFiltroDuplicarCarpeta" style="display: none"><i class='fas fa-plus'></i>&nbsp;Generar carpeta</button>
+                            <button class="btn btn-danger" id="btnFiltroCerrarObra" style="display: none"><i class="fas fa-backspace"></i>&nbsp;Cerrar obra</button>
+                            <button class="btn btn-primary" id="btnFiltroBuscar"><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <!-- BODY -->
+            <div id='panelGraficas' class='panel panel-default panel-principal'>
+                <div class='panel-heading'></div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <div id="webix-area"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<div hidden class="updateForm">
+    <input id="actualizarArchivo" type="file" />
+</div>
+
+<!-- DUPLICAR CARPETAS -->
+<div id='mdlDuplicarCarpetas' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title text-center'>DUPLICAR CARPETA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtDuplicar_NombreCarpeta'>Nombre carpeta</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type='text' id='txtDuplicar_NombreCarpeta' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboDuplicar_CarpetaBaseDestino'>Carpeta destino</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboDuplicar_CarpetaBaseDestino' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCrearCarpetaBase'>Generar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL -->
+
+<!-- CERRAR OBRA -->
+<div id='mdlCerrarObra' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title text-center'>CERRAR OBRA</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCerrarObra'>Seleccionar obra</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCerrarObra' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCerrarObra'>Cerrar obra</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalAviso">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3 id="modalAvisoTitutlo"></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <p id="modalAvisoCuerpo"><strong></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="botonModalAviso" class="btn btn-default" data-dismiss="modal">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalCargaArchivo">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3 id="tituloModalCargaArchivo"></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row seccion">
+                    <div class="col-lg-6 text-center">
+                        <p><strong>Tipo de archivo que se subirá:</strong></p>
+                        <select id="comboTipoArchivo" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-6 text-center" id="divCargarArchivo">
+                        <p><strong>Cargar archivo:</strong></p>
+                        <input class="form-control" id="inputArchivo" type="file" multiple />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonSubirArchivo" class="btn btn-primary disabled" data-dismiss="modal">
+                    <i class="fas fa-plus"></i> Subir archivo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalCrearCarpeta">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Crear carpeta <i class="fas fa-folder-plus"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-6 col-lg-6 text-center">
+                        <p><strong>Tipo de archivo que subirá en la carpeta:</strong></p>
+                        <select id="comboTipoArchivoFolder" class="form-control" multiple></select>
+                    </div>
+                    <div class="col-md-6 col-lg-6 text-center" id="divCrearCarpeta">
+                        <p><strong>Nombre de la carpeta:</strong></p>
+                        <input id="inputNombreCarpeta" minlength="2" type="text" class="form-control" placeholder="Ingresa el nombre aquí..." />
+                        <p class="margin-top">
+                            <strong>¿Considerar abreviación para nomenclatura de archivos?</strong>
+                        </p>
+                        <input type="checkbox" class="form-control" id="checkboxConsiderarse">
+                        <div id="divAbreviacion" class="margin-top">
+                            <p><strong>Defina la abreviación:</strong></p>
+                            <input title="La longitud máxima de la abreviación es de 5 caracteres" id="inputAbreviacion" minlength="2" maxlength="5" type="text" class="form-control" placeholder="Ejemplo: Minado La Colorada =  MLC" />
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonCrearCarpeta" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear carpeta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalAsignacion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Asignar permisos <i class="far fa-check-square"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8 col-lg-8">
+                        <p><strong>Usuario:</strong></p>
+                        <input type="text" id="inputUsuario" class="form-control" placeholder="Nombre del usuario...">
+                        <button type="button" id="botonAgregarUsuario" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Agregar
+                        </button>
+                    </div>
+                    <div class="col-md-4 col-lg-4">
+                        <p class="text-center" id="nombreArchivoAsignacion"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-lg-12">
+                        <button type="button" id="botonMarcarTodo" class="btn btn-primary pull-right">
+                            <i class="fas fa-check-double"> Todo</i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-lg-12">
+                        <table class="table table-striped table-hover table-condensed table-bordered margin-top">
+                            <thead>
+                                <th id="thUsuario" class="text-center">Usuario<br><i class="fas fa-user"></i></th>
+                                <th tipopermiso='descarga' class="text-center">
+                                    Descargar archivo<br>
+                                    <i class="fas fa-file-download"></i>
+                                </th>
+                                <th tipopermiso='actualizar' class="text-center">
+                                    Actualizar<br>
+                                    <i class="fas fa-sync"></i>
+                                </th>
+                                <th tipopermiso='eliminar' class="text-center">
+                                    Eliminar<br>
+                                    <i class="fas fa-trash"></i>
+                                </th>
+                            </thead>
+                            <tbody id="tbodyAsignacion"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonAsignarCambios" class="btn btn-primary">
+                    <i class="fas fa-user-check"></i> Asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalCrearSubdivision">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Crear subdivisión <i class="fas fa-warehouse"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 text-center">
+                        <p><strong>Seleccione la subdivisón que desea crear:</strong></p>
+                        <select id="comboSubdivision" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonCrearSubdivision" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear subdivisión
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalCrearObra">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Crear obra <i class="fas fa-building"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 text-center">
+                        <p><strong>Seleccione la obra a la que le desea crear una estructura:</strong></p>
+                        <select id="comboObra" class="form-control"></select>
+                    </div>
+                    <div class="col-md-12 col-lg-12 text-center">
+                        <div class="row margin-top">
+                            <div class="col-md-3 col-lg-3 text-center">
+                                <label for="checkboxNombreCC">¿Es proyecto?</label>
+                                <input type="checkbox" class="form-control" id="checkboxNombreCC">
+                            </div>
+                            <div class="form-group" id="divNombreCC">
+                                <div class="col-md-6 col-lg-6 text-center">
+                                    <label for="inputNombreCC">Nombre del proyecto:</label>
+                                    <input id="inputNombreCC" type="text" class="form-control" />
+                                </div>
+                                <div class="col-md-3 col-lg-3 text-center">
+                                    <label for="inputAbreviacionNombreCC">Abreviación:</label>
+                                    <input id="inputAbreviacionNombreCC" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button type="button" id="botonCrearObra" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear obra
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalCargaVariosArchivos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Cargar múltiples archivos <i class="fas fa-layer-group"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-offset-1 col-lg-offset-1 col-md-5 col-lg-5 text-center">
+                        <p>Seleccione los archivos por cargar:</p>
+                    </div>
+                    <div class="col-md-5 col-lg-5 text-center">
+                        <input class="form-control" id="inputVariosArchivos" multiple type="file" />
+                        <p><strong>*No aplica para carpetas.</strong></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 col-lg-5 text-center margin-top">
+                        <p>Aplicar el mismo tipo de archivo a todos los elementos</p>
+                    </div>
+                    <div class="col-md-5 col-lg-5 text-center margin-top">
+                        <select id="comboTipoArchivoMultiple" class="form-control"></select>
+                    </div>
+                    <div class="col-md-2 col-lg-2 text-center margin-top">
+                        <button id="botonAplicarTodos" type="button" class="btn btn-primary">
+                            <i class="fas fa-asterisk"></i> Aplicar
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 text-center margin-top">
+                        <table id="tablaVariosArchivos" class="table table-striped table-hover table-condensed table-bordered">
+                            <thead class="bg-table-file-manager">
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center">Tamaño</th>
+                                <th class="text-center">Tipo de archivo</th>
+                                <th class="text-center">Actualización</th>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 text-center margin-top">
+                        <button id="botonLimpiarCampos" type="button" class="btn btn-default pull-right">
+                            <i class="fas fa-eraser"></i> Limpiar campos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+                <button disabled type="button" id="botonSubirVariosArchivos" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Subir archivos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL -->
+<div id='mdlCargando' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4">
+                            <div class="wrapper">
+                                <div class="space">
+                                    <div class="loading"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4"></div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+@Html.Action("_visorGrid");
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/FileManager/FileManager/WebixCore.js"></script>
+<script src="~/Scripts/js/FileManager/FileManager/FileManager.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<!-- END: SCRIPTS -->

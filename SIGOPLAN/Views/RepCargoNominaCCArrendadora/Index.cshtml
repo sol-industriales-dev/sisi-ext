@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/chart/Chart.labelPie.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/RepCargoNominaCCArrendadora.js"></script>
+
+<style>
+    #tblData tbody tr td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tblData tbody tr .celdaNumerica {
+        text-align: right;
+    }
+
+    #tblData tfoot tr td {
+        border: none;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tblData tfoot tr .celdaNumerica {
+        text-align: right;
+    }
+
+    #tblData tbody .rowSeleccionado {
+        /*background-color: #eff0f1;*/
+        /*background-color: #FFCF8B;*/
+        background-color: #ffa;
+    }
+</style>
+
+<div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="text-center"><label id="title">Reporte de cargo de nómina por CC</label></h2>
+        </div>
+    </div>
+    <div class="row form-group" style="margin-bottom: 5px;">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm fielset-Filtros">
+                <legend class="legend-custm">Filtros:</legend>
+
+                <div class="col-lg-12">
+                    <div class="col-lg-4 form-group">
+                        <label>Proyecto:</label>
+                        <select class="form-control" id="multiSelectProyecto" title="Seleccione:" ></select>
+                    </div>
+                    <div class="col-lg-4 form-group" style="padding-left: 0px; padding-right: 0px; display: none;">
+                        <div class="col-lg-12 text-center">
+                            <label>Periodo:</label>
+                        </div>
+                        <div class="col-lg-6" style="padding-right: 6px;">
+                            <div class="input-group">
+                                <label class="input-group-addon">Inicial</label>
+                                <input class="form-control" id="inputPeriodoInicial" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6" style="padding-left: 6px;">
+                            <div class="input-group">
+                                <label class="input-group-addon">Final</label>
+                                <input class="form-control" id="inputPeriodoFinal" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 form-group" style="padding-left: 0px; padding-right: 0px;">
+                        <label>Periodo:</label>
+                        <select class="form-control" id="selectPeriodo"></select>
+                    </div>
+                    <div class="col-lg-2 form-group hidden">
+                        <label>Nómina Semanal:</label>
+                        <input class="form-control" id="inputNominaSemanal" style="text-align: right;" value="0">
+                    </div>
+                    <div class="col-lg-2 form-group">
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnAplicarFiltros">
+                            <span class="glyphicon glyphicon-search"></span> Calcular
+                        </button>
+                        <button id="btnImprimir" class="btn-excel btn btn-primary glyphicon glyphicon-print" type="button" style="margin-left: 5px; margin-top: 23px; display: none;" data-isReport="true"></button>
+                        <button id="btnGuardar" class="btn-guardar btn btn-success glyphicon glyphicon-floppy-save" type="button" style="margin-left: 5px; margin-top: 23px; display: none;" data-isReport="false"></button>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="col-lg-4 form-group">
+                        <label>Área Cuenta Nómina:</label>
+                        <input class="form-control" id="inputAreaCuentaNomina" disabled
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm text-center" style="padding-bottom: 0px;">
+                <table class="table" id="tblData" style="margin-top: 5px; margin-bottom: 5px;">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="text-center">Económico</th>
+                            <th class="text-center">Descripción</th>
+                            <th class="text-center">CentroCostos</th>
+                            <th class="text-center">H-H del Periodo</th>
+                            <th class="text-center">% cargo</th>
+                            <th class="text-center">Cargo por Máquina $</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot></tfoot>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    <br />
+    <br />
+    <br />
+    @*<div class="row form-group" id="divGrafica">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" download="ChartJpg.jpg">Gráfica Cargo:</legend>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button id="printChart" class="btn btn-primary" style="float:right;display:none;">Descargar gráfica</button>
+                            <canvas id="myChart" height="200" width="590" style="background-color:white !important;"></canvas>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>*@
+</div>
+
+@Html.Partial("reportViewerView", false)

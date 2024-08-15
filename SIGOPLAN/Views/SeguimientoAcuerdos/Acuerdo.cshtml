@@ -1,0 +1,417 @@
+﻿@{
+    ViewBag.Title = "Acuerdo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Style-Reportes.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/summernote/summernote.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/dhtmlxgantt.css")">
+<link href="@Url.Content("~/Content/style/css/SeguimientoAcuerdos/Acuerdo.css")" rel="stylesheet" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote-es-ES.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/dhtmlxgantt.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/dhtmlxgantt/locale_es.js")"></script>
+<script src="@Url.Content("~/Scripts/js/SeguimientoAcuerdos/Acuerdo.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    var usuarioNombre = "@Base.getUsuario().nombre";
+    var usuarioID = @Base.getUsuario().id;
+    var gFecha = "@DateTime.Now.ToShortDateString()";
+    var gNuevaVersion= '@Base.getAction("NuevaVersion")';
+</script>
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="text-center"><label id="title">Seguimiento de Acuerdos</label></h2>
+        <div class="col-md-2 pull-right" style=" top: -18px;">
+            <div class="input-group pull-right">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Prioridad:</legend>
+                    <div class="input-group pull-right">
+                        <div class="colorCode" style="background-color:blue !important;color:white;"></div>
+                        <span class="input-group-addon">Baja</span>
+                        <div class="colorCode" style="background-color:yellow !important;color:black;"></div>
+                        <span class="input-group-addon">Media</span>
+                        <div class="colorCode" style="background-color:red !important;color:white;"></div>
+                        <span class="input-group-addon">Alta</span>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+<button id="btnGuardarContinuar" class="btn btn-default" style="display:none;">Guardar y Continuar</button>
+<button id="btnGuardar" class="btn btn-default" style="display:none;">Guardar y Salir</button>
+
+<div class="Minuta">
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">DATOS GENERALES:</legend>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Proyecto</span>
+                            <input type="text" id="txtProyecto" class="form-control" placeholder="Nombre Proyecto" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">Evento</span>
+                            <input type="text" id="txtTituloMinuta" class="form-control" placeholder="Titulo Minuta" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Lugar</span>
+                            <input type="text" id="txtLugar" class="form-control" placeholder="Lugar de junta" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Lider</span>
+                            <input type="text" id="txtLider" data-id="0" data-lider="" class="form-control" placeholder="Lider Minuta" disabled />
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <button id="btnIniciar" class="btn btn-default btn-block">Iniciar</button>
+                        <button id="btnNuevo" class="btn btn-default btn-block" style="display:none;">Nuevo</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="text" id="txtFechaMinuta" class="form-control" placeholder="Fecha Minuta" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Hora inicio</span>
+                            <input type="text" id="slHoraInicio" class="form-control" placeholder="00:00" style="width:100%;" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Hora termino</span>
+                            <input type="text" id="slHoraFin" class="form-control" placeholder="00:00" style="width:100%;" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <button id="btnImprimirMinuta" class="btn btn-default btn-block" style="display:none;">Impimir Minuta</button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button id="btnImprimirListaAsistencia" class="btn btn-default btn-block" style="display:none;">Imprimir Lista de Asistencia</button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button id="btnEnviarCorreo" class="btn btn-default btn-block" style="display:none;">Enviar Correos</button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>@*DATOS GENERALES*@
+    <div class="desbloqueo">
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">PARTICIPANTES:</legend>
+                    <button id="btnDisplayUsers" class="addUser btn btn-xs btn-success">+Participante</button>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="usersInProyect">
+                                <input id="newUser" class="newUser" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>@*PARTICIPANTES*@
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">ASUNTO A TRATAR:</legend>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <div id="summernote" style="height:100px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>@*DESCRIPCION*@
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">ACTIVIDADES:</legend>
+                    <button id="btnActividad" class="addActivity btn btn-xs btn-success">+Agregar Actividad</button>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon fijo">Usuarios</span>
+                                <select id="slUsuarios" class=" form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divKanban" class="row">
+                        <div class="panel panel-default kColumn">
+                            <div class="panel-heading text-center">PENDIENTE</div>
+                            <div class="column cP0" data-columna="0">
+                            </div>
+                        </div>@*Pendiente*@
+                        <div class="panel panel-default kColumn">
+                            <div class="panel-heading text-center">EN PROCESO: 25%</div>
+                            <div class="column cP25" data-columna="25">
+                            </div>
+                        </div>@*25%*@
+                        <div class="panel panel-default kColumn">
+                            <div class="panel-heading text-center">EN PROCESO: 50%</div>
+                            <div class="column cP50" data-columna="50">
+                            </div>
+                        </div>@*50%*@
+                        <div class="panel panel-default kColumn">
+                            <div class="panel-heading text-center">EN PROCESO: 75%</div>
+                            <div class="column cP75" data-columna="75">
+                            </div>
+                        </div>@*75%*@
+                        <div class="panel panel-default kColumn">
+                            <div class="panel-heading text-center">FINALIZADO: 100%</div>
+                            <div class="column cP100" data-columna="100">
+                            </div>
+                        </div>@*100%*@
+                    </div>
+                </fieldset>
+            </div>
+        </div>@*ACTIVIDADES*@
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">GANTT:</legend>
+                    <div class="row" style='padding-left:10px;padding-right:10px;'>
+                        <div id="gantt_here" style='height:500px;width:100%'>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>@*ACTIVIDADES*@
+    </div>
+</div>
+
+<div class="modal fade" id="modalActividad" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Captura Actividad</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center form-group">
+                    <h3><label>Actividad</label></h3>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Actividad</span>
+                            <input id="txtMActividad" type="text" class="form-control" placeholder="Actividad" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Descripcion</span>
+                            <textarea id="txtMDescripcionActividad" class="form-control" placeholder="Descripción" rows="5"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Responsable</span>
+                            <select id="slMResponsable" class=" form-control" style="width:100%;"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Responsables<button id="btnDisplayResponsables" class="btn btn-xs btn-success pull-right">+Responsables</button></span>
+                            <div class="ResponsablesInActivity form-control">
+                                <input id="newResponsables" class="newResponsables" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Autoriza</span>
+                            <input id="txtRevisa" type="text" class="form-control" placeholder="Autoriza" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Fecha Inicio</span>
+                            <input id="txtFechaInicio" type="text" class="form-control clsDatePicker" placeholder="FechaInicio" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Fecha Compromiso</span>
+                            <input id="txtFechaCompromiso" type="text" class="form-control clsDatePicker" placeholder="Fecha Compromiso" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Prioridad</span>
+                            <select id="slMPrioridad" class=" form-control" style="width:100%;">
+                                <option value="3">Baja</option>
+                                <option value="2">Media</option>
+                                <option value="1">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Interesados<button id="btnDisplayInterested" class="btn btn-xs btn-success pull-right">+Interesados</button></span>
+                            <div class="interestedInActivity form-control">
+                                <input id="newInterested" class="newInterested" type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnAddActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Guardar</a>
+                <a id="btnUpdateActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Actualizar</a>
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios">
+                                <!-- timeline time label -->
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-left:30px;">
+                    <div class="form-group">
+                        <input type="file" id="fupAdjunto" style="width:300px;">
+                    </div>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnAddComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCorreos" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Enviar Correos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Usuarios</span>
+                            <select id="slMCorreos" class=" form-control" multiple="true" style="width:100%;"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnSendMail" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Enviar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="divNuevaVersion" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">¿Que desea hacer?</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <fieldset class="fieldset-custm" style="height:150px;">
+                            <legend class="legend-custm">Nueva versión</legend>
+                            <center>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Minutas</span>
+                                            <select id="slMinutas" class=" form-control" style="width:100%;"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button id="btnNuevaVersion" class="btn btn-primary btn-lg">Generar</button>
+                                    </div>
+                                </div>
+                            </center>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-6">
+                        <fieldset class="fieldset-custm" style="height:150px;">
+                            <legend class="legend-custm">Nueva minuta</legend>
+                            <center>
+                                <div class="row">
+                                    <div class="col-md-12" style="display: table-cell;vertical-align: middle;">
+                                        <button id="btnModNuevaMinuta" class="btn btn-primary btn-lg" style="vertical-align: middle;display: block;margin: 0 auto;position: relative;top: 32px;">Crear</button>
+                                    </div>
+                                </div>
+                            </center>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

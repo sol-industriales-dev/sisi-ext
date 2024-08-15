@@ -1,0 +1,289 @@
+﻿@{
+    ViewBag.Title = "Bajas de personal";
+    //Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+@{
+    var Menu = new SIGOPLAN.Controllers.BaseController();
+    var AlertasBySistema = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var AlertasALL = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var GEmpresaID = Menu.getEmpresaID();
+    var GEmpresaNombre = Menu.getEmpresaActualNombre();
+    //var esCliente = Core.DTO.vSesiones.sesionUsuarioDTO.esCliente;
+    //var vistCalendario = Core.DTO.vSesiones.sesionUsuarioDTO.VistaCalendario;
+    //var externoGestor = Core.DTO.vSesiones.sesionUsuarioDTO.externoGestor;
+}
+<!DOCTYPE html>
+
+<html lang="es-mx" style="height:100%;">
+<head>
+    <script type="text/javascript">
+    var _GEmpresaID=@GEmpresaID;
+    var _GEmpresaNombre = _GEmpresaID==1?"CONSTRUPLAN":"ARRENDADORA";
+    var _permitirAlertaPublicacion = '@System.Configuration.ConfigurationManager.AppSettings["alertaPublicacion"]';
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta http-equiv="pragma" content="no-cache" />
+    <title>SISI v1.0</title>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.theme.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/bootstrap.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/MobileResponsive.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/bootstrap-multiselect.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/style.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/style-Layout.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/CustomNavBar.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/bootgrid/jquery.bootgrid.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/MonthPicker.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Utilities.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/font-awesome/css/all.min.css")">
+    
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-3.1.0.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.mask.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/linq/linq.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap-multiselect.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/localization/messages_es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.blockUI.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.bundle.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.ui.datepicker-es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MonthPicker.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/bootgrid/jquery.bootgrid.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Axios.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/sweetalert2@10.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/Utilities.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MasteredFuntions/Utilities.js")"></script>
+    <!-- <script type="text/javascript" src="@Url.Content("~/Scripts/js/Layout.js")"></script> -->
+</head>
+
+<body style="height:100%;">
+    <div id="_headersigoplan" class="row navbar-fixed-top">
+        <nav class="navbar navbar-inverse" id="menuNuevo" style="background-color:#3A515A !important; font-size:smaller; color:red !important;" role="navigation">
+            <div class="navbar-header" style="padding-left:20px;padding-right:4px;">
+                <button class="navbar-toggle desplegaOpcionUsuario pull-right opButtons" style="color:white;">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                </button>
+                
+                <button type="button" class="navbar-toggle pull-left opButtons" data-toggle="collapse"
+                        data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Desplegar navegación</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse" >
+                <ul class="nav navbar-nav horizontalMenu">
+                    
+                </ul>
+                <ul class="nav navbar-nav pull-right noMostrarMobile" id="ulAcciones">
+                    <li class="pull-right">
+                        <div class="navbar-custom-menu">
+                            <ul class="nav navbar-nav">
+                                @if ((String)Menu.getMenuEmpresa() != "")
+                                {
+                                    
+
+                                }
+                                <li style="display: table-cell;" id="liCorreo" class="">
+                                    <a href="https://webmail.construplan.com.mx/" target="_blank" title="ZIMBRA">
+                                        <img src="/Content/img/zimbra-logo-color-282.png" alt="ZIMBRA" style="height: 20px;">
+                                    </a>
+                                </li>
+                                
+                                <li class="user user-menu" style=" margin-top: 9px;">
+                                    <span class="desplegaOpcionUsuario">
+                                        <img src="@Url.Content("~/Content/img/Iconos_Sistemas/Sistema_Maquinaria/Catalogo/Componente.png")" class="user-image" alt="User Image" id="btnMenuUsuario">
+                                        <span class="hidden-xs spNombreUsuario"></span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="col-xs-1 fix-ul menuPrincipalOld" style="display: none;">
+            <ul class="fix-menuPpal">
+                <li class="dropdown">
+                    <div>
+                        <button class="btnMenuPpal form-control dropdown-toggle" id="btnMenuPpal" data-toggle="dropdown"> <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+                        <ul id="listaMenu" class="dropdown-menu">
+                            
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="text-center">
+        <div class="col-lg-12" style="top: 42px;position: fixed;">
+            <div id="alertaGeneralMantenimiento" class="col-md-2 col-md-offset-10">
+            </div>
+        </div>
+    </div>
+    <div id="_bodysigoplan" style="height:100%;" class="row RenderBody">
+        @if (!Menu.isLiberado())
+        {
+            <div style="top: 20px; right: 0; position: fixed; z-index: 1029;">
+                <h2><span class="label label-danger">Este módulo no ha sido liberado</span></h2>
+            </div>
+        }
+        <div id="divAlertaMantenimiento" style="top: 30px; left: 5%; position: fixed; z-index: 1029;">
+            <h2 id="botonAlertaMantenimiento" title="Favor de anticiparse y guardar cambios necesarios.">
+                <span id="spanMensajeMantenimiento" class="label label-danger"></span>
+            </h2>
+        </div>
+        <div class="heartbeat">&hearts;</div>
+        <center>
+            <div class="opcionesUsuario">
+                <div class="row ouHeader">
+                    <p>
+                        <span class="hidden-xs spNombreUsuario">Invitado</span>
+                    </p>
+                </div>
+                <div class="row ouFooter">
+                   
+                    <a href="/Home/Ayuda" title="Manuales de Ayuda" class="btn btn-default btn-block " id=" lkayuda"><i class="glyphicon glyphicon-question-sign"></i></a>
+                    
+                </div>
+            </div>
+        </center>
+        @RenderBody()
+        <br />
+        <br />
+        <br />
+    </div>
+    <nav id="_footersigoplan" class="nav navbar navbar-default navbar-fixed-bottom cumtomFotter">
+        @{
+            DateTime today = DateTime.Now;
+            var year = today.Year;
+            <div class="text-center">Todos los Derechos Reservados ©@year Construplan</div>
+        }
+    </nav>
+</body>
+</html>
+<div id="divDialogPromoverLO" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-md" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;"><span id="spPromover" style="display:block;width: 200px;"></span></h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Minuta</span>
+                            <input id="txtMinutaLO" type="text" class="form-control" placeholder="Minuta" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Actividad</span>
+                            <input id="txtActividadLO" type="text" class="form-control" placeholder="Actividad" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Promover a</span>
+                            <input id="txtPromoverLo" type="text" class="form-control" placeholder="% a promover" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Enviado por</span>
+                            <input id="txtEnviadoPor" type="text" class="form-control" placeholder="Enviado por" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group" style="width:100%;text-align:center;">
+                            <input type="text" class="form-control" style="width:100%;text-align:center;font-weight:bold;" placeholder="Descripción" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="txtDescripcionLO" title="Descripción de la actividad" style="height:100px;" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group" style="width:100%;text-align:center;">
+                            <input type="text" class="form-control" style="width:100%;text-align:center;font-weight:bold;" placeholder="Observación de propuesta de avance" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="txtObservacionLO" title="Introducir observación" style="height:100px;" placeholder="Escribe un observación" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading text-center">MOTIVO RECHAZO<p style="font-style:italic;color:gray;">(Solo si aplica)</p></div>
+                            <div>
+                                <textarea class="form-control" id="txtObservacionLORechazo" title="Introducir observación" style="height:100px;" placeholder="Escribe un observación"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" data-dismiss="modal" id="btnPromoverLO" class="btn btn-primary" style="font-weight:bold;font-size:large;">Promover</button>
+                    <button type="button" id="btnRechazarLO" class="btn btn-primary" style="font-weight:bold;font-size:large;">Rechazar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="divModalMenuSistemas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" style="width:95%;" role="document">
+        <div class="modal-content modal-content-ppal">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>MENÚ PRINCIPAL - <span>@Menu.getEmpresaDescripcion()</span></h3>
+                </div>
+            </div>
+            <div class="modal-body modal-body-ppal text-center modal-content-tamaño">
+                <div class="PanelMenuppal">
+                    <div id="divMenuAcceso" class="row text-center">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialogalertaGeneral" style="z-index:99999;" class="content_dialog hide">
+    <center><p id="txtComentarioAlerta"> </p></center>
+</div>
+@Html.Partial("SessionView", false)
+@Html.Partial("_mdlAceptaRechaza")
+
+
+<iframe id="iframeDownload" style="display:none;"></iframe>
+
+

@@ -1,0 +1,176 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@section CSS
+{
+    <link href="~/css/viewer.css" rel="stylesheet" />
+
+    <style>
+        #divDocViewer {
+            width: 100%;
+            border-radius: 6px;
+            background-color: whitesmoke;
+            border: 1px grey;
+            margin-top: 10px;
+        }
+
+        .loader {
+            border: 5px solid #76d490;
+            border-top: 5px solid #626dee;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            z-index:99;
+            position:absolute;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+}
+
+<div class="text-center">
+    <div id="divDocViewer">
+        <div class="loader"></div>
+        <div id="div_ctlDoc"></div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/scripts/splitter.js"></script>
+    <script src="~/scripts/docViewer.js"></script>
+    <script src="~/scripts/documentLinks.js"></script>
+
+
+    <script>
+        var objctlDoc = null;
+        var loader = $(".loader");
+        var isMobile = false;
+        var resizing = false;
+        var docViewerDiv = $("#divDocViewer");
+        var w = 0;
+        var h = 0;
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            isMobile = true;
+        }
+
+        function ctlDoc_OnViewerBusy() {
+            loader.show();
+        }
+
+        function ctlDoc_OnViewerReady() {
+            loader.hide();
+        }
+
+        function Resize(orientation) {
+
+            if (resizing) { return; }
+
+            resizing = true;
+
+            w = document.documentElement.clientWidth;
+            h = document.documentElement.clientHeight;
+
+
+            var xdec = 30;
+            var ydec = 50;
+
+            if (isMobile) {
+                xdec = 30;
+                ydec = 50;
+
+                if (typeof orientation !== 'undefined') {
+                    if (orientation === "landscape") {
+                        w = document.documentElement.clientHeight;
+                        h = document.documentElement.clientWidth;
+                    }
+                }
+            }
+
+            docViewerDiv.width(w - xdec);
+            docViewerDiv.height(h - ydec);
+
+            SetThumbs();
+            resizing = false;
+        }
+
+        function SetThumbs() {
+            try {
+                objctlDoc.Refit();
+            } catch (exception) {
+
+            }
+        }       
+
+        function OpenDocument(fileName) {
+
+            $.ajax({
+                type: "GET",
+                cache: false,
+                async: true,
+                url: "/OpenDocument?fileName=" + fileName,
+                success: function (data) {
+                    objctlDoc.View(data);
+                },
+                error: function (data) {
+                    alert("Unable to open document. Error: " + data.responseText);
+                }
+            });
+        }
+
+        $(window).on("load", function () {
+            objctlDoc = $("#div_ctlDoc").docViewer(
+                {
+                    showThumbs: true,
+                    autoFocus: true,
+                    autoPageFocus: false,
+                    pageZoom: 75,
+                    zoomStep: 10,
+                    maxZoom: 200,
+                    format: 'png',
+                    FitType: 'width',
+                    debugMode: true,
+                    showToolTip: true,
+                    cacheEnabled: false,
+                    autoLoad: false,
+                    toolTipPageText: 'Page ',
+                    BasePath: '/',
+                    ResPath: 'images',
+                    largeDoc: true,
+                    showHyperlinks: true,
+                    fixedZoom: true,
+                    fixedZoomPercent: 100,
+                    fixedZoomPercentMobile: 75
+                });
+
+            Resize();
+        });
+
+        $(document).ready(function () {
+            OpenDocument("Sample.ppt");
+        });
+
+        if (isMobile) {
+            $(window).on("orientationchange", function (event) { Resize(event.orientation); });
+        }
+        else {
+            $(window).on("resize", function () { Resize(); });
+        }    
+       
+       
+
+    </script>
+}

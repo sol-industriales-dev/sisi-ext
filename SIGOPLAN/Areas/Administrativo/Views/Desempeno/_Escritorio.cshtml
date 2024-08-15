@@ -1,0 +1,536 @@
+﻿@{
+    Layout = null;
+    
+    var usuarioDesempeño = (Core.DTO.RecursosHumanos.Desempeno.UsuarioDTO)Session["usuarioDesempeño"];
+
+    var disabled = usuarioDesempeño.Id == 0 ? "disabled" : "";
+}
+
+<link href="~/Content/style/css/RecursosHumanos/Desempeno/_Escritorio.css" rel="stylesheet" />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Desempeno/_FormMetaEvaluar.css" rel="stylesheet" />
+
+<style>
+    /*DIAS SEGUIMIENTO*/
+    #indicadorDiasSeguimiento {
+        text-align: center;
+        border-radius: 4px 4px;
+        padding: 10px;
+        color: white;
+    }
+    #diasFechaSeguimiento {
+        font-weight: 400;
+        font-size: 80px;
+    }
+
+    /*ÁREA PERFIL*/
+    .empleado:first-child {
+        border-left: 5px solid #46d340 !important;
+    }
+    #divEscMetaEmpleado .empleado {
+        border-radius: 4px 4px;
+        cursor: pointer;
+
+        transition: border .2s;
+    }
+    #tituloEmpleados {
+        cursor: default !important;
+        list-style: none;
+    }
+    #tituloEmpleados ~ li {
+        margin-bottom: 10px;
+    }
+    #divEscMetaEmpleado li.active {
+        background-color: #468cc5 !important;
+    }
+    #divEscMetaEmpleado ul li .fa-user-circle {
+        margin-left: 4px;
+    }
+    #divEscMetaEmpleado .empleado:hover {
+        background-color: whitesmoke;
+        border-left: 5px solid #2d5eff;
+    }
+
+    /*ÁREA METAS*/
+    #botonesMetas .btn {
+        margin-left: 5px;
+    }
+    #divEscMetas .meta {
+        cursor: pointer;
+    }
+    #divEscMetas .infoMeta {
+        padding: 10px 15px 0px 15px;
+        border-left: 1px solid #ddd;
+        border-top: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+    }
+    #divEscMetas .infoMeta p:last-of-type {
+        margin-bottom: 0px;
+    }
+    #divEscMetas .infoMeta .meta:hover {
+        color: #2d5eff;
+    }
+    #divEscMetas .progress {
+        height: 20px;
+        margin-bottom: 0px;
+        border-radius: 0px 0px;
+    }
+    #divEscMetas ul li {
+        padding: 0px;
+        border: 0px;
+        transition: margin 0.5s;
+        transition: border .2s;
+    }
+    #divEscMetas ul li:hover {
+        background-color: whitesmoke;
+        border-left: 5px solid #2d5eff;
+    }
+
+    /*MODAL EVALUACIÓN*/
+    #modalEvaluacion .modal-body {
+        height: 70vh;
+        overflow: auto;
+    }
+</style>
+
+<div class="row">
+    <div class="col-sm-3 no-gutter">
+        <div class="seccion">
+            <div class="form-group">
+                <label>Proceso de gestión de metas</label>
+                <select class="form-control" id="cboEscProceso" value=""></select>
+            </div>
+            <div class="form-group">
+                <label>Seguimiento</label>
+                <select class="form-control" id="cboEscEvaluacion"></select>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div class="form-group">
+                <label>Jefe Inmediato</label>
+                <ul class="list-group">
+                    <li class="list-group-item empleado active" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="row vertical-align">
+                            <div class="col-sm-2">
+                                <i class="far fa-user-circle fa-3x"></i>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 id="indicadorJefeInmediato">&nbsp;</h5>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <div id="indicadorDiasSeguimiento" style="background-color: rgb(223, 94, 53);">
+                <h5 id="tituloFechaSeguimiento">Sin información que mostrar</h5>
+
+                <h2 id="diasFechaSeguimiento">&nbsp;</h2>
+
+                <h5 id="mensajeFinalFechaSeguimiento">&nbsp;</h5>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <h4 class="txt-bold">Perfil</h4>
+            <hr />
+            <h4>Mi cuenta</h4>
+            @*<div style="background-color:gray;min-height:85px;padding-top:10px;">
+                <div class="vertical-align">
+                    <div style="margin-right:5px;margin-left:5px;">
+                        <i class="far fa-user-circle fa-3x" style="font-size:60px"></i>
+                    </div>
+                    <div>
+                        <h5>MARTIN JAVIER ZAYAS URIAS</h5>
+                    </div>
+                </div>
+                <div style="width:80%;background-color:black;height:20px;"></div>
+            </div>*@
+            <div id="divEscMetaEmpleado" class=""></div>
+        </div>
+    </div>
+
+    <div class="col-sm-9 no-gutter">
+        <div class="seccion">
+            <h4 id="lblEscProceso" class="text-center txt-bold"></h4>
+        </div>
+
+        <!-- PROMEDIO GENERAL -->
+        <div class="seccion">
+            <h4 class="txt-bold text-center">Promedio general</h4>
+            <div class="row vertical-align">
+                <div class="col-sm-12">
+                    <div class="progress">
+                        <div id="lblPromedioGeneral" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: PROMEDIO GENERAL -->
+        
+        <div class="seccion">
+            <h4 class="txt-bold">Área de trabajo - Metas, evaluaciones, seguimiento</h4>
+            <hr />
+            <div class="row vertical-align">
+                <div class="col-sm-4">
+                    <h4 class="txt-bold" id="lblEscEvaluacion"></h4>
+                    <h4 id="lblEscMetaTotal">Peso total: 0</h4>
+                </div>
+                <div class="col-sm-8" id="botonesMetas">
+                    <button id="btnNotificar" type="button" class="btn btn-info pull-right" data-evaluacionid="" @disabled style="display:none;" >
+                        <i class="fab fa-telegram-plane"></i> Notificar evaluación
+                    </button>
+                    <button id="btnNotificarMetas" type="button" class="btn btn-default pull-right" data-evaluacionid="" @disabled style="display:none;" >
+                        <i class="fab fa-telegram-plane"></i> Notificar metas
+                    </button>
+                    <button id="btnEscEditPeso" type="button" class="btn btn-primary pull-right" @disabled style="display:none;" >
+                        <i class="fa fa-balance-scale"></i> Editar peso
+                    </button>
+                    <button id="btnEscAddMeta" type="button" class="btn btn-success pull-right" data-idusuario="" @disabled style="display:none;" >
+                        <i class="fa fa-plus"></i> Agregar meta
+                    </button>
+                    <button id="btnVoBo" type="button" class="btn btn-success pull-right" data-idusuario="" @disabled style="display:none;">
+                        <i class="fa fa-check"></i> VoBo
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="divEscMetas">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <p>
+                                    No hay metas para mostrar.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id='mdlEscMetaIndividual' class='modal fade-in'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class="modal-header">
+                <h2 id="lblEscMetaIndNombreMeta" class='modal-title'></h2>
+            </div>
+            <div class='modal-body'>
+                <ul class="nav nav-tabs nav-justified" role="tablist">
+                    <li role="presentation" class="active"><a href="#divEscMetaIndDescripcion"
+                            aria-controls="divEscMetaIndDescripcion" role="tab" data-toggle="tab">Descripción</a>
+                    </li>
+                    <li role="presentation"><a href="#divEscMetaIndSeguimiento" aria-controls="divEscMetaIndSeguimiento"
+                            role="tab" data-toggle="tab">Seguimiento</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="divEscMetaIndDescripcion">
+                        <br />
+                        <div class="seccion"> 
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div id="divEscMetaIndMetaLabels"></div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div id="divEscMetaIndMetaSemaforo"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seccion">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <h3>Histórico de seguimientos</h3>
+                                    <div id="divEscMetaIndMetaGraphs"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="divEscMetaIndSeguimiento">
+                        <br />
+                        @Html.Partial("_FormMetaEvaluar")
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div id="divEscMetaIndMetaVobo" class="hidden" hidden>
+                            <button id="btnEscMetaIndVobo" type='button' class='btn btn-primary pull-left'>
+                                <i class='fa fa-check'></i>
+                                Dar Vobo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 pull-right">
+                        <button type='button' class='btn btn-default' data-dismiss='modal'>
+                            <i class='fa fa-arrow-left'></i>
+                            regresar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlFormMeta' class='modal fade-in' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-edit'></i>Editar Meta</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    @Html.Partial("_FormMeta")
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>
+                    regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlFormPeso' class='modal fade-in' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class="modal-header">
+                <h1 class="modal-title">Editar pesos</h1>
+            </div>
+            <div class='modal-body'>
+                @Html.Partial("_FormPesos")
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i>
+                    regresar</button>
+                <button id='btnMetaPesoGuardar' type='button' class='btn btn-primary'>
+                    <i class='fa fa-save'></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EVALUACIÓN DE METAS -->
+<div class="modal fade-in" id="modalEvaluacion">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title">Evaluación</h2>
+                <h3 class="modal-subtitle"></h3>
+            </div>
+
+            <div class="modal-body">
+                @*@Html.Partial("_FormMetaEvaluar")*@
+                <input type="hidden" id="txtVerComoActivado" checked="@usuarioDesempeño.VerComoActivado" />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="seccion">
+                                    <h5 class="txt-bold" id="mdlEvaluaciondescripcionPuesto"></h5>
+                                    <!--<hr />-->
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="seccion">
+                                    <h5 class="txt-bold">DESCRIPCIÓN:</h5>
+                                    <p id="mdlDescripcionMeta"></p>
+                                
+                                    <h5 class="txt-bold">META ESTRATÉGICA:</h5>
+                                    <p id="mdlMetaEstrategica"></p>
+                                <!--<hr />-->
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="seccion">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div id="infoAutoevaluacion">
+                                                <h5 class="txt-bold">AUTOEVALUACIÓN DEL COLABORADOR</h5>
+                                                <div style="display:flex;">
+                                                    <div id="colorAutoevaluacion" class="dot2"></div>
+                                                    <div></div>
+                                                </div>
+                                                <p></p>
+                                                <h5 class="txt-bold">RESULTADO</h5>
+                                                <p id="resultadoEvaluacion">-</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <h5 class="txt-bold">COMENTARIO</h5>
+                                            <p id="comentarioEvaluacion">-</p>
+                                        </div>
+                                    </div>
+                                    <!--<hr />-->
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="seccion">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <div id="divEscMetaIndMetaSemaforoEvaluacion"></div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="row">
+                                                <div class="col-sm-6 divEvaluacionUsuario">
+                                                    <label>Resultado obtenido</label>
+                                                    <input type="text" id="txtEvaMetaResultado" class="form-control text-right">
+                                                </div>
+                                                <div class="col-sm-6  divEvaluacionUsuario">
+                                                    <label>Autoevaluación</label>
+                                                    <div style="display:flex;">
+                                                        <div id="divEvaMetaAutoIndicador" class="dot2"></div>
+                                                        <input type="text" id="txtEvaMetaAutoEvaluacion" class="form-control text-right" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 divEvaluacionJefe">
+                                                    <label>Jefe Evaluación</label>
+                                                    <div style="display:flex;">
+                                                        <div id="divEvaMetaJefeIndicador" class="dot2"></div>
+                                                        <input type='text' id='txtEvaMetaJefeEvaluacion' class='form-control text-right'>
+                                                    </div>
+                                                    <br />
+                                                </div>
+
+                                                <div class="col-sm-12 divEvaluacionUsuario">
+                                                    <br />
+                                                    <label>Auto Observación</label>
+                                                    <textarea id='txtEvaMetaAutoObservacion' class='form-control' rows="5"> </textarea>
+                                                    <br />
+                                                </div>
+                                                <div class="col-sm-12 divEvaluacionJefe">
+                                                    <br />
+                                                    <label>Jefe Observación</label>
+                                                    <textarea id='txtEvaMetaJefeObservacion' class='form-control' rows="5"> </textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="seccion">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <br />
+                                    <button id="btnEvaMetaEvidencia" class="btn btn-info">
+                                        <i class="fa fa-upload"></i> Evidencia
+                                    </button>
+                                    <input id="fileEvaMetaEvidencia" type="file" 
+                                    accept=".xlsx,.xls,.doc,.docx,.ppt,.pptx,application/pdf,image/jpeg,image/jpg,image/png,.zip,.rar" class="form-control hidden">
+                                </div>
+                                <div class="col-sm-7"></div>
+                                <div class="col-sm-3">
+                                    <br />
+                                    <button id="btnDescargarEvidenciasMetaEscritorio" class="btn btn-info">
+                                        <i class="fa fa-download"></i> Descargar evidencias
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <br />
+                                    <div class='table-responsive' id="divTblEvaluacionEvidencia">
+                                        <table id='tblEvaMetaEvidencia' class='table table-fixed table-striped' style="width:100%">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                @* @if (!usuarioDesempeño.VerComoActivado)
+                { *@
+                    <button id='btnEvaMetaGuardar' type='button' class='btn btn-primary'>
+                        <i class='fa fa-save'></i>
+                        Guardar
+                    </button>
+                @* } *@
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL EVALUACIÓN DE METAS -->
+
+<!-- MODAL CONFIRMACIÓN DE DESCARGA DE EVIDENCIAS -->
+<div id='modalDescargarEvidencias' class='modal fade-in' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-download'></i> Descargar evidencias</h1>
+            </div>
+            <div class='modal-body'>
+                <h3>¿Desea descargar todas las evidencias?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnModalDescargarEvidencia" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-download"></i> Confirmar</button>
+                <button type="button" id="btnModalCancelarDescarga" class="btn btn-default" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CONFIRMACIÓN DE DESCARGA DE EVIDENCIAS -->
+
+<!-- MODAL CONFIRMACIÓN DE ELIMINAR EVIDENCIAS -->
+<div id='modalEliminarEvidencias' class='modal fade-in' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-trash'></i> Eliminar evidencia</h1>
+            </div>
+            <div class='modal-body'>
+                <h3>¿Desea eliminar la evidencia seleccionada?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnModalEliminarEvidencia" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-trash"></i> Eliminar</button>
+                <button type="button" id="btnModalCancelarEliminar" class="btn btn-default" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CONFIRMACIÓN DE ELIMINAR EVIDENCIAS -->
+
+<!-- MODAL CONFIRMACIÓN DE NOTIFICAR EVALUACION -->
+<div id='modalNotificarEvaluacion' class='modal fade-in' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fab fa-telegram-plane'></i> Notificar evaluación</h1>
+            </div>
+            <div class='modal-body'>
+                <h3>¿Desea notificar la evaluación?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnModalNotificarEvaluacion" class="btn btn-primary" data-dismiss="modal"><i class="fab fa-telegram-plane"></i> Confirmar</button>
+                <button type="button" id="btnModalCancelarNotificarEvaluacion" class="btn btn-default" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CONFIRMACIÓN DE NOTIFICAR EVALUACION -->
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Desempeno/_Escritorio.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Desempeno/_FormMetaEvaluar.js"></script>

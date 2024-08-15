@@ -1,0 +1,25 @@
+﻿<link href = "/scripts/dropzone/basic.css" rel = "stylesheet" />
+<link href="/scripts/dropzone/dropzone.css" rel="stylesheet" />
+<div class="row">
+    <div class="col-lg-12 text-center">
+        <div id="divDocViewer">
+            <div id="div_@ViewBag.ViewerID"></div>
+        </div>
+    </div>
+</div>
+@Html.Raw(ViewBag.ViewerCSS)
+@Html.Raw(ViewBag.ViewerScripts)
+<script language="javascript" type="text/javascript">
+    var objctlDoc = null;
+    $(window).on("load", function () {
+        @Html.Raw(ViewBag.ViewerInit)
+        Resize();
+    });
+    $(window).resize(function () {
+        Resize();
+    });
+    function Resize() {
+        var h = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        $("#divDocViewer").height(h - 150); // adjust value as required
+    }
+</script>

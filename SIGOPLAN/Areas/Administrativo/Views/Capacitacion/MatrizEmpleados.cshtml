@@ -1,0 +1,340 @@
+﻿<!-- Razor -->
+@{
+ViewBag.Title = "MatrizEmpleados";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var esCreadorCurso = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().esCreadorCurso();
+}
+
+
+<!-- CSS -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/MatrizEmpleados.css" rel="stylesheet" />
+
+<input type="hidden" id="inputEsCreador" value=@esCreadorCurso.ToString()>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Matriz de empleados <i class="fas fa-users"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm"><label>Filtros:</label></legend>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">CC Construplan</span>
+                <select name="" id="comboCplan" class="form-control" multiple></select>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">CC Arrendadora</span>
+                <select name="" id="comboArr" class="form-control" multiple></select>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row margin-top">
+
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Puestos</span>
+                <select id="comboPuesto" class="form-control" multiple></select>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+            <button id="botonBuscar" class="btn btn-primary pull-right">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+
+    </div>
+
+</fieldset>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Empleados:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="tablaEmpleados" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                    </thead>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<!-- Modal cursos empleado -->
+<div class="modal fade" id="modalCursos" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Capacitaciones <i class="fas fa-user-check"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Información del empleado:</label></legend>
+
+                    <div class="row">
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Empleado</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputEmpleado">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Puesto</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputPuesto">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro de Costos</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputCC">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha de Ingreso</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputFechaIngreso">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">NSS</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputNSS">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="input-group">
+                                        <span class="input-group-addon">CURP</span>
+                                        <input disabled class="text-center form-control" type="text" id="inputCURP">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <p>Porcentaje general: <span id="spanPorcentaje"></span></p>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 text-center">
+                                    <button id="botonLicencia" class="btn btn-primary pull-right">
+                                        <i class="fas fa-id-badge"></i> Licencia
+                                    </button>
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 text-center">
+                                    <button id="botonExpediente" class="btn btn-primary pull-right">
+                                        <i class="fas fa-archive"></i> Expediente
+                                    </button>
+                                </div>
+                            </div>
+                            <table id="tablaClasificaciones" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><label>Historial de cursos aprobados:</label></legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaCursos" class="table table-condensed compact table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExtracurriculares" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Extracurriculares <i class="fas fa-medal"></i></h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Empleado</span>
+                            <input disabled class="text-center form-control" type="text" id="inputExtracurricularEmpleado">
+                        </div>
+                    </div>
+                    @if (esCreadorCurso)
+                    {
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <button class="btn btn-primary pull-right" id="botonAgregarExtracurricular">
+                            <i class="fas fa-plus"></i> Agregar extracurricular</button>
+                    </div>
+                    }
+                </div>
+
+                <div class="row" id="divCamposExtracurricular">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                        <fieldset class="fieldset-custm margin-top">
+                            <legend class="legend-custm"><label>Información extracurricular:</label></legend>
+
+                            <strong>
+                                <p>* Campos obligatorios.</p>
+                            </strong>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Nombre*</span>
+                                        <input class="text-center form-control" type="text" id="inputNombreExtracurricular">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Duración (Horas)*</span>
+                                        <input type="number" class="text-center form-control" id="inputDuracionExtracurricular">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row margin-top">
+
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha*</span>
+                                        <input class="text-center form-control" type="text" id="inputFechaExtracurricularInicio">
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha expiración</span>
+                                        <input class="text-center form-control" type="text" id="inputFechaExtracurricularFin">
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Evidencia</span>
+                                        <input class="form-control" type="file" id="inputEvidenciaExtracurricular">
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                    <button class="btn btn-primary pull-right" id="botonGuardarExtracurricular">
+                                        <i class="fas fa-save"></i> Guardar</button>
+                                </div>
+
+                            </div>
+                    </div>
+                    </fieldset>
+                </div>
+
+                <fieldset class="fieldset-custm margin-top">
+                    <legend class="legend-custm"><label>Extracurriculares:</label></legend>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <table id="tablaExtracurriculares" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlArchivos' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivos</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <table id='tblArchivos' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/MatrizEmpleados.js"></script>

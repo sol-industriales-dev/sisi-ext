@@ -1,0 +1,203 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Tabuladores/General.css' rel='stylesheet' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <div class="row">
+        <div class="col-sm-12 seccion">
+            @Html.Partial("_MenuTabuladores")
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>GESTIÓN REPORTES TABULADORES</h2>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12'>
+            <!-- PANEL FILTROS -->
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class='col-lg-4'>
+                            <label for='cboFiltroGestionAño'>Año</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboFiltroGestionAño' class='form-control select2'>
+                                    <option value="" selected>--Seleccionar--</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboFiltroGestionEstatus'>Estatus reporte</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboFiltroGestionEstatus' class='form-control select2'></select>
+                            </div>
+                        </div><br>
+                        <div class="col-lg-2">
+                            <button class="btn btn-primary" id="btnFiltroBuscar" style="margin-top: 5px;"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                        </div>
+                        <div class="col-lg-1 pull-right">
+                            <button class="btn btn-success" id="btnFiltroAutorizar" title="Autorizacion multiple" style="margin-top: 5px;">Autorizar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <!-- BODY -->
+            <div id='panelGraficas' class='panel panel-default panel-principal'>
+                <div class='panel-heading'></div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <table class="table" id="tblGestionReporte"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL FIRMAS -->
+<div id='mdlFirmas' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblFirmas"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL FIRMAS -->
+
+<!-- MODAL COMENTARIO RECHAZO -->
+<div id='mdlComentario' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>COMENTARIO RECHAZO</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <textarea name="" id="txtComentario" cols="75" rows="10" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL COMENTARIO RECHAZO -->
+
+<!-- MODAL DETALLE PLANTILLA -->
+<div class="modal fade" id="modalPlantillaDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h4 class='modal-title'></h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tablaPlantillaDetalle" style="width: 100% !important"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE PLANTILLA -->
+
+<!-- MODAL DETALLE PLANTILLA TABULADORES -->
+<div id='mdlDetallePlantilla' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblDetallePlantilla"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE PLANTILLA TABULADORES -->
+
+<!-- MODAL DETALLE PLANTILLA TABULADORES -->
+<div id='mdlReporte' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblTabuladores"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE PLANTILLA TABULADORES -->
+
+
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Tabuladores/GestionReportes.js'></script>
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Tabuladores/_MenuTabuladores.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
+<!-- END: JS -->

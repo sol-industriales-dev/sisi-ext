@@ -1,0 +1,296 @@
+﻿@{
+    ViewBag.Title = "Doconut - Pdf Keyword Search - F3";
+}
+
+<style>
+    #divDocViewer {
+        width: 100%;
+        border-radius: 6px;
+        background-color: whitesmoke;
+        border: 1px grey;
+    }
+
+    /* IMP: This css is required to prevent bootstrap css from shrinking the main viewer */
+
+    .row {
+        margin-right: 0;
+        margin-left: 0
+    }
+
+    /* end css */
+
+
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .docSearch {
+        border: 1px dashed #000000;
+        background-color: lime;
+        padding-right:5px;
+    }
+</style>
+
+<!-- Thickbox (For print) -->
+<link href="~/Content/thickbox.css" rel="stylesheet" />
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="https://doconut.com" target="_blank">Keyword Search</a>&nbsp;<div class="loader"></div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Sample Files
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.doc');">Word Doc</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.ppt');">Power Point</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenDocument('Sample.pdf');">Acrobat Pdf</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Zoom
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(true);">In</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(false);">Out</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(25);">25 %</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.Zoom(100);">100 %</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('width');">Fit Width</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('height');">Fit Height</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="objctlDoc.FitType('');">Fit None</a></li>
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="alert(objctlDoc.CurrentZoom());">Show Zoom</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        Search
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="OpenSearch();">Find Keywords</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" onclick="DoKeywordFocus();">F3</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="searchModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Search Document</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-8"><input type="text" id="kw" class="form-control" placeholder="Keyword" required="required"></div>
+                        <div class="col-sm-4"><label class="pull-left checkbox-inline"><input type="checkbox" id="ext">&nbsp;Exact?</label></div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <input type="button" id="btnSearch" class="btn btn-success" value="Search" onclick="SearchKeyword();" />
+                                <input type="button" class="btn btn-info" value="New Search" onclick="NewSearch();" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input type="text" id="msg" readonly style="width: 100%; border: solid 1px #ccc;background-color: lightyellow;" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Page Content -->
+
+<div class="row">
+
+    <div class="col-lg-12 text-center">
+        <div id="divDocViewer">
+            <div id="div_@ViewBag.ViewerID"></div>  <!-- The viewer instance name -->
+        </div>
+    </div>
+</div>
+
+
+@section css {
+    @* CSS for the Viewer *@
+
+    @Html.Raw(ViewBag.ViewerCSS)
+
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+}
+
+
+@section scripts {
+
+
+    <!-- Viewer header scripts include-->
+    @Html.Raw(ViewBag.ViewerScripts)
+
+    <!-- Bootstrap 4 JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <!-- Search UI JS -->
+    <script type="text/javascript" src="~/scripts/search.ui.js"></script>
+
+    <script language="javascript" type="text/javascript">
+
+        var objctlDoc = null;     // Server object id is "ctlDoc"
+
+        var loader = $(".loader");
+        var isMobile = false;
+        var resizing = false;
+        var docViewerDiv = $("#divDocViewer");
+        var w = 0;
+        var h = 0;
+
+        loader.hide();
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            isMobile = true;
+        }
+
+
+        // optional code start
+        function ctlDoc_OnViewerBusy() {
+            loader.show();
+        }
+
+ 	function ctlDoc_OnViewerReady() {
+            loader.hide();
+
+             // optional code to keep red keyword active when scrolling document manually
+            if (currentPage > 0 && keyWordsCounter > -1) {
+                var searchDiv = $("#" + "div_Search_" + currentPage);
+                var scrollFocusKeywordDiv = searchDiv.children().eq(keyWordsCounter);
+                scrollFocusKeywordDiv.css("background-color", "red");
+            }
+        }
+
+        function ctlDoc_DoubleClick()
+        {
+            objctlDoc.Zoom(true);
+        }
+        // optional code ends
+
+        function Resize(orientation) {
+
+            if (resizing) { return; }
+
+            resizing = true;
+
+            w = document.documentElement.clientWidth;
+            h = document.documentElement.clientHeight;
+
+
+            var xdec = 30;
+            var ydec = 80;
+
+            if (isMobile) {
+                xdec = 30;
+                ydec = 80;
+
+                if (typeof orientation !== 'undefined') {
+                    if (orientation === "landscape") {
+                        w = document.documentElement.clientHeight;
+                        h = document.documentElement.clientWidth;
+                    }
+                }
+            }
+
+            docViewerDiv.width(w - xdec);
+            docViewerDiv.height(h - ydec);
+
+            objctlDoc.Refit();
+
+            resizing = false;
+        }
+
+
+        $(window).on("load", function () {
+
+            /* Init code for viewer */
+            @Html.Raw(ViewBag.ViewerInit)
+
+            Resize();
+        });
+
+
+        $(window).resize(function () {
+            Resize();
+        });
+
+        if (isMobile) {
+            $(window).on("orientationchange", function (event) { Resize(event.orientation); });
+        }
+        else {
+            $(window).on("resize", function () { Resize(); });
+        }
+
+
+        function OpenSearch() {
+            $('#searchModal').modal('show').on('shown.bs.modal', function (e) { $('#kw').focus(); });
+        }
+
+        function OpenDocument(fileName) {
+
+            loader.show();
+
+            $.ajax({
+                type: "POST",
+                cache: false,
+                url: "/Home/OpenFile?name=" + fileName,
+                success: function (data) {
+
+                    NewSearch(); // reset the search
+
+                    objctlDoc.View(data); // use global object [objctlDoc] to view any document
+                },
+                error: function (textStatus, errorThrown, data) {
+                    alert("Unable to open document. Error: " + data);
+                    loader.hide();
+                }
+            });
+        }
+    </script>
+}

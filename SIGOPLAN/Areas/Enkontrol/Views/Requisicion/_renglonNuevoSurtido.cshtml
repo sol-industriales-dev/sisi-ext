@@ -1,0 +1,61 @@
+﻿@{
+var partida = ViewBag.partida;
+var nuevo = ViewBag.nuevo;
+var cancelado = ViewBag.cancelado;
+var vistaAutorizar = ViewBag.vistaAutorizar;
+}
+<tr>
+    <td class="text-center" style="vertical-align: middle;">@partida</td>
+    <td><input class="form-control insumo" @(vistaAutorizar ? "readonly" : "" ) /></td>
+    <td><input class="form-control insumoDesc" @(vistaAutorizar ? "readonly" : "" ) /></td>
+
+    @if (!vistaAutorizar)
+    {
+    <td class="text-center" style="vertical-align: middle;">
+        <label class="existencia"></label>
+        <button class="btn btn-xs btn-default existenciaBoton hidden"><i class="fa fa-caret-down"></i></button>
+    </td>
+    }
+
+    <td><select class="form-control areaCuenta" @(vistaAutorizar ? "readonly" : "" )></select></td>
+    <td><input class="form-control referencia" @(vistaAutorizar ? "readonly" : "" ) /></td>
+    <td><input class="form-control text-right cantidad" @(vistaAutorizar ? "readonly" : "" ) /></td>
+
+    <!-- <td>
+        <div class="input-group">
+            <input class="form-control text-right porComprar" readonly />
+            <span class="input-group-addon unidad" style="width: 40%;"></span>
+        </div>
+    </td>
+    <td><input class="form-control text-right exceso" readonly /></td> -->
+
+    <td><input class="form-control text-right observaciones" @(vistaAutorizar ? "readonly" : "" ) /></td>
+
+    <td class="text-center" style="vertical-align: middle;">
+        @if (nuevo || !cancelado)
+        {
+        <button class="btn btn-success btn-estatus btn-estatus-activo" data-cancelado="false" data-observaciones=""
+            disabled>
+            <i class="fa fa-check"></i>
+        </button>
+        <button class="btn btn-danger btn-estatus btn-estatus-inactivo" data-cancelado="true" data-observaciones=""
+            style="width: 40px; display: none;">
+            <i class="fa fa-exclamation"></i>
+        </button>
+        }
+        else
+        {
+        if (cancelado)
+        {
+        <button class="btn btn-success btn-estatus btn-estatus-activo" data-cancelado="false" data-observaciones=""
+            disabled style="display: none;">
+            <i class="fa fa-check"></i>
+        </button>
+        <button class="btn btn-danger btn-estatus btn-estatus-inactivo" data-cancelado="true" data-observaciones=""
+            style="width: 40px;">
+            <i class="fa fa-exclamation"></i>
+        </button>
+        }
+        }
+    </td>
+</tr>

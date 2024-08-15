@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "PropuestaPagos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Propuesta/ResumeProveedor.css" rel="stylesheet" />
+<style>
+        
+input[type=checkbox]
+{
+  -ms-transform: scale(2);
+    -moz-transform: scale(2);
+    -webkit-transform: scale(2);
+    -o-transform: scale(2);
+    transform: scale(2);
+    margin: 1px;
+
+}
+
+</style>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script>
+    var _gpEmpresa = @ViewBag.Empresa;
+</script>
+<h2 class="text-center">Saldos Menores</h2>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-search"></i> Buscar</legend>
+    <div class='col-md-3'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button id="btnProvLimit" type='button' class='btn btn-default'> Proveedor</button>
+            </span>
+            <input id='txtProvMin' type='text' class='form-control' />
+            <span class='input-group-btn' style='width:0px;'></span>
+            <input id='txtProvMax' type='text' class='form-control' readonly />
+        </div>
+    </div>
+    <div class="col-md-2 cboCC hidden">
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button type='button' class='btn btn-default'> CC</button>
+            </span>
+            <select class="form-control" style="text-align-last: center;" multiple="multiple" id="cboCC"></select>
+        </div>
+    </div>
+    <div class='col-md-2 hidden'>
+        <div class='input-group'>
+            <span class='input-group-addon'>F. Corte</span>
+            <input type="text" id="txtFechaCorte" value="@(new DateTime(DateTime.Now.Year, 12, 31).ToShortDateString())" class="form-control">
+        </div>
+    </div>
+    <div class='col-md-2 hidden'>
+        <div class='input-group'>
+            <span class='input-group-addon'>F. Pago</span>
+            <input type="text" id="txtFechaPago" class="form-control">
+        </div>
+    </div>
+    <div class='col-md-3'>
+        <button type="button" class="btn btn-primary" id="btnBuscar"><i class='fa fa-search'></i> Búscar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardar"><i class='fa fa-save'></i> Guardar</button>
+    </div>
+    <div class='col-md-2 pull-right'>
+        <div class='input-group' style="float:right;margin-right:15px;width:100px;">
+            <span class='input-group-addon'>Complementaria</span>
+            <input type='checkbox' id='chkComplementaria' class='form-control' style="width: 18px;">
+        </div>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-calendar-day"></i> Saldos pendientes menores a $1 MXN / $1 USD</legend>
+    <div>
+        <table id='tblProgramacionPagos' class='display compact' style="width:100%">
+            <thead class='bg-table-header'>
+                <tr>
+                    <th colspan="4" class="fondoTotal text-center">Saldo M.N:<span id='txtPropHTotal'></span> / Capturado M.N: <span id='txtPropHSel'></span></th>
+                    <th colspan="2" class="fondoTotal"></th>
+                    <th colspan="4" class="fondoTotal text-center">Saldo DLLS:<span id='txtPropHTotalDll'></span> / Capturado DLLS: <span id='txtPropHSelDll'></span></th>
+                </tr>
+                <tr>
+                    <th>Factura</th>
+                    <th>Vence</th>
+                    <th>TM</th>
+                    <th>CC</th>
+                    <th>AC</th>
+                    <th>OC</th>
+                    <th>Concepto</th>
+                    <th>Saldo</th>
+                    <th>Monto</th>
+                    <th>TMB</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<div class="modal fade" id="modalPoliza" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Generar Polizas</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class='input-group'>
+                            <span class='input-group-addon'>F. Pago</span>
+                            <input type="text" id="txtFechaPoliza" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+                <a id="btnGenerar" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-ok"></span> Generar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Propuesta/SaldosMenores.js"></script>

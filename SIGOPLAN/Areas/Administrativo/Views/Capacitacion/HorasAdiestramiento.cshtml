@@ -1,0 +1,582 @@
+﻿@{
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionController().privilegioCapacitacion();
+<!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+}
+
+<input id="inputPrivilegio" value="@privilegioCapacitacion" style="display: none;">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Capacitacion/HorasAdiestramiento.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<div class="col-sm-12" style="margin-top: 33px;">
+    <br />
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><i class="fas fa-list"></i>Busqueda</legend>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <span class="input-group-addon">Centros Costos</span>
+                    <select id="selectCentroCosto" class="form-control" multiple></select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Mes Inicial</span>
+                    <input id="inputMesInicial" class="form-control">
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Mes Final</span>
+                    <input id="inputMesFinal" class="form-control">
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <button type='button' class="btn btn-primary" id="botonBuscar"><i class="fas fa-search"></i> Buscar</button>
+                @if (privilegioCapacitacion != 2)
+                {
+                <button type='button' class="btn btn-primary" id="botonNuevaCaptura"><i class="fas fa-plus"></i> Nuevo</button>
+                }
+            </div>
+        </div><br />
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Equipo</span>
+                    <select id="selectEquipoFiltro" class="form-control select2" multiple></select>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Actividad</span>
+                    <select id="selectActividadFiltro" class="form-control select2" multiple></select>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+    <br />
+    <ul class="nav nav-tabs" role="tablist">
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4 || privilegioCapacitacion == 2)
+        {
+        <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+            <a class="nav-link active" data-toggle="tab" href="#menu1" id="aEmpresas" style="font-weight: bold;color:#000;">Pendientes</a>
+        </li>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+        <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+            <a class="nav-link" data-toggle="tab" href="#menu2" id="aEmpresas" style="font-weight: bold;color:#000;">Liberados</a>
+        </li>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+        <li class="nav-item" style="width:33%;background-color:#DFDDDC;">
+            <a class="nav-link col-sm" data-toggle="tab" href="#menu3" id="aEmpresas" style="font-weight: bold;color:#000;">Dashboard</a>
+        </li>
+        }
+    </ul>
+    <div class="tab-content">
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+        <div id="menu1" class="container tab-pane active" style="width: 100%;">
+            <br>
+            <div class="col-lg-12 table-responsive table-bordered">
+                <div style="margin-top: 5px; margin-bottom: 5px;">
+                    <div class="etiquetaRenglon" style="background-color: rgb(254, 142, 142);"></div>
+                    <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Baja del CC</label>
+                </div>
+                <table id="tablaPendientes" class="table-bordered compact stripe order-column" style="width: 100%;"></table>
+            </div>
+        </div>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+        <div id="menu2" class="container tab-pane fade" style="width: 100%;">
+            <br>
+            <div class="col-lg-12 table-responsive table-bordered">
+                <div style="margin-top: 5px; margin-bottom: 5px;">
+                    <div class="etiquetaRenglon" style="background-color: rgb(254, 142, 142);"></div>
+                    <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Baja del CC</label>
+                    <div class="etiquetaRenglon" style="background-color: rgb(254, 211, 81); margin-left: 15px;"></div>
+                    <label style="margin-top: 3px; margin-bottom: 3px; display: inline-block;">Pendiente de soporte de liberación</label>
+                </div>
+                <table id="tablaLiberados" class="table-bordered stripe order-column" style="width: 100%;"></table>
+            </div>
+            <div class="col-lg-12 mrgTop">
+                <button id="botonGuardarLiberados" class="btn btn-primary pull-right">Guardar</button>
+                @if (privilegioCapacitacion == 1)
+                {
+                <button id="botonLiberarAdministrador" class="btn btn-default pull-right" style="margin-right: 5px;">Liberar como Administrador</button>
+                }
+            </div>
+        </div>
+        }
+
+        @if (privilegioCapacitacion == 1 || privilegioCapacitacion == 2 || privilegioCapacitacion == 3 || privilegioCapacitacion == 4)
+        {
+        <div id="menu3" class="container tab-pane fade">
+            <div class="col-md-12 text-center">
+                <h4 id="tituloCumplimientoGeneral"></h4>
+            </div>
+            <div class="col-md-6">
+                <div id="graficaColaboradoresAdiestramiento"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="graficaColaboradoresAdiestramientoLiberados"></div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-primary oculto">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#panelMantenimiento">Mantenimiento</a>
+                            </h4>
+                        </div>
+                        <div id="panelMantenimiento" class="panel-collapse">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    <table class="table compact table-bordered" style="width: 100%">
+                                        <thead>
+                                            <tr style="color: #fff; background-color: #da6a1a;">
+                                                <th class="text-center">Prioridad para accionar</th>
+                                                <th class="text-center">Rango Act.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(192, 0, 0);"><label style="color: #fff;">Alta</label>/Dar seguimiento y disponibilidad para el adiestramiento</td>
+                                                <td class="text-center">0 - 10</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(255, 192, 0);"><label style="color: #fff;">Media</label>/Monitorear dar seguimiento a actividad adiestradas</td>
+                                                <td class="text-center">11 - 19</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(0, 176, 80);"><label style="color: #fff;">Baja</label>/Programar - realizar preevaluación</td>
+                                                <td class="text-center">20 - 25</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12">
+                                    <button id="botonExcelActividades" class="btn btn-xs btn-default">Excel</button>
+                                    <div id="graficaAdiestramientoColaboradorActividades"></div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div id="graficaPuestosDesarrollados"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="panel-group">
+                    <div class="panel panel-primary oculto">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#panelProduccion">Producción</a>
+                            </h4>
+                        </div>
+                        <div id="panelProduccion" class="panel-collapse">
+                            <div class="panel-body">
+                                <div class="col-md-6" id="table2">
+                                    <table class="table compact table-bordered" style="width: 100%">
+                                        <thead>
+                                            <tr style="color: #fff; background-color: #da6a1a;">
+                                                <th class="text-center">Prioridad para accionar</th>
+                                                <th class="text-center">Rango Horas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(192, 0, 0);"><label style="color: #fff;">Alta</label>/Dar seguimiento y disponibilidad para el adiestramiento</td>
+                                                <td class="text-center">0 - 83</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(255, 192, 0);"><label style="color: #fff;">Media</label>/Monitorear dar seguimiento a actividad adiestradas</td>
+                                                <td class="text-center">84 - 167</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center" style="background-color: rgb(0, 176, 80);"><label style="color: #fff;">Baja</label>/Programar - realizar preevaluación</td>
+                                                <td class="text-center">168 - 250</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12">
+                                    <button id="botonExcelHoras" class="btn btn-xs btn-default">Excel</button>
+                                    <div id="graficaAdiestramientoColaboradorHoras"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Equipo</span>
+                                        <select id="selectEquipoFiltroGrafica" class="form-control" multiple></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div id="graficaDesarrollosOperacionEquipos"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevaCaptura" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleCurso"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><span class="badge badge-dark" style="background-color:#F86730">DATOS GENERALES</span></legend>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Proyecto</span>
+                                    <select id="selectCentroCostoNuevo" class="form-control select2"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Inicio</span>
+                                    <input id="inputFechaInicio" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha Termino</span>
+                                    <input id="inputFechaTermino" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mrgTop">
+                            <div class="col-sm-2 col-md-2 col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo</span>
+                                    <select id="selectTipo" class="form-control">
+                                        <option value="">--Seleccione--</option>
+                                        <option value="1">HORAS</option>
+                                        <option value="2">ACTIVIDADES</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            @if (@privilegioCapacitacion == 1)
+                            {
+                            <div class="col-sm-3 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Equipo</span>
+                                    <select id="selectEquipoNuevo" class="form-control select2" disabled></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Adiestramiento</span>
+                                    <select id="selectEquipoAdiestramiento" class="form-control select2" disabled></select>
+                                </div>
+                            </div>
+                            }
+                            else
+                            {
+                            <div class="col-sm-3 col-md-3 col-lg-3" style="display: none;">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Equipo</span>
+                                    <select id="selectEquipoNuevo" class="form-control select2" disabled></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Adiestramiento</span>
+                                    <select id="selectEquipoAdiestramiento" class="form-control select2" disabled></select>
+                                </div>
+                            </div>
+                            }
+
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Actividad</span>
+                                    <select id="selectActividad" class="form-control" disabled></select>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><span class="badge badge-dark" style="background-color:#F86730">COLABORADOR - ADIESTRADOR</span></legend>
+                        <div class="contenido">
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Clave</span>
+                                    <input id="inputClaveColaborador" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Colaborador</span>
+                                    <input id="inputNombreColaborador" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Clave</span>
+                                    <input id="inputClaveAdiestrador" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-9 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Adiestrador</span>
+                                    <input id="inputNombreAdiestrador" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Instructor</span>
+                                    <input id="inputNombreInstructor" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Departamento Seguridad</span>
+                                    <input id="inputNombreSeguridad" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Recursos Humanos</span>
+                                    <input id="inputNombreRecursosHumanos" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Sobrestante</span>
+                                    <input id="inputNombreSobrestante" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Gerente de Obra</span>
+                                    <input id="inputNombreGerenteObra" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><span class="badge badge-dark" style="background-color:#F86730">COLABORADOR - INTERESADOS</span></legend>
+                        <div class="contenido">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Interesados</span>
+                                    <select id="selectInteresadoNuevo" class="form-control select2" multiple></select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarNuevaCaptura">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHorasAdiestramiento" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button id="botonAgregarRenglonHoras" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
+                        <table id="tablaHorasAdiestramiento" class="table-bordered stripe order-column mrgTop" style="width: 100%;"></table>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="redondo headerHoras">HRS ACUMULADAS</div>
+                        <div id="divHorasAcumuladas" class="redondo text-center celdaHoras">
+                            <label id="labelHorasAcumuladas" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                        <br>
+                        <div class="redondo headerHoras">HRS PENDIENTES</div>
+                        <div id="divHorasPendientes" class="redondo text-center celdaHoras">
+                            <label id="labelHorasPendientes" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarHorasAdiestramiento">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalHorasAdiestramientoActividad" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button id="botonAgregarRenglonHorasActividad" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
+                        <table id="tablaHorasAdiestramientoActividad" class="table-bordered stripe order-column mrgTop" style="width: 100%;"></table>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="redondo headerHoras">ACTIVIDADES ACUMULADAS</div>
+                        <div id="divHorasAcumuladasActividad" class="redondo text-center celdaHoras">
+                            <label id="labelHorasAcumuladasActividad" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                        <br>
+                        <div class="redondo headerHoras">ACTIVIDADES PENDIENTES</div>
+                        <div id="divHorasPendientesActividad" class="redondo text-center celdaHoras">
+                            <label id="labelHorasPendientesActividad" style="display: table-cell; vertical-align: middle; font-size: 25px;"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="botonGuardarHorasAdiestramientoActividad">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleHorasHombre" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDetalle"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="divPersonalModalDetalle">
+                    @* <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="button" id="btnReportePersonal" class="btn btn-default">
+                            Exportar
+                        </button>
+                    </div> *@
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Detalle: </legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblDetalleHorasHombre" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>Nombre Personal</th>
+                                            <th>Hrs Trabajadas mantto Preventivo</th>
+                                            <th>Hrs trabajadas mantto Predictivo</th>
+                                            <th>Hrs trabajadas mantto Correctivo</th>
+                                            <th>Cantidad de OT</th>
+                                            <th>Total de horas OT</th>
+                                            <th>Detalle OTs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="row center-block">
+                                <canvas id="LineWithLine1" width="1150" height="300" style="display: none;"></canvas>
+                            </div>
+
+                            <div class="row center-block">
+                                <div id="graficaMTTO"></div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row hide" id="divOTModalDetalle">
+                    @* <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                        <button type="button" id="btnReporteOTsPersonal" class="btn btn-default btn-block">
+                            Exportar
+                        </button>
+                    </div> *@
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"><span class="glyphicon glyphicon-arrow-left" id="btnRegresar"></span> <label id="txtOTDetalle"></label></legend>
+                            <table id="tblOTsPersonal" class="display" cellspacing="0" width="100%" style="max-height:500px;">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>No Economico</th>
+                                        <th>Motivo Paro</th>
+                                        <th>Hora entrada OT</th>
+                                        <th>Hora Salida OT</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_visorGrid")
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Capacitacion/HorasAdiestramiento.js"></script>

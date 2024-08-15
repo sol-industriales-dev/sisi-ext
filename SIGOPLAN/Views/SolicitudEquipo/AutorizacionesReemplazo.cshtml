@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Autorizaciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-Autorizacion.css" rel="stylesheet" />
+
+<script src="~/Scripts/js/Maquinaria/Inventario/AutorizacionesReemplazo.js"></script>
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>Autorización de Solicitudes de Reemplazo</h2>
+    </div>
+
+    <div id="divSolicitudesPendientes">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Filtros:</label></legend>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label>Tipo de Documento:</label>
+                            <select id="cboTipoFiltro" class="form-control">
+                                <option value="1">Pendientes</option>
+                                <option value="2">Autorizados</option>
+                                <option value="3">Rechazados</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Folio:</label>
+                            <input type="text" id="txtFolioFiltro" class="form-control">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Solicitudes Pendientes:</legend>
+                    <table id="tblSolicitudesPendientes" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Folio" data-width="25%">Folio</th>
+                                <th data-column-id="CCName" data-width="25%">Centro Costos</th>
+                                <th data-column-id="UsuarioSolicitud" data-width="25%">Usuario Solicita</th>
+                                <th data-column-id="Fecha" data-width="25%">Fecha</th>
+                                <th data-column-id="VerSolicitud" data-formatter="VerSolicitud" data-sortable="false" data-width="25px">Ver Solicitud</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <div id="divAutorizacionSolicitudes" class="row hidden">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="clsFrame text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"><span class="glyphicon glyphicon-home cursorClick" id="BntRegresar"></span>Vista Previa:</legend>
+                        <iframe id="report" align="middle" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Autorizadores:</legend>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblElaboro"></label></div>
+                            <div id="btnElaboro" class="panel-body">Quien Elaboró</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblGerente"></label></div>
+                            <div id="btnGerenteObra" class="panel-body">Válida</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblAsigna"></label></div>
+                            <div id="btnAsigna" class="panel-body">Autorizá</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalRechazo" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+
+                    <h3> Rechazo de Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnRechazoSave">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

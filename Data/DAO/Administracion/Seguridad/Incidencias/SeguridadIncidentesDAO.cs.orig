@@ -1,0 +1,3407 @@
+﻿using Core.DAO.Administracion.Seguridad;
+using Core.DTO.Administracion.Seguridad.Indicadores;
+using Data.EntityFramework.Context;
+using Core.Entity.ControlObra;
+using Data.EntityFramework.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Infrastructure.DTO;
+using Core.Entity.Administrativo.Seguridad.Indicadores;
+using Core.Enum.Administracion.Seguridad.Indicadores;
+using System.Globalization;
+using Infrastructure.Utils;
+using Core.Entity.RecursosHumanos.Catalogo;
+using Core.DTO.Utils.Data;
+using Core.Enum.Multiempresa;
+using System.Data.Odbc;
+using MoreLinq.Extensions;
+using MoreEnumerable = MoreLinq.MoreEnumerable;
+using Core.Entity.Principal.Multiempresa;
+using System.IO;
+using System.Web;
+using Core.Enum.Principal.Bitacoras;
+using System.Text.RegularExpressions;
+using Core.DTO;
+using Data.DAO.Principal.Usuarios;
+using Core.DTO.Utils;
+using Core.Entity.SeguimientoAcuerdos;
+using Core.Entity.Principal.Usuarios;
+
+namespace Data.DAO.Administracion.Seguridad.Incidencias
+{
+    class SeguridadIncidentesDAO : GenericDAO<tblS_IncidentesInformePreliminar>, ISeguridadIncidentesDAO
+    {
+        public readonly string ERROR = "error";
+
+        private readonly string RutaBase = @"\\REPOSITORIO\Proyecto\SIGOPLAN\INCIDENTES";
+        private const string RutaLocal = @"C:\Proyecto\SIGOPLAN\INCIDENTES";
+        private readonly string RutaEvidencias;
+
+        private const int PonderacionFatalitdad = 3;
+
+        public SeguridadIncidentesDAO()
+        {
+
+            // Local
+            // Descomentar esta línea de código para hacer pruebas en local.
+            //RutaBase = RutaLocal;
+
+            RutaEvidencias = Path.Combine(RutaBase, "EVIDENCIAS");
+        }
+
+        #region CAPTURA INFORME PRELIMINAR
+        public Dictionary<string, object> GetDatosGeneralesIncidentes()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var incidentes = _context.tblS_IncidentesInformePreliminar.ToList();
+                var incidentesInvestigables = incidentes.Where(x => x.aplicaRIA);
+                var incidentesInvestigablesCompletos = incidentesInvestigables.Where(x => x.estatusAvance == EstatusIncidenteEnum.Completo).Count();
+                var porcentajeAccidentesInvestigablesCompletos = String.Format("{0} %", (incidentesInvestigablesCompletos * 100) / incidentesInvestigables.Count());
+
+                resultado.Add(SUCCESS, true);
+                resultado.Add("totalAccidentes", incidentes.Count);
+                resultado.Add("totalAccidentesInvestigables", incidentesInvestigables.Count());
+                resultado.Add("porcentajeAccidentesInvestigablesCompletos", porcentajeAccidentesInvestigablesCompletos);
+            }
+            catch (Exception)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los datos generales de los incidentes");
+            }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> getInformesPreliminares(string cc, int cantidadRegistros)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                if (cc == null)
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                    return resultado;
+                }
+
+                List<tblP_CC> ccs;
+
+                if (cc == "")
+                {
+                    ccs = _context.tblP_CC.ToList();
+                }
+                else
+                {
+                    ccs = _context.tblP_CC.Where(x => x.cc == cc).ToList();
+                }
+
+                var informes = new List<tblS_IncidentesInformePreliminar>(); ;
+
+                if (cantidadRegistros == -1)
+                {
+                    informes = _context.tblS_IncidentesInformePreliminar
+                     .Where(x => cc == "" ? true : x.cc == cc)
+                     .ToList();
+                }
+                else
+                {
+                    informes = _context.tblS_IncidentesInformePreliminar
+                      .Where(x => cc == "" ? true : x.cc == cc)
+                      .OrderByDescending(x => x.fechaIncidente)
+                      .ThenByDescending(x => x.folio)
+                      .Take(cantidadRegistros)
+                      .ToList();
+                }
+
+                var informesPreliminares = informes
+                    .Select(x => new informePreliminarDTO
+                    {
+                        id = x.id,
+                        folio = x.folio,
+                        cc = x.cc,
+                        proyecto = ccs.Where(y => y.cc == x.cc).First().descripcion,
+                        empleado = x.esExterno ? x.nombreExterno : ObtenerNombreEmpleadoPorClave(x.claveEmpleado),
+                        fechaIncidente = x.fechaIncidente.ToString("yyyy/MM/dd"),
+                        terminado = x.terminado,
+                        aplicaRIA = Convert.ToInt16(x.aplicaRIA),
+                        tienePreliminar = x.rutaPreliminar != null,
+                        tieneRIA = x.rutaRIA != null,
+                        estatusAvance = x.estatusAvance,
+                        estatusAvanceDesc = x.estatusAvance.GetDescription()
+                    });
+
+                if (informesPreliminares.Count() > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add(ITEMS, informesPreliminares);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de informes preliminares");
+            }
+
+            return resultado;
+        }
+
+        /// <summary>
+        /// Obtiene el nombre completo de un empleado en base a su clave de empleado.
+        /// </summary>
+        /// <param name="claveEmpleado"></param>
+        /// <returns></returns>
+        private string ObtenerNombreEmpleadoPorClave(int claveEmpleado)
+        {
+            var odbc = new OdbcConsultaDTO();
+
+            odbc.consulta = @"
+                    SELECT (nombre + ' ' + ape_paterno + ' ' + ape_materno) as label FROM sn_empleados 
+                    WHERE clave_empleado =  ? AND estatus_empleado ='A'";
+
+            odbc.parametros.Add(new OdbcParameterDTO()
+            {
+                nombre = "claveEmpleado",
+                tipo = OdbcType.Decimal,
+                valor = Convert.ToDecimal(claveEmpleado)
+            });
+
+            var resultadoARR = _contextEnkontrol.Select<dynamic>(EnkontrolEnum.ArrenRh, odbc);
+            var resultadoCP = _contextEnkontrol.Select<dynamic>(EnkontrolEnum.CplanRh, odbc);
+
+            var empleado = resultadoCP.Count > 0 ? resultadoCP.FirstOrDefault() : resultadoARR.FirstOrDefault();
+
+            return empleado != null ? empleado.label : "INDEFINIDO";
+        }
+
+        public Dictionary<string, object> getInformePreliminarByID(int id)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var informe = _context.tblS_IncidentesInformePreliminar.Where(x => x.id == id).ToList().Select(x => new informePreliminarDTO
+                {
+                    id = x.id,
+                    folio = x.folio,
+                    cc = x.cc,
+                    proyecto = _context.tblP_CC.ToList().Where(y => y.cc == x.cc).FirstOrDefault().descripcion,
+                    claveEmpleado = x.claveEmpleado,
+                    fechaInforme = x.fechaInforme.ToShortDateString(),
+                    fechaIncidenteComplete = x.fechaIncidente,
+                    fechaIngresoEmpleado = x.fechaIngresoEmpleado.ToShortDateString(),
+                    personaInformo = x.personaInformo,
+                    departamentoEmpleado = x.departamentoEmpleado,
+                    puestoEmpleado = x.puestoEmpleado,
+                    claveSupervisor = x.claveSupervisor.GetValueOrDefault(),
+                    supervisorEmpleado = x.supervisorEmpleado,
+                    tipoLesion = x.tipoLesion,
+                    descripcionIncidente = x.descripcionIncidente,
+                    accionInmediata = x.accionInmediata,
+                    aplicaRIA = x.aplicaRIA == true ? 1 : 0,
+                    riesgo = x.riesgo,
+                    tipoAccidente_id = x.tipoAccidente_id,
+                    esExterno = x.esExterno,
+                    nombreExterno = x.nombreExterno,
+                    terminado = x.terminado,
+                    claveContratista = x.claveContratista,
+                    nombreEmpleado = x.esExterno ? x.nombreExterno : ObtenerNombreEmpleadoPorClave(x.claveEmpleado),
+                    nombrePersonaInformo = ObtenerNombreEmpleadoPorClave(x.personaInformo),
+<<<<<<< Updated upstream
+                    estatusAvance = x.estatusAvance,
+                    estatusAvanceDesc = x.estatusAvance.GetDescription()
+=======
+                    procedimientosViolados = x.procedimientosViolados.Select(s => s.id).ToList()
+>>>>>>> Stashed changes
+                }).FirstOrDefault();
+
+                if (informe != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("informacion", informe);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de informacion");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getFolio(string cc)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var folios = _context.tblS_IncidentesInformePreliminar.Where(x => x.cc == cc).Select(x => x.folio).ToList();
+
+                var folio = folios.Count > 0 ? folios.Max() + 1 : 1;
+
+                resultado.Add("folio", folio);
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el folio");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getEvaluacionesRiesgo()
+        {
+
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                List<ComboDTO> potenciales = new List<ComboDTO>();
+
+                potenciales.Add(new ComboDTO() { Text = "Leve", Value = 1 });
+                potenciales.Add(new ComboDTO() { Text = "Tolerable", Value = 2 });
+                potenciales.Add(new ComboDTO() { Text = "Moderado", Value = 3 });
+                potenciales.Add(new ComboDTO() { Text = "Critico", Value = 6 });
+                potenciales.Add(new ComboDTO() { Text = "Intolerable", Value = 9 });
+
+                if (potenciales.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", potenciales);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de clasificaciones");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getUsuariosCCSigoPlan(string cc)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                string ccValido = getQueryCCArrendadoraCP(cc);
+
+                var odbc = new OdbcConsultaDTO
+                {
+                    consulta = string.Format("SELECT clave_empleado as Text FROM DBA.sn_empleados WHERE " + ccValido + " AND estatus_empleado = 'A'"),
+                    parametros = new List<OdbcParameterDTO>()
+                };
+                var listARR = _contextEnkontrol.Select<ComboDTO>(EnkontrolEnum.ArrenRh, odbc);
+                var listCP = _contextEnkontrol.Select<ComboDTO>(EnkontrolEnum.CplanRh, odbc);
+                listARR.AddRange(listCP);
+
+                var Listempleados = listARR.Select(x => x.Text);
+
+                var usuarios = _context.tblP_Usuario
+                    .Where(x => x.estatus && Listempleados.Contains(x.cveEmpleado))
+                    .ToList()
+                    .Select(x => new
+                    {
+                        Value = x.id,
+                        Text = GlobalUtils.ObtenerNombreCompletoUsuario(x)
+                    })
+                    .OrderBy(x => x.Text);
+
+                if (usuarios.Count() > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", usuarios);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo usuarios");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> guardarInforme(tblS_IncidentesInformePreliminar informe)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                // Validar si el informe no existe
+                var informeExistente = _context.tblS_IncidentesInformePreliminar
+                    .FirstOrDefault(x => x.folio == informe.folio && x.cc == informe.cc);
+                if (informeExistente != null)
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add(ERROR, "Ya existe un informe para este CC con este número de folio.");
+                    return resultado;
+                }
+<<<<<<< Updated upstream
+
+                informe.estatusAvance = EstatusIncidenteEnum.PendienteCargaIP;
+=======
+                var lstProcedimientos = _context.tblS_IncidentesTipoProcedimientosViolados.ToList();
+                informe.procedimientosViolados = informe.procedimientosViolados.Select(pv => pv = lstProcedimientos.SingleOrDefault(t => t.id == pv.id)).ToList();
+>>>>>>> Stashed changes
+                _context.tblS_IncidentesInformePreliminar.Add(informe);
+                _context.SaveChanges();
+
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error al guardar el registro.");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> updateInforme(tblS_IncidentesInformePreliminar informe)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var registro = _context.tblS_IncidentesInformePreliminar.Where(x => x.id == informe.id).First();
+                var lstProcedimientos = _context.tblS_IncidentesTipoProcedimientosViolados.ToList();
+                registro.fechaInforme = informe.fechaInforme;
+                registro.fechaIncidente = informe.fechaIncidente;
+                registro.fechaIngresoEmpleado = informe.fechaIngresoEmpleado;
+                registro.tipoLesion = informe.tipoLesion;
+                registro.descripcionIncidente = informe.descripcionIncidente;
+                registro.accionInmediata = informe.accionInmediata;
+                registro.aplicaRIA = informe.aplicaRIA;
+                registro.riesgo = informe.riesgo;
+                registro.tipoAccidente_id = informe.tipoAccidente_id;
+                registro.procedimientosViolados = informe.procedimientosViolados.Select(pv => pv = lstProcedimientos.SingleOrDefault(t => t.id == pv.id)).ToList();
+                _context.SaveChanges();
+
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error al actualizar");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> enviarCorreo(int informe_id, List<int> usuarios)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                List<string> correos = new List<string>();
+
+                bool correoEnviado = false;
+
+                if (usuarios != null)
+                {
+                    correos = _context.tblP_Usuario.Where(x => usuarios.Contains(x.id)).Select(x => x.correo).ToList();
+                }
+
+                correos.Add("comitedirectivo.sst@construplan.com.mx");
+
+                var informe = _context.tblS_IncidentesInformePreliminar.First(x => x.id == informe_id);
+
+                string nombreEmpleado = "";
+
+                if (informe.esExterno)
+                {
+                    nombreEmpleado = informe.nombreExterno;
+                }
+                else
+                {
+                    var info = InfEmpleado(informe.claveEmpleado);
+                    nombreEmpleado = info != null ? info.nombreEmpleado : "";
+                }
+
+                var asunto = "Reporte Incidente: Folio: CC " + informe.cc + " #" + informe.folio + " Fecha: " + informe.fechaIncidente.ToShortDateString();
+                var mensaje = @"Proyecto:   " + _context.tblP_CC.Where(x => x.cc == informe.cc).Select(x => x.descripcion).FirstOrDefault();
+                mensaje += @"<br/>Fecha y hora: " + informe.fechaIncidente.ToString() + @"<br/>";
+                mensaje += @"<br/>Empleado: " + nombreEmpleado + @"<br/>";
+                mensaje += @"<br/>Puesto: " + informe.puestoEmpleado + @"<br/>";
+                mensaje += @"<br/>Descripción: " + informe.descripcionIncidente + @"<br/>";
+
+                var evidencias = _context.tblS_IncidentesEvidencias.Where(x => x.informe_id == informe_id && x.activa).ToList();
+
+                var archivosAdjuntos = new List<adjuntoCorreoDTO>();
+
+                // Se adjuntan evidencias si tiene
+                if (evidencias.Count > 0)
+                {
+                    archivosAdjuntos.AddRange(evidencias.Select(x => new adjuntoCorreoDTO
+                    {
+                        archivo = File.ReadAllBytes(x.ruta),
+                        extArchivo = Path.GetExtension(x.nombre),
+                        nombreArchivo = x.nombre
+                    }).ToList());
+                }
+
+                // Se adjunta informe preliminar si tiene
+                if (informe.rutaPreliminar != null)
+                {
+                    archivosAdjuntos.Add(new adjuntoCorreoDTO
+                    {
+                        archivo = File.ReadAllBytes(informe.rutaPreliminar),
+                        extArchivo = Path.GetExtension(informe.rutaPreliminar),
+                        nombreArchivo = Path.GetFileNameWithoutExtension(informe.rutaPreliminar)
+                    });
+                }
+
+                // Se adjunta RIA si tiene
+                if (informe.rutaRIA != null)
+                {
+                    archivosAdjuntos.Add(new adjuntoCorreoDTO
+                    {
+                        archivo = File.ReadAllBytes(informe.rutaRIA),
+                        extArchivo = Path.GetExtension(informe.rutaRIA),
+                        nombreArchivo = Path.GetFileNameWithoutExtension(informe.rutaRIA)
+                    });
+                }
+
+                if (archivosAdjuntos.Count > 0)
+                {
+                    correoEnviado = GlobalUtils.sendMailWithFiles(asunto, mensaje, correos, archivosAdjuntos);
+                }
+                else
+                {
+                    correoEnviado = GlobalUtils.sendEmail(asunto, mensaje, correos);
+                }
+
+                if (correoEnviado)
+                {
+                    resultado.Add(SUCCESS, true);
+                }
+                else
+                {
+                    resultado.Add(ERROR, "Ocurrió un error al mandar correo");
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(ERROR, "Ocurrió un error al mandar correo");
+            }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> ObtenerEvidenciasInforme(int informeID)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                bool permisoEliminar = (new UsuarioDAO().getViewAction(vSesiones.sesionCurrentView, "eliminarEvidencia"));
+
+                var evidencias = _context.tblS_IncidentesEvidencias
+                    .Where(x => x.informe_id == informeID && x.activa)
+                    .OrderBy(x => x.numero)
+                    .ToList()
+                    .Select(x => new
+                    {
+                        x.id,
+                        x.nombre,
+                        fecha = x.fechaCreacion.ToShortDateString(),
+                        tieneEvidencia = true,
+                        puedeEliminar = permisoEliminar || x.usuarioCreadorID == vSesiones.sesionUsuarioDTO.id
+                    });
+
+                resultado.Add(ITEMS, evidencias);
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "ObtenerEvidenciasInforme", e, AccionEnum.CONSULTA, informeID, null);
+                resultado.Add(SUCCESS, false);
+                resultado.Add(MESSAGE, "Ocurrió un error interno al intentar cargar las evidencias del informe.");
+            }
+
+            return resultado;
+        }
+
+        private string ObtenerNombreFolderInforme(tblS_IncidentesInformePreliminar informe)
+        {
+            return String.Format("{0}[{1}] - {2}", informe.cc, informe.folio, informe.fechaIncidente.ToShortDateString().Replace("/", "-"));
+        }
+
+        public Dictionary<string, object> GuardarEvidencias(List<HttpPostedFileBase> evidencias, int informeID)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            using (var dbTransaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    if (evidencias == null || evidencias.Count == 0 || informeID == 0)
+                    {
+                        resultado.Add(SUCCESS, false);
+                        resultado.Add(MESSAGE, "Faltan datos para poder realizar la operación");
+                        return resultado;
+                    }
+
+                    var informe = _context.tblS_IncidentesInformePreliminar.First(x => x.id == informeID);
+
+                    var nombreFolderInforme = ObtenerNombreFolderInforme(informe);
+
+                    var rutaFolderInforme = Path.Combine(RutaEvidencias, nombreFolderInforme);
+
+                    bool carpetaExistente = verificarExisteCarpeta(rutaFolderInforme, true);
+
+                    if (carpetaExistente == false)
+                    {
+                        resultado.Add(SUCCESS, false);
+                        resultado.Add(MESSAGE, "Ocurrió un error al intentar acceder a la carpeta del informe.");
+                        return resultado;
+                    }
+
+                    var evidenciasExistentes = _context.tblS_IncidentesEvidencias.Where(x => x.informe_id == informeID).ToList();
+
+                    if (evidenciasExistentes.Where(x => x.activa).Count() + evidencias.Count > 5)
+                    {
+                        resultado.Add(SUCCESS, false);
+                        resultado.Add(MESSAGE, "El número de evidencias a cargar es mayor al límite establecido. Actualmente sólo se pueden cargar hasta 5 evidencias por informe");
+                        return resultado;
+                    }
+
+                    var consecutivo = (evidenciasExistentes.Count > 0 ? evidenciasExistentes.Max(x => x.numero) : 0) + 1;
+
+                    var usuarioCreadorID = vSesiones.sesionUsuarioDTO.id;
+
+                    var listaArchivosPorCargar = new List<Tuple<HttpPostedFileBase, string>>();
+
+                    foreach (var evidencia in evidencias)
+                    {
+                        var extensionArchivo = Path.GetExtension(evidencia.FileName);
+
+                        var nombreArchivo = String.Format("{0} - {1} - Evidencia {2}{3}", informe.cc, informe.folio, consecutivo, extensionArchivo);
+
+                        var nuevaEvidencia = new tblS_IncidentesEvidencias
+                        {
+                            informe_id = informeID,
+                            nombre = nombreArchivo,
+                            numero = consecutivo,
+                            ruta = Path.Combine(rutaFolderInforme, nombreArchivo),
+                            usuarioCreadorID = usuarioCreadorID,
+                            fechaCreacion = DateTime.Now,
+                            activa = true
+                        };
+                        _context.tblS_IncidentesEvidencias.Add(nuevaEvidencia);
+                        listaArchivosPorCargar.Add(Tuple.Create(evidencia, nuevaEvidencia.ruta));
+                        consecutivo++;
+                    }
+
+                    foreach (var nuevaEvidencia in listaArchivosPorCargar)
+                    {
+                        if (SaveArchivo(nuevaEvidencia.Item1, nuevaEvidencia.Item2) == false)
+                        {
+                            dbTransaction.Rollback();
+                            resultado.Clear();
+                            resultado.Add(SUCCESS, false);
+                            resultado.Add(MESSAGE, "No se pudo guardar la evidencia en el servidor.");
+                            return resultado;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    resultado.Add(SUCCESS, true);
+                    dbTransaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    dbTransaction.Rollback();
+                    LogError(0, 0, "IndicadoresSeguridadController", "GuardarEvidencias", e, AccionEnum.AGREGAR, informeID, null);
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add(MESSAGE, "Ocurrió un error interno al intentar guardar los exámenes en el servidor.");
+                }
+
+                return resultado;
+            }
+        }
+
+        public Tuple<Stream, string> DescargarEvidenciaInforme(int evidenciaID)
+        {
+            try
+            {
+                var evidencia = _context.tblS_IncidentesEvidencias.First(x => x.id == evidenciaID);
+
+                var fileStream = GlobalUtils.GetFileAsStream(evidencia.ruta);
+                string name = Path.GetFileName(evidencia.ruta);
+
+                return Tuple.Create(fileStream, name);
+            }
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "DescargarEvidenciaExtracurricular", e, AccionEnum.DESCARGAR, evidenciaID, 0);
+                return null;
+            }
+        }
+
+        public Dictionary<string, object> EliminarEvidencia(int evidenciaID)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var evidencia = _context.tblS_IncidentesEvidencias.First(x => x.id == evidenciaID);
+
+                evidencia.activa = false;
+                resultado.Add(SUCCESS, true);
+                _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "EliminarEvidencia", e, AccionEnum.ELIMINAR, evidenciaID, null);
+                resultado.Add(SUCCESS, false);
+                resultado.Add(MESSAGE, "Ocurrió un error al interntar eliminar la evidencia en el servidor.");
+                return resultado;
+            }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> CargarDatosEvidencia(int evidenciaID)
+        {
+            var resultado = new Dictionary<string, object>();
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var evidencia = _context.tblS_IncidentesEvidencias.First(x => x.id == evidenciaID);
+
+                // Se valida la extensión del archivo:
+                if (EsExtensionInvalidaVisor(evidencia.nombre))
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add(MESSAGE, "Archivo inválido. Este tipo de archivo no es compatible con el visor de documentos.");
+                    return resultado;
+                }
+
+                Stream fileStream = GlobalUtils.GetFileAsStream(evidencia.ruta);
+                var byteArray = GlobalUtils.ConvertFileToByte(fileStream);
+
+                resultado.Add("archivo", byteArray);
+                resultado.Add("extension", Path.GetExtension(evidencia.nombre).ToUpper());
+                resultado.Add(SUCCESS, true);
+            }
+
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "CargarDatosEvidencia", e, AccionEnum.CONSULTA, evidenciaID, null);
+                resultado.Add(SUCCESS, false);
+            }
+            return resultado;
+        }
+
+        public Dictionary<string, object> SubirReporteIncidente(HttpPostedFileBase archivo, int informeID, bool esRIA)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            using (var dbContextTransaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var informe = _context.tblS_IncidentesInformePreliminar.First(x => x.id == informeID);
+
+                    var rutaFolderIncidente = Path.Combine(RutaEvidencias, ObtenerNombreFolderInforme(informe));
+
+                    // Verifica si existe la carpeta y si no, la crea.
+                    if (verificarExisteCarpeta(rutaFolderIncidente, true) == false)
+                    {
+                        resultado.Add(SUCCESS, false);
+                        resultado.Add(MESSAGE, "No se pudo acceder a la carpeta en el servidor.");
+                        return resultado;
+                    }
+
+                    var nombreArchivo = String.Format("{0}{1}", esRIA ? "Reporte de Investigación de Accidentes" : "Informe Preliminar", Path.GetExtension(archivo.FileName));
+
+                    var rutaArchivo = Path.Combine(rutaFolderIncidente, nombreArchivo);
+
+                    // Se actualizan campos de la entidad
+                    if (esRIA)
+                    {
+                        informe.estatusAvance = EstatusIncidenteEnum.Completo;
+                        informe.rutaRIA = rutaArchivo;
+                    }
+                    else
+                    {
+                        if (informe.rutaRIA == null)
+                        {
+                            informe.estatusAvance = informe.aplicaRIA ? EstatusIncidenteEnum.PendienteGeneracionRIA : EstatusIncidenteEnum.Completo;
+                        }
+                        // Validación registros antigüos. Si ya tenía RIA cargado y no preliminar, se pone como completo al subir el prelminar.
+                        else
+                        {
+                            informe.estatusAvance = EstatusIncidenteEnum.Completo;
+                        }
+                        informe.rutaPreliminar = rutaArchivo;
+                    }
+
+                    _context.SaveChanges();
+                    resultado.Add(SUCCESS, true);
+
+                    // Si creó el archivo.
+                    if (SaveArchivo(archivo, rutaArchivo))
+                    {
+                        dbContextTransaction.Commit();
+                    }
+                    else
+                    {
+                        // Si falla al guardar el archivo
+                        dbContextTransaction.Rollback();
+                        resultado.Clear();
+                        resultado.Add(SUCCESS, false);
+                        resultado.Add(MESSAGE, "No se pudo guardar el archivo en el servidor.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    dbContextTransaction.Rollback();
+                    LogError(0, 0, "IndicadoresSeguridadController", "SubirReporteIncidente", e, AccionEnum.AGREGAR, informeID, null);
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add(MESSAGE, "Ocurrió un error interno al intentar guardar el archivo en el servidor.");
+                }
+            }
+
+            return resultado;
+        }
+
+        public Tuple<Stream, string> DescargarReporte(int informeID, bool esRIA)
+        {
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var informe = _context.tblS_IncidentesInformePreliminar.First(x => x.id == informeID);
+
+                var rutaArchivo = esRIA ? informe.rutaRIA : informe.rutaPreliminar;
+
+                var fileStream = GlobalUtils.GetFileAsStream(rutaArchivo);
+                string name = Path.GetFileName(rutaArchivo);
+
+                return Tuple.Create(fileStream, name);
+            }
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "DescargarReporte", e, AccionEnum.DESCARGAR, informeID, 0);
+                return null;
+            }
+        }
+        #endregion
+
+        #region CAPTURA ACCIDENTE
+        public Dictionary<string, object> getTiposAccidentesList()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var tiposAccidentes = _context.tblS_IncidentesTipos.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.incidenteTipo
+                }).OrderBy(x => x.Value).ToList();
+
+                if (tiposAccidentes.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", tiposAccidentes);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo tipos de accidentes");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getDepartamentosList()
+        {
+            var resultado = new Dictionary<string, object>();
+            try
+            {
+                var departamentos = _context.tblS_IncidentesDepartamentos.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.departamento
+                }).OrderBy(x => x.Value).ToList();
+
+                if (departamentos.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", departamentos);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo departamentos");
+            }
+            return resultado;
+        }
+        public Dictionary<string, object> getTipoProcedimientosVioladosList()
+        {
+            var resultado = new Dictionary<string, object>();
+            try
+            {
+                var departamentos = _context.tblS_IncidentesTipoProcedimientosViolados.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.Procedimineto
+                }).OrderBy(x => x.Value).ToList();
+
+                if (departamentos.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", departamentos);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo departamentos");
+            }
+            return resultado;
+        }
+        public Dictionary<string, object> getTiposLesionList()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var tiposLesion = _context.tblS_IncidentesTipoLesion.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.tipoLesion
+                }).OrderBy(x => x.Value).ToList();
+
+                if (tiposLesion.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", tiposLesion);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de tipos de lesiones");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getPartesCuerposList()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var partesCuerpo = _context.tblS_IncidentesPartesCuerpo.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.parteCuerpo
+                }).OrderBy(x => x.Value).ToList();
+
+                if (partesCuerpo.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", partesCuerpo);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de partes de cuerpo");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getTiposContactoList()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var tiposContacto = _context.tblS_IncidentesTipoContacto.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.tipoContacto
+                }).OrderBy(x => x.Value).ToList();
+
+                if (tiposContacto.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", tiposContacto);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de tipos de contacto");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getProtocolosTrabajoList()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var protocolos = _context.tblS_IncidentesProtocolosTrabajo.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.protocoloTrabajo
+                }).OrderBy(x => x.Value).ToList();
+
+                if (protocolos.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", protocolos);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de protocolo de trabajo");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getAgentesImplicados()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var agentes = _context.tblS_IncidentesAgentesImplicados.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.agenteImplicado
+                }).OrderBy(x => x.Value).ToList();
+
+                if (agentes.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", agentes);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de agentes implicados");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getExperienciaEmpleados()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var experiencias = _context.tblS_IncidentesEmpleadoExperiencia.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.empleadoExperiencia
+                }).OrderBy(x => x.Value).ToList();
+
+                if (experiencias.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", experiencias);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de agentes implicados");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getAntiguedadEmpleados()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var antiguedades = _context.tblS_IncidentesEmpleadoAntiguedad.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.antiguedadEmpleado
+                }).OrderBy(x => x.Value).ToList();
+
+                if (antiguedades.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", antiguedades);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de antigüedad");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getTurnosEmpleado()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var turnos = _context.tblS_IncidentesEmpleadosTurno.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.turno
+                }).OrderBy(x => x.Value).ToList();
+
+                if (turnos.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", turnos);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de turnos");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getEmpleadosContratistasList(int claveContratista)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var empleados = _context.tblS_IncidentesEmpleadosContratistas.Where(x => x.claveContratista == claveContratista).Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.nombre
+                }).OrderBy(x => x.Value).ToList();
+
+                if (empleados.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", empleados);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de empleados de subcontratistas");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> obtenerCentrosCostos()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var listaCC = _context.tblP_CC.Where(x => x.estatus == true).Select(x => new
+                {
+                    Value = x.cc,
+                    Text = x.cc + " - " + x.descripcion.Trim(),
+                    Prefijo = x.cc
+                }).OrderBy(x => x.Text).ToList();
+
+                if (listaCC.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", listaCC);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> ObtenerCentrosCostosUsuario()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var usuarioActualID = vSesiones.sesionUsuarioDTO.id;
+
+                var ccsUsuario = _context.tblP_CC_Usuario.Where(x => x.usuarioID == usuarioActualID).Select(x => x.cc).ToList();
+
+                var listaCC = _context.tblP_CC.Where(x => x.estatus)
+                    .ToList()
+                    .Where(x => ccsUsuario.Contains(x.cc))
+                    .Select(x => new
+                    {
+                        Value = x.cc,
+                        Text = x.cc + " - " + x.descripcion.Trim(),
+                        Prefijo = x.cc
+                    }).OrderBy(x => x.Text).ToList();
+
+                if (listaCC.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", listaCC);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getSubcontratistas()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var subcontratistas = getListaSubContratistas().Select(x => new
+                {
+                    Value = x.claveContratista,
+                    Text = x.subcontratista
+                }).OrderBy(x => x.Value).ToList();
+
+                if (subcontratistas.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", subcontratistas);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo tipos de accidentes");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getTecnicasInvestigacion()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var tecnicasInvestigacion = _context.tblS_IncidentesTecnicasInvestigacion.ToList().Select(x => new
+                {
+                    Value = x.id,
+                    Text = x.tecnicaInvestigacion
+                }).OrderBy(x => x.Value).ToList();
+
+                if (tecnicasInvestigacion.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", tecnicasInvestigacion);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de protocolo de trabajo");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getEmpleadosCCList(string cc)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                List<ComboDTO> lstCatEmpleado = new List<ComboDTO>();
+
+                if (cc.Trim().Length > 0)
+                {
+
+                    string ccValido = getQueryCCArrendadoraCP(cc);
+
+                    var odbc = new OdbcConsultaDTO()
+                    {
+                        consulta = string.Format("SELECT clave_empleado as Value, (nombre+' '+ape_paterno+' '+ape_materno) as Text FROM DBA.sn_empleados WHERE " + ccValido + " AND estatus_empleado = 'A' ORDER BY ape_paterno, ape_materno, nombre"),
+                        parametros = new List<OdbcParameterDTO>()
+                    };
+                    var listARR = _contextEnkontrol.Select<ComboDTO>(EnkontrolEnum.ArrenRh, odbc);
+                    var listCP = _contextEnkontrol.Select<ComboDTO>(EnkontrolEnum.CplanRh, odbc);
+                    lstCatEmpleado.AddRange(listARR);
+                    lstCatEmpleado.AddRange(listCP);
+                }
+
+                if (lstCatEmpleado.DistinctBy(x => x.Value).ToList().Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", lstCatEmpleado.DistinctBy(x => x.Value).ToList());
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo tipos de emleados");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getInfoEmpleado(int claveEmpleado)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                empleadoIncidenteDTO empleadoInfo = InfEmpleado(claveEmpleado);
+
+
+                if (empleadoInfo != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getInfoEmpleadoContratista(int empleado_id)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var empleadoInfo = _context.tblS_IncidentesEmpleadosContratistas.Where(x => x.id == empleado_id).Select(x => new empleadoIncidenteDTO
+                {
+                    nombreEmpleado = x.nombre,
+                    edadEmpleado = x.fechaNacimiento,
+                    puestoEmpleado = x.puesto
+                }).FirstOrDefault();
+
+
+                if (empleadoInfo != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getUsersEnkontrol(string user)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                List<empleadoIncidenteDTO> empleadoInfo = listUsuariosEnkontrol(user);
+
+                if (user.Length == 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo.OrderBy(x => x.nombreEmpleado).Take(10).ToList().Select(x => new { id = x.claveEmpleado, label = x.nombreEmpleado }));
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo.OrderBy(x => x.nombreEmpleado).Take(10).ToList().Select(x => new { id = x.claveEmpleado, label = x.nombreEmpleado }));
+                }
+            }
+            catch (Exception e)
+            {
+
+
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+
+        }
+        public Dictionary<string, object> getUsersEnkontrolByClave(string clave)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                List<empleadoIncidenteDTO> empleadoInfo = listUsuariosEnkontrolByClave(clave);
+
+                if (clave.Length == 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo.OrderBy(x => x.nombreEmpleado).Take(10).ToList().Select(x => new { id = x.claveEmpleado, label = x.nombreEmpleado }));
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("empleadoInfo", empleadoInfo.OrderBy(x => x.nombreEmpleado).Take(10).ToList().Select(x => new { id = x.claveEmpleado, label = x.nombreEmpleado }));
+                }
+            }
+            catch (Exception e)
+            {
+
+
+                resultado.Add(SUCCESS, false);
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getPrioridadesActividad()
+        {
+            var result = new Dictionary<string, object>();
+            result.Add("items", GlobalUtils.ParseEnumToCombo<PrioridadActividadEnum>().Reverse());
+            result.Add(SUCCESS, true);
+
+            return result;
+        }
+        public Dictionary<string, object> guardarEmpleadoSubcontratista(tblS_IncidentesEmpleadosContratistas empleado)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.tblS_IncidentesEmpleadosContratistas.Add(empleado);
+                _context.SaveChanges();
+
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(ERROR, "Ocurrió un error al guardar el empleado");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> guardarIncidente(tblS_Incidentes incidente, List<tblS_IncidentesGrupoInvestigacion> grupoInvestigacion, List<tblS_IncidentesOrdenCronologico> ordenCronologico, List<tblS_IncidentesEventoDetonador> eventoDetonador, List<tblS_IncidentesCausasInmediatas> causasInmediata, List<tblS_IncidentesCausasBasicas> causasBasicas, List<tblS_IncidentesCausasRaiz> causasRaiz, List<tblS_IncidentesMedidasControl> medidasControl)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            using (var dbContextTransaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    incidente.GrupoInvestigacion = new List<tblS_IncidentesGrupoInvestigacion>();
+                    incidente.GrupoInvestigacion.AddRange(grupoInvestigacion);
+
+                    incidente.OrdenCronologico = new List<tblS_IncidentesOrdenCronologico>();
+                    incidente.OrdenCronologico.AddRange(ordenCronologico);
+
+                    incidente.EventosDedonador = new List<tblS_IncidentesEventoDetonador>();
+                    incidente.EventosDedonador.AddRange(eventoDetonador);
+
+                    incidente.CausasInmediatas = new List<tblS_IncidentesCausasInmediatas>();
+                    incidente.CausasInmediatas.AddRange(causasInmediata);
+
+                    incidente.CausasBasicas = new List<tblS_IncidentesCausasBasicas>();
+                    incidente.CausasBasicas.AddRange(causasBasicas);
+
+                    incidente.CausasRaiz = new List<tblS_IncidentesCausasRaiz>();
+                    incidente.CausasRaiz.AddRange(causasRaiz);
+
+                    incidente.MedidasControl = new List<tblS_IncidentesMedidasControl>();
+                    incidente.MedidasControl.AddRange(medidasControl);
+
+                    _context.tblS_Incidentes.Add(incidente);
+                    _context.SaveChanges();
+
+                    var informe = _context.tblS_IncidentesInformePreliminar.Where(x => x.id == incidente.informe_id).First();
+                    informe.estatusAvance = EstatusIncidenteEnum.PendienteCargaRIA;
+                    informe.terminado = true;
+                    _context.SaveChanges();
+
+                    // Se genera la minuta
+                    List<int> listaUsuariosID;
+                    int minutaID = CrearMinutaRIA(incidente, grupoInvestigacion, medidasControl, out listaUsuariosID);
+
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("minutaID", minutaID);
+                    resultado.Add("usuarios", listaUsuariosID);
+                    dbContextTransaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    dbContextTransaction.Rollback();
+                    LogError(0, 0, "IndicadoresSeguridadController", "guardarIncidente", e, AccionEnum.AGREGAR, 0, 0);
+                    resultado.Clear();
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add(ERROR, "Ocurrió un error al guardar el empleado");
+                }
+            }
+
+            return resultado;
+        }
+
+        private int CrearMinutaRIA(tblS_Incidentes incidente, List<tblS_IncidentesGrupoInvestigacion> grupoInvestigacion, List<tblS_IncidentesMedidasControl> medidasControl, out List<int> listaUsuariosID)
+        {
+            var centroCostos = _context.tblP_CC.First(x => x.cc == incidente.cc);
+            var nombreCC = centroCostos.descripcion.Trim();
+
+            listaUsuariosID = new List<int>();
+
+            var fechaCompromiso = medidasControl.Max(x => x.fechaCump);
+
+            var grupoInvestigacionValido = grupoInvestigacion.Where(x => x.esExterno == false).ToList();
+
+            var minuta = new tblSA_Minuta
+            {
+                proyecto = nombreCC,
+                titulo = ObtenerTituloMinuta(centroCostos.cc, nombreCC, incidente.Informe.folio),
+                lugar = incidente.lugarJunta,
+                fecha = incidente.fechaJunta.Value,
+                fechaInicio = DateTime.Now,
+                fechaCompromiso = fechaCompromiso,
+                horaInicio = incidente.horaInicio,
+                horaFin = incidente.horaFin,
+                descripcion = ObtenerDescripcionMinuta(incidente.fechaAccidente, nombreCC, incidente.Informe.folio),
+                creadorID = vSesiones.sesionUsuarioDTO.id,
+            };
+
+            _context.tblSA_Minuta.Add(minuta);
+            _context.SaveChanges();
+
+            // Responsables 
+            var participantes = grupoInvestigacionValido.Select(x => new tblSA_Participante
+            {
+                minutaID = minuta.id,
+                participanteID = x.usuarioID,
+                participante = x.nombreEmpleado
+            }).ToList();
+            _context.tblSA_Participante.AddRange(participantes);
+            _context.SaveChanges();
+
+            var autorizante = ObtenerUsuarioAutorizanteActividad();
+            var nombreAutorizante = GlobalUtils.ObtenerNombreCompletoUsuario(autorizante);
+
+            var interesados = ObtenerInteresadosActividadMinuta();
+
+            listaUsuariosID.AddRange(grupoInvestigacionValido.Select(x => x.usuarioID).ToList());
+            listaUsuariosID.AddRange(medidasControl.Select(x => x.usuarioID).ToList());
+            listaUsuariosID.AddRange(interesados.Select(x => x.id).ToList());
+
+            listaUsuariosID = listaUsuariosID.Distinct().ToList();
+
+            int numActividad = 1;
+            medidasControl.ForEach(actividad =>
+            {
+                var actividadMinuta = new tblSA_Actividades
+                {
+                    minutaID = minuta.id,
+                    columna = 0,
+                    orden = numActividad,
+                    tipo = "new",
+                    actividad = "Actividad " + numActividad,
+                    descripcion = actividad.accionPreventiva.Trim(),
+                    //responsableID = actividad.usuarioID,
+                    //responsable = actividad.responsableNombre,
+                    fechaInicio = DateTime.Now,
+                    fechaCompromiso = actividad.fechaCump,
+                    prioridad = (int)actividad.prioridad,
+                    enVersion = true,
+                    revisaID = autorizante.id,
+                    revisa = nombreAutorizante
+                };
+
+                _context.tblSA_Actividades.Add(actividadMinuta);
+                _context.SaveChanges();
+
+                var responsable = new tblSA_Responsables
+                {
+                    minutaID = minuta.id,
+                    actividadID = actividadMinuta.id,
+                    usuarioID = actividad.usuarioID,
+                    usuarioText = actividad.responsableNombre
+                };
+                _context.tblSA_Responsables.Add(responsable);
+                _context.SaveChanges();
+
+                GuardarInteresadosActividadMinuta(minuta.id, actividadMinuta.id, interesados);
+
+                numActividad++;
+            });
+
+            _context.SaveChanges();
+            return minuta.id;
+        }
+
+        private void GuardarInteresadosActividadMinuta(int minutaID, int actividadID, List<tblP_Usuario> interesados)
+        {
+            var interesadosActividad = interesados.Select(x => new tblSA_Interesados
+            {
+                minutaID = minutaID,
+                actividadID = actividadID,
+                interesadoID = x.id,
+                interesado = GlobalUtils.ObtenerNombreCompletoUsuario(x)
+            }).ToList();
+
+            _context.tblSA_Interesados.AddRange(interesadosActividad);
+            _context.SaveChanges();
+        }
+
+        private List<tblP_Usuario> ObtenerInteresadosActividadMinuta()
+        {
+            var usuariosInteresadosID = new List<int>
+            { 
+            4,6,7,1063,
+            1086,1126,1161,1162,
+            1164,1170,1181,3314,
+            3357,3367,3372,3413,
+            3835,3912,6068,6185
+            };
+
+            return _context.tblP_Usuario.Where(x => x.estatus).ToList().Where(x => usuariosInteresadosID.Contains(x.id)).ToList();
+        }
+
+        private tblP_Usuario ObtenerUsuarioAutorizanteActividad()
+        {
+            int JoseIribeUsuarioID = 3372;
+            return _context.tblP_Usuario.First(x => x.id == JoseIribeUsuarioID);
+        }
+
+        public object GetUsuariosAutocomplete(string term)
+        {
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var usuarios = _context.tblP_Usuario
+                .Where(x =>
+                    x.estatus &&
+                    x.cveEmpleado != null &&
+                    (x.nombre + " " + x.apellidoPaterno + " " + x.apellidoMaterno).Contains(term))
+                    .OrderBy(x => x.id).Take(12).ToList();
+
+                return
+                    usuarios.Select(x => new
+                    {
+                        id = x.cveEmpleado,
+                        value = GlobalUtils.ObtenerNombreCompletoUsuario(x),
+                        usuarioID = x.id
+                    });
+            }
+            catch (Exception e)
+            {
+                LogError(0, 0, "IndicadoresSeguridadController", "GetUsuariosAutocomplete", e, AccionEnum.CONSULTA, 0, 0);
+                return new List<object> { new { id = 0, value = "", usuarioID = 0 } };
+            }
+        }
+
+        private string ObtenerDescripcionMinuta(DateTime fechaAccidente, string cc, int folio)
+        {
+            return String.Format("Establecer medidas preventivas o correctivas al accidente ocurrido el {0} en el proyecto {1} con folio {2}", fechaAccidente.ToShortDateString(), cc, folio);
+        }
+
+        private string ObtenerTituloMinuta(string cc, string ccDesc, int folio)
+        {
+            return String.Format("Seguimiento RIA - [{0}] {1} Folio: {2}", cc, ccDesc, folio);
+        }
+
+        public Dictionary<string, object> ObtenerIncidentePorInformeID(int informeID)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var incidente = _context.tblS_Incidentes.First(x => x.informe_id == informeID);
+
+                var incidenteData = new FormatoRIADTO
+                {
+                    // Datos generales
+                    tipoAccidente_id = incidente.tipoAccidente_id,
+                    tipoAccidente = incidente.TiposAccidente.incidenteTipo,
+                    esExterno = incidente.esExterno,
+                    empresa = incidente.esExterno ? ObtenerSubcontratista(incidente.claveContratista) : "CONSTRUPLAN",
+                    cc = incidente.cc,
+                    claveContratista = incidente.claveContratista,
+                    departamento_id = incidente.departamento_id,
+                    departamento = incidente.Departamentos.departamento,
+                    lugarAccidente = incidente.lugarAccidente,
+                    fechaAccidente = incidente.fechaAccidente.ToShortDateString(),
+                    horaAccidente = incidente.fechaAccidente.ToLongTimeString(),
+                    diaSemana = ObtenerDiaSemanaFecha(incidente.fechaAccidente),
+                    tipoLesion_id = incidente.tipoLesion_id,
+                    tipoLesion = incidente.TiposLesion.tipoLesion,
+                    parteCuerpo_id = incidente.parteCuerpo_id,
+                    actividadRutinaria = incidente.actividadRutinaria,
+                    agenteImplicado_id = incidente.agenteImplicado_id,
+                    agenteImplicado = incidente.AgentesImplicados.agenteImplicado,
+                    trabajoPlaneado = incidente.trabajoPlaneado,
+                    trabajoRealizaba = incidente.trabajoRealizaba,
+                    tipoContacto_id = incidente.tipoContacto_id,
+                    tipoContacto = incidente.TiposContacto.tipoContacto,
+                    protocoloTrabajo_id = incidente.protocoloTrabajo_id,
+                    protocoloTrabajo = incidente.ProtocolosTrabajo.protocoloTrabajo,
+                    // Persona implicada accidente
+                    claveEmpleado = incidente.claveEmpleado,
+                    edadEmpleado = incidente.edadEmpleado,
+                    puestoEmpleado = incidente.puestoEmpleado,
+                    experienciaEmpleado_id = incidente.experienciaEmpleado_id,
+                    experienciaEmpleado = incidente.ExperienciaEmpleado.empleadoExperiencia,
+                    antiguedadEmpleado_id = incidente.antiguedadEmpleado_id,
+                    antiguedadEmpleado = incidente.AntiguedadEmpleado.antiguedadEmpleado,
+                    turnoEmpleado_id = incidente.turnoEmpleado_id,
+                    turnoEmpleado = incidente.TurnoEmpleado.turno,
+                    horasTrabajadasEmpleado = incidente.horasTrabajadasEmpleado,
+                    diasTrabajadosEmpleado = incidente.diasTrabajadosEmpleado,
+                    capacitadoEmpleado = incidente.capacitadoEmpleado,
+                    accidentesAnterioresEmpleado = incidente.accidentesAnterioresEmpleado,
+                    claveSupervisor = incidente.claveSupervisor.GetValueOrDefault(),
+                    supervisorCargoEmpleado = incidente.supervisorCargoEmpleado,
+                    nombreEmpleadoExterno = incidente.nombreEmpleadoExterno,
+                    nombreEmpleado = incidente.esExterno ? incidente.nombreEmpleadoExterno : ObtenerNombreEmpleadoPorClave(incidente.claveEmpleado),
+                    // Descripción del accidente
+                    descripcionAccidente = incidente.descripcionAccidente,
+                    // Evaluación de la pérdida si no es corregida
+                    riesgo = incidente.riesgo,
+                    descripcionRiesgo = ObtenerDescripcionRiesgo(incidente.riesgo),
+                    // Grupo de trabajo para la investigación
+                    grupoInvestigacion = incidente.GrupoInvestigacion
+                    .Select(x => new GrupoInvestigacionDTO
+                        {
+                            nombreEmpleado = x.nombreEmpleado,
+                            puestoEmpleado = x.puestoEmpleado,
+                            departamentoEmpleado = x.departamentoEmpleado,
+                            informeID = informeID.ToString(),
+                            esExterno = x.esExterno
+                        })
+                        .ToList(),
+                    // Orden cronológico del accidente
+                    instruccionTrabajo = incidente.instruccionTrabajo,
+                    porqueSehizo = incidente.porqueSehizo,
+                    ordenCronologico = incidente.OrdenCronologico.Select(x => x.ordenCronologico).ToList(),
+                    // Técnica de Investigación
+                    tecnicaInvestigacion_id = incidente.tecnicaInvestigacion_id,
+                    tecnicaInvestigacion = incidente.TecnicasInvestigacion.tecnicaInvestigacion,
+                    // Análisis de causas
+                    eventoDetonador = incidente.EventosDedonador.Select(x => x.eventoDetonador).ToList(),
+                    causaInmediata = incidente.CausasInmediatas.Select(x => x.causaInmediata).ToList(),
+                    causaBasica = incidente.CausasBasicas.Select(x => x.causaBasica).ToList(),
+                    causaRaiz = incidente.CausasRaiz.Select(x => x.causaRaiz).ToList(),
+                    // Medidas de control
+                    lugarJunta = incidente.lugarJunta,
+                    fechaJunta = incidente.fechaJunta.HasValue ? incidente.fechaJunta.Value.ToShortDateString() : "",
+                    horaInicio = incidente.horaInicio,
+                    horaFin = incidente.horaFin,
+                    medidasControl = incidente.MedidasControl
+                    .Where(x => x.responsable_id != 0)
+                    .Select(x => new MedidaControlDTO
+                    {
+                        accionPreventiva = x.accionPreventiva,
+                        fechaCump = x.fechaCump.ToShortDateString(),
+                        responsableNombre = x.responsableNombre,
+                        estatus = ((estatusMedidasControlEnum)x.estatus).GetDescription(),
+                        prioridad = x.prioridad.GetDescription(),
+                        informeID = informeID.ToString()
+                    }).ToList()
+                };
+
+                resultado.Add(SUCCESS, true);
+                resultado.Add("informacion", incidenteData);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener la información sobre el incidente");
+            }
+
+            return resultado;
+        }
+
+        private string ObtenerDescripcionRiesgo(int riesgo)
+        {
+            switch (riesgo)
+            {
+                case 1:
+                    return "Leve [1]";
+                case 2:
+                    return "Tolerable [2]";
+                case 3:
+                    return "Moderado [3]";
+                case 6:
+                    return "Crítico [6]";
+                case 9:
+                    return "Intolerable [9]";
+                default:
+                    return "Indefinido";
+            }
+        }
+
+        private string ObtenerDiaSemanaFecha(DateTime fecha)
+        {
+            var culture = new CultureInfo("es-MX");
+            return culture.DateTimeFormat.GetDayName(fecha.DayOfWeek).ToUpper();
+        }
+
+        private string getQueryCCArrendadoraCP(string cc)
+        {
+            string[] ccTMC = new string[] { cc, "100", "101", "002", "114", "004" };
+            string joinedTMC = String.Join(", ", ccTMC.Select(item => "'" + item + "'"));
+
+            string[] ccCerroPelon = new string[] { cc, "121", "123" };
+            string joinedCerroPelon = String.Join(", ", ccCerroPelon.Select(item => "'" + item + "'"));
+
+            string[] ccColorada = new string[] { cc, "103" };
+            string joinedColorada = String.Join(", ", ccColorada.Select(item => "'" + item + "'"));
+
+            string[] ccYaqui = new string[] { cc, "105" };
+            string joinedYaqui = String.Join(", ", ccYaqui.Select(item => "'" + item + "'"));
+
+            string[] ccJales = new string[] { cc, "126" };
+            string joinedJales = String.Join(", ", ccJales.Select(item => "'" + item + "'"));
+
+            string[] ccAcueducto = new string[] { cc, "125" };
+            string joinedAcueducto = String.Join(", ", ccAcueducto.Select(item => "'" + item + "'"));
+
+            string queryCC = "";
+
+            switch (cc)
+            {
+                case "1010":
+                    queryCC = "cc_contable IN (" + joinedTMC + ")";
+                    break;
+                case "165":
+                    queryCC = "cc_contable IN (" + joinedCerroPelon + ")";
+                    break;
+                case "146":
+                    queryCC = "cc_contable IN (" + joinedColorada + ")";
+                    break;
+                case "155":
+                    queryCC = "cc_contable IN (" + joinedYaqui + ")";
+                    break;
+                case "169":
+                    queryCC = "cc_contable IN (" + joinedJales + ")";
+                    break;
+                case "227":
+                    queryCC = "cc_contable IN (" + joinedAcueducto + ")";
+                    break;
+                default:
+                    queryCC = "cc_contable IN ('" + cc + "')";
+                    break;
+
+            }
+
+            return queryCC;
+        }
+        private empleadoIncidenteDTO InfEmpleado(decimal claveEmpleado)
+        {
+
+            try
+            {
+                empleadoIncidenteDTO empleado = new empleadoIncidenteDTO();
+
+                string inf_Empleado = "SELECT";
+                inf_Empleado += " e.clave_empleado AS claveEmpleado, (e.nombre + ' ' + e.ape_paterno + ' ' + e.ape_materno) AS nombreEmpleado, e.fecha_nac AS edadEmpleado, e.fecha_antiguedad AS antiguedadEmpleado, e.fecha_antiguedad AS antiguedadEmpleadoStr, p.descripcion AS puestoEmpleado,";
+                inf_Empleado += " e.cc_contable as ccID,";
+                inf_Empleado += " c.descripcion as cc,";
+                inf_Empleado += " dp.desc_depto as deptoEmpleado,";
+                inf_Empleado += " (Select (e2.nombre+' '+e2.ape_paterno+' '+e2.ape_materno) from DBA.sn_empleados as e2 where e2.clave_empleado = e.jefe_inmediato) AS 'supervisorEmpleado'";
+                inf_Empleado += " FROM DBA.sn_empleados as e";
+                inf_Empleado += " inner join DBA.si_puestos as p on e.puesto=p.puesto";
+                inf_Empleado += " inner join DBA.sn_tipos_nomina as tn on e.tipo_nomina=tn.tipo_nomina";
+                inf_Empleado += " inner join DBA.cc as c on e.cc_contable=c.cc";
+                inf_Empleado += " inner join DBA.sn_departamentos as dp on e.clave_depto = dp.clave_depto";
+                inf_Empleado += " where e.clave_empleado= ? AND e.estatus_empleado ='A'";
+                inf_Empleado += " order by e.ape_paterno DESC";
+
+                var odbc = new OdbcConsultaDTO()
+                {
+                    consulta = inf_Empleado,
+                    parametros = new List<OdbcParameterDTO>()
+                };
+                odbc.parametros.Add(new OdbcParameterDTO() { nombre = "clave_empleado", tipo = OdbcType.Decimal, valor = claveEmpleado });
+                var resultadoARR = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.ArrenRh, odbc);
+                var resultadoCP = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.CplanRh, odbc);
+
+                empleado = resultadoARR.Count() > 0 ? resultadoARR.FirstOrDefault() : resultadoCP.FirstOrDefault();
+
+                return empleado;
+            }
+            catch (Exception)
+            {
+            }
+
+            return null;
+        }
+        private List<empleadoIncidenteDTO> listUsuariosEnkontrol(string user)
+        {
+
+            try
+            {
+                List<empleadoIncidenteDTO> lstCatEmpleado = new List<empleadoIncidenteDTO>();
+
+                string inf_Empleado = "SELECT";
+                inf_Empleado += " clave_empleado AS claveEmpleado, (nombre + ' ' + ape_paterno + ' ' + ape_materno) AS nombreEmpleado ";
+                inf_Empleado += " FROM DBA.sn_empleados";
+                inf_Empleado += " WHERE estatus_empleado ='A' ";
+                inf_Empleado += " GROUP BY clave_empleado, nombre, ape_paterno, ape_materno";
+                inf_Empleado += " HAVING (nombre + ' ' + ape_paterno + ' ' + ape_materno) like ? ";
+
+                var odbc = new OdbcConsultaDTO()
+                {
+                    consulta = inf_Empleado,
+                    parametros = new List<OdbcParameterDTO>()
+                };
+
+                odbc.parametros.Add(new OdbcParameterDTO() { nombre = "user", tipo = OdbcType.VarChar, valor = string.Format("%{0}%", user) });
+                var listARR = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.ArrenRh, odbc);
+                var listCP = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.CplanRh, odbc);
+
+                foreach (var item in listARR)
+                {
+                    lstCatEmpleado.Add(item);
+                }
+
+                foreach (var item in listCP)
+                {
+                    lstCatEmpleado.Add(item);
+                }
+
+                return lstCatEmpleado.DistinctBy(x => x.claveEmpleado).ToList();
+            }
+            catch (Exception)
+            {
+
+
+            }
+
+            return null;
+        }
+
+        private List<empleadoIncidenteDTO> listUsuariosEnkontrolByClave(string clave)
+        {
+
+            try
+            {
+                List<empleadoIncidenteDTO> lstCatEmpleado = new List<empleadoIncidenteDTO>();
+
+                string inf_Empleado = "SELECT";
+                inf_Empleado += " clave_empleado AS claveEmpleado, (nombre + ' ' + ape_paterno + ' ' + ape_materno) AS nombreEmpleado ";
+                inf_Empleado += " FROM DBA.sn_empleados";
+                inf_Empleado += " WHERE clave_empleado = ? AND estatus_empleado ='A' ";
+
+
+
+                var odbc = new OdbcConsultaDTO()
+                {
+                    consulta = inf_Empleado,
+                    parametros = new List<OdbcParameterDTO>()
+                };
+
+                odbc.parametros.Add(new OdbcParameterDTO() { nombre = "clave_empleado", tipo = OdbcType.VarChar, valor = clave });
+                var listARR = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.ArrenRh, odbc);
+                var listCP = _contextEnkontrol.Select<empleadoIncidenteDTO>(EnkontrolEnum.CplanRh, odbc);
+
+                foreach (var item in listARR)
+                {
+                    lstCatEmpleado.Add(item);
+                }
+
+                foreach (var item in listCP)
+                {
+                    lstCatEmpleado.Add(item);
+                }
+
+                return lstCatEmpleado.DistinctBy(x => x.claveEmpleado).ToList();
+            }
+            catch (Exception)
+            {
+
+
+            }
+
+            return null;
+        }
+        private List<subcontratistaIncidenteDTO> getListaSubContratistas()
+        {
+            List<subcontratistaIncidenteDTO> res = new List<subcontratistaIncidenteDTO>();
+            string Consulta = @"SELECT 
+                                    A.numPro AS claveContratista, 
+                                    A.DSContratista AS subcontratista 
+                                FROM su_contratistas A ";
+            try
+            {
+                var datosEnKontrol = (List<subcontratistaIncidenteDTO>)_contextEnkontrol.Where(Consulta).ToObject<List<subcontratistaIncidenteDTO>>();
+                return datosEnKontrol;
+            }
+            catch
+            {
+                return new List<subcontratistaIncidenteDTO>();
+            }
+        }
+        private string ObtenerSubcontratista(int claveContratista)
+        {
+            if (claveContratista == 0)
+            {
+                return "NO DEFINIDO";
+            }
+
+            var res = new subcontratistaIncidenteDTO();
+            string Consulta = @"SELECT 
+                                    A.numPro AS claveContratista, 
+                                    A.DSContratista AS subcontratista 
+                                FROM su_contratistas A WHERE claveContratista = " + claveContratista;
+            try
+            {
+                var datosEnKontrol = (List<subcontratistaIncidenteDTO>)_contextEnkontrol.Where(Consulta).ToObject<List<subcontratistaIncidenteDTO>>();
+                return datosEnKontrol.First().subcontratista;
+            }
+            catch
+            {
+                return "INDEFINIDO";
+            }
+        }
+        #endregion
+
+        #region CAPTURA INFORMACION COLABORADORES
+        public Dictionary<string, object> getInformacionColaboradores(string cc)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var informacionColaboradores = _context.tblS_IncidentesInformacionColaboradores
+                    .Where(x => cc == "" ? true : x.cc == cc)
+                    .OrderByDescending(x => x.fechaFin)
+                    .ToList()
+                    .Select(x => new informacionColaboradorDTO
+                    {
+                        id = x.id,
+                        horasHombre = x.horasHombre,
+                        lostDay = x.lostDay,
+                        cc = x.cc,
+                        fechaInicioStr = x.fechaInicio.ToString("yyyy/MM/dd"),
+                        fechaFinStr = x.fechaFin.ToString("yyyy/MM/dd")
+                    })
+                    .ToList();
+
+                if (informacionColaboradores.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", informacionColaboradores);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de informacion");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getInformacionColaboradoresByID(int id)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var informacionColaboradores = _context.tblS_IncidentesInformacionColaboradores.Where(x => x.id == id).ToList().Select(x => new informacionColaboradorDTO
+                {
+                    id = x.id,
+                    horasHombre = x.horasHombre,
+                    lostDay = x.lostDay,
+                    cc = x.cc,
+                    fechaInicioStr = x.fechaInicio.ToShortDateString(),
+                    fechaFinStr = x.fechaFin.ToShortDateString()
+                }).FirstOrDefault();
+
+                if (informacionColaboradores != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("informacion", informacionColaboradores);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el catálogo de informacion");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getFechasUltimoCorte(string cc)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var ultimoRegistro = _context.tblS_IncidentesInformacionColaboradores.Where(x => x.cc == cc).OrderBy(x => x.id).ToList().Select(x => new informacionColaboradorDTO
+                {
+                    horasHombre = x.horasHombre,
+                    lostDay = x.lostDay,
+                    cc = x.cc,
+                    fechaInicioStr = x.fechaInicio.ToShortDateString(),
+                    fechaFinStr = x.fechaFin.ToShortDateString()
+                }).LastOrDefault();
+
+                if (ultimoRegistro != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("ultimoRegistro", ultimoRegistro);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener el ultimo registro");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> guardarRegistroInformacion(tblS_IncidentesInformacionColaboradores registroInformacion)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                if (registroInformacion == null ||
+                    registroInformacion.fechaInicio == DateTime.MinValue ||
+                    registroInformacion.fechaFin == DateTime.MinValue)
+                {
+                    resultado.Add(SUCCESS, false);
+                    return resultado;
+                }
+
+                _context.tblS_IncidentesInformacionColaboradores.Add(registroInformacion);
+                _context.SaveChanges();
+
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error al guardar el registro");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> updateRegistroInformacion(tblS_IncidentesInformacionColaboradores registroInformacion)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var registro = _context.tblS_IncidentesInformacionColaboradores.Where(x => x.id == registroInformacion.id).FirstOrDefault();
+                if (registro != null)
+                {
+                    registro.horasHombre = registroInformacion.horasHombre;
+                    registro.lostDay = registroInformacion.lostDay;
+                    _context.Entry(registro).State = System.Data.Entity.EntityState.Modified;
+                    _context.SaveChanges();
+                }
+
+                resultado.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                resultado.Add(ERROR, "Ocurrió un error al actualizar");
+            }
+
+            return resultado;
+        }
+        #endregion
+
+        #region DASHBOARD
+        public Dictionary<string, object> getIncidentesRegistrables(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var incidentes = ObtenerIncidentesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var informes = ObtenerInformesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var listatotal = incidentes.Select(x => x.tipoAccidente_id).ToList();
+
+                var inf = informes.Select(x => x.tipoAccidente_id).ToList();
+
+                listatotal.AddRange(inf);
+
+                var incidentesRegistrables = _context.tblS_IncidentesTipos
+                    .Where(x => x.clasificacion.tipoEvento.tipoEvento == "Registrable")
+                    .ToList()
+                    .Select(x => new IncidentesRegistrablesDTO
+                    {
+                        incidenteTipo = x.clasificacion.abreviatura,
+                        incidenteCantidad = listatotal.Count(y => y.Value == x.id)
+                    });
+
+
+                if (incidentesRegistrables.Count() > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesRegistrables);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes registrables");
+            }
+
+            return resultado;
+        }
+
+        private IEnumerable<tblS_IncidentesInformePreliminar> ObtenerInformesFechasCC(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var informes = _context.tblS_IncidentesInformePreliminar
+                .Where(x => x.fechaIncidente >= fechaInicio)
+                .ToList()
+                .Where(x =>
+                    (arrCC != null ? arrCC.Contains(x.cc) : true) &&
+                    (x.aplicaRIA == false || (x.aplicaRIA && x.terminado == false && x.tipoAccidente_id.HasValue && x.riesgo.HasValue)) &&
+                    (x.fechaIncidente <= fechaFin.AddHours(23).AddMinutes(59)));
+
+            return informes;
+        }
+
+        private IEnumerable<tblS_Incidentes> ObtenerIncidentesFechasCC(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var incidentes = _context.tblS_Incidentes
+                .Where(x => x.fechaAccidente >= fechaInicio)
+                .ToList()
+                .Where(x =>
+                    (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) &&
+                    (arrCC != null ? arrCC.Contains(x.cc) : true));
+
+            return incidentes;
+        }
+
+        public Dictionary<string, object> getIncidentesReportables(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                _context.Configuration.AutoDetectChangesEnabled = false;
+
+                var incidentes = ObtenerIncidentesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var informes = ObtenerInformesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var listatotal = incidentes.Select(x => x.tipoAccidente_id).ToList();
+
+                var inf = informes.Select(x => x.tipoAccidente_id).ToList();
+
+                listatotal.AddRange(inf);
+
+                var incidentesRegistrables = _context.tblS_IncidentesTipos
+                    .Where(x => x.clasificacion.tipoEvento.tipoEvento == "Reportable")
+                    .ToList()
+                    .Select(x => new IncidentesRegistrablesDTO
+                    {
+                        incidenteTipo = x.clasificacion.abreviatura,
+                        incidenteCantidad = listatotal.Count(y => y.Value == x.id)
+                    });
+
+
+                if (incidentesRegistrables.Count() > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesRegistrables);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes registrables");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getHorasHombreLostDay(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                //CARGAR TODOS LOS EMPLEADOS
+                List<empleadosCCDTO> lstCatEmpleado = new List<empleadosCCDTO>();
+                string query = "SELECT clave_empleado, cc_contable  FROM sn_empleados where  estatus_empleado='A'";
+
+                var odbc = new OdbcConsultaDTO
+                {
+                    consulta = query,
+                    parametros = new List<OdbcParameterDTO>()
+                };
+
+                var listARR = _contextEnkontrol.Select<empleadosCCDTO>(EnkontrolEnum.ArrenRh, odbc);
+                var listCP = _contextEnkontrol.Select<empleadosCCDTO>(EnkontrolEnum.CplanRh, odbc);
+
+                lstCatEmpleado.AddRange(listARR);
+                lstCatEmpleado.AddRange(listCP);
+
+                var listaCCs = addCCArrendadoraCP(arrCC);
+
+                var empleadosCC = lstCatEmpleado
+                    .DistinctBy(x => x.clave_empleado)
+                    .Where(x => listaCCs != null ? listaCCs.Contains(x.cc_contable) : true)
+                    .ToList();
+
+                fechaFin = fechaFin.AddHours(23).AddMinutes(59);
+
+                var incidente = _context.tblS_Incidentes
+                    .Where(x => x.fechaAccidente >= fechaInicio && x.fechaAccidente <= fechaFin)
+                    .OrderByDescending(x => x.fechaAccidente)
+                    .ToList()
+                    .Where(x =>
+                        (arrCC != null ? arrCC.Contains(x.cc) : true) &&
+                        (x.TiposAccidente.clasificacion.abreviatura == "LTI" || x.TiposAccidente.clasificacion.abreviatura == "Fatal"))
+                    .FirstOrDefault();
+
+                var informePreliminar = _context.tblS_IncidentesInformePreliminar
+                    .Where(x => x.fechaIncidente >= fechaInicio && x.fechaIncidente <= fechaFin)
+                    .OrderByDescending(x => x.fechaIncidente)
+                    .ToList()
+                    .Where(x =>
+                        (arrCC != null ? arrCC.Contains(x.cc) : true) &&
+                        x.TiposAccidente != null &&
+                        (x.TiposAccidente.clasificacion.abreviatura == "LTI" || x.TiposAccidente.clasificacion.abreviatura == "Fatal"))
+                    .FirstOrDefault();
+
+                DateTime fechaIncidente = DateTime.MinValue;
+
+                if (incidente != null)
+                {
+                    fechaIncidente = incidente.fechaAccidente;
+                    if (informePreliminar != null && informePreliminar.fechaIncidente > fechaIncidente)
+                    {
+                        fechaIncidente = informePreliminar.fechaIncidente;
+                    }
+                }
+                else if (informePreliminar != null)
+                {
+                    fechaIncidente = informePreliminar.fechaIncidente;
+                }
+
+
+                //HORAS HOMBRE SIN ACCIDENTES
+                string[] months = new string[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+                var horasHombre = _context.tblS_IncidentesInformacionColaboradores.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true)).ToList();
+                decimal totalHorasHombre = 0;
+                decimal totalHH = 0;
+                decimal totalLostDay = 0;
+
+                if (incidente != null || informePreliminar != null)
+                {
+                    for (int i = 0; i < months.Length; i++)
+                    {
+
+                        if (fechaIncidente.Month - 1 == i)
+                        {
+                            foreach (var element in horasHombre)
+                            {
+                                DateTime fechaI = element.fechaInicio;
+                                DateTime fechaF = element.fechaFin;
+                                decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                                decimal hh = element.horasHombre;
+                                decimal horarHombreProrrateo = hh / cantidadDias;
+
+                                foreach (DateTime day in EachDay(fechaI, fechaF))
+                                {
+
+                                    if (day >= fechaInicio && day <= fechaFin)
+                                    {
+                                        if (day >= fechaIncidente)
+                                        {
+                                            totalHorasHombre += horarHombreProrrateo;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var element in horasHombre)
+                    {
+                        DateTime fechaI = element.fechaInicio;
+                        DateTime fechaF = element.fechaFin;
+                        decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                        decimal hh = element.horasHombre;
+                        decimal horarHombreProrrateo = hh / cantidadDias;
+
+                        foreach (DateTime day in EachDay(fechaI, fechaF))
+                        {
+
+                            if (day >= fechaInicio && day <= fechaFin)
+                            {
+                                totalHorasHombre += horarHombreProrrateo;
+                            }
+                        }
+                    }
+                }
+
+
+                //TOTAL HORAS HOMBRE
+                totalHH = 0;
+                totalLostDay = 0;
+                foreach (var element in horasHombre)
+                {
+                    DateTime fechaI = element.fechaInicio;
+                    DateTime fechaF = element.fechaFin;
+                    decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                    decimal hh = element.horasHombre;
+                    decimal ld = element.lostDay;
+                    decimal horarHombreProrrateo = hh / cantidadDias;
+                    decimal lostDayProrrateo = ld / cantidadDias;
+
+                    foreach (DateTime day in EachDay(fechaI, fechaF))
+                    {
+                        if (day >= fechaInicio && day <= fechaFin)
+                        {
+                            totalHH += horarHombreProrrateo;
+                            totalLostDay += lostDayProrrateo;
+                        }
+                    }
+                }
+
+                horasHombreLostDayDTO horasHombres = new horasHombreLostDayDTO
+                {
+                    lostDays = totalLostDay,
+                    trabadoresPromedio = empleadosCC.Count(),
+                    horasHombres = totalHH,
+                    horasHombresSinIncidentes = totalHorasHombre
+                };
+
+                if (horasHombres != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", horasHombres);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes reportables");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getPotencialSeveridad(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                decimal cantidadInformes = _context.tblS_IncidentesInformePreliminar.ToList().Where(x => (x.aplicaRIA == false || (x.aplicaRIA && x.terminado == false && x.tipoAccidente_id.HasValue && x.riesgo.HasValue)) && (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaIncidente >= fechaInicio) && (x.fechaIncidente <= fechaFin.AddHours(23).AddMinutes(59))).Count();
+                decimal cantidadIncidentes = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59))).Count();
+                decimal menorT = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) && (x.riesgo == 1 || x.riesgo == 2)).Count();
+                decimal moderadoT = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) && (x.riesgo == 3)).Count();
+                decimal mayorT = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) && (x.riesgo == 6)).Count();
+                decimal catastroticoT = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) && (x.riesgo == 9)).Count();
+
+                decimal cantidadTotal = cantidadIncidentes + cantidadInformes;
+
+                potencialSeveridadDTO potencial = new potencialSeveridadDTO()
+                {
+                    menor = menorT > 0 ? Math.Round((menorT / cantidadTotal) * 100, 2) : menorT,
+                    moderado = moderadoT > 0 ? Math.Round((moderadoT / cantidadTotal) * 100, 2) : moderadoT,
+                    mayor = mayorT > 0 ? Math.Round((mayorT / cantidadTotal) * 100, 2) : mayorT,
+                    catastrotico = catastroticoT > 0 ? Math.Round((catastroticoT / cantidadTotal) * 100, 2) : catastroticoT
+                };
+
+
+                if (potencial != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", potencial);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener potencial de severidad");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getIncidentesPorMes(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                string[] months = new string[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+                List<incidentesPorMesDTO> incidentesMes = new List<incidentesPorMesDTO>();
+
+                var incidentes = ObtenerIncidentesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var informes = ObtenerInformesFechasCC(arrCC, fechaInicio, fechaFin);
+
+                var inf = informes.Select(x => x.fechaIncidente).ToList();
+
+                var listatotal = incidentes.Select(x => x.fechaAccidente).ToList();
+
+                listatotal.AddRange(inf);
+
+                for (int i = 0; i < months.Length; i++)
+                {
+                    incidentesMes.Add(new incidentesPorMesDTO()
+                    {
+                        mes = months[i],
+                        cantidad = listatotal.Where(x => x.Month == (i + 1)).Count()
+                    });
+                }
+
+                if (incidentesMes.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesMes);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes reportables");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getIncidentesRegistrablesXmes(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                string[] months = new string[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+                List<incidentesRegistrablesXmes> incidentesMes = new List<incidentesRegistrablesXmes>();
+                List<incidentesRegistrablesXmes> hhMes = new List<incidentesRegistrablesXmes>();
+
+                var listatotal = GetListaFechaAccidentesTRIFR(arrCC);
+
+                var hh = _context.tblS_IncidentesInformacionColaboradores.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true));
+                decimal totalHorasHombre = 0;
+                decimal cantidadIncidentes = 0;
+                decimal cantidadFormula = 200000;
+
+                //HH X MES
+                for (int i = 0; i < months.Length; i++)
+                {
+                    totalHorasHombre = 0;
+                    foreach (var element in hh)
+                    {
+                        DateTime fechaI = element.fechaInicio;
+                        DateTime fechaF = element.fechaFin;
+                        decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                        decimal horasHombre = element.horasHombre;
+                        decimal horarHombreProrrateo = horasHombre / cantidadDias;
+
+                        foreach (DateTime day in EachDay(fechaI, fechaF))
+                        {
+                            if (day.Month - 1 >= i && day.Month - 1 <= i)
+                            {
+                                totalHorasHombre += Math.Round(horarHombreProrrateo, 2);
+                            }
+                        }
+                    }
+
+                    hhMes.Add(new incidentesRegistrablesXmes()
+                    {
+                        mesID = i + 1,
+                        mes = months[i],
+                        cantidad = totalHorasHombre
+                    });
+                }
+
+                //TRIFR
+                totalHorasHombre = 0;
+                foreach (var element in hhMes)
+                {
+                    cantidadIncidentes = listatotal.Where(x => x.Month == element.mesID).Count();
+                    totalHorasHombre = element.cantidad;
+
+                    incidentesMes.Add(new incidentesRegistrablesXmes()
+                    {
+                        mes = element.mes,
+                        cantidad = cantidadIncidentes > 0 ? Math.Round((cantidadIncidentes * cantidadFormula) / (totalHorasHombre == 0 ? 1 : totalHorasHombre), 2, MidpointRounding.AwayFromZero) : 0,
+                    });
+                }
+
+
+                if (incidentesMes.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesMes);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes reportables");
+            }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> getTasaIncidencias(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                string[] months = new string[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+                List<incidentesRegistrablesXmes> incidentesMes = new List<incidentesRegistrablesXmes>();
+                List<incidentesRegistrablesXmes> hhMes = new List<incidentesRegistrablesXmes>();
+
+                var listatotal = GetListaFechaAccidentesTRIFR(arrCC);
+
+                var hh = _context.tblS_IncidentesInformacionColaboradores.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true));
+                decimal totalHorasHombre = 0;
+                decimal cantidadIncidentes = 0;
+                decimal cantidadFormula = 200000;
+
+                //HH X MES
+                for (int i = 0; i < months.Length; i++)
+                {
+                    totalHorasHombre = 0;
+                    foreach (var element in hh)
+                    {
+                        DateTime fechaI = element.fechaInicio;
+                        DateTime fechaF = element.fechaFin;
+                        decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                        decimal horasHombre = element.horasHombre;
+                        decimal horarHombreProrrateo = horasHombre / cantidadDias;
+
+                        foreach (DateTime day in EachDay(fechaI, fechaF))
+                        {
+                            if (day.Month - 1 >= i && day.Month - 1 <= i)
+                            {
+                                totalHorasHombre += Math.Round(horarHombreProrrateo, 2);
+                            }
+                        }
+                    }
+
+                    hhMes.Add(new incidentesRegistrablesXmes()
+                    {
+                        mesID = i + 1,
+                        mes = months[i],
+                        cantidad = totalHorasHombre
+                    });
+                }
+
+                //TRIFR
+                totalHorasHombre = 0;
+                foreach (var element in hhMes)
+                {
+
+                    cantidadIncidentes += listatotal.Where(x => x.Month == element.mesID).Count();
+                    totalHorasHombre += element.cantidad;
+
+                    incidentesMes.Add(new incidentesRegistrablesXmes()
+                    {
+                        mes = element.mes,
+                        cantidad = cantidadIncidentes > 0 && totalHorasHombre > 0 ? Math.Round((cantidadIncidentes * cantidadFormula) / totalHorasHombre, 2, MidpointRounding.AwayFromZero) : 0,
+                        tasaIncidencia = (decimal)2.5
+                    });
+                }
+
+                if (incidentesMes.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesMes);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes reportables");
+            }
+
+            return resultado;
+        }
+
+        private List<DateTime> GetListaFechaAccidentesTRIFR(List<string> arrCC)
+        {
+            var incidentes = _context.tblS_Incidentes
+                .ToList()
+                .Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.TiposAccidente.clasificacion.tipoEvento.tipoEvento == "Registrable"))
+                .Select(x => new { x.fechaAccidente, abreviatura = x.TiposAccidente.clasificacion.abreviatura })
+                .ToList();
+
+            var informes = _context.tblS_IncidentesInformePreliminar
+                .ToList()
+                .Where(x => (x.aplicaRIA == false || (x.aplicaRIA && x.terminado == false && x.tipoAccidente_id.HasValue && x.riesgo.HasValue)) &&
+                            (arrCC != null ? arrCC.Contains(x.cc) : true) &&
+                            (x.TiposAccidente.clasificacion.tipoEvento.tipoEvento == "Registrable"))
+                .Select(x => new { fechaAccidente = x.fechaIncidente, abreviatura = x.TiposAccidente.clasificacion.abreviatura })
+                .ToList();
+
+            incidentes.AddRange(informes);
+
+            // Se separan los fatales para multiplicarlos
+            var incidentesTotales = incidentes.Where(x => x.abreviatura != "Fatal").ToList();
+
+            var incidentesFatales = incidentes.Where(x => x.abreviatura == "Fatal").ToList();
+            foreach (var incidenteFatal in incidentesFatales)
+            {
+                for (int i = 0; i < PonderacionFatalitdad; i++)
+                {
+                    incidentesTotales.Add(incidenteFatal);
+                }
+            }
+
+            return incidentesTotales.Select(x => x.fechaAccidente).ToList();
+        }
+
+        public Dictionary<string, object> getIncidenciasPresentadas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var fechaFinal = fechaFin.AddHours(23).AddMinutes(59);
+
+                var tablaIncidentes = _context.tblS_Incidentes.ToList();
+
+                var tablaReportesIncidentesNoAplicaRIA = _context.tblS_IncidentesInformePreliminar.Where(x => x.aplicaRIA == false || (x.aplicaRIA && x.terminado == false && x.tipoAccidente_id.HasValue && x.riesgo.HasValue)).ToList();
+
+                var listaIncidentes = tablaIncidentes
+                    .Where(x => x.fechaAccidente >= fechaInicio && x.fechaAccidente <= fechaFinal)
+                    .ToList()
+                    .Select(x => new InformesRIADTO { cc = x.cc, abreviaturaClasificacion = x.TiposAccidente.clasificacion.abreviatura });
+
+                var listaInformes = tablaReportesIncidentesNoAplicaRIA
+                    .Where(x => x.fechaIncidente >= fechaInicio && x.fechaIncidente <= fechaFinal)
+                    .ToList()
+                    .Select(x => new InformesRIADTO { cc = x.cc, abreviaturaClasificacion = x.TiposAccidente.clasificacion.abreviatura });
+
+                listaIncidentes = listaIncidentes.Concat(listaInformes);
+
+                var tablaClasificacionIncidentes = _context.tblS_IncidentesClasificacion.ToList();
+
+                var registrables = tablaClasificacionIncidentes
+                    .Where(x => x.tipoEvento.tipoEvento == "Registrable")
+                    .Select(x => x.abreviatura);
+
+                var incapacitantes = tablaClasificacionIncidentes
+                    .Where(x => x.abreviatura == "Fatal" || x.abreviatura == "LTI")
+                    .Select(x => x.abreviatura);
+
+                var lesionesTotales = tablaClasificacionIncidentes
+                    .Where(x => x.abreviatura == "Fatal" || x.abreviatura == "LTI" || x.abreviatura == "MDI" || x.abreviatura == "MTI" || x.abreviatura == "OI" || x.abreviatura == "FAI")
+                    .Select(x => x.abreviatura);
+
+                var lesionesDanios = tablaClasificacionIncidentes
+                    .Where(x => x.abreviatura == "Fatal" || x.abreviatura == "LTI" || x.abreviatura == "MDI" || x.abreviatura == "MTI" || x.abreviatura == "OI" || x.abreviatura == "FAI" || x.abreviatura == "PD")
+                    .Select(x => x.abreviatura);
+
+                List<incidentesRegistrablesXmes> hhCC = new List<incidentesRegistrablesXmes>();
+
+                //HH X CC
+                var horasHombre = _context.tblS_IncidentesInformacionColaboradores.GroupBy(x => x.cc).ToList();
+
+                decimal totalHorasHombre = 0;
+                decimal totalLostDay = 0;
+                foreach (var ccFiltro in horasHombre)
+                {
+
+                    totalHorasHombre = 0;
+                    totalLostDay = 0;
+                    foreach (var hhFiltro in ccFiltro)
+                    {
+                        DateTime fechaI = hhFiltro.fechaInicio;
+                        DateTime fechaF = hhFiltro.fechaFin;
+                        decimal cantidadDias = (decimal)(fechaF - fechaI).TotalDays + 1;
+                        decimal hhTotal = hhFiltro.horasHombre;
+                        decimal lostDatalT = hhFiltro.lostDay;
+                        decimal horarHombreProrrateo = hhTotal / cantidadDias;
+                        decimal lostDayProrrateo = lostDatalT / cantidadDias;
+
+                        foreach (DateTime day in EachDay(fechaI, fechaF))
+                        {
+                            if (day >= fechaInicio && day <= fechaFin)
+                            {
+                                totalHorasHombre += horarHombreProrrateo;
+                                totalLostDay += lostDayProrrateo;
+                            }
+                        }
+                    }
+
+                    hhCC.Add(new incidentesRegistrablesXmes()
+                   {
+
+                       cc = ccFiltro.Key,
+                       cantidad = totalHorasHombre,
+                       lostDay = totalLostDay
+                   });
+                }
+
+                var incidentesReportados = new List<incidenciasPresentadasDTO>();
+
+                hhCC.ForEach(x =>
+                {
+                    var listaIncidentesPorCC = listaIncidentes.Where(y => y.cc == x.cc);
+
+                    var incidenteReportado = new incidenciasPresentadasDTO
+                    {
+                        centroCosto = _context.tblP_CC.Where(y => y.cc == x.cc).Select(z => z.descripcion).FirstOrDefault(),
+
+                        cantidadFatal = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "Fatal"),
+                        cantidadLTA = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "LTI"),
+                        cantidadATR = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "MDI"),
+                        cantidadATM = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "MTI"),
+                        cantidadAPA = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "FAI"),
+                        cantidadDAMEQ = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "PD"),
+                        cantidadNM = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "NM"),
+                        cantidadOI = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "OI"),
+                        cantidadEI = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "EI"),
+                        severidad = ObtenerTotalIncidencias((int)x.lostDay, x.cantidad)
+                    };
+
+                    var cantidadRegistrables = PonderarEventosFatales(registrables, listaIncidentesPorCC);
+                    incidenteReportado.LesionesRegistrables = ObtenerTotalIncidencias(cantidadRegistrables, x.cantidad);
+
+                    var cantidadIncidentesReportados = PonderarEventosFatales(incapacitantes, listaIncidentesPorCC);
+                    incidenteReportado.LesionesIncapacitantes = ObtenerTotalIncidencias(cantidadIncidentesReportados, x.cantidad);
+
+                    var cantidadLesionesTotales = PonderarEventosFatales(lesionesTotales, listaIncidentesPorCC);
+                    incidenteReportado.LesionesTotales = ObtenerTotalIncidencias(cantidadLesionesTotales, x.cantidad);
+
+                    var cantidadLesionesDanios = PonderarEventosFatales(lesionesDanios, listaIncidentesPorCC);
+                    incidenteReportado.LesionesDanios = ObtenerTotalIncidencias(cantidadLesionesDanios, x.cantidad);
+
+                    incidentesReportados.Add(incidenteReportado);
+                });
+
+                incidentesReportados = incidentesReportados.OrderByDescending(x => x.LesionesTotales).ThenByDescending(x => x.LesionesDanios).ToList();
+
+                // Totales
+                var listatotalNoDate = tablaIncidentes.Select(x => new InformesRIADTO
+                {
+                    cc = x.cc,
+                    abreviaturaClasificacion = x.TiposAccidente.clasificacion.abreviatura
+                }).ToList();
+
+                var infNoDate = tablaReportesIncidentesNoAplicaRIA.Select(x => new InformesRIADTO
+                {
+                    cc = x.cc,
+                    abreviaturaClasificacion = x.TiposAccidente.clasificacion.abreviatura
+                }).ToList();
+
+                listatotalNoDate.AddRange(infNoDate);
+
+                incidenciasPresentadasDTO incidentesIndicadores = new incidenciasPresentadasDTO
+               {
+                   cantidadFatalIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "Fatal"),
+                   cantidadLTAIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "LTI"),
+                   cantidadATRIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "MDI"),
+                   cantidadATMIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "MTI"),
+                   cantidadAPAIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "FAI"),
+                   cantidadDAMEQIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "PD"),
+                   cantidadNMIndicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "NM"),
+                   cantidadOIindicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "OI"),
+                   cantidadEIindicador = listatotalNoDate.Count(x => x.abreviaturaClasificacion == "EI"),
+                   cantidadTotalIndicador = listatotalNoDate.Count(),
+               };
+
+                if (incidentesReportados.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("items", incidentesReportados);
+                    resultado.Add("indicadores", incidentesIndicadores);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes presentados");
+            }
+
+            return resultado;
+        }
+
+        private static int PonderarEventosFatales(IEnumerable<string> abreviaturas, IEnumerable<InformesRIADTO> listaIncidentesPorCC)
+        {
+            var cantidadIncidentesNoFatales = listaIncidentesPorCC.Count(y => abreviaturas.Contains(y.abreviaturaClasificacion) && y.abreviaturaClasificacion != "Fatal");
+
+            var cantidadIncidentesFatales = listaIncidentesPorCC.Count(y => y.abreviaturaClasificacion == "Fatal") * PonderacionFatalitdad;
+
+            return cantidadIncidentesNoFatales + cantidadIncidentesFatales;
+        }
+
+        private Decimal ObtenerTotalIncidencias(int cantidadIncidentes, decimal cantidadTotal)
+        {
+            if (cantidadIncidentes == 0)
+            {
+                return 0;
+            }
+
+            decimal formula = 200000;
+
+            return Math.Round((cantidadIncidentes * formula) / (cantidadTotal > 0 ? cantidadTotal : 1), 2);
+        }
+
+        public Dictionary<string, object> getIncidenciasPresentadasTipo(string tipo)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var incidentes = tipo == "Total Incidencias" ? _context.tblS_Incidentes.ToList() : _context.tblS_Incidentes.ToList().Where(x => x.TiposAccidente.clasificacion.abreviatura == tipo).ToList();
+
+                var incidentesReportadosTipo = incidentes.GroupBy(x => x.cc).ToList().Select(x => new incidenciasPresentadasDTO
+                {
+                    centroCosto = _context.tblP_CC.Where(y => y.cc == x.Key).Select(z => z.descripcion).FirstOrDefault(),
+                    cantidadHH = _context.tblS_IncidentesInformacionColaboradores.Where(y => y.cc == x.Key).ToList().Count <= 0 ? 0 : _context.tblS_IncidentesInformacionColaboradores.Where(y => y.cc == x.Key).Sum(y => y.horasHombre),
+                    cantidadTotalTipo = x.Count(),
+                }).ToList();
+
+
+                if (incidentesReportadosTipo.Count > 0)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("indicadores", incidentesReportadosTipo);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes presentados");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getAccidentabilidad(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                //var incidencias = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)) &&
+                //    (x.puestoEmpleado != "GERENTE DE SEGURIDAD Y M.A. DIV. CONSTRUCC") && (x.Departamentos.departamento != "ND" && (x.TurnoEmpleado.turno != "ND") && (x.AgentesImplicados.agenteImplicado != "ND") && (x.ExperienciaEmpleado.empleadoExperiencia != "ND") &&
+                //    (x.AntiguedadEmpleado.antiguedadEmpleado != "ND"))).ToList();
+
+                var incidencias = _context.tblS_Incidentes
+                    .ToList()
+                    .Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59)));
+
+                var incidenciasF = incidencias
+                    .Where(x =>
+                        (x.puestoEmpleado != "GERENTE DE SEGURIDAD Y M.A. DIV. CONSTRUCC") &&
+                        (x.Departamentos.departamento != "ND" &&
+                            (x.TurnoEmpleado.turno != "ND") &&
+                            (x.AgentesImplicados.agenteImplicado != "ND") &&
+                            (x.ExperienciaEmpleado.empleadoExperiencia != "ND") &&
+                            (x.AntiguedadEmpleado.antiguedadEmpleado != "ND") &&
+                            (x.lugarAccidente != "ND") &&
+                            (x.diasTrabajadosEmpleado != 0) &&
+                            (x.TiposContacto.tipoContacto != "ND") &&
+                        (x.ProtocolosTrabajo.protocoloTrabajo != "ND")))
+                    .ToList();
+
+                var diasIncidencias = incidencias.Select(x => x.fechaAccidente.DayOfWeek).ToList();
+
+                var listaCC = _context.tblP_CC.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true)).ToList();
+
+                List<rangoHorasDTO> rangoHoras = new List<rangoHorasDTO>();
+                CultureInfo ci = new CultureInfo("Es-Es");
+
+                DateTime rangoInicial = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 7, 0, 00);
+                DateTime rangoFinal = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.AddDays(1).Day, 7, 0, 00);
+                TimeSpan ts = rangoFinal - rangoInicial;
+
+                IEnumerable<int> hoursBetween = Enumerable.Range(0, (int)ts.TotalHours)
+                .Select(i => rangoInicial.AddHours(i).Hour);
+
+                foreach (int hour in hoursBetween)
+                {
+                    TimeSpan minutesInicial = TimeSpan.FromMinutes(0);
+                    TimeSpan minutes = TimeSpan.FromMinutes(59);
+
+                    TimeSpan resultInicial = TimeSpan.FromHours(hour).Add(minutesInicial);
+                    TimeSpan result = TimeSpan.FromHours(hour).Add(minutes);
+
+                    string fromTimeInicial = resultInicial.ToString("hh':'mm");
+                    string fromTimeString = result.ToString("hh':'mm");
+
+                    rangoHoras.Add(new rangoHorasDTO()
+                    {
+                        hora = hour,
+                        rango = fromTimeInicial + " - " + fromTimeString
+                    });
+                }
+
+
+                int a;
+                tendenciasAccidentabilidadDTO tendenciasAccidentabilidad = new tendenciasAccidentabilidadDTO
+                {
+                    dia = incidencias.GroupBy(x => ci.DateTimeFormat.GetDayName(x.fechaAccidente.DayOfWeek)).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).ToList().FirstOrDefault().ToString(),
+                    porcentajeDia = Math.Round((decimal)(incidencias.GroupBy(x => ci.DateTimeFormat.GetDayName(x.fechaAccidente.DayOfWeek)).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).ToList().FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    hora = rangoHoras.Where(z => z.hora == incidencias.GroupBy(x => x.fechaAccidente.Hour).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).ToList().FirstOrDefault()).Select(z => z.rango).FirstOrDefault(),
+                    porcentajeHora = Math.Round((decimal)(incidencias.GroupBy(x => x.fechaAccidente.Hour).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).ToList().FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    turno = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.TurnoEmpleado.turno).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).ToList().FirstOrDefault() : "",
+                    porcentajeTurno = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.TurnoEmpleado.turno).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).ToList().FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    cc = listaCC.Where(y => y.cc == incidencias.GroupBy(x => x.cc).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).ToList().FirstOrDefault().ToString()).Select(y => y.descripcion).FirstOrDefault(),
+                    porcentajeCC = Math.Round((decimal)(incidencias.GroupBy(x => x.cc).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).ToList().FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    actividad = incidencias.GroupBy(x => x.actividadRutinaria).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() == true ? "Rutinaria" : "No Rutinaria",
+                    porcentajeActividad = Math.Round((decimal)(incidencias.GroupBy(x => x.actividadRutinaria).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    tarea = incidencias.GroupBy(x => x.trabajoPlaneado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() == true ? "Planeada" : "No Planeada",
+                    porcentajeTarea = Math.Round((decimal)(incidencias.GroupBy(x => x.trabajoPlaneado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    agente = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.AgentesImplicados.agenteImplicado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).ToList().FirstOrDefault() : "",
+                    porcentajeAgente = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.AgentesImplicados.agenteImplicado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).ToList().FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    edad = incidencias.GroupBy(x => x.edadEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault().ToString(),
+                    porcentajeEdad = Math.Round((decimal)(incidencias.GroupBy(x => x.edadEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    puesto = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.puestoEmpleado).ToList().Where(x => x.Key != "GERENTE DE SEGURIDAD Y M.A. DIV. CONSTRUCC").ToList().OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault().ToString() : "",
+                    porcentajePuesto = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.puestoEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    experiencia = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.ExperienciaEmpleado.empleadoExperiencia).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeExperiencia = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.ExperienciaEmpleado.empleadoExperiencia).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    antiguedadEmpresa = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.AntiguedadEmpleado.antiguedadEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeAntiguedadEmpresa = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.AntiguedadEmpleado.antiguedadEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    diasTrabajados = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.diasTrabajadosEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault().ToString() : "",
+                    porcentajeDiasTrabajados = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.diasTrabajadosEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    departamento = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.Departamentos.departamento).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeDepartamento = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.Departamentos.departamento).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    lugar = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.lugarAccidente).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeLugar = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.lugarAccidente).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    tipoContacto = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.TiposContacto.tipoContacto).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeTipoContacto = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.TiposContacto.tipoContacto).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    capacitado = incidencias.GroupBy(x => x.capacitadoEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() == true ? "Capacitado" : "No Capacitado",
+                    porcentajeCapacitado = Math.Round((decimal)(incidencias.GroupBy(x => x.capacitadoEmpleado).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidencias.Count(), 2),
+                    protocoloTrabajo = incidenciasF.Count > 0 ? incidenciasF.GroupBy(x => x.ProtocolosTrabajo.protocoloTrabajo).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault() : "",
+                    porcentajeProtocolo = incidenciasF.Count > 0 ? Math.Round((decimal)(incidenciasF.GroupBy(x => x.ProtocolosTrabajo.protocoloTrabajo).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidenciasF.Count(), 2) : 0,
+                    potencialSeveridad = getTipoSeveridad(incidencias.GroupBy(x => x.riesgo).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Key).FirstOrDefault()),
+                    porcentajePotencial = Math.Round((decimal)(incidencias.GroupBy(x => x.riesgo).OrderByDescending(x => x.Count()).Take(1).Select(x => x.Count()).FirstOrDefault() * 100) / incidencias.Count(), 2)
+                };
+
+                if (tendenciasAccidentabilidad != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("indicadores", tendenciasAccidentabilidad);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes presentados");
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getAccidentabilidadDetalleTipo()
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return resultado;
+        }
+        public Dictionary<string, object> getCausasIncidencias(List<string> arrCC, DateTime fechaInicio, DateTime fechaFin)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                var incidentes = _context.tblS_Incidentes.ToList().Where(x => (arrCC != null ? arrCC.Contains(x.cc) : true) && (x.fechaAccidente >= fechaInicio) && (x.fechaAccidente <= fechaFin.AddHours(23).AddMinutes(59))).ToList();
+
+                causasIncidenciasDTO causasIncidencias = new causasIncidenciasDTO
+                {
+                    alturas = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo == "Alturas").Count() * 100) / incidentes.Count(), 2),
+                    corteSoldadura = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Corte y Soldadura").Count() * 100) / incidentes.Count(), 2),
+                    espaciosConfinados = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Espacios Confinados").Count() * 100) / incidentes.Count(), 2),
+                    excavaciones = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Excavaciones").Count() * 100) / incidentes.Count(), 2),
+                    controlEnergias = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Control de Energias").Count() * 100) / incidentes.Count(), 2),
+                    manejoDefensivo = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Manejo Defensivo").Count() * 100) / incidentes.Count(), 2),
+                    manipulacionCargas = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Manipulacion de Cargas").Count() * 100) / incidentes.Count(), 2),
+                    estabilizacionTaludez = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Estabilización  de taludes").Count() * 100) / incidentes.Count(), 2),
+                    sustanciasQuimicas = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Sustancias Quimicas").Count() * 100) / incidentes.Count(), 2),
+                    voladura = Math.Round((decimal)(incidentes.ToList().Where(x => x.ProtocolosTrabajo.protocoloTrabajo.Trim().Replace("\r", "").Replace("\n", "") == "Voladura").Count() * 100) / incidentes.Count(), 2),
+                };
+
+
+                if (causasIncidencias != null)
+                {
+                    resultado.Add(SUCCESS, true);
+                    resultado.Add("indicadores", causasIncidencias);
+                }
+                else
+                {
+                    resultado.Add(SUCCESS, false);
+                    resultado.Add("EMPTY", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add(SUCCESS, false);
+                resultado.Add(ERROR, "Ocurrió un error interno al intentar obtener los incidentes presentados");
+            }
+
+            return resultado;
+        }
+
+
+        public string getTipoSeveridad(int nivel)
+        {
+            string severidad = "";
+
+            switch (nivel)
+            {
+                case 1:
+                    severidad = "Menor";
+                    break;
+                case 2:
+                    severidad = "Menor";
+                    break;
+                case 3:
+                    severidad = "Moderado";
+                    break;
+                case 4:
+                    severidad = "Moderado";
+                    break;
+                case 5:
+                    severidad = "Mayor";
+                    break;
+                case 6:
+                    severidad = "Mayor";
+                    break;
+                case 9:
+                    severidad = "Catastrofico";
+                    break;
+                default:
+                    break;
+            }
+
+            return severidad;
+        }
+        public IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
+        {
+            for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
+                yield return day;
+        }
+        private List<string> addCCArrendadoraCP(List<string> arrCC)
+        {
+
+            if (arrCC != null)
+            {
+                string[] ccTMC = new string[] { "100", "101", "002", "114", "004" };
+                string[] ccCerroPelon = new string[] { "121", "123" };
+                string[] ccColorada = new string[] { "103" };
+                string[] ccYaqui = new string[] { "105" };
+                string[] ccJales = new string[] { "126" };
+                string[] ccAcueducto = new string[] { "125" };
+
+
+
+                if (arrCC.Contains("1010"))
+                {
+                    arrCC.AddRange(ccTMC);
+                }
+
+                if (arrCC.Contains("165"))
+                {
+                    arrCC.AddRange(ccCerroPelon);
+                }
+
+                if (arrCC.Contains("146"))
+                {
+                    arrCC.AddRange(ccColorada);
+                }
+
+                if (arrCC.Contains("155"))
+                {
+                    arrCC.AddRange(ccYaqui);
+                }
+
+                if (arrCC.Contains("169"))
+                {
+                    arrCC.AddRange(ccJales);
+                }
+
+                if (arrCC.Contains("227"))
+                {
+                    arrCC.AddRange(ccAcueducto);
+                }
+            }
+
+
+            return arrCC;
+        }
+        #endregion
+
+        #region Helper methods
+
+        private bool SaveArchivo(HttpPostedFileBase archivo, string ruta)
+        {
+            try
+            {
+                byte[] data;
+                using (Stream inputStream = archivo.InputStream)
+                {
+                    MemoryStream memoryStream = inputStream as MemoryStream;
+                    if (memoryStream == null)
+                    {
+                        memoryStream = new MemoryStream();
+                        inputStream.CopyTo(memoryStream);
+                    }
+                    data = memoryStream.ToArray();
+                }
+                File.WriteAllBytes(ruta, data);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+            return File.Exists(ruta);
+        }
+
+        /// <summary>
+        /// Verifica si el nombre contiene caracteres inválidos para archivos.
+        /// </summary>
+        /// <param name="nombreArchivo">Nombre del archivo a verificar.</param>
+        /// <returns>Verdadero si el archivo contiene caracteres inválidos.</returns>
+        private bool EsNombreArchivoInvalido(string nombreArchivo)
+        {
+            string invalidFileNameRegex = @"[^a-zA-Z0-9áéíóúüñÑ_.\- ]+";
+            return Regex.Match(nombreArchivo, invalidFileNameRegex, RegexOptions.IgnoreCase).Success;
+        }
+
+        /// <summary>
+        /// Verifica si existe una carpeta física en el servidor.
+        /// </summary>
+        /// <param name="path">Ruta de la carpeta física.</param>
+        /// <param name="crear">Bandera que al activarla, si no existe la carpeta, la creará.</param>
+        /// <returns></returns>
+        private static bool verificarExisteCarpeta(string path, bool crear = false)
+        {
+            bool existe = false;
+            try
+            {
+                existe = Directory.Exists(path);
+                if (!existe && crear)
+                {
+                    Directory.CreateDirectory(path);
+                    existe = true;
+                }
+            }
+            catch (Exception e)
+            {
+                existe = false;
+            }
+
+            return existe;
+        }
+
+
+        private bool EsExtensionInvalidaVisor(string nombreArchivo)
+        {
+            var extension = Path.GetExtension(nombreArchivo).ToUpper();
+
+            var extensionesValidasVisor = GlobalUtils.ObtenerExtensionesValidasVisor();
+
+            return !extensionesValidasVisor.Contains(extension);
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,391 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- OCULTO -->
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+<!-- END: OCULTO -->
+
+<!-- CSS -->
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/style/css/BackLogs/OBRA/General.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.css" rel="stylesheet" />
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">REPORTES E INDICADORES</h2>
+</fieldset>
+<!-- END: TITULO MODULO -->
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <!-- LISTADO DE PROYECTOS -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+        <div class="row">
+            <div class='col-lg-5'>
+                <label for='cboProyecto'>Área cuenta</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select class="form-control" id="cboProyecto"></select>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END: LISTADO DE PROYECTOS -->
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioObra">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Inspección
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnRegistroBackLogs">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Registro de BackLogs
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informe de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnReporteIndicadores">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Inspección (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Elaboración de Requisición (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Programación de BackLogs (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        Backlogs Instalado (100%)
+                    </button>
+                    <!-- END: ESTATUS -->
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <!-- END: MENU Y LISTADO DE ESTATUS -->
+
+    <!-- TABS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class='fieldset-custm'>
+            <legend class="legend-custm"><span class="badge">&nbsp;</span></legend>
+            <ul class="nav nav-tabs">
+                <li class="nav-item" style="display: none;">
+                    <a class="nav-link" data-toggle="tab" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabTbl1" id="tabMenuTbl1">Análisis BL por responsable</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabTbl2" id="tabMenuTbl2">Análisis BL por equipo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabTbl3" id="tabMenuTbl3">Análisis BL por folio</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+                    <!-- TBL 1 -->
+                    <div id="divTbl1">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fechas:</span>
+                                    <input id="txtFiltroFechaInicioTbl1" class="form-control no-margin-right inputFechas" placeholder="Inicio" />
+                                    <input id="txtFiltroFechaFinTbl1" class="form-control no-margin-left inputFechas" placeholder="Fin" />
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Responsable:</span>
+                                    <select id="cboFiltroResponsableTbl1" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="pull-right">
+                                <button id="btnFiltroBuscarTbl1" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                                @* <button id="btnFiltroLimpiarTbl1" class="btn btn-default" style="margin-right: 13px;">Limpiar</button> *@
+                            </div>
+                        </div><br>
+                    </div>
+                    <!-- END: TBL 1 -->
+                </fieldset>
+                <!-- TABLA #1 -->
+                <div class="col-lg-12 no-padding">
+                    <div id="tabTbl1" class="container tab-pane fade" style="width:100%">
+                        <div class="text-align-center">
+                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-top: 40px; margin-bottom: 30px;">
+                                <table id="tblPorResponsable" class="table-bordered compact hover text-center no-margin">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th colspan="3" class="text-center">TOP 3 TIPOS DE BACKLOGS</th>
+                                            <th colspan="4" class="text-center">CANT. DE BACKLOGS</th>
+                                            <th></th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                </table><br>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-lg-12">
+                            <div style="margin-left: auto; margin-right: auto">
+                                <figure class="highcharts-figure">
+                                    <div id="GraficaReportes" style="margin-left:auto; margin-right:auto;"></div>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: TABLA #1 -->
+                <!-- TABLA #2 -->
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+                    <!-- TBL 2 -->
+                    <div id="divTbl2">
+                        <div>
+                            <div class="col-lg-6 no-padding">
+                                <div class="col-lg-7 padding2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fechas:</span>
+                                        <input id="txtFiltroFechaInicioTbl2" class="form-control no-margin-right inputFechas" placeholder="Inicio" />
+                                        <input id="txtFiltroFechaFinTbl2" class="form-control no-margin-left inputFechas" placeholder="Fin" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 padding2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Tipo:</span>
+                                        <select id="cboFiltroTipoMaquinaTbl2" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 no-padding">
+                                <div class="col-lg-9 padding2">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Estatus:</span>
+                                        <select id="cboFiltroEstatusTbl2" class="form-control">
+                                            <option value="0">--Seleccione--</option>
+                                            <option value="1">Elaboración de Inspección (20%)</option>
+                                            <option value="2">Elaboración de Requisición (40%)</option>
+                                            <option value="3">Elaboración de OC (50%)</option>
+                                            <option value="4">Suministro de Refacciones (60%)</option>
+                                            <option value="5">Programación de BackLogs (80%)</option>
+                                            <option value="6">Proceso de Instalacion (90%)</option>
+                                            <option value="7">Backlogs instalado (100%)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 padding2">
+                                    <button id="btnFiltroBuscarTbl2" class="btn btn-primary pull-right"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                                    @*<button id="btnFiltroLimpiarTbl2" class="btn btn-default pull-right" style="margin-right: 13px;">Limpiar</button>*@
+                                </div>
+                            </div>
+                        </div><br>
+                    </div>
+                </fieldset>
+                <!-- TBL 2 -->
+                <div class="col-lg-12 no-padding">
+                    <div id="tabTbl2" class="container tab-pane fade" style="width:100%">
+                        <div class="table-responsive text-align-center">
+                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-top:40px;margin-bottom:30px;">
+                                <table id="tblPorEquipo" class="table-bordered compact hover text-center no-margin"></table>
+                            </div>
+                            <input id="chbTipoGraficaPorEquipo" type="checkbox" checked data-toggle="toggle" data-on="Costo/Hora" data-off="Periodo" data-onstyle="success" data-offstyle="primary" data-width="150px">
+                            <div class="col-lg-12 col-md-12 col-sm-12" style="margin-top:15px; padding-left:0 !important; padding-right:5px !important;">
+                                <fieldset class="fieldset-custm" id="divGraficaEquipoCostoHora">
+                                    <legend class="legend-custm">Costo/Hora</legend>
+                                    <div id="graficaEquipoCostoHora" style="min-width: 310px; height: 252px; max-width: 600px; margin: 0 auto"></div>
+                                </fieldset>
+                                <fieldset class="fieldset-custm" id="divGraficaEquipoCostoMes" style="display: none;">
+                                    <legend class="legend-custm">Costo Periodo</legend>
+                                    <div id="graficaEquipoCostoMes" style="min-width: 310px; height: 252px; max-width: 600px; margin: 0 auto"></div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: TABLA #2 -->
+                <!-- TABLA #3 -->
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+                    <!-- TBL 3 -->
+                    <div id="divTbl3">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Año:</span>
+                                    <select id="cboFiltroAnioTbl3" class="form-control">
+                                        <option value="0">--Seleccione--</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Mes:</span>
+                                    <select id="cboFiltroMesTbl3" class="form-control">
+                                        <option value="1">Enero</option>
+                                        <option value="2">Febrero</option>
+                                        <option value="3">Marzo</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Mayo</option>
+                                        <option value="6">Junio</option>
+                                        <option value="7">Julio</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Septiembre</option>
+                                        <option value="10">Octubre</option>
+                                        <option value="11">Noviembre</option>
+                                        <option value="12">Diciembre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Estatus:</span>
+                                    <select id="cboFiltroEstatusTbl3" class="form-control">
+                                        <option value="1">Elaboración de Inspección (20%)</option>
+                                        <option value="2">Elaboración de Requisición (40%)</option>
+                                        <option value="3">Elaboración de OC (50%)</option>
+                                        <option value="4">Suministro de Refacciones (60%)</option>
+                                        <option value="5">Programación de BackLogs (80%)</option>
+                                        <option value="6">Proceso de Instalacion (90%)</option>
+                                        <option value="7">Backlogs instalado (100%)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="btnFiltroBuscarTbl3" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: TBL 3 -->
+                </fieldset>
+                <div class="col-lg-12 no-padding">
+                    <div id="tabTbl3" class="container tab-pane fade" style="width:100%">
+                        <div class="text-align-center">
+                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="margin-top: 40px; margin-bottom: 30px;">
+                                <table id="tblPorFolio" class="table-bordered compact hover text-center no-margin"></table>
+                            </div>
+                        </div><br>
+
+                        <div class="text-align-center">
+                            <button class="btn btn-success" id="btnGraficaResponsables">Responsables</button>
+                            <button class="btn btn-success" id="btnGraficaConjuntos">Conjuntos</button>
+                            <button class="btn btn-success" id="btnGraficaDias">Días</button>
+                        </div>
+
+                        <fieldset class='fieldset-custm' id="divGrReponsable">
+                            <div id="GrReponsable"></div>
+                        </fieldset>
+                        <fieldset class='fieldset-custm' id="divGrConjuntos">
+                            <div id="graficaConjuntos"></div>
+                        </fieldset>
+                        <fieldset class='fieldset-custm' id="divGrDias">
+                            <div id="graficaBLDias"></div>
+                        </fieldset>
+                        <br>
+                    </div>
+                </div>
+                <!-- END: TABLA #3 -->
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: TABS -->
+</fieldset>
+<!-- BODY -->
+
+<div class="modal fade" id="modalDetallePorEquipo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width:95%">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <table id="tblPorEquipoDet" class="table-bordered compact hover text-center no-margin"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+<div id='mdlDescripcionBL' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Descripción del BL</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcionBL" onkeypress="return false;" cols="30" rows="10" data-width="100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/ReporteIndicadoresObra.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.js"></script>

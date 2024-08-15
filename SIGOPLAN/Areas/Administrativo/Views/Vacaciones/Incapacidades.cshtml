@@ -1,0 +1,336 @@
+﻿@{
+    ViewBag.Title = "Relacion de registros patronales";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- PUESTOS -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>INCAPACIDADES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Estatus</span>
+                                <select type="date" id="cboFiltroEstatus" class="form-control">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="0">Vencida</option>
+                                    <option value="1">Vigente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha Inicio</span>
+                                <input type="date" id="txtFiltroFechaInicio" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha Terminacion</span>
+                                <input type="date" id="txtFiltroFechaTerminacion" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row marginBottom">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon"># Emp.</span>
+                                <input id="txtFiltroClaveEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="txtFiltroNombreEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 pull-right">
+                            <div class="pull-right">
+
+                                <!-- <button type="button" class="btn btn-primary" id="btnFiltroExportarCR">Exportar</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroExportar"><i class="far fa-file-excel"></i> Descargar</button> -->
+                                <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
+                                <button type="button" class="btn btn-success" id="btnFiltroNuevo">Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE PUESTOS -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblIncapacidades" class="table table-hover compact" style="width:100%;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE PUESTOS -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<div id='mdlCarousel' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1><i class="fas fa-exclamation-triangle"></i></h1>
+            </div> 
+            <div class='modal-body'>
+                    <!-- <h2>Carousel</h2> -->
+                <div id="carouselNotis" class="carousel slide" >
+                    <!-- Indicators -->
+                    <!-- <ol class="carousel-indicators">
+                        <li data-target="#carouselNotis" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselNotis" data-slide-to="1"></li>
+                        <li data-target="#carouselNotis" data-slide-to="2"></li>
+                        <li data-target="#carouselNotis" data-slide-to="3"><span>21645</span></li>
+                    </ol> -->
+
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner" id ="carouselNotisInner">
+                        
+                    </div>
+
+                    <!-- Left and right controls -->
+                    <a class="left carousel-control" href="#carouselNotis" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carouselNotis" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL ADD PUESTO -->
+<div id='mdlCEIncap' class='modal fade' role='dialog' style="max-height: 100vh;">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanCEIncapTitulo"></span> DE INCAPACIDAD</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha de Captura</span>
+                            <input type="date" id="txtCEIncapFechaCaptura" class="form-control">
+                        </div>
+                    </div>
+                    <div class="pull-right">
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <!-- <span class="input-group-addon">Estatus Incapacidad: </span> -->
+                                <input type="checkbox" id="txtCEIncapEstatus" data-toggle="toggle" data-on="ACTIVO" data-off="ACTIVO" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="150">
+                                <!-- <input type="text" id="txtCEIncapEstatus" class="form-control" > -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">No. Empleado</span>
+                            <input type="text" id="txtCEIncapClaveEmpleado" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre</span>
+                            <input type="text" id="txtCEIncapNombreEmpleado" class="form-control" placeholder="Ingresa un nombre ...">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">CC</span>
+                            <input type="text" id="txtCEIncapCCEmpleado" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">NSS</span>
+                            <input type="text" id="txtCEIncapNSSEmpleado" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Puesto</span>
+                            <input type="text" id="txtCEIncapPuestoEmpleado" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha de Inicio</span>
+                            <input type="date" id="txtCEIncapFechaInicio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Total de días</span>
+                            <input type="text" id="txtCEIncapTotalDias" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Ramo de Seguro</span>
+                            <select class="form-control" id="cboCEIncapTipo">
+                                <option value="">--Seleccionar--</option>
+                                <option value="0">Probable riesgo de trabajo</option>
+                                <option value="1">Riesgo de trabajo</option>
+                                <option value="2">Enfermedad general</option>
+                                <option value="3">Maternidad</option>
+                                <option value="4">ST7</option>
+                                <option value="5">ST4</option>
+                                <option value="6">ST2</option>
+                                <option value="7">ST2 Calificada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha de terminación</span>
+                            <input type="date" id="txtCEIncapFechaTerminacion" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-6 ">
+                        <div class="input-group marginBottom pull-right">
+                            <span class="input-group-addon">Tipo de Incapacidad</span>
+                            <select class="form-control" id="cboCEIncapTipo2">
+                                <option value="">--Seleccionar--</option>
+                                <option value="0">Inicial</option>
+                                <option value="1">Subsecuente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Codigo de Incapacidad</span>
+                            <input type="text" id="txtCEIncapCodigo" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Motivo de Incapacidad</legend>
+                            <textarea class="inputTextArea" id="txtCEIncapMotivoIncap" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class="col-sm-6">
+                        <label class="input-group-btn">
+                            <span class="btn btn-primary" style="width: 100%;" id="btnCEIncapCargarArchivo"> 
+                                <i class="fas fa-paperclip"></i><span id="spanCEIncapBtnArchivoTitle"></span>ARCHIVO&hellip; <input id="inputCEIncapCargarArchivo" type="file" style="display: none;">
+                            </span>
+                        </label>
+                        <!-- <button type='button' style="width: 100%;" class='btn btn-primary' id="btnCEIncapCargarArchivo"><i class="fas fa-paperclip"></i>&nbsp;<span id="spanCEIncapBtnArchivoTitle"></span>ARCHIVO</button> -->
+                    </div>
+                    <div class="col-sm-6 ">
+                        <button type='button' style="width: 100%;" class='btn btn-warning' id="btnCEIncapNotificar"><i class="fas fa-envelope"></i>&nbsp;<span id="spanCEIncapBtnNotificarTitle"></span>NOTIFICAR</button>
+                    </div>
+                </div>
+                <div class='row marginBottom'>
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-6">
+                        <button type='button' style="width: 100%;" class='btn btn-primary' id="btnCEIncapHistorial" data-toggle="collapse" data-target="#divCEIncapHistorial" aria-expanded="false" aria-controls="divCEIncapHistorial"><i class="fas fa-table"></i>&nbsp;<span>HISTORIAL</span></button>
+                    </div>
+                    <div class="col-sm-3 ">
+                    </div>
+                </div>
+                <div class='row collapse' id="divCEIncapHistorial">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Historico</legend>
+                            <div class="table-responsive">
+                                <table id="tblHistorialIncaps" class="table table-hover compact" style="width:100%;">
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCEIncap"><i class="far fa-edit"></i>&nbsp;Añadir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ADD PUESTO -->
+
+<!-- END: MODALES -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Vacaciones/Incapacidades.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>

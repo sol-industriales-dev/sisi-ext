@@ -1,0 +1,279 @@
+﻿@{
+    ViewBag.Title = "Recorridos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var privilegioCapacitacion = new SIGOPLAN.Areas.Administrativo.Controllers.Seguridad.CapacitacionSeguridadController().privilegioCapacitacion();
+    <!-- Privilegios:
+    NoAsignado = 0
+    Administrador = 1
+    Visor = 2
+    ControlDocumentos = 3
+    Instructor = 4
+    -->
+
+}
+
+
+
+
+<style>
+    .radioBtn a {
+        font-size: 11px;
+        padding: 6px;
+    }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/CapacitacionSeguridad/Recorridos.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Requerimientos/Estilo.css" rel="stylesheet" />
+
+
+
+
+<style>
+    #tablaHallazgo tbody td {
+        vertical-align: middle !important;
+    }
+</style>
+
+<div class="row" style="margin-top: 47px;">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="container-fluid">
+            <div class="row">
+
+                <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                    <!-- <legend class="legend-custm">Filtros:</legend> -->
+
+                    <div class="col-sm-6 col-md-6 col-lg-6 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Centro de Costos</span>
+                            <select id="selectCentroCosto" class="form-control" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Área</span>
+                            <select id="selectArea" class="form-control" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                        <div id="divMes" class="input-group">
+                            <span class="input-group-addon">Mes</span>
+                            <input id="inputMes" class="form-control date-picker">
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5 mrgTop">
+                        <div class="input-group">
+                            <span class="input-group-addon">Realizador</span>
+                            <input id="inputRealizador" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4 mrgTop">
+                        <button class="btn btn-primary" id="botonBuscar"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                        @if (privilegioCapacitacion != 2 && privilegioCapacitacion != 3)
+                        {
+                            <button class="btn btn-primary" id="botonNuevoRecorrido"><i class="fa fa-plus"></i>&nbsp;Nuevo Recorrido</button>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row mrgTop">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item active">
+                        <a data-toggle="tab" href="#tabGenerales">
+                            <h4 style="text-align: center;">Generales</h4>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="botonTabSeguimiento" data-toggle="tab" href="#tabSeguimiento">
+                            <h4 style="text-align: center;">Seguimiento</h4>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-toggle="tab" href="#tabDashboard">
+                            <h4 style="text-align: center;">Dashboard</h4>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="divTab" class="tab-content">
+                    <div id="tabGenerales" class="tab-pane fade in active hide">
+                        <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                            <table id="tablaGenerales" class="table compact table-bordered stripe" style="width: 100%"></table>
+                        </div>
+                    </div>
+                    <div id="tabSeguimiento" class="tab-pane fade hide">
+                        <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                            <table id="tablaSeguimiento" class="table compact table-bordered stripe" style="width: 100%"></table>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12 mrgTop">
+                            <button class="btn btn-success pull-right" id="botonGuardarSeguimiento"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                        </div>
+                    </div>
+                    <div id="tabDashboard" class="tab-pane fade hide">
+                        <div class="col-sm-4 mrgTop">
+                            <table id="tablaActos" class="table compact table-bordered" style="width: 100%"></table>
+                            <table id="tablaCondiciones" class="table compact table-bordered" style="width: 100%; margin-top: 30px;"></table>
+                            <table id="tablaAcciones" class="table compact table-bordered" style="width: 100%; margin-top: 30px;"></table>
+                        </div>
+                        <div class="col-sm-8 mrgTop">
+                            <div class="col-sm-6">
+                                <div id="graficaActos"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div id="graficaCondiciones"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCorreos" role="dialog">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModalDesfase">Enviar Correos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Usuarios</span>
+                            <select id="slMCorreos" class=" form-control" multiple="true" style="width:100%;"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="btnSendMail" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Enviar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNuevoRecorrido" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label>Recorrido</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Datos Generales:</legend>
+
+                            <div class="col-sm-6 col-md-6 col-lg-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Centro de Costos</span>
+                                    <select id="selectCentroCostoNuevo" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-md-4 col-lg-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Área</span>
+                                    <select id="selectAreaNuevo" class="form-control" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha</span>
+                                    <input id="inputFechaNuevo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-5 col-md-5 col-lg-5 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Realizador</span>
+                                    <input id="inputRealizadorNuevo" class="form-control">
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                            <legend class="legend-custm">Hallazgos Encontrados:</legend>
+
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Detección</span>
+                                    <textarea id="textAreaDeteccionNuevo" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Recomendación</span>
+                                    <textarea id="textAreaRecomendacionNuevo" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Clasificación</span>
+                                    <select id="selectClasificacionNuevo" class="form-control">
+                                        <option value="">--Seleccione--</option>
+                                        <option value="1">Condición Insegura</option>
+                                        <option value="2">Acto Inseguro</option>
+                                        <option value="3">Acción eficiente y segura</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mrgTop">
+                                <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                    <legend class="legend-custm">Líderes Área</legend>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="divLideresArea">
+                                                <input class="form-control mrgTop" type="text" id="inputLideresNuevo" style="display: inline-block; width: 20%;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-sm-12 mrgTop">
+                                <button id="botonAgregarHallazgo" class="btn btn-default"><i class="fa fa-arrow-down"></i>&nbsp;Agregar Hallazgo</button>
+                            </div>
+                            <div class="col-sm-12 mrgTop">
+                                <table id="tablaHallazgo" class="table compact table-bordered stripe" style="width: 100%"></table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonGuardarNuevoRecorrido" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/Recorridos.js"></script>

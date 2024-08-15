@@ -1,0 +1,348 @@
+﻿@{
+    ViewBag.Title = "Insumos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var empresa = (int)ViewBag.empresa;
+}
+
+<input style="display: none;" id="empresaActual" value="@empresa">
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Almacen/Insumos.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Insumos</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+            <fieldset id="fieldsetFiltros" class="fieldset-custm">
+                <legend class="legend-custm">Filtros:
+                    <button id="btnQuitarFiltros" class="btn btn-xs btn-danger pull-right mrgTop" style="margin-left: 5px;">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </legend>
+
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Insumo</span>
+                                <input id="inputFiltroInsumo" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Desc. de Insumo</span>
+                                <input id="inputFiltroInsumoDesc" class="form-control">
+                            </div>
+                        </div>
+                        <!-- <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Mod. Maqui.</span>
+                                <input id="inputFiltroModeloMaquinaria" class="form-control" data-column-index='2'>
+                            </div>
+                        </div> -->
+                        <div class="col-lg-3 mrgTop noPadLeft" @(empresa == 6 ? "style=display:none;" : "style=display:block;")>
+                            <div class="input-group">
+                                <span class="input-group-addon">Mod. Maqui.</span>
+                                <input id="inputFiltroModeloMaquinariaDesc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Unidad</span>
+                                <input id="inputFiltroUnidadDesc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo</span>
+                                <input id="inputFiltroTipoInsumo" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Desc. Tipo</span>
+                                <input id="inputFiltroTipoInsumoDesc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Grupo</span>
+                                <input id="inputFiltroGrupoInsumo" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft">
+                            <div class="input-group">
+                                <span class="input-group-addon">Desc. Grupo</span>
+                                <input id="inputFiltroGrupoInsumoDesc" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft" @(empresa == 6 ? "style=display:none;" : "style=display:block;")>
+                            <div class="input-group">
+                                <span class="input-group-addon">Tolerancia</span>
+                                <input id="inputFiltroTolerancia" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-2 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Alta</span>
+                                <input id="inputFiltroFechaAlta" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-6 col-md-6 col-lg-6 mrgTop">
+            <button id="btnNuevoInsumo" class="btn btn-success"><i class="fa fa-plus"></i> Nuevo Insumo</button>
+            <button id="btnCargarExcel" class="btn btn-primary"><i class="fa fa-arrow-up"></i> Cargar Excel</button>
+            <button id="btnImprimir" class="btn btn-default"><i class="fa fa-print"></i> Imprimir</button>
+        </div>
+        <div class="col-md-6 col-lg-6 mrgTop">
+            <button id='btnBuscarInsumos' type='button' class='btn btn-primary pull-right' style="margin-right: 5px;"><i class='fa fa-search'></i> Buscar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-12 mrgTop">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <fieldset class="mrgTop" style="border: 1px solid black;">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="widget">
+                                    <div class="widget-header"></div>
+                                    <div class="widget-content">
+                                        <table id="tblInsumos" class="table-bordered hover compact" style="width: 100%;"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-bottom: 100px;">
+        <div class="col-xs-12 col-md-12 col-lg-12 mrgTop">
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlCargarExcel" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Cargar Excel</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFileExcel" type="file">
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12" @(empresa == 6 ? "style=display:block;" : "style=display:none;")>
+                        <label>Formato columnas Excel: CODIGO | CODIGO 2 | DESCRIPCION | FAMILIA | UNIDAD | TIPO | ESTATUS</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarExcel" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalInsumo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Insumo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <fieldset id="fieldsetInformacion" class="fieldset-custm mrgTop">
+                            <legend class="legend-custm">Información:</legend>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 col-lg-12">
+                                    <div class="col-lg-2 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Insumo</span>
+                                            <input id="inputInsumo" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <label id="labelInsumoDisponible">Disponible: </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Tipo</span>
+
+                                            @if (@empresa != 6)
+                                            {
+                                                <input id="inputTipoInsumo" class="form-control width30" disabled>
+                                                <input id="inputTipoInsumoDesc" class="form-control width70" disabled>
+                                            }
+                                            else
+                                            {
+                                                <select id="selectTipoInsumo" class="form-control"></select>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Grupo</span>
+                                            <input id="inputGrupoInsumo" class="form-control width30" disabled>
+                                            <input id="inputGrupoInsumoDesc" class="form-control width70" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Descripción</span>
+                                            <input id="inputInsumoDesc" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mrgTop noPadLeft elementoPeru">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Modelo Maquinaria</span>
+                                            <!-- <input id="inputModeloMaquinaria" class="form-control width30"> -->
+                                            <input id="inputModeloMaquinariaDesc" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 mrgTop noPadLeft">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Unidad</span>
+                                            @if (@empresa != 6)
+                                            {
+                                                <input id="inputUnidad" class="form-control">
+                                            }
+                                            else
+                                            {
+                                                <select id="selectUnidadPeru" class="form-control"></select>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mrgTop noPadLeft elementoPeru">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Tolerancia</span>
+                                            <input id="inputTolerancia" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 mrgTop noPadLeft elementoPeru">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Color Resguardo:</span>
+                                            <select id="selectColorResguardo" class="form-control">
+                                                <option value="">--NO SELECCIONADO--</option>
+                                                <option value="1">1. VERDE</option>
+                                                <option value="2">2. AMARILLO</option>
+                                                <option value="3">3. ROJO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 mrgTop noPadLeft elementoPeru">
+                                        <fieldset class="fieldset-custm">
+                                            <label> Estatus General:</label>
+
+                                            <div id="divRadioEstatusGeneral">
+                                                <input id="radioVigente" type="radio" name="estatusGeneral" value="A"> Vigente
+                                                <input id="radioPassword" type="radio" name="estatusGeneral" value=""> Habilitado
+                                                por password
+                                                <input id="radioCancelado" type="radio" name="estatusGeneral" value="C"> Cancelado
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-lg-5 mrgTop noPadLeft elementoPeru">
+                                        <fieldset class="fieldset-custm">
+                                            <label> Validar Precio en Base A:</label>
+
+                                            <div class="col-lg-6 noPadRight pull-right">
+                                                <div class="input-group" style="margin-top: 14px;">
+                                                    <span class="input-group-addon">Autorizado:</span>
+                                                    <input id="inputAutorizado" class="form-control" disabled>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 noPadLeft pull-right">
+                                                Utilizar lista de precios <input id="checkBoxListaPrecios" type="checkbox">
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-lg-6 mrgTop noPadLeft elementoPeru">
+                                        <fieldset class="fieldset-custm">
+                                            Producto Terminado <input id="checkBoxProductoTerminado" type="checkbox" style="margin-right: 10px;">
+                                            Materia Prima <input id="checkBoxMateriaPrima" type="checkbox" style="margin-right: 10px;">
+                                            Se factura <input id="checkBoxSeFactura" type="checkbox" style="margin-right: 10px;">
+                                            Compras y Requisiciones <input id="checkBoxComprasRequisiciones" type="checkbox">
+                                        </fieldset>
+                                    </div>
+
+                                    <div class="col-lg-12 mrgTop noPadLeft" style="display: none;">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Descripción Adicional</span>
+                                            <textarea id="textAreaDescripcionAdicional" class="form-control" row="3"></textarea>
+                                        </div>
+                                    </div>
+                                    @if (@empresa != 6)
+                                    {
+                                        @* <div class="col-lg-9 mrgTop noPadLeft">
+                                    <button id="btnGuardar" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fa fa-save"></i> Guardar</button>
+                                    </div> *@
+                                    }
+                                    else
+                                    {
+                                        <div class="col-lg-3 mrgTop noPadLeft">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Estado</span>
+                                                <select id="selectEstadoPeru" class="form-control">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option value="1">ACTIVO</option>
+                                                    <option value="0">INACTIVO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 mrgTop noPadLeft">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Código 2</span>
+                                                <input id="inputCodigo2Peru" class="form-control">
+                                            </div>
+                                        </div>
+                                        @* <div class="col-lg-6 mrgTop noPadLeft">
+                                    <button id="btnGuardar" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fa fa-save"></i> Guardar</button>
+                                    </div> *@
+                                    }
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button id="botonGuardarInsumo" type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<iframe id="iframeDownload" style="display:none;"></iframe>
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Almacen/Insumos.js"></script>

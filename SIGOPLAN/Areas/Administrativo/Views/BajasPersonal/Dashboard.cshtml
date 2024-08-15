@@ -1,0 +1,271 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Fases.css' rel='stylesheet' />
+
+<style>
+    table thead {
+        font-size: 15px !important;
+        background: linear-gradient( 40deg, #45cafc, #303f9f) !important;
+        color: #fff !important;
+    }
+</style>
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- FASES -->
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h2>DASHBOARD</h2></div>
+                <!-- LISTADO DE CATÁLOGO DE FASES -->
+                <div class="row">
+                    <div class="col-sm-6" style="display:none">
+                        <table  class="table table-hover table-sm table-bordered compact" style="width:100%;">
+                            <!-- <thead>
+                                <tr>
+                                    <th colspan="2">¿ COMO CONSIDERA SU EXPERIENCIA EN CONSTRUPLAN?</th>
+                                </tr>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>EXCELENTE</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>BUENO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>REGULAR</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>MALO</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody> -->
+                        </table>
+                    </div>
+                    <div class="col-sm-6" style="display:none">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Grafica</legend>
+                        </fieldset>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Numero de Bajas por Mes</legend>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                <span class="input-group-addon">Año</span>
+                                <select class="form-control" id="cboAñoMeses" style="width: 100%; height: 33.99px" multiple>
+                                    <option value="Todos" selected>TODOS</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                    <select class="form-control" id="cboFiltroCC"></select>
+                                </div>
+                            </div>
+                            
+                            <div class="pull-right">
+                                <button type="button" class="btn btn-success" id="btnFiltrarMes">Buscar</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        
+                        <table id = "tblMesdeBaja" class="table table-hover table-sm table-bordered compact" style="width:100%;">
+                            <!-- <thead>
+                                <tr>
+                                    <th colspan="2">MES DE BAJA</th>
+                                </tr>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ENERO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>FEBRERO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>MARZO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>ABRIL</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>MAYO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>JUNIO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>JULIO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>AGOSTO</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>SEPTIEMBRE</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>OCTUBRE</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>NOVIEMBRE</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>DICIEMBRE</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody> -->
+                        </table>
+                    </div>
+                    <div class="col-sm-6" >
+                        <fieldset class='fieldset-custm marginBottom' >
+                            <legend class='legend-custm'>Grafica</legend>
+                            <div id="divGraficaMesdeBaja">
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Numero de Bajas por Motivo de Separacion</legend>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Año</span>
+                                    <select class="form-control" id="cboAñoMotivos" style="width: 100%; height: 33.99px" multiple>
+                                        <option value="Todos" selected>TODOS</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                    <select class="form-control" id="cboFiltroSepCC"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-1">
+                                <input type="checkbox" id="chkMostrarCeros" data-toggle="toggle" data-on="Completa" 
+                                    data-off="Solo con bajas" data-onstyle="success" data-offstyle="default" data-width="150" checked="checked">
+                            </div>
+                            <div class="pull-right">
+                            
+                                <button type="button" class="btn btn-success" id="btnFiltrarMotivo">Buscar</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        
+                        <table id = "tblMotivoSeparacion" class="table table-hover table-sm table-bordered compact" style="width:100%;">
+                            <!-- <thead>
+                                <tr>
+                                    <th colspan="2">MOTIVO DE LA SEPARACION DE LA EMPRESA</th>
+                                </tr>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><th>SEPARACION VOLUNTARIA</th><th>0</th></tr>
+                                <tr><th>TERMINACION DE CONTRATO</th><th>0</th></tr>
+                                <tr><th>TERMINACION DE OBRA</th><th>0</th></tr>
+                                <tr><th>CONFLICTOS LABORALES</th><th>0</th></tr>
+                                <tr><th>ACTOS DE INDICIPLINA</th><th>0</th></tr>
+                                <tr><th>DESOBEDECER AL SUPERVISOR</th><th>0</th></tr>
+                                <tr><th>ADANDONO DE TRABAJO</th><th>0</th></tr>
+                                <tr><th>HACER PROPAGANDA Y/O PROCELITISMO EN HORARIO LABORAL</th><th>0</th></tr>
+                                <tr><th>DEFUNCION</th><th>0</th></tr>
+                                <tr><th>FALTAS ACUMULADAS</th><th>0</th></tr>
+                                <tr><th>ESTADO DE EMBRIAGUEZ, ALCOHOLIMETRIA Y/O DOPPING POSITIVO</th><th>0</th></tr>
+                                <tr><th>FALTA DE PROBIDAD Y HONRADEZ</th><th>0</th></tr>
+                                <tr><th>COMPROMETER LA SEG E INTEGR DEL PERSONAL</th><th>0</th></tr>
+                                <tr><th>NEGARSE A ADOPTAR MEDIDADAS DE SEGURIDAD</th><th>0</th></tr>
+                                <tr><th>SUSPENDER LABORES SIN AUTORIZACION</th><th>0</th></tr>
+                                <tr><th>PORTAR ARMAS</th><th>0</th></tr>
+                                <tr><th>ROBO</th><th>0</th></tr>
+                                <tr><th>AJUSTE DE PLANTILLA</th><th>0</th></tr>
+                                <tr><th>CAMBIO DE PUESTO Y/O CENTRO DE COSTO</th><th>0</th></tr>
+                                <tr><th>NO CONCLUYO TRAMITE DE INGRESO</th><th>0</th></tr>
+                                <tr><th>NO EJECUTAR EL TRABAJO CON LA CALIDAD Y ESMERO APRPOPIADOS</th><th>0</th></tr>
+                                <tr><th>TRAMITE DE IPP/PENSION/JUBILACION</th><th>0</th></tr>
+                                <tr><th>DAÑO A LOS ACTIVOS Y/O BIENES DE LA EMPRESA</th><th>0</th></tr>
+                            </tbody> -->
+                        </table>
+                    </div>
+                    <div class="col-sm-6">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Grafica</legend>
+                            <div id="divGraficaMotivoSeparacion">
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE CATÁLOGO DE FASES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: FASES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- JS -->
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/BajasPersonal/Dashboard.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>

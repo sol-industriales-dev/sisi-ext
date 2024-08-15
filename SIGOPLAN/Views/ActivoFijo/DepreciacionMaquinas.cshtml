@@ -1,0 +1,357 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseC = new SIGOPLAN.Controllers.BaseController();
+
+    var JS_VERSION = 2;
+}
+
+<input type="hidden" value="@JS_VERSION" id="JS_VERSION" />
+
+<style>
+    #modalRegistrarDep .modal-lg {
+        width: 99% !important;
+    }
+    #modalRegistrarDep .modal-body {
+        max-height: calc(100vh - 212px);
+        overflow-y: auto;
+    }
+
+    #modalRegistrarDep .modal .hasDatepicker {
+        z-index:5000 !important;
+    }
+
+    .blockUI {
+        z-index: 9000 !important;
+    }
+
+    .fa-times-circle {
+        color: #ff0000;
+    }
+
+    .fa-check-circle {
+        color: #1db920;
+    }
+
+    #tblDepMaquinas tbody tr td, #tblPolizasCC tbody tr td {
+        border: 0px solid white;
+    }
+
+    .numeroRojo {
+        color: red;
+    }
+
+    #tblPolizasCC thead tr th, #tblPolizasCC tbody tr td {
+        /*padding-left: 2px;
+        padding-right: 2px;*/
+    }
+
+    .txtFechaPol, .txtFechaInitDep, .txtPorcentajeDepreciacion, .txtMesesDeDepreciacion {
+        width: 100px;
+        margin: auto;
+    }
+    .txtPorcentajeDepreciacion, .txtMesesDeDepreciacion {
+        max-width: 50px;
+    }
+
+    .txtPolizaRelAlta, .txtFactura {
+        max-width: 160px;
+        margin: auto;
+    }
+
+    .cboxTipoDelMovimiento, cboxTipoActivo {
+        margin: auto;
+    }
+
+    .cboxTipoDelMovimiento {
+        min-width: 60px;
+    }
+
+    .quitarPoliza:hover {
+        cursor: pointer;
+    }
+
+    #leyendaTipoMovimiento {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        margin-top: 15px;
+        overflow: hidden;
+    }
+    #leyendaTipoMovimiento li {
+        float: left;
+        margin-right: 25px;
+        color: #337ab7;
+    }
+    #leyendaTipoMovimiento li span {
+        float: left;
+        display: block;
+        border: 1px solid black;
+        padding-left: 2px;
+        padding-right: 2px;
+        margin-right: 5px;
+        background-color: black;
+        color: white;
+    }
+    #leyendaTitulo {
+        float: left;
+        padding-top: 15px;
+        margin-right: 10px;
+    }
+
+    .thDepCapturada {
+        width: 75px !important;
+    }
+    .thOpciones {
+        width: 75px !important;
+    }
+    .thCC {
+        width: 40px !important;
+    }
+    .thNumEco {
+        width: 40px !important;
+    }
+    .thFactura {
+        width: 40px !important;
+    }
+    .thCapSistema {
+        width: 75px !important;
+    }
+
+    .addPoliza {
+        max-width: 70px;
+    }
+</style>
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h2 class="text-center"></h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3>INFORMACIÓN DE DEPRECIACIÓN DE MAQUINAS</h3></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Maquinaria</span>
+                                <select class="form-control" id="cboFiltroMaquinaria" value=""></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus captura</span>
+                                <select class="form-control" id="cboFiltroEstatusMaquina" value="">
+                                    <option value="1">Todas</option>
+                                    <option value="2">Depreciación capturada</option>
+                                    <option value="3">Sin captura</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo captura</span>
+                                <select class="form-control" id="cboFiltroTipoCaptura" value="">
+                                    <option value="1">Todas</option>
+                                    <option value="2">Captura automática</option>
+                                    <option value="3">Actualizada por el usuario</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+
+                        </div>
+                        <div class="col-sm-2">
+                            @if (baseC.getEmpresaID() == 2)
+                            {
+                                <button class="btn btn-primary" id="btnActualizacionAutomatica">Actualización automática</button>
+                            }
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblDepMaquinas" class="hover stripe order-column" style="width: 100%;"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalRegistrarDep" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title" id="modalTitulo">Registro de depreciación</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <span id="leyendaTitulo">Tipos de movimientos: </span>
+                <ul id="leyendaTipoMovimiento"></ul>
+
+                <br />
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblPolizasCC" class="hover stripe order-column" style="width:100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="5" class="text-right">TOTAL</th>
+                                        <th class="text-right"></th>
+                                        <th colspan="7"></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <form class="form-inline">
+                            @*<div class="form-group">
+                                <input type="text" class="form-control addPoliza" id="txtAgregarPoliza_Año" placeholder="Año" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control addPoliza" id="txtAgregarPoliza_Mes" placeholder="Mes" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control addPoliza" id="txtAgregarPoliza_Poliza" placeholder="Póliza" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control addPoliza" id="txtAgregarPoliza_Tp" placeholder="TP" />
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control addPoliza" id="txtAgregarPoliza_Linea" placeholder="Línea" />
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-info" id="btnAgregarPoliza" data-id_cat_maq=""><i class="fas fa-plus"></i> Agregar Póliza</button>
+                            </div>*@
+                            <div class="form-group">
+                                <button type="button" class="btn btn-success" id="btnRegistrar" data-id_cat_maq="" style="display:none;">Registrar</button>
+                                <button type="button" class="btn btn-success" id="btnPolizasNuevas" data-id_cat_maq="" style="display:none;"><i class="fas fa-search-plus"></i> Pólizas nuevas</button>
+                                <button type="button" class="btn btn-primary" id="btnModificar" data-id_cat_maq="" data-id_dep_maq="" style="display:none;"><i class="far fa-edit"></i> Modificar</button>
+                                <button type="button" class="btn btn-danger" id="btnEliminar" data-id_cat_maq="" data-id_dep_maq="" style="display:none;">Eliminar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCapturaPoliza">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Captura de póliza envio a costo</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblNuevaPoliza" class="hover stripe order-column" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="8">TOTAL: </th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="btnRegistrarPoliza">
+                    <i class="far fa-check-square"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalInsumosSinCapturar">
+    <div class="modal-dialog modal-lg" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Insumos que no se capturaron por tener duplicados</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblInsumosSinCapturar" class="hover stripe" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th class="text-right" colspan="3">TOTAL: </th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="btnGenerarPolizaCosto">
+                    <i class="far fa-check-square"></i> Generar Póliza Costo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/ActivoFijoDepMaquinas.js"></script>
+
+@Html.Action("_menuClick", "Mouse")
+@Html.Action("_visorGrid", "Visor")

@@ -1,0 +1,193 @@
+﻿@{
+    ViewBag.Title = "Gestion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+
+    <!-- BAJAS -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h2>GESTION DE CONTROLES DE AUSENCIA</h2></div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">   
+                                <span class="input-group-addon">Estado</span>
+                                <select class="form-control select2" id="cboFiltroEstado">
+                                    <option value="0">--Seleccione--</option>
+                                    <option value="1">Aprobada</option>
+                                    <option value="2">No Aprobadas</option>
+                                    <option value="3" selected>Pendiente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">   
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboVacacionCC"></select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <div class="col-sm-12 margin-right">
+                                <button type="button" class="btn btn-default" id="btnFiltroBuscar">Buscar</button>
+                                <!-- <button type="button" class="btn btn-primary marginRight" id="btnFiltroNuevo">Nuevo</button> -->
+                            </div>   
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- VACAIONES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_Vacaciones_Vacaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: BAJAS -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CALENDARIO -->
+<div id='mdlCalendario' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>VER FECHAS. <span style="display:none;" id="txtCalendarioNumDias">0</span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row" id="divCECalendario" style="display: initial";>
+				
+					<div class="col-lg-12 col-md-12 col-sm-12" style="margin-top:15px;">
+						<div id='calendar' style="margin:-5px auto"></div>
+					</div>
+				
+				</div>
+                <div class="row" id="divCELactancia" style="display: none;">
+                    <div class="row">
+                        <h4 style="text-align: center;">&nbsp;&nbsp;&nbsp;<u>3 meses disponibles.</u></h4>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">   
+                                <span class="input-group-addon">Fecha Inicial</span>
+                                <input class="form-control" id="dateCELactanciaInicio" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="input-group">   
+                                <span class="input-group-addon">Fecha Final</span>
+                                <input class="form-control" id="dateCELactanciaFin" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class='modal-footer'>
+				<!-- <button type='button' class='btn btn-primary' data-dismiss='modal' id="btnCalendarioGuardar"><i class='fa fa-save'></i>&nbsp;<span id="btnTxtCalendario">Guardar</span></button> -->
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana"><button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL COMENTARIO -->
+<div id='mdlComentario' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Comentario de rechazo.</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p id="txtMdlComentario">
+                        </p>
+                    </div>
+				</div>
+            </div>
+            <div class='modal-footer'>
+				<!-- <button type='button' class='btn btn-primary' data-dismiss='modal' id="btnCalendarioGuardar"><i class='fa fa-save'></i>&nbsp;<span id="btnTxtCalendario">Guardar</span></button> -->
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana"><button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL FIRMAS -->
+<div id='mdlFirmas' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblFirmas"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL FIRMAS -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Vacaciones/Gestion.js"></script>

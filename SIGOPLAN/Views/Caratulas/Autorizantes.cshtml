@@ -1,0 +1,231 @@
+﻿
+@{
+    ViewBag.Title = "Autorizantes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Maquinaria/Caratulas/Caratula.css" rel="stylesheet" />
+
+<center><h2>Historial de Caratulas</h2></center>
+<style>
+    div.flex-container {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    div.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons {
+        z-index: 9000 !important;
+    }
+ table.dataTable {
+        width: 100% !important;
+    }
+.btn {
+    margin-top: 0px !important;
+}
+        table.dataTable tbody tr td,
+        table thead tr th,
+        table.dataTable,
+        .dataTables_scrollBody {
+            border: 0px solid #ffffff !important;
+        }
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    .panelAutorizado {
+        background-color: #dff0d8;
+    }
+
+
+    .panelPendiente {
+        background-color: #fcf8e3;
+    }
+
+    .panel-body {
+        height: 100px;
+        width: 300px !important;
+    }
+
+    #legendHome:hover {
+        cursor: pointer;
+    }
+
+    #legendHome {
+        font-size: 2em;
+    }
+
+    #textAreaRechazo {
+        height: 8em;
+        width: 90%;
+    }
+
+    table.tablaComparativa tr.modificado {
+        background-color: yellow;
+    }
+
+    table.tablaComparativa tr.nuevo {
+        background-color: green;
+    }
+
+    table.tablaComparativa tr.normal {
+        background-color: white;
+    }
+
+    table.tablaComparativa tr.eliminado {
+        background-color: red;
+    }
+</style>
+<script>
+     
+    $(document).ready(function () {
+        $('#cboEstatus').select2();
+    });
+</script>
+    <fieldset class="fieldset-custm text-center margin-top">
+        <legend class="legend-custm">Filtros : </legend>
+                <div class="col-lg-4">
+                    <label class="text-color" for="cboCC">Estatus : </label>
+                    <select id="cboEstatus" class="form-control"></select>
+                </div>
+                <div class="col-lg-4 pull-right">
+                    <button class="btn btn-success" id="btnBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                </div>
+    </fieldset>
+    <br>
+   <fieldset>
+            <legend class="legend-custm">  </legend>
+            <table id='tblHistorial' class='table table-condensed table-hover table-striped text-center'>
+            </table>
+   </fieldset>
+
+
+
+
+<div id="dlgFormulario" title="" style="display:none;" style="background-color: #3556ae !important;">
+    <form id="frmMaquinaFichaTecnica">
+        <div class="container" style="width:100%;text-align: center;">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="divTabs">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tabReporte" aria-controls="tabReporte" role="tab" data-toggle="tab">Reporte</a>
+                </li>
+                @*<li role="presentation">
+                    <a href="#tabComparacion" aria-controls="tabComparacion" role="tab"
+                       data-toggle="tab">Comparación</a>
+                </li>*@
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <!-- tab reporte -->
+                <div role="tabpanel" class="tab-pane fade in active" id="tabReporte">
+
+                    <fieldset id="fieldsetReporte" hidden class="fieldset-custm text-center">
+                        <legend id="legendHome" class="legend-custm">
+                            <i class="fa fa-home"></i> Reporte
+                        </legend>
+                        <iframe id="report" align="middle" height="200" marginwidth="0" marginheight="0" hspace="0"
+                                vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+
+                <!-- tab comparación -->
+                @*<div role="tabpanel" class="tab-pane fade" id="tabComparacion">
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                        <h3>Antes</h3>
+                        <table id='tablaPlantillaActual' class='table table-hover text-center tablaComparativa'>
+                            <thead class='bg-table-header'></thead>
+                        </table>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                        <h3>Después</h3>
+                        <table id='tablaPlantillaNueva' class='table table-hover text-center tablaComparativa'>
+                            <thead class='bg-table-header'></thead>
+                        </table>
+                    </div>
+
+                </div>*@
+
+            </div>
+
+            <fieldset id="fieldsetAutorizacion" hidden class="fieldset-custm text-center margin-top">
+                <legend class="legend-custm"><i class="fa fa-user"></i> Autorizantes</legend>
+                <div id="divAutorizantes" class="flex-container"></div>
+            </fieldset>
+
+        </div>
+    </div>
+</div>
+
+      
+
+        </div>
+    </form>
+    <br>
+    <br>
+</div>
+
+
+
+<div class="modal fade centered-modal" id="modalAutorizar" style="z-index: 999999 !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea autorizar la caratula?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modalAutorizarbtnAutorizar">
+                    <i class='fa fa-check'></i> Autorizar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal text-center" id="modalRechazar" style="z-index: 999999 !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea rechazar la prenomina?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modalAvisoCuerpo"><strong>Justifique el rechazo:</strong></p>
+                <textarea id="textAreaRechazo" required placeholder="Describa su rechazo en un mínimo de 10 caracteres"
+                          minlength="10" maxlength="450"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modalAutorizarbtnRechazar">
+                    <i class='fa fa-ban'></i> Rechazar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/_Caratulas/Autorizantes.js"></script>
+

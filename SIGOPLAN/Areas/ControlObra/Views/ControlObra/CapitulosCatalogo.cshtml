@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewBag.Title = "CapitulosCatalogo";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/controlObra.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/ControlObra/CapitulosCatalogo.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Catálogo de Obras</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                 <div class="container-fluid">
+                      <div class="row">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                <legend class="legend-custm">Filtros:</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-3">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div> -->
+                      </div>
+                     
+                      <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm"></legend>                             
+                                <button id="btnCargarObra" class="btn btn-primary" style="margin-top: 5px; margin-bottom: 5px;" data-toggle="modal" data-target="#uploadModal"><i class="fas fa-file-upload"></i> Cargar proyecto</button>
+                                <table id="tblCapitulos" class="table table-striped table-hover table-bordered" style="width:100%"></table>
+                            </fieldset>
+                        </div>
+                      </div>
+                 </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div  id="editarModal"  class="modal fade" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h4> Editar Obra</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="txtProyectoEdit" class="control-label">Proyecto:</label>
+                        <input id="txtProyectoEdit" class="form-control"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="selectCCEdit" class="control-label">Centro de costo:</label>
+                        <select id="selectCCEdit" class="select2 form-control" style="width: 100%"></select>
+                    </div>  
+
+                    <div class="form-group">
+                        <label for="selectAutorizanteEdit" class="control-label">Autorizante:</label>
+                        <select id="selectAutorizanteEdit" class="select2 form-control" style="width: 100%"></select>
+                    </div>   
+
+                    <div class="form-group">
+                        <label for="selectFacturacionEdit" class="control-label">Facturación:</label>
+                        <select id="selectFacturacionEdit" class="form-control"></select>
+                    </div>   
+
+                    <div class="form-group">
+                        <label for="dpFechaInicio" class="control-label">Fecha Inicio:</label>
+                        <input id="dpFechaInicio" class="form-control"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dpFechaInicio" class="control-label">Fecha Fin:</label>
+                        <input id="dpFechaFin" class="form-control"/>
+                    </div>
+                </div>
+                <div class="modal-footer">                 
+                    <a id="btnActualizarObra" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</a>
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-default btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogEliminarCapitulo" title="Eliminar Capitulo" style="display: none;">
+        <text id="txtEliminarCapitulo">¿Está seguro que desea eliminar este capitulo?</text>
+    </div>
+
+    <div id="uploadModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title text-center" id="modalHeader">Cargar Proyecto Opus</h4>
+                </div>
+                <div class="modal-body">
+                    <form method='post' action='' enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="selectCapitulo" class="control-label">Proyecto:</label>
+                            <select id="selectCapitulo" class="select2 form-control" style="width: 100%"></select>
+                            <br>
+                            <br>
+                            <input id="txtProyecto" class="form-control" placeholder="Nombre del Proyecto"  />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="selectCC" class="control-label">Centro de costo:</label>
+                            <select id="selectCC" class="select2 form-control" style="width: 100%"></select>
+                        </div>  
+
+                        <div class="form-group">
+                            <label for="selectAutorizante" class="control-label">Autorizante:</label>
+                            <select id="selectAutorizante" class="select2 form-control" style="width: 100%"></select>
+                        </div>        
+
+                        <div class="form-group">
+                            <label for="selectFacturacion" class="control-label">Facturación:</label>
+                            <select id="selectFacturacion" class="form-control"></select>
+                        </div>  
+
+                        <div class="form-group">
+                            <label for="file" class="control-label">Seleccionar Archivos:</label>
+                            <input type='file' name='file' id='file' class='form-control' multiple>
+                        </div>               
+                    </form>
+                </div>   
+                <div class="modal-footer">
+                    <input type='button' class='btn btn-primary' value='Guardar' id='upload'>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

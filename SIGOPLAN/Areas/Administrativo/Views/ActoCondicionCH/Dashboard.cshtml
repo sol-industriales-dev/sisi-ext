@@ -1,0 +1,179 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+@* <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" /> *@
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Seguridad/ActoCondicion/Dashboard.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/ActoCondicionCH/General.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/ActoCondicionCH/Dashboard.css" rel="stylesheet" />
+@* <link rel="stylesheet" href="https://code.highcharts.com/css/highcharts.css"> *@
+<link href='~/Content/style/Highcharts/highcharts.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>DASHBOARD</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+
+                <!-- PANEL FILTROS -->
+                <div class="panel-body">
+                    <div class="row margin-top">
+                        <div class="col-lg-4">
+                            <label>Centro de Costo:</label>
+                            <select class="form-control" id="comboCC" multiple></select>
+                        </div>
+                        <div class='col-lg-2'>
+                            @* <label>Fecha:</label>
+                            <div class='input-group'>
+                            <input id="inputFechaInicio" class="form-control" />
+                            <span class='input-group-addon'></span>
+                            <input id="inputFechaFin" class="form-control" />
+                            </div> *@
+                            <label>Año:</label>
+                            <div class='input-group'>
+                                <select id="selectAnio" class="select2">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="2023" selected>2023</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Supervisor:</label>
+                            <select class="form-control select2" id="comboSupervisor"></select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Departamento:</label>
+                            <select class="form-control select2" id="comboDepartamento"></select>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="button" class="btn btn-primary pull-right margin-top" id="botonBuscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+
+            <!-- BODY CONTAINER -->
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <!-- -->
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title text-center">
+                                                <a data-toggle="collapse" href="#panel1">
+                                                    Indicadores Globales
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="panel1" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-8 text-center" style="width: 100%;">
+                                                        <div id="graficaTotalActas"></div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-4 text-center" style="height: 400px; display:none;">
+                                                        <canvas id="chartSucesosPorDepartamento"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- -->
+
+                        <!-- -->
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title text-center">
+                                                <a data-toggle="collapse" href="#cantidadClasifiacion">
+                                                    Cantidad por Clasificación
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="cantidadClasifiacion" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center" style="height: 400px">
+                                                        <div id="graficaActasPorCC"></div>
+                                                    </div>
+                                                    <div class="col-xs-12 col-md-6 text-center" style="height: 400px">
+                                                        <div id="graficaCantClasificaciones"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- -->
+
+                        <!-- -->
+                        <div class="row margin-top">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title text-center">
+                                                <a data-toggle="collapse" href="#cantidadClasifiacion">
+                                                    Detalle clasificaciones
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="cantidadClasifiacion" class="panel-collapse collapse in">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-xs-12 col-md-6 text-center" style="width: 100%">
+                                                        <table id="tblInfraccionesClasificacion" class="table table-hover margin-top" style="width:100%"></table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- -->
+                    </div>
+                </div>
+                <!-- END: BODY CONTAINER -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+@* <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> *@
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/chartLabel.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script> *@
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/ActoCondicionCH/Dashboard.js"></script>
+<!-- END: SCRIPTS -->

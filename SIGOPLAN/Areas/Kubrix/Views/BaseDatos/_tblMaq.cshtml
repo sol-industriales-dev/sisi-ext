@@ -1,0 +1,76 @@
+﻿@using Newtonsoft.Json;
+@{
+    var fechaInicio = Convert.ToDateTime(Session["fechaInicio"]);
+    var fechaFin = Convert.ToDateTime(Session["fechaFin"]);
+    var lst = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController().lstMaq(fechaInicio, fechaFin);
+}
+
+<div class="table-responsive">
+    <table id="tblCxp" class="table table-condensed table-hover text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>Sem</th>
+                <th>CC Obra</th>
+                <th>Fecha</th>
+                <th>Económico</th>
+                <th>Turno</th>
+                <th>Horometro inicial</th>
+                <th>Horometro final</th>
+                <th>PARO POR CLIMA</th>
+                <th>HRS. MTTO</th>
+                <th>Hrs Trab.</th>
+                <th>Hrs. Prog.</th>
+                <th>Hrs. Efectivas</th>
+                <th>Eficiencia</th>
+                <th>CONSUMO</th>
+                <th>GRUPO EQUIPO</th>
+                <th>REND. TEORICO</th>
+                <th>REND. REAL</th>
+                <th>% REND.</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lst.Count == 0)
+            {
+                <tr><td colspan="18" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                var jr = JsonConvert.SerializeObject(lst);
+                var l = JsonConvert.DeserializeObject<dynamic>(jr);
+                for (int j = 0; j < l.Count; j++)
+                {
+                    for (int i = 0; i < l[j].Count; i++)
+                    {
+                        <tr>
+                            <td></td>
+                            <td>@l[j][i].cc</td>
+                            <td>@l[j][i].fecha</td>
+                            <td>@l[j][i].economico</td>
+                            <td>@l[j][i].turno</td>
+                            <td>@l[j][i].HoroInicial</td>
+                            <td>@l[j][i].HoroFinal</td>
+                            <td>@l[j][i].ParoClima</td>
+                            <td>@l[j][i].HrsMtto</td>
+                            <td>@l[j][i].HrsTrab</td>
+                            <td>@l[j][i].HrsProg</td>
+                            <td>@l[j][i].HrsEfect</td>
+                            <td>@l[j][i].Efectivas</td>
+                            <td>@l[j][i].consumo</td>
+                            <td>@l[j][i].gpo</td>
+                            <td>@l[j][i].RendTeorico</td>
+                            <td>@l[j][i].RendReal</td>
+                            <td>@l[j][i].Rendimiento</td>
+                        </tr>
+                    }
+                }
+
+            }
+        </tbody>
+    </table>
+</div>
+@*<div class="col-md-12 text-center">
+    <ul class="pagination" id="lstPaginador" data-showprevnext="true" data-hidepagenumbers="false" data-perpage="10"></ul>
+</div>
+<script src="~/Scripts/Utilities/pageMe.js"></script>*@
+

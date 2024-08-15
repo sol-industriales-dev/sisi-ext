@@ -1,0 +1,298 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- OCULTO -->
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+<!-- END: OCULTO -->
+
+<!-- CSS -->
+<link href="~/Content/style/css/BackLogs/OBRA/index.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/style/css/BackLogs/OBRA/General.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">BACKLOGS</h2>
+</fieldset>
+<!-- END: TITULO MODULO -->
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+    <!-- LISTADO DE PROYECTOS -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><span class="badge">Filtros</span></legend>
+        <div class="row">
+            <div class='col-lg-5'>
+                <label for='cboProyecto'>Área cuenta</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select class="form-control" id="cboProyecto"></select>
+                </div>
+            </div>
+            <div class='col-lg-2'>
+                <label for='cboFiltroAnio'>Año</label>
+                <div class='input-group'>
+                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                    <select id='cboFiltroAnio' class='form-control select2'>
+                        <option value="">--Seleccione--</option>
+                        <option value="2023" selected>2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4" style="margin-top: 24px;">
+                <button type="button" class="btn btn-primary" id="btnFiltroBuscar"><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                <button type="button" class="btn btn-primary" id="btnReporte"><i class="fas fa-file-pdf"></i>&nbsp;Generar Reporte</button>
+            </div>
+        </div>
+    </fieldset>
+    <!-- END: LISTADO DE PROYECTOS -->
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioObra">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Inspección
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnRegistroBackLogs">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Registro de BackLogs
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informe de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnReporteIndicadores">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Inspección (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Elaboración de Requisición (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Programación de BackLogs (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        Backlogs Instalado (100%)
+                    </button>
+                    <!-- END: ESTATUS -->
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <!-- END: MENU Y LISTADO DE ESTATUS -->
+
+    <!-- GRAFICA PASTEL DE BACKLOGS -->
+    <div class="col-lg-5 col-md-5 col-sm-5" style="margin-top:15px;">
+        <fieldset class="fieldset-custm" id="divEstatusBackLogs">
+            <legend class="legend-custm"><span class="badge">Estatus de Backlogs</span></legend>
+            <div id="graficaPastel" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+        </fieldset>
+    </div>
+    <!-- END: GRAFICA PASTEL DE BACKLOGS -->
+
+    <!-- GRAFICA DE LINEAS DE BACKLOGS -->
+    <div class="col-lg-5 col-md-5 col-sm-5" style="margin-top:15px;">
+        <fieldset class="fieldset-custm" id="divTendenciaBackLogs">
+            <legend class="legend-custm"><span class="badge">Tendencias de Backlogs</span></legend>
+            <div id="graficaLineas" style="min-width: 310px; height: 252px; max-width: 600px; margin: 0 auto"></div>
+            <table id="tblGraficaLineasBL" class="table table-bordered table-responsive text-align-center table-condensed">
+                <thead>
+                    <th class="text-align-center">Ene</th>
+                    <th class="text-align-center">Feb</th>
+                    <th class="text-align-center">Mar</th>
+                    <th class="text-align-center">Abr</th>
+                    <th class="text-align-center">May</th>
+                    <th class="text-align-center">Jun</th>
+                    <th class="text-align-center">Jul</th>
+                    <th class="text-align-center">Ago</th>
+                    <th class="text-align-center">Sep</th>
+                    <th class="text-align-center">Oct</th>
+                    <th class="text-align-center">Nov</th>
+                    <th class="text-align-center">Dic</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="tdEneroBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdFebreroBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdMarzoBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdAbrilBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdMayoBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdJunioBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdJulioBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdAgostoBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdSeptiembreBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdOctubreBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdNoviembreBLRegistrados" class="td-BLRegistrados"></td>
+                        <td id="tdDiciembreBLRegistrados" class="td-BLRegistrados"></td>
+                    </tr>
+                    <tr>
+                        <td id="tdEneroBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdFebreroBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdMarzoBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdAbrilBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdMayoBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdJunioBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdJulioBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdAgostoBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdSeptiembreBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdOctubreBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdNoviembreBLCerrados" class="td-BLCerrados"></td>
+                        <td id="tdDiciembreBLCerrados" class="td-BLCerrados"></td>
+                    </tr>
+                    <tr>
+                        <td id="tdEneroBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdFebreroBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdMarzoBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdAbrilBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdMayoBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdJunioBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdJulioBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdAgostoBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdSeptiembreBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdOctubreBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdNoviembreBLAcumulados" class="td-BLAcumulados"></td>
+                        <td id="tdDiciembreBLAcumulados" class="td-BLAcumulados"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
+    <!-- END: GRAFICA DE LINEAS DE BACKLOGS -->
+
+    <!-- TABLA DE DATOS -->
+    <div class="col-lg-10 col-md-10 col-sm-10 " style="margin-top: 15px;">
+        <div class="col-lg-5 col-md-5 col-sm-5 col-centered " style="margin-top: 15px;">
+            <fieldset class="fieldset-custm col-centered asd" id="divTablaDatos">
+                <legend class="legend-custm"><span class="badge">Tabla de datos</span></legend>
+                <table id="tblBacklogsEstatusObra" class="table table-bordered table-responsive text-align-center table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="text-align-center">Estatus</th>
+                            <th class="text-align-center">BackLogs (Actual)</th>
+                            <th class="text-align-center">%</th>
+                            <th class="text-align-center">Tiempo promedio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-20 text-color">Elaboración de Inspección (20%)</td>
+                            <td id="tdNumBackLogs20"></td>
+                            <td id="tdPorBackLogs20"></td>
+                            <td id="diasPromBacklogs1"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-40 text-color">Elaboración de Requisición (40%)</td>
+                            <td id="tdNumBackLogs40"></td>
+                            <td id="tdPorBackLogs40"></td>
+                            <td id="diasPromBacklogs2"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-50 text-color">Elaboración de OC (50%)</td>
+                            <td id="tdNumBackLogs50"></td>
+                            <td id="tdPorBackLogs50"></td>
+                            <td id="diasPromBacklogs3"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-60 text-color">Suministro de Refacciones (60%)</td>
+                            <td id="tdNumBackLogs60"></td>
+                            <td id="tdPorBackLogs60"></td>
+                            <td id="diasPromBacklogs4"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-80 text-color">Programación de BackLogs (80%)</td>
+                            <td id="tdNumBackLogs80"></td>
+                            <td id="tdPorBackLogs80"></td>
+                            <td id="diasPromBacklogs5"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-90 text-color">Proceso de Instalación (90%)</td>
+                            <td id="tdNumBackLogs90"></td>
+                            <td id="tdPorBackLogs90"></td>
+                            <td id="diasPromBacklogs6"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td class="boton-estatus-100 text-color">Backlogs instalado (100%)</td>
+                            <td id="tdNumBackLogs100"></td>
+                            <td id="tdPorBackLogs100"></td>
+                            <td id="diasPromBacklogs7" style="background-color: gray;"></td>
+                        </tr>
+                        <tr class="rowHoverIndex">
+                            <td></td>
+                            <td id="tdNumBackLogsTotal"></td>
+                            <td></td>
+                            <td id="tddiasPromTotal"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    <!-- END: TABLA DE DATOS -->
+</fieldset>
+<!-- END: BODY -->
+
+<!-- MODAL LISTADO ESTATUS BACKLOGS -->
+<div id='mdlLstBackLogs' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>Estatus BackLogs</h4>
+            </div>
+            <div class='modal-body'>
+                <div class='row seccion'>
+                    <div class="col-lg-12">
+                        <table id="tblListadoBL" class="table compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO ESTATUS BACKLOGS -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- SCRIPTS -->
+@* <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/export-data.js"></script> *@
+@* <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/exporting.js"></script> *@
+@* <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script> *@
+
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/Maquinaria/BackLogs/BackLogsIndexObra.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/moment.min.js"></script>

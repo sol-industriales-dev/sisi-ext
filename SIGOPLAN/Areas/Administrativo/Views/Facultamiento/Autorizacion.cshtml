@@ -1,0 +1,321 @@
+﻿@{
+    ViewBag.Title = "Autorizacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<script type="text/javascript" src="~/Scripts/js/Administrativo/Facultamiento/Autorizacion.js"></script>
+
+<style>
+    .flex-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: baseline;
+    }
+
+    .flex-item {
+        flex: 0 0 auto;
+        margin: 10px;
+    }
+
+    .btn.xs {
+        padding: 0;
+    }
+
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+
+        /* Style the buttons inside the tab */
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+
+            /* Change background color of buttons on hover */
+            .tab button:hover {
+                background-color: #ddd;
+            }
+
+            /* Create an active/current tablink class */
+            .tab button.active {
+                background-color: #ccc;
+            }
+
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+</style>
+<h1 class="text-center">Autorizacion</h1>
+
+<fieldset id="fsCuadro" class="fieldset-custm">
+    <legend class="legend-custm">
+        <i class="fa fa-table"></i> Cuadros
+    </legend>
+    <table id="tblCuadro" class="table table-fixed table-responsive table-striped">
+        <thead class="bg-table-header">
+            <tr>
+                <th>C.C.</th>
+                <th>Obra</th>
+                <th>Fecha</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</fieldset>
+
+<div id="menuTab" class="tab">
+    <button id="btnComparacion" class="tablinks">Comparativa</button>
+    <button id="btnReporte" class="tablinks">Autorización</button>  
+</div>
+
+<div id="Reporte" class="tabcontent">
+    <fieldset id="fsReport" class="fieldset-custm text-center">
+        <legend id="lgHome" class="legend-custm">
+            <i class="fa fa-home"></i> Reporte
+        </legend>
+        <iframe id="report" align="middle" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+    </fieldset>
+    <fieldset id="fsAuth" class="fieldset-custm"></fieldset>
+</div>
+
+<div id="Comparacion" class="tabcontent">
+    <div class="row">
+        <center>
+            <div style="padding-left:22px; padding-top: 8px; width:400px;">            
+                <div class="col-md-6">
+                    <div class="input-group" title="Codigo de Colores">
+                        <span class="input-group-addon Formato" style="background-color:yellow;"></span>
+                        <span class="form-control" style="width:150px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Agregar / Actualizar</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group" title="Codigo de Colores">
+                        <span class="input-group-addon Otro" style="background-color:red;"></span>
+                        <span class="form-control" style="width:100px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Eliminar</span>
+                    </div>
+                </div>
+            </div>
+        </center>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-md-6">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Facultamiento Anterior:</legend>
+
+                <div class="row form-group">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="row">
+                            <div class="col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha</span>
+                                    <input type="text" id="txtFechaVer" class="form-control" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">C.C.</span>
+                                    <input id="txtCCVer" class="form-control" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-5 col-lg-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Obra</span>
+                                    <input type="text" id="txtObraVer" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm">
+                            <legend id="lbllegendAnt" class="legend-custm">Refacciones:</legend>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <table id="tblRefacVer" class="table table-fixed table-responsive table-striped display nowrap" width="100%">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Mínimo</th>
+                                                <th>Máximo</th>
+                                                <th>Autoriza</th>
+                                                <th>VoBo1</th>
+                                                <th>VoBo2</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="fsMaterialesAnt" class="fieldset-custm">
+                            <legend class="legend-custm">Materiales</legend>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <table id="tblMatVer" class="table table-fixed table-responsive table-striped display nowrap">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Mínimo</th>
+                                                <th>Máximo</th>
+                                                <th>Autoriza</th>
+                                                <th>VoBo1</th>
+                                                <th>VoBo2</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 col-lg-12">
+                        <fieldset id="fsPuestoAnt" class='fieldset-custm'>
+                            <div class='table-responsive'>
+                                <table id="tblPuestoVer" class='table table-fixed table-responsive' width="100%">
+                                    <thead class='bg-table-header'>
+                                        <tr>
+                                            <th>Puesto</th>
+                                            <th>Vobo</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="col-md-6">
+            
+
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Facultamiento Actual:</legend>
+
+                <div class="row form-group">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="row">
+                            <div class="col-md-3 col-lg-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha</span>
+                                    <input type="text" id="txtFechaActual" class="form-control" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">C.C.</span>
+                                    <input id="txtCCActual" class="form-control" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-5 col-lg-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Obra</span>
+                                    <input type="text" id="txtObraActual" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm">
+                            <legend id="lbllegendAct" class="legend-custm">Refacciones:</legend>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <table id="tblRefacActual" class="table table-fixed table-responsive table-striped display nowrap" style="width:100%">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Mínimo</th>
+                                                <th>Máximo</th>
+                                                <th>Autoriza</th>
+                                                <th>VoBo1</th>
+                                                <th>VoBo2</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="fsMaterialesAct" class="fieldset-custm">
+                            <legend class="legend-custm">Materiales</legend>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <table id="tblMatActual" class="table table-fixed table-responsive table-striped display nowrap">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th>Mínimo</th>
+                                                <th>Máximo</th>
+                                                <th>Autoriza</th>
+                                                <th>VoBo1</th>
+                                                <th>VoBo2</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-12 col-lg-12">
+                        <fieldset id="fsPuestoActual" class='fieldset-custm'>
+                            <div class='table-responsive'>
+                                <table id="tblPuestoAct" class='table table-fixed table-responsive' width="100%">
+                                    <thead class='bg-table-header'>
+                                        <tr>
+                                            <th>Puesto</th>
+                                            <th>Vobo</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Usuario Modificó: </label>
+                        <label id="lblUsuarioUpdate"></label>
+                    </div>
+                </div>
+            </fieldset>
+            
+        </div>
+    </div> 
+</div>
+
+<div id='mdlRechazo' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h3 class='modal-title'>Mótivo de rechazo:</h3>
+            </div>
+            <div class='modal-body'>
+                <textarea id="txtMotivoRechazo" class="form-control"></textarea>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+                <button type='button' id="btnRechazar" class='btn btn-danger'><i class='fa fa-close'></i> Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>

@@ -1,0 +1,201 @@
+﻿@{
+ViewBag.Title = "Gestion bono unico";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+
+<style>
+    div.flex-container {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    div.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons {
+        z-index: 9000 !important;
+    }
+
+    .panelAutorizado {
+        background-color: #dff0d8;
+    }
+
+
+    .panelPendiente {
+        background-color: #fcf8e3;
+    }
+
+    .panel-body {
+        height: 100px;
+        width: 300px !important;
+    }
+
+    #legendHome:hover {
+        cursor: pointer;
+    }
+
+    #legendHome {
+        font-size: 2em;
+    }
+
+    #textAreaRechazo {
+        height: 8em;
+        width: 90%;
+    }
+
+    table.tablaComparativa tr.modificado {
+        background-color: yellow;
+    }
+
+    table.tablaComparativa tr.nuevo {
+        background-color: green;
+    }
+
+    table.tablaComparativa tr.normal {
+        background-color: white;
+    }
+
+    table.tablaComparativa tr.eliminado {
+        background-color: red;
+    }
+</style>
+
+<h2 class="text-center">Gestion Bono Unico</h2>
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fa fa-search"></i> Búscar</legend>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>CC</span>
+            <select id='selCC' class='form-control buscar'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Estado</span>
+            <select id='selEstado' class='form-control buscar'></select>
+        </div>
+    </div>
+</fieldset>
+
+<div id="divPlantillas">
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'><i class="fas fa-hand-holding-usd"></i> Bono</legend>
+        <div class='table-responsive'>
+            <table id='tblBonos' class='table table-fixed table-responsive table-striped'>
+                <thead class='bg-table-header'></thead>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+
+<div class="row" id="divAutorizacion">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top">
+        <button type="button" id="botonAtras" class="btn btn-warning pull-right">
+            <i class='fa fa-arrow-left'></i> Atrás
+        </button>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="divTabs">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tabReporte" aria-controls="tabReporte" role="tab" data-toggle="tab">Reporte</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tabComparacion" aria-controls="tabComparacion" role="tab"
+                        data-toggle="tab">Comparación</a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <!-- tab reporte -->
+                <div role="tabpanel" class="tab-pane fade in active" id="tabReporte">
+
+                    <fieldset id="fieldsetReporte" hidden class="fieldset-custm text-center">
+                        <legend id="legendHome" class="legend-custm">
+                            <i class="fa fa-home"></i> Reporte
+                        </legend>
+                        <iframe id="report" align="middle" height="200" marginwidth="0" marginheight="0" hspace="0"
+                            vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+
+                <!-- tab comparación -->
+                <div role="tabpanel" class="tab-pane fade" id="tabComparacion">
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                        <h3>Antes</h3>
+                        <table id='tablaPlantillaActual' class='table table-hover text-center tablaComparativa'>
+                            <thead class='bg-table-header'></thead>
+                        </table>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-center">
+                        <h3>Después</h3>
+                        <table id='tablaPlantillaNueva' class='table table-hover text-center tablaComparativa'>
+                            <thead class='bg-table-header'></thead>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <fieldset id="fieldsetAutorizacion" hidden class="fieldset-custm text-center margin-top">
+                <legend class="legend-custm"><i class="fa fa-user"></i> Autorizantes</legend>
+                <div id="divAutorizantes" class="flex-container"></div>
+            </fieldset>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal" id="modalAutorizar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea autorizar esta plantilla de bonos?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modalAutorizarbtnAutorizar">
+                    <i class='fa fa-check'></i> Autorizar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal text-center" id="modalRechazar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea rechazar esta plantilla de bonos?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modalAvisoCuerpo"><strong>Justifique el rechazo:</strong></p>
+                <textarea id="textAreaRechazo" required placeholder="Describa su rechazo en un mínimo de 10 caracteres"
+                    minlength="10" maxlength="450"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modalAutorizarbtnRechazar">
+                    <i class='fa fa-ban'></i> Rechazar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Bono/GestionUnico.js"></script>

@@ -1,0 +1,248 @@
+﻿
+@{
+    ViewBag.Title = "ReporteAvances";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var hoy = DateTime.Now.ToLongDateString().ToUpper();  
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/ReporteAvances.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/js/ControlObra/ReporteAvances.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Reporte de avances de actividades</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                <legend class="legend-custm">Filtros:</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-md-6">
+                                        <label>Obra:</label>
+                                        <select class="form-control" id="SelectCapitulosFiltro"></select>
+                                    </div>
+
+                                    <div class="col-md-6" style="padding-left: 0; padding-top: 25px;">
+                                        <label class="lblEncabezado">Semana: <input type="text" id="txtFechaSaldo" value="@hoy" style="width: 80%;"></label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                     
+                    <div class="row">
+                        <div class="col-md-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#concentrado">Concentrado</a></li>
+                                    <li><a data-toggle="tab" href="#detalle">Avance Fisico</a></li>
+                                    <li><a data-toggle="tab" href="#avanceDiario">Avance Diario</a></li>
+                                     <li><a data-toggle="tab" href="#avanceSemanal">Avance Semanal</a></li>
+                                    <li><a data-toggle="tab" href="#facturado">Avance Facturado</a></li>
+                                </ul>
+
+                                <div class="tab-content">
+                                    <div id="concentrado" class="tab-pane fade in active">
+                                        <div class="row" style="height: 600px; overflow-y:scroll;">
+                                            <div class="col-md-12">
+                                                <br>
+                                                <table id="tblConcentrado" class="table">                                                       
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="detalle" class="tab-pane fade">
+                                        <div class="container-fluid container-scroll">
+                                            <br>
+                                            <div class="row" id="divTablas" style="height: 600px; overflow-y:scroll;">
+                                                <div class="col-md-5">
+                                                    <table id="tblAvanceDetalle" class="table">
+                                                        <caption class="tituloTabla">Presupuesto</caption>
+                                                    </table>
+                                                </div>
+                                                
+                                                <div class="col-md-7">
+                                                    <ul class="nav nav-tabs">
+                                                        <li class="active"><a data-toggle="tab" href="#Volumen">Volumen</a></li>
+                                                        <li><a data-toggle="tab" href="#Importe">Importe</a></li>
+                                                    </ul>
+
+                                                    <div class="tab-content">
+                                                        <div id="Volumen" class="tab-pane fade in active">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <table id="tblVolumenAvance" class="table">
+                                                                        <caption class="tituloTabla">Cantidad</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-1">
+                                                                    <table id="tblVolumenPorcentaje" class="table">
+                                                                        <caption class="tituloTabla">Avance</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-2">
+                                                                    <table id="tblVolumenFacturado" class="table">
+                                                                        <caption class="tituloTabla">Facturado</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-2">
+                                                                    <table id="tblVolumenXFacturar" class="table">
+                                                                        <caption class="tituloTabla">X Facturar</caption>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="Importe" class="tab-pane fade">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <table id="tblImporteAvance" class="table">
+                                                                        <caption class="tituloTabla">Cantidad</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-1">
+                                                                    <table id="tblImportePorcentaje" class="table">
+                                                                        <caption class="tituloTabla">Avance</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-2">
+                                                                    <table id="tblImporteFacturado" class="table">
+                                                                        <caption class="tituloTabla">Facturado</caption>
+                                                                    </table>
+                                                                </div>
+
+                                                                <div class="col-md-2">
+                                                                    <table id="tblImporteXFacturar" class="table">
+                                                                        <caption class="tituloTabla">X Facturar</caption>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>                                                  
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+
+                                    <div id="avanceDiario" class="tab-pane fade">
+                                        <div class="row" style="height: 600px; overflow-y:scroll;">
+                                            <div class="col-md-12">
+                                                <br>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-md-offset-9" style="padding-left: 0; padding-right: 0;">
+                                                                <label>Fecha Avance: </label>
+                                                            </div>
+                                                            <div class="col-md-1" style="padding-left: 0;">
+                                                                <input class="form-control" id="dpFechaAvance" style="border-radius: 0px;" disabled/>
+                                                            </div>                                                          
+
+                                                            <div class="col-md-1">
+                                                                <button id="btnGuardarAvance" class="btn btn-success"> Guardar </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <table id="tblPresupuestoDiario" class="table">
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                     <div id="avanceSemanal" class="tab-pane fade">
+                                         <div class="row" style="height: 600px; overflow-y:scroll;">
+                                             <div class="col-md-12">
+                                                <br>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-md-offset-9" style="padding-left: 0; padding-right: 0;">
+                                                                <label>Fecha Avance: </label>
+                                                            </div>
+                                                            <div class="col-md-1" style="padding-left: 0;">
+                                                                <input class="form-control" id="dpFechaAvanceSemanal" style="border-radius: 0px;" disabled/>
+                                                            </div>
+
+                                                            <div class="col-md-1">
+                                                                <button id="btnGuardarAvanceSemanal" class="btn btn-success"> Guardar </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <table id="tblPresupuestoSemanal" class="table">
+                                                    </table>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+
+                                    <div id="facturado" class="tab-pane fade">
+                                        <div class="row" style="height: 600px; overflow-y:scroll;">
+                                            <div class="col-md-12">
+                                                <br>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-2 col-md-offset-5" style="padding-right: 0;">
+                                                                <label>Periodo Facturación:</label>
+                                                                <span id="periodoFact" > Semanal</span>
+                                                            </div>
+                                                            <div class="col-md-2" style="padding-left: 0;">
+                                                                <label>Importe Total:</label>
+                                                                <span id="totalFact"></span>
+                                                            </div>
+
+                                                            <div class="col-md-1" style="padding-left: 0; padding-right: 0;">
+                                                                <label>Fecha Facturación: </label>
+                                                            </div>
+                                                            <div class="col-md-1" style="padding-left: 0;">
+                                                                <input class="form-control" id="dpFechaFacturacion" style="border-radius: 0px;" disabled/>
+                                                            </div>
+
+                                                            <div class="col-md-1">
+                                                                <button id="btnGuardarFacturacion" class="btn btn-success"> Guardar </button>
+                                                            </div>
+                                                        </div>                                                      
+                                                    </div>
+                                                    <table id="tblFacturado" class="table">
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                           
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+

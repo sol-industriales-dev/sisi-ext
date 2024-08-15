@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "Facturaciones";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var empresa = new SIGOPLAN.Controllers.BaseController().getEmpresaNombre();
+    var hoy = DateTime.Now.ToLongDateString().ToUpper();
+    var esAutorizar = (bool)ViewBag.esAutorizar;
+}
+
+<input type="text" id="inputFechaTemp" value="@hoy" style="display: none;">
+
+<!-- <link href="~/Content/style/css/Contabilidad/Propuesta/Facturaciones.css" rel="stylesheet" /> -->
+<link href="~/Content/style/css/CuentasPorCobrar/CuentasCobrar.css" rel="stylesheet" />
+
+<label class="encabezado">@empresa</label>
+<label class="encabezado">PERIFÉRICO PONIENTE 770 COL. PALO VERDE C.P. 83280</label>
+<label class="encabezado">HERMOSILLO, SON</label>
+<label class="encabezado">PRONOSTICO DE COBRANZA AL <input type="text" id="inputFecha" value="@hoy"></label>
+<label id="lblAuth"></label>
+<button class="btn btn-primary btn-lg pull-right" type="button" id="botonExportar">
+    <i class="fas fa-file-excel"></i> Exportar
+</button>
+@if (esAutorizar) {
+    <button class="btn btn-primary btn-lg pull-right" type="button" id="botonAuth">
+        <span id="textBtnAutorizar"><i class="fas fa-user"></i> Autorizar</span>
+    </button>
+    <button class="btn btn-danger btn-lg pull-right" type="button" id="btnCancelar" style="display:none;">
+        <i class="fas fa-ban"></i> Cancelar
+    </button>
+}else{
+    <button class="btn btn-primary btn-lg pull-right" type="button" id="botonAuth" style="display: none;">
+        <span id="textBtnAutorizar"><i class="fas fa-user"></i> Autorizar</span>
+    </button>
+    <button class="btn btn-danger btn-lg pull-right" type="button" id="btnCancelar" style="display:none;">
+        <i class="fas fa-ban"></i> Cancelar
+    </button>
+}
+
+<table id='tablaFacturaciones' class='table' width="99%">
+    <thead>
+        <th class="text-center"></th>
+        <th class="text-center">CUENTAS POR COBRAR</th>
+        <th class="text-center">TOTAL</th>
+        <th class="text-center">PRONÓSTICOS COBRANZA</th>
+    </thead>
+</table>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/js/CuentasPorCobrar/CuentasCobrar.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>

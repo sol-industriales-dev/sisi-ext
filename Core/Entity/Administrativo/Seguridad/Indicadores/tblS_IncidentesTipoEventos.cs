@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Entity.Administrativo.Seguridad.Indicadores
+{
+    public class tblS_IncidentesTipoEventos
+    {
+        public int id { get; set; }
+        public string tipoEvento { get; set; }
+
+
+        public virtual List<tblS_IncidentesClasificacion> clasificaciones { get; set; }
+    }
+}

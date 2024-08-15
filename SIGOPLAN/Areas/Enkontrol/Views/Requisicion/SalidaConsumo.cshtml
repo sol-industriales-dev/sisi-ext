@@ -1,0 +1,140 @@
+﻿@{
+ViewBag.Title = "SalidaConsumo";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<!-- <link href="~/Content/style/css/Enkontrol/Compras/OrdenCompra/Autorizar.css" rel="stylesheet" /> -->
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Compras/Requisicion/salidaConsumo.css" rel="stylesheet" />
+
+
+<h2 class="text-center">Salidas Por Consumo</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="col-md-4 col-lg-4 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Centro Costo:</span>
+            <select id="selCC" class="form-control select2"></select>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3 noPadLeft">
+        <div class="input-group">
+            <span class="input-group-addon">Requisiciones:</span>
+            <select id="selReqTipo" class="form-control">
+                <option value="0" selected>Pendientes</option>
+                <option value="1">Parciales</option>
+                <option value="2">Completas</option>
+            </select>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Salidas</legend>
+
+    <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
+        <table id="tblSalidas" class="table-bordered marginBottom5 compact" width="100%"></table>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Borrador</legend>
+
+    <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="margin-bottom: 5px;">
+
+        <button id="btnImprimirBorrador" class="btn btn-sm btn-success" style="float: right;"><i class="fa fa-print"></i> Imprimir</button>
+        <button id="btnLimpiarBorrador" class="btn btn-sm btn-default" style="float: right; margin-right: 5px;"><i class="fa fa-eraser"></i> Limpiar</button>
+    </div>
+
+    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+        <table id="tblBorrador" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="mdlExistenciaDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="labelModal"> Salida por consumo </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarSalidaConsumo" class="btn btn-primary btn-sm" style="display: none;"><span class="glyphicon glyphicon-floppy-save" style="font-size: medium;"></span> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlSalidaDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 98%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Salida por consumo </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="max-height: 70vh; overflow-y: auto; padding-left: 0px; padding-right: 0px;">
+                    <div class="col-md-6" style="padding-left: 0px;">
+                        <label>Centro de Costo Destino</label>
+                        <select id="selectCentroCostoDestino" class="form-control" disabled></select>
+                    </div>
+                    <div class="col-md-6" style="padding-right: 0px;">
+                        <label>Almacén Destino</label>
+                        <select id="selectAlmacenDestino" class="form-control" disabled></select>
+                    </div>
+                    <div class="col-md-12" style="padding-left: 0px; padding-right: 0px;">
+                        <label>Comentarios</label>
+                        <input id="inputComentarios" class="form-control">
+                    </div>
+                    <div id="divTable" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 5px; padding-left: 0px; padding-right: 0px;">
+                        <table id="tblSalidaDetalle" class="table table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonGuardarSalida" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlUbicacionDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Ubicación </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                    <table id="tblUbicacion" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="margin-top: 5px;">
+                    <button id="btnGuardarUbicacion" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Capturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Compras/Requisicion/salidaConsumo.js"></script>
+@Html.Partial("reportViewerView", false)

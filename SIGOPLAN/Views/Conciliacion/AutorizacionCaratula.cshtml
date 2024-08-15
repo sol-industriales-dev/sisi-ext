@@ -1,0 +1,206 @@
+﻿@{
+    ViewBag.Title = "AutorizacionCaratula";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Captura/Conciliacion/AutorizaCaratulas.js"></script>
+<style type="text/css">
+    .clsEliminado{
+        background-color:red !important;
+        color:white;
+        border:1px solid black;
+    }
+    .clsAgregado{
+        background-color:green !important;
+        color:black;
+        border:1px solid black;
+    }
+    .clsActualizado{
+        background-color:yellow !important;
+        color:black;
+        border:1px solid black;
+    }
+</style>
+@Html.Partial("reportViewerView", false)
+<div class="container-fluid" id="divppal">
+    <div class="row text-center">
+        <h3>Autorizacion de Costos de Caratulas</h3>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros Autorizaciones</legend>
+            <div class="col-lg-4">
+                <label>Centro Costos:</label>
+                <select class="form-control" id="cboCC"></select>
+            </div>
+            <div class="col-lg-4">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboEstatus">
+                    <option value="0">Pendientes</option>
+                    <option value="1">Validados</option>
+                </select>
+            </div>
+        </fieldset>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Autorizaciones Pendientes</legend>
+            <div class="col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table class="table table-responsive" id="tblCaratulas" width="100%">
+                        <thead class="bg-table-header text-center">
+                            <tr>
+                                <th style="border-right: 1px solid;" class="text-center">Obra</th>
+                                <th style="border-right: 1px solid;" class="text-center">Estado</th>
+
+                                <th style="border-right: 1px solid;" class="text-center">Ver</th>
+                                <th style="border-right: 1px solid;" class="text-center">Comentario</th>
+                                <th style="border-right: 1px solid;" class="text-center">Reporte</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div id="divVista" class="container-fluid hide">
+    <ul class="nav nav-tabs">
+        <li id="liComp"><a data-toggle="tab" href="#comparativa" id="linkComp">Comparación</a></li>
+        <li  class="active"><a data-toggle="tab" href="#autorizar" id="liAut">Autorización</a></li>
+    </ul>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+            <div class="input-group" title="Codigo de Colores">
+                <span class="input-group-addon Formato" style="background-color:red;"></span>
+                <span class="form-control" style="width:150px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Eliminado</span>
+                <span class="input-group-addon Formato" style="background-color:green;"></span>
+                <span class="form-control" style="width:150px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Agregado</span>
+                <span class="input-group-addon Formato" style="background-color:yellow;"></span>
+                <span class="form-control" style="width:150px;padding-left:3px;border:1px solid black;cursor:not-allowed;">Actualizado</span>
+            </div>
+        </div>
+        
+    </div>
+    <div class="tab-content">
+        <div id="comparativa" class="tab-pane fade">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick BntRegresar"></span>Comparativa de cambios:</legend>
+                <div class="row">
+                    <div class="col-md-6">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Caratula Actual</legend>
+                            <div class="col-lg-12">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divCaratulaActual">
+
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-6">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Caratula Actualizada</legend>
+                            <div class="col-lg-12">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divCaratulaActualizada">
+
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div id="autorizar" class="tab-pane fade in active">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="clsFrame text-center">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick BntRegresar"></span>Vista Previa:</legend>
+                            <iframe id="report1" align="middle" marginwidth="0"
+                                    marginheight="0"
+                                    hspace="0"
+                                    vspace="0"
+                                    frameborder="0"
+                                    scrolling="no" class="StyleIframe"></iframe>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-sm-12 col-xs-12 col-md-12 col-lg-12 ajustarDiv">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"> Autorizadores:</legend>
+                        <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3 ajustarDiv">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-heading"><label id="lblEnvia"></label></div>
+                                <div id="btnEnvia" class="panel-body">Nombre y Firma Elaboracion</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3 ajustarDiv">
+                            <div class="panel panel-default text-center">
+
+                                <div class="panel-heading"><label id="lblVobo1"></label></div>
+                                <div id="btnVobo1" class="panel-body">Nombre y Firma De Enterado</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3 ajustarDiv">
+                            <div class="panel panel-default text-center">
+
+                                <div class="panel-heading"><label id="lblVobo2"></label></div>
+                                <div id="btnVobo2" class="panel-body">Nombre y Firma Director Maquinaria</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-sm-12 col-xs-12 col-md-3 col-lg-3 ajustarDiv">
+
+                            <div class="panel panel-default text-center">
+                                <div class="panel-heading"><label id="lblDireccion"></label></div>
+                                <div id="btnDireccion" class="panel-body">Nombre y Firma Alta Direccion</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<div class="modal fade" id="modalRechazo" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+
+                    <h3> Rechazo de Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnRechazoSave">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

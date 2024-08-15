@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = "Reporte de Muestras";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="@Url.Content("~/Content/style/default/easyui.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/icon.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Scripts/Utilities/jquery.easyui.min.js")" type="text/javascript"></script>
+
+<link href="~/Content/style/css/Maquinaria/SOS/Style-ReporteMuestras.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/SOS/ReporteMuestras.js"></script>
+
+<div class="row">
+    <h2 class="text-center">Reporte de Alerta de Muestras</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-lg-5">
+                <div class="col-lg-6 no-padding">
+                    <label for="fechaIni">Fecha Inicio:</label>
+                    <input type="text" id="fechaIni" class="form-control" />
+                </div>
+                <div class="col-lg-6 no-padding-right">
+                    <label for="fechaFin">Fecha Fin:</label>
+                    <input type="text" id="fechaFin" class="form-control" />
+                </div>
+            </div>
+            <div class="col-lg-3 form-group">
+                <label>Lugar:</label>
+                <select class="form-control" id="cboFiltroLugar" multiple="multiple"></select>
+            </div>
+            <div class="col-lg-2 form-group">
+                <button type="button" class="btn btn-info margin-top pull-left" id="btnAplicarFiltros">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm text-center"><label id="tituloLegend"></label></legend>
+            <div class="col-lg-10 text-left" id="divGrafica">
+                <canvas id="skills" width="140" height="140"></canvas>
+            </div>
+            <div class="col-lg-2 text-left form-group  margin-top">
+                <div class="panel panel-primary">
+                    <div class="panel-heading ">Datos Generales:</div>
+                    <div class="panel-body">
+                        <table class="table" id="infoMaquina">
+                            <tr>
+                                <td>
+                                    <div>
+                                        <label>Alerta:</label>
+                                    </div>
+                                    <div>
+                                        <label id="lblAlerta" class="labelFont"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <label>Precaución:</label>
+                                    </div>
+                                    <div>
+                                        <label id="lblPrecacion" class="labelFont"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <label>Normal:</label>
+                                    </div>
+                                    <div>
+                                        <label id="lblNormal" class="labelFont"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </fieldset>
+    </div>
+</div>
+
+@* área de Modal *@
+<div class="modal fade" id="modalDesglose" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content" style="width:500px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="titleModal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="panel with-nav-tabs panel-default">
+                    <div class="panel-heading">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab1default" data-toggle="tab">Aluminio</a></li>
+                            <li><a href="#tab2default" data-toggle="tab">Cobre</a></li>
+                            <li><a href="#tab3default" data-toggle="tab">Fierro</a></li>
+                            <li><a href="#tab4default" data-toggle="tab">Silicio</a></li>
+                        </ul>
+                    </div>
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="tab1default">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading tableTitle">
+                                        <center>DATOS</center>
+                                    </div>
+                                    <div class="panel-body table_al TablaScroll">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab2default">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading tableTitle">
+                                        <center>DATOS</center>
+                                    </div>
+                                    <div class="panel-body table_cu TablaScroll">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab3default">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading tableTitle">
+                                        <center>DATOS</center>
+                                    </div>
+                                    <div class="panel-body table_fe TablaScroll">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tab4default">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading tableTitle">
+                                        <center>DATOS</center>
+                                    </div>
+                                    <div class="panel-body table_si TablaScroll">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalMensaje" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Alerta</h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="text-center">
+                    <label id="lblMensaje"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary margin-top" data-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>

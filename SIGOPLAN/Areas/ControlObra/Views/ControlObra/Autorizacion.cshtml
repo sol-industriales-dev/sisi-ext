@@ -1,0 +1,158 @@
+﻿
+@{
+    ViewBag.Title = "Autorizacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/ControlObra/Autorizacion.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/js/ControlObra/Autorizacion.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Autorización Avances</h2>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-12 col-lg-12">
+        </div>
+    </div>
+
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <fieldset class="fieldset-custm">
+                 <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="border-radius: 0px !important;">
+                                <legend class="legend-custm">Filtros:</legend>
+                                <div class="input-group col-md-12">
+                                    <div class="col-lg-3">
+                                        <select id="selectCapituloFiltro" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                     
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+                            <fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+                                <legend class="legend-custm"></legend>
+                                <table id="tblAvances" class="table table-striped table-hover table-bordered" style="width:100%"></table>
+                            </fieldset>
+                        </div>
+                    </div>
+                 </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDetalle" role="dialog">
+        <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+            <div class="modal-content">
+                <div class="modal-header modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="text-center">
+                        <h3><label>Avance</label></h3>
+                    </div>
+                </div>
+                <div class="modal-body"> 
+                    <!-- <div class="row"> -->
+                        
+                            <br>
+                            <div id="divTablas" class="row" style="height: 600px; overflow-y:scroll;">
+                                <div class="col-md-7">
+                                    <table id="tblAvanceDetalle" class="table">
+                                        <caption class="tituloTabla">Presupuesto</caption>
+                                    </table>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#Volumen">Volumen</a></li>
+                                        <li><a data-toggle="tab" href="#Importe">Importe</a></li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div id="Volumen" class="tab-pane fade in active">
+                                            <div class="container-fluid container-scroll">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <table id="tblVolumenAvance" class="table">
+                                                            <caption class="tituloTabla">Cantidad</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <table id="tblVolumenPorcentaje" class="table">
+                                                            <caption class="tituloTabla">Avance</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <!-- <div class="col-md-2">
+                                                        <table id="tblVolumenFacturado" class="table">
+                                                            <caption class="tituloTabla">Facturado</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <table id="tblVolumenXFacturar" class="table">
+                                                            <caption class="tituloTabla">X Facturar</caption>
+                                                        </table>
+                                                    </div> -->
+                                                </div>
+                                            </div>
+                                        </div>   
+
+                                        <div id="Importe" class="tab-pane fade">
+                                            <div class="container-fluid container-scroll">
+                                                <div class="row">
+                                                    <div class="col-md-7">
+                                                        <table id="tblImporteAvance" class="table">
+                                                            <caption class="tituloTabla">Cantidad</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <table id="tblImportePorcentaje" class="table">
+                                                            <caption class="tituloTabla">Avance</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <!-- <div class="col-md-2">
+                                                        <table id="tblImporteFacturado" class="table">
+                                                            <caption class="tituloTabla">Facturado</caption>
+                                                        </table>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <table id="tblImporteXFacturar" class="table">
+                                                            <caption class="tituloTabla">X Facturar</caption>
+                                                        </table>
+                                                    </div> -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>              
+                    <!-- </div> -->
+
+                    
+                </div>
+                <div class="modal-footer">                                    
+                    <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

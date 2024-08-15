@@ -1,0 +1,182 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+@*ESTILOS*@
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Asignacion/Style-AltaFinancieros.css" rel="stylesheet" />
+
+<style>
+    /*TABLAS*/
+    @* table.dataTable {
+        width: 100% !important;
+    } *@
+
+    table.dataTable tbody tr td,
+    table thead tr th,
+    table.dataTable,
+    .dataTables_scrollBody, .bg-table-header {
+        border: 0px solid #ffffff !important;
+    }
+
+    table.dataTable thead, .bg-table-header {
+        font-size: 15px;
+        background-color: #3556ae !important;
+        color: white;
+    }
+</style>
+
+@*CUERPO*@
+<h3 class="text-center text-color">Captura Financieros</h3>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm text-center">Filtros</legend>
+    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
+        <label class="text-color" for="cbBanco">Banco: </label>
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="white-space: nowrap;">
+            <select id="cbBanco" class="form-control" style="width: 80%; display: inline-block;"></select>
+            <button id="btnAgregarFinanciero" class="btn btn-sm btn-success" style="display: inline-block;"><i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
+        <label class="text-color" for="cbPlazo">Plazo: </label>
+        <select id="cbPlazo" class="form-control">
+            <option value="6">6 Meses</option>
+            <option value="12">12 Meses</option>
+            <option value="18">18 Meses</option>
+            <option value="24">24 Meses</option>
+            <option value="36">36 Meses</option>
+            <option value="48">48 Meses</option>
+        </select>
+    </div>
+    <div class="col-lg-1 col-md-1 col-sm-2 col-xs-12 pull-right">
+        <button id="btnAltaPlazo" class="btn btn-success form-control margin-top"> <i class="fas fa-plus"></i> Alta</button>
+    </div>
+    <div class="col-lg-1 col-md-1 col-sm-2 col-xs-12 pull-right">
+        <button id="btnBuscar" class="btn btn-primary form-control margin-top"> <i class="fas fa-search"></i> Buscar</button>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm text-center">Plazos</legend>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="white-space: nowrap;">
+        <table id="tablaPlazos" class="hover stripe pull-left"></table>
+    </div>
+</fieldset>
+
+<div class="modal fade disenioModal" id="modalAltaFinanciero" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Alta Financiero</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label for="txtCantidad">BANCO: </label>
+                        <input type="text" min="1" id="txtFinanciero" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGuardarFinanciero" class="btn btn-primary margin-top modal-margin-rigth pull-right"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade disenioModal" id="modalAltaPlazo" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 40%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Alta Financiero</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label for="cbFinancieroAltaPlazo">Financiero: </label>
+                        <select id="cbFinancieroAltaPlazo" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="cbTipoOperacionAltaPlazo">Tipo Operación: </label>
+                        <select id="cbTipoOperacionAltaPlazo" class="form-control">
+                            <option value="1">Arrendamiento</option>
+                            <option value="2">Crédito Simple</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtOpcionCompraAltaPlazo">Opción Compra: </label>
+                        <input type="number" min="1" id="txtOpcionCompraAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtEngancheAltaPlazo">Valor Residual / Enganche: </label>
+                        <input type="number" min="1" id="txtEngancheAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtDepositoPorcentajeAltaPlazo">Deposito en efectivo (%): </label>
+                        <input type="number" min="1" id="txtDepositoPorcentajeAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtDepositoAltaPlazo">Deposito en efectivo ($): </label>
+                        <input type="number" min="1" id="txtDepositoAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="cbMonedaAltaPlazo">Moneda: </label>
+                        <select id="cbMonedaAltaPlazo" class="form-control">
+                            <option value="1">Pesos</option>
+                            <option value="2">Dólares</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="cbPlazoAltaPlazo">Plazo (meses): </label>
+                        <select id="cbPlazoAltaPlazo" class="form-control">
+                            <option value="6">6 Meses</option>
+                            <option value="12">12 Meses</option>
+                            <option value="18">18 Meses</option>
+                            <option value="24">24 Meses</option>
+                            <option value="36">36 Meses</option>
+                            <option value="48">48 Meses</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtInteresAltaPlazo">Tasa de Interés: </label>
+                        <input type="number" min="1" id="txtInteresAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtGastosAltaPlazo">Gastos fijos: </label>
+                        <input type="number" min="1" id="txtGastosAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtComisionAltaPlazo">Comisión: </label>
+                        <input type="number" min="1" id="txtComisionAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtRentaGarantiaAltaPlazo">Rentas en Garantía: </label>
+                        <input type="number" min="1" id="txtRentaGarantiaAltaPlazo" class="form-control" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="txtCrecimientoAltaPlazo">Crecimiento pagos: </label>
+                        <input type="number" min="1" id="txtCrecimientoAltaPlazo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnGuardarPlazo" class="btn btn-primary margin-top modal-margin-rigth pull-right"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal"><i class="fa fa-close"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*SCRIPTS*@
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.table.transpose.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/js/Maquinaria/Catalogo/AltaFinancieros.js"></script>

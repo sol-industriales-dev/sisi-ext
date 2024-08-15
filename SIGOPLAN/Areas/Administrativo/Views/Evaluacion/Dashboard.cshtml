@@ -1,0 +1,151 @@
+﻿@{
+ViewBag.Title = "Dashboard";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Evaluacion/EvaluacionEstilo.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .ui-datepicker-calendar {
+        display: none;
+    }
+
+    .ui-datepicker {
+        z-index: 9999 !important;
+    }
+
+    .select2-selection--single,
+    .select2-selection__rendered {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 35px !important;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Dashboard</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-md-3">
+            <label>Centro de Costo:</label>
+            <select class="form-control select2" id="selectCentroCosto"></select>
+        </div>
+        <div class="col-sm-2">
+            <label for="multiSelectCategoria" class="form-label">Áreas:</label>
+            <select id="multiSelectCategoria" class="form-control" multiple></select>
+        </div>
+        <div class="col-sm-2">
+            <label for="selectEvaluador" class="form-label">Supervisor:</label>
+            <select id="selectEvaluador" class="form-control"></select>
+        </div>
+        <div class='col-md-2'>
+            <label for="inputMes">Mes:</label>
+            <input name="inputMes" id="inputMes" class="form-control date-picker">
+        </div>
+        <!-- <div class="col-sm-4">
+            <label>Fecha:</label>
+            <div class="input-group">
+                <input id="inputFechaInicio" class="form-control">
+                <span class="input-group-addon"></span>
+                <input id="inputFechaFin" class="form-control">
+            </div>
+        </div> -->
+        <div class="col-md-3">
+            <button type="button" class="btn btn-primary" id="botonResultados" style="margin-top: 20px;">
+                <i class="fas fa-search"></i> Resultados
+            </button>
+            <button type="button" class="btn btn-default" id="botonReporte" style="margin-top: 20px;" disabled>
+                <i class="fas fa-file"></i> Reporte
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <div class="row margin-top">
+        <div class="col-xs-6 col-md-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse" href="#panel1">
+                                Porcentaje Cumplimiento General
+                            </a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="height: 400px">
+                                    <canvas id="chartPromedioGeneral"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-md-6">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse" href="#panel1">
+                                Porcentaje Cumplimiento Por Áreas
+                            </a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="height: 400px">
+                                    <canvas id="chartPromedioPorAreas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-12">
+            <div class="panel-group">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                            <a data-toggle="collapse" href="#panel1">
+                                Porcentaje Cumplimiento Por Actividades
+                            </a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12 text-center" style="height: 400px">
+                                    <canvas id="chartPromedioPorActividades"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Evaluacion/Dashboard.js"></script>
+
+@Html.Partial("reportViewerView", false)

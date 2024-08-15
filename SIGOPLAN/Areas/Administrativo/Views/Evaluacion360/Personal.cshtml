@@ -1,0 +1,215 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/Personal.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/General.css' rel='stylesheet' />
+<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" />
+
+<!-- END: CONTAINER -->
+<div class='container-fluid'>
+
+    <!-- SECCIÓN MENÚ -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div id="menuPeriodos">
+                    <h2><i class="far fa-calendar-alt"></i></h2>
+                    <h5>Periodos</h5>
+                </div>
+                <div id="menuPersonal" class="opcionSeleccionada">
+                    <h2><i class="fas fa-user-tie"></i></h2>
+                    <h5>Personal</h5>
+                </div>
+                <div id="menuConductas">
+                    <h2><i class="fas fa-list"></i></h2>
+                    <h5>Conductas</h5>
+                </div>
+                <div id="menuCuestionarios">
+                    <h2><i class="fas fa-book"></i></h2>
+                    <h5>Cuestionarios</h5>
+                </div>
+                <div id="menuCriterios">
+                    <h2><i class="fas fa-tasks"></i></h2>
+                    <h5>Criterios</h5>
+                </div>
+                <div id="menuRelaciones">
+                    <h2><i class="fas fa-user-friends"></i></h2>
+                    <h5>Relaciones</h5>
+                </div>
+                <div id="menuEvaluaciones">
+                    <h2><i class="fas fa-window-restore"></i></h2>
+                    <h5>Evaluaciones</h5>
+                </div>
+                <div id="menuAvances">
+                    <h2><i class="fas fa-chart-pie"></i></i></h2>
+                    <h5>Avances</h5>
+                </div>
+                <div id="menuReporte360">
+                    <h2><i class="fas fa-bullseye"></i></h2>
+                    <h5>Reporte 360</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: SECCIÓN MENÚ -->
+
+    <!-- CONTAINER FILTROS -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div class="seccion">
+                <div class="row">
+                    <div class='col-lg-5'>
+                        <label for="cboFiltroCC">Seleccione un CC:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                            <select id="cboFiltroCC" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class='col-lg-4'>
+                        <label for="cboFiltroTipoUsuario">Seleccione un tipo de usuario:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-user-friends"></i></span>
+                            <select id="cboFiltroTipoUsuario" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class='pull-right'>
+                        <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        <button type='button' class='btn btn-primary' id='btnFiltroNuevo' title="Nuevo registro."><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        <button type='button' class='btn btn-primary' id='btnFiltroAsignarPeriodo' title="Asignar periodo."><i class="far fa-calendar-check"></i>&nbsp;Asignar periodo</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class='col-xs-12'>
+                        <table id='tblRH_Eval360_CatPersonal' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CONTAINER FILTROS -->
+
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PERSONAL -->
+<div id='mdlCEPersonal' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for="cboCENombre">Nombre:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="cboCENombre" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for="txtCEDepartamento">CC:&nbsp;<i class="fas fa-question-circle" title="Este dato solo es informativo. No se puede modificar."></i></label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-id-card"></i></span>
+                                <input type="text" id="txtCEDepartamento" class="form-control">
+                                @* <select id="cboCEDepartamento" class="form-control select2"></select> *@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for="cboCEPuesto">Puesto:&nbsp;<i class="fas fa-question-circle" title="Este dato solo es informativo. No se puede modificar."></i></label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-address-card"></i></span>
+                                <input type="text" id="txtCEPuesto" class="form-control">
+                                @* <select id="cboCEPuesto" class="form-control select2"></select> *@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for="txtCECorreo">Correo:&nbsp;<i class="fas fa-question-circle" title="Este dato solo es informativo. No se puede modificar."></i></label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="far fa-envelope"></i></span>
+                                <input type="text" id="txtCECorreo" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for="cboCETipoUsuario">Tipo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user-tie"></i></span>
+                                <select id="cboCETipoUsuario" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for="txtCETelefono">Teléfono:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-phone"></i></span>
+                                <input type="text" id="txtCETelefono" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                    <button type='button' class='btn btn-success' id='btnCEPersonal'></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PERSONAL -->
+
+<!-- MODAL ASIGNAR PERIODO AL PERSONAL -->
+<div id='mdlAsignarPeriodo' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="cboAsignarPeriodo">Seleccione un periodo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                                <select id="cboAsignarPeriodo" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="cboAsignarCuestionario">Seleccione un cuestionario:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-stream"></i></span>
+                                <select id="cboAsignarCuestionario" class="form-control select2"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                    <button type='button' class='btn btn-success' id='btnAsignarPeriodo'><i class="fas fa-plus"></i>&nbsp;Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ASIGNAR PERIODO AL PERSONAL -->
+
+<!-- SCRIPT -->
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Evaluacion360/Personal.js'></script>
+<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>

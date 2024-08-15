@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Evaluacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .radioBtn a {
+        font-size: 11px;
+        padding: 6px;
+    }
+
+    .radio,
+    .radio:focus {
+        box-shadow: none;
+        margin-top: 0px;
+    }
+
+    .progress {
+        position: relative;
+        background-color: #c4c4c4 !important;
+    }
+
+    .progress span {
+        position: absolute;
+        display: block;
+        width: 100%;
+        color: black;
+    }
+
+    .bar-warning {
+        background-color: yellow;
+    }
+
+    .bar-success {
+        background-color: green;
+    }
+
+    .bar-error {
+        background-color: red;
+    }
+
+    #tablaEvidencias span,
+    #tablaCapturas span {
+        color: #fff;
+        text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Evaluación</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class="col-md-4 noPadRight">
+            <label>Centro de Costo:</label>
+            <select class="form-control select2" id="selectCentroCosto"></select>
+        </div>
+        <div class="col-md-4">
+            <label>Áreas:</label>
+            <select class="form-control select2" id="selectAreas"></select>
+        </div>
+        <div class="col-md-2">
+            <label>Estatus:</label>
+            <select class="form-control" id="selectEstatus">
+                <option value="">Todas</option>
+                <option value="1">Evaluadas</option>
+                <option value="2">No Evaluadas</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary mrgTop" id="botonBuscar" style="margin-top: 25px;"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm">Capturas:</legend>
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaCapturas" class="table table-hover compact" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalEvidencias">
+    <div class="modal-dialog modal-lg" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Evidencias</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaEvidencias" class="table table-hover" width="100%"></table>
+                    </div>
+                    <div class="col-sm-12">
+                        <button id="botonQuitarTerminacion" class="btn btn-xs btn-primary pull-right" style="margin-top: 5px;">Quitar Terminación</button>
+                    </div>
+                </div>
+                <div class="modal-footer margin-top">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="botonCancelar">
+                        <i class="fas fa-undo"></i> Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="botonGuardar">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/SAAP/Evaluacion.js"></script>

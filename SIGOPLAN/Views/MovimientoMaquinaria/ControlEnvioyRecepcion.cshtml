@@ -1,0 +1,453 @@
+﻿@{
+    ViewBag.Title = "Control Envio y Recepcion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Inventario/ControlyEnvio.js"></script>
+<script src="~/Scripts/Utilities/wizardjs.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h2 style="margin-top: 0;">
+                Control de Envío / Recepción de Maquinaria y Equipo
+            </h2>
+        </div>
+    </div>
+    <div class="row" id="divListaPendientesLiberar">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Filtros:</label></legend>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label>Tipo de Documento:</label>
+                            <select id="cboTipoControl" class="form-control">
+                                <option value="1">Envío</option>
+                                <option value="2">Recepción</option>
+                                <option value="3">Envio TMC</option>
+                                <option value="4">Recepción TMC</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Filtros Equipos:</label>
+                            <select id="cboFiltroEquipos" class="form-control">
+                                <option value="1">Controles Pendientes</option>
+                                <option value="2">Controles Realizados</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label id="lblTitulotblEquiposPendientes">Listado de Equipos Pendientes:</label></legend>
+                    <table id="tblEquiposPendientes" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Folio" data-width="25%">Folio</th>
+                                <th data-column-id="CCNameRecepcion" data-width="25%">Envio Centro Costos</th>
+                                <th data-column-id="CCName" data-width="25%">Recepcion Centro Costos</th>
+                                <th data-column-id="nomb" data-width="25%">Economico</th>
+                                <th data-column-id="Fecha" data-width="25%">Fecha</th>
+                                <th data-column-id="VerCalidad" data-formatter="VerCalidad" data-sortable="false" data-width="25px">Ver C.Calidad</th>
+                                <th data-column-id="VerSolicitud" data-formatter="VerSolicitud" data-sortable="false" data-width="25px">Ver Solicitud</th>
+                                <th data-column-id="verReporte" data-formatter="verReporte" data-sortable="false" data-width="25px">Reporte</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="row hidden" id="divTrafico">
+        <div class="stepwizard">
+            <div class="stepwizard-row setup-panel">
+                <div class="stepwizard-step">
+                    <a href="#step-1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                    <p>Paso 1</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                    <p>Paso 2</p>
+                </div>
+
+            </div>
+        </div>
+        <form id="frmDatosGenerales">
+            <div class="setup-content" id="step-1">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Generales:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-2" id="divTipoControl">
+                                <label>Control de:</label>
+                                <input type="text" class="form-control" id="tbTipoControl" disabled />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divMotivosEnvio">
+                                <label>Motivo Envío:</label>
+                                <select class="form-control" id="cboMovimientoTipo">
+                                    <option value="0">Termino Obra</option>
+                                    <option value="1">Falla</option>
+                                    <option value="2">Cambio Maquinaria</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label>No. Folio:</label>
+                                <input type="text" class="form-control" id="tbFolio" disabled />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md- col-lg-2">
+                                <label>No. ECO.</label>
+                                <input type="text" class="form-control" id="tbEconomico" disabled />
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                <label id="lblLugarControl"></label>
+                                <select class="form-control hide" id="cboDestinos">
+                                    <option value="1010">TALLER MECANICO CENTRAL</option>
+                                    <option value="1015">PATIO MAQUINARIA HERMOSILLO</option>
+                                </select>
+                                <input type="text" class="form-control" id="tbLugarEnvio" disabled />
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                <label id="lblFechaControl">Fecha:</label>
+                                <input type="text" class="form-control" id="tblFechaActual" disabled />
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Maquinaria:</legend>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                <label>Tipo:</label>
+                                <input id="tbTipoMaquina" class="form-control" disabled />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" disabled>
+                                <label>Grupo:</label>
+                                <input id="tbGrupoMaquina" class="form-control" disabled />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ">
+                                <label>Marca:</label>
+                                <input id="tbMarcaMaquina" class="form-control" disabled />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ">
+                                <label>Modelo:</label>
+                                <input id="tbModeloMaquina" class="form-control" disabled />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ">
+                                <label>Serie:</label>
+                                <input id="tbSerieMaquina" class="form-control" disabled />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ">
+                                <label>Num Poliza:</label>
+                                <input id="tbNumPoliza" class="form-control" required />
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                <div class="form-group">
+                                    <label>Archivo:</label>
+                                    <input type="file" id="fupAdjunto" style="width:300px;">
+                                    <div class="col-lg-12">
+                                        <a id="lblTxtArchivo" class="margin-top" style="cursor: pointer;color:blue;"></a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            @*<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 ">
+                                    <label>Arreglo:</label>
+                                    <input id="tbArregloMaquina" class="form-control" />
+                                </div>*@
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Nota:</legend><textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                        <button class="btn btn-primary nextBtn pull-right" type="button" id="btnSiguiente1">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+            <div class="setup-content" id="step-2">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Verificaciones:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divHorometros">
+                                <label>Horometros:</label>
+                                <input type="number" class="form-control" id="tbHorometro" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divKilometraje">
+                                <label>Kilometraje:</label>
+                                <input type="number" class="form-control" id="tbKilometraje" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label id="lblFechaTipoControl"></label>
+                                <input type="text" class="form-control" id="tbFechaTipoControl" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>Días traslado:</label>
+                                <input type="number" class="form-control" id="tbDiasTransalado" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>Combustible tanque 1:</label>
+                                <select class="form-control" id="cboTanque1">
+                                    <option value="0">Vacío</option>
+                                    <option value="1">1/4</option>
+                                    <option value="2">1/2</option>
+                                    <option value="3">3/4</option>
+                                    <option value="4">lleno</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>Combustible tanque 2:</label>
+                                <select class="form-control" id="cboTanque2">
+                                    <option value="0">Vacío</option>
+                                    <option value="1">1/4</option>
+                                    <option value="2">1/2</option>
+                                    <option value="3">3/4</option>
+                                    <option value="4">lleno</option>
+                                </select>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>Reporte de Falla:</label>
+                                <select class="form-control" id="cboFallas">
+                                    <option value="false">NO</option>
+                                    <option value="true">SI</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>Copia de Factura:</label>
+                                <select class="form-control" id="cboFactura">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>PED. ADUANAL:</label>
+                                <select class="form-control" id="cboPedAduana">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>CONTROL DE CALIDAD:</label>
+                                <select class="form-control" id="cboControlCalida">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+
+                                </select>
+                            </div>
+                            @*<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 ">
+                                    <label>CATALOGO DE PARTES:</label>
+                                    <select class="form-control" id="cboCatalogoPartes">
+                                        <option value="0">NO</option>
+                                        <option value="1">SI</option>
+                                    </select>
+                                </div>*@
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>MANUAL DE OPERACION:</label>
+                                <select class="form-control" id="cboManualOperacion">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>MANUAL DE MANTTO.:</label>
+                                <select class="form-control" id="cboManualMantenimiento">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 ">
+                                <label>BITACORA:</label>
+                                <select class="form-control" id="cboBitacora">
+                                    <option value="true">SI</option>
+                                    <option value="false">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 " id="divPlacas">
+                                <label>PLACAS:</label>
+                                <select class="form-control" id="cboPlacas">
+                                    <option value="2">No Aplica</option>
+                                    <option value="0">NO</option>
+                                    <option value="1">SI</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Autorización:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                <div class="panel panel-default fix-Panel-row">
+                                    <div class="panel-heading">Transporte</div>
+                                    <div class="panel-body bg-success">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Compañia
+                                                </label>
+                                                <input class="form-control" type="text" id="tbCompania" />
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Responsable
+                                                </label>
+                                                <input class="form-control" type="text" id="tbResponsable" />
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Transporte
+                                                </label>
+                                                <input class="form-control" type="text" id="tbTransporte" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                <div class="panel panel-default fix-Panel-row">
+                                    <div class="panel-heading"><label id="lblResponsableEnvio">Responsable Envío</label></div>
+                                    <div class="panel-body bg-success">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Nombre
+                                                </label>
+                                                <input class="form-control" type="text" id="tbNombreResponsableEnvio" />
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Compañia
+                                                </label>
+                                                <input class="form-control" type="text" id="tbCompaniaResponsableEnvio" />
+                                            </div>
+                                            @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                    <label>
+                                                        Firma
+                                                    </label>
+                                                    <input class="form-control" type="text" id="tbFirmaResponsable" />
+                                                </div>*@
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                                <div class="panel panel-default fix-Panel-row">
+                                    <div class="panel-heading"><label id="lblResponsableRecepcion">Responsable Recepcion</label></div>
+                                    <div class="panel-body bg-success">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Nombre
+                                                </label>
+                                                <input class="form-control" type="text" id="tbNombreResponsableRecepcion" />
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                <label>
+                                                    Compañia
+                                                </label>
+                                                <input class="form-control" type="text" id="tbCompaniaResponsableRecepcion" />
+                                            </div>
+                                            @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                                                    <label>
+                                                        Firma
+                                                    </label>
+                                                    <input class="form-control" type="text" id="tbFirmaResponsable" />
+                                                </div>*@
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnGuardar">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="step-3" class="setup-content">
+                 
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)
+
+
+<div class="modal fade " id="modalListaEquiposAsignados" role="dialog">
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Lista de Equipos Pendientes por Asignar</label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Información Solicitud:</legend>
+
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Tipo Maquinaria:</label>
+                                <input class="form-control" id="tbTipoMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Grupo Maquinaria:</label>
+                                <input class="form-control" id="tbGrupoMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Modelo Maquinaria:</label>
+                                <input class="form-control" id="tbModeloMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Horas:</label>
+                                <input class="form-control" id="tbHorasModal" readonly />
+                            </div>
+
+
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Listado Economicos no asignados</legend>
+
+                            <table id="tblEconomicosNoAsignados" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="Economico" data-formatter="Economico" data-width="25%">Economico</th>
+                                        <th data-column-id="Grupo" data-width="25%">Descripcion</th>
+                                        <th data-column-id="Modelo" data-width="25%">Modelo</th>
+                                        <th data-column-id="Marca" data-width="25%">Marca</th>
+                                        <th data-column-id="localizacion" data-width="25%">Localizacion</th>
+                                        <th data-column-id="Asignar" data-formatter="Asignar" data-searchable="false" data-sortable="false" data-width="25px">Asignar</th>
+
+                                    </tr>
+                                </thead>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

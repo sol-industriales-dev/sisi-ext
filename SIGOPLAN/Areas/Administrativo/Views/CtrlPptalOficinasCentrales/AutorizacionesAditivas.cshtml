@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    ViewBag.Title = "Autorizaciones aditivas";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/AutorizacionesAditivas.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>GESTIÓN ADITIVAS</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>Año</label>
+                            <select id="comboBoxYear" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>CC</label>
+                            <select id="comboBoxCC" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-3 col-sm-4 col-xs-12">
+                            <label>Estatus</label>
+                            <select id="comboBoxEstatus" class="form-control select2">
+                                <option value="">-- Todos --</option>
+                                <option value="true">Autorizados</option>
+                                <option value="false" selected>Pendientes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 25px;">
+                            <button id="botonBuscar" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tablaAditivas" class="table hover stripe compact nowrap" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalSeguimientoFirmas" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="documento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h4 id="modalSeguimientoFirmasTitulo"></h4>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tablaSeguimientoFirmas" class="table hover stripe compact nowrap"></table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalRechazo" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="documento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h4 id="modalRechazoTitulo"></h4>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <p>Favor de ingresar un comentario de rechazo:</p>
+                <p>
+                    <textarea id="comentarioRechazo" rows="4"></textarea>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" id="btnRechazar">Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalJustificacion" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="documento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h4 id="">Justificación</h4>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <p id="txtMdlJustificacion"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/select2.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/AutorizacionesAditivas.js"></script>

@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "ResumeProveedor";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Contabilidad/Propuesta/ResumeProveedor.css" rel="stylesheet" />
+<script>
+    var _gpEmpresa = @ViewBag.Empresa;
+</script>
+<div class="row">
+    <h2 class="text-center">FACTURAS CON COMPRA DE ACTIVO FIJO</h2>
+    <div class='input-group' style="float:right;margin-right:15px;width:100px;display:none;">
+        <span class='input-group-addon'>Manual</span>
+        <input type='checkbox' id='chkManual' class='form-control'>
+    </div>
+    <button style="display:none;" id='btnEnvioCorreos' type='button' style="float:right;margin-right:100px;" class='btn btn-primary' data-toggle='modal'><i class='fa fa-list'></i> Enviar Notificación</button>
+</div>
+
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-search"></i> Acciones</legend>
+    <div style="display:none;" class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>fecha</span>
+            <input type='text' id='dpPropCorte' value="@(new DateTime(DateTime.Now.Year , 12, 31).ToShortDateString())" class='form-control'>
+        </div>
+    </div>
+    <div style="display:none;" class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button id="btnProvLimit" type='button' class='btn btn-default'> Proveedor</button>
+            </span>
+            <input id='txtProvMin' type='text' class='form-control' value="0" />
+            <span class='input-group-btn' style='width:0px;'></span>
+            <input id='txtProvMax' type='text' class='form-control' value="9999" />
+        </div>
+    </div>
+    <div style="display:none;" class='col-md-3 col-lg-3 selPropCC'>
+        <div class='input-group'>
+            <span class='input-group-btn'>
+                <button type='button' class='btn btn-default'> CC</button>
+            </span>
+            <select id='selPropCC' class='form-control' multiple></select>
+        </div>
+    </div>
+    <div style="display:none;" class='col-md-2 col-lg-2'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Tipo</span>
+            <select id='selPropTipoProceso' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-2 pull-right'>
+        <button id='btnPropBuscar' style="display:none;" type='button' class='btn btn-primary'><i class='fa fa-search'></i> Búscar</button>
+        <button id='btnPropGuardar' type='button' class='btn btn-primary'><i class='fa fa-save'></i> Guardar</button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-calendar-day"></i> Facturas</legend>
+    <div class='row'>
+        <div class='col-md-12'>
+            <table id='tblPropFacturas' class='display compact' style="width:100%">
+                <thead class='bg-table-header'>
+                    <tr>
+                        <th colspan="5" class="fondoTotal text-center">Saldo M.N:<span id='txtPropHTotal'></span> / Capturado M.N: <span id='txtPropHSel'></span></th>
+                        <th colspan="5" class="fondoTotal text-center">Saldo DLLS:<span id='txtPropHTotalDll'></span> / Capturado DLLS: <span id='txtPropHSelDll'></span></th>
+
+                    </tr>
+                    <tr>
+                        <th>Proveedor</th>
+                        <th>Factura</th>
+                        <th>Vence</th>
+                        <th>TM</th>
+                        <th>CC</th>
+                        <th>OC</th>
+                        <th>Concepto</th>
+                        @*<th>Saldo</th>*@
+                        <th>A Pagar</th>
+                        <th>Autorizado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th colspan="10">
+                            <div class="pull-left" style="display: inline-block;">
+                                <div class="etiquetaRenglon" style="background-color: #5DADE2;"></div><label>Maquinaria: Activo Fijo</label>
+                            </div>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm' style="display:none;">
+    <legend class='legend-custm'>Detalle</legend>
+    <div class="row">
+        <div class='col-md-2 col-lg-2'>
+            <div class='input-group'>
+                <span class='input-group-addon'>O.C.</span>
+                <input type='text' id='txtPropFOC' class='form-control text-right' disabled>
+            </div>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Solicitado</span>
+                <input type='text' id='txtPropFSol' class='form-control text-right' disabled>
+            </div>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Facturado</span>
+                <input type='text' id='txtPropFac' class='form-control text-right' disabled>
+            </div>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Recibido</span>
+                <input type='text' id='txtPropFReci' class='form-control text-right' disabled>
+            </div>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <div class='input-group'>
+                <span class='input-group-addon'>Pagado</span>
+                <input type='text' id='txtPropFPag' class='form-control text-right' disabled>
+            </div>
+        </div>
+        <div class='col-md-2 col-lg-2'>
+            <input type='text' id='txtPropFMon' class='form-control' disabled>
+        </div>
+    </div>
+</fieldset>
+<br />
+<br />
+<br />
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Propuesta/ResumeProveedorAF.js"></script>

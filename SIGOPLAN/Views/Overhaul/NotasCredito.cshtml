@@ -1,0 +1,442 @@
+﻿@{
+ViewBag.Title = "Notas de Credito";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Overhaul/NotasCreditoJS.js"></script>
+
+<style>
+    [id^=ui-id] {
+        z-index: 8000 !important;
+    }
+
+    .bgColorValida {
+        background-color: #F9E79F;
+    }
+
+    .bgColorAlerta {
+        background-color: #E74C3C;
+        color: white;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>CONTROL DE NOTAS DE CREDITO</h2>
+    </div>
+    <div class="row">
+
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros: <span id="btnMenuPrincipal" data-toggle="collapse" href="#collapse1" style="cursor: pointer;">↓</span><span>↑</span></legend>
+
+            <div class="col-lg-12 panel-collapse collapse in" id="collapse1">
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>C.C:</label>
+                    <select class="form-control" id="selCC"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Tipo:</label>
+                    <select class="form-control" id="cboFiltroTipo"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsCascoReman2" id="divAlmacen">
+                    <label>No Almacen</label>
+                    <select class="form-control" id="comboAlmacen2"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Filtro Notas:</label>
+                    <select class="form-control" id="cboEstatus">
+                        <option value="1">Notas en Tramite de Abono</option>
+                        <option value="2">Notas Abonadas</option>
+                        <option value="4">Notas Aplicadas</option>
+                        <option value="3">Notas Rechazadas</option>
+                    </select>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Fecha inicio nota de crédito</label>
+                    <input class="form-control" type="text" id="tbFechaInicio" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Fecha fin nota de crédito</label>
+                    <input class="form-control" type="text" id="tbFechaFin" />
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <button type="button" class="btn btn-primary margin-top" id="btnImprimirReporte">
+                        <span class="glyphicon glyphicon-print"></span> Imprimir
+                    </button>
+
+                    <button type="button" class="btn btn-primary margin-top" id="btnNuevaNotaCredito">
+                        <span class="glyphicon glyphicon-plus"></span> Nueva Nota
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <button type="button" class="btn btn-primary margin-top" id="btnBuscar">
+                        <span class="glyphicon glyphicon-plus"></span> Buscar
+                    </button>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+    <div class="row">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Lista Notas:</legend>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id='tblNotasCredito' class='display compact' style="width:100%">
+                        <thead class='bg-table-header'></thead>
+                    </table>
+                </div>
+
+            </div>
+        </fieldset>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalAceptacion" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-ppal">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Datos Nota de Credito Autorizada.</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                            <label>Tipo</label>
+                            <select class="form-control" id="cboTipoNC"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsCascoReman" id="divAlmacen">
+                            <label>No Almacen</label>
+                            <select class="form-control" id="comboAlmacen"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divCentroCostos">
+                            <label>C.C:</label>
+                            <select class="form-control" id="selCCg"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5 clsCascoReman" id="divInsumo">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <label>Insumo:</label>
+                                    <input type="text" class="form-control" id="inputInsumo" />
+                                </div>
+                                <div class="col-lg-9">
+                                    <label>Descripción:</label>
+                                    <input type="text" class="form-control" id="inputInsumoDescripcion" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divGenerador">
+                            <label>Generador</label>
+                            <input type="text" class="form-control" id="tbGenerador" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                            <label>OC</label>
+                            <input type="text" class="form-control" id="tbOC" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Equipo</label>
+                            <select class="form-control" id="cboEconomico"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Modelo</label>
+                            <input type="text" class="form-control" id="tbModelo" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Serie del Equipo</label>
+                            <input type="text" class="form-control" id="tbSerieEquipo" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divSerieComponente">
+                            <label> Serie del Componente</label>
+                            <input type="text" class="form-control" id="tbSerieComponente" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Descripción</label>
+                            <input type="text" class="form-control" id="tbDescripcion" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Fecha</label>
+                            <input type="text" class="form-control" id="tbFecha" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divCausaRemosion">
+                            <label>Causa de Remosion</label>
+                            <select class="form-control" id="cboCausaRemosion">
+                                <option value="1">Programada</option>
+                                <option value="2">Falla</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divHorometroEquipo">
+                            <label>Horometro Equipo</label>
+                            <input type="number" class="form-control" id="tbHorometroEquipo" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsCascoReman" id="divFechaEntregaCasco">
+                            <label>Fecha Entrega Casco</label>
+                            <input type="text" class="form-control" id="inputFechaCasco" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divHorometroComponente">
+                            <label>Horometro Componente</label>
+                            <input type="number" class="form-control" id="tbHorometroComponente" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsCascoReman" id="divMontoTotalOC">
+                            <label>Monto Total OC (Dlls)</label>
+                            <input type="number" class="form-control" id="inputMontoTotalOC" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divMontotalPesos">
+                            <label>Monto Total del generador en pesos</label>
+                            <input type="number" class="form-control" id="tbMontoPesos" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 clsNotaCredito" id="divMontoTotalDlls">
+                            <label>Monto Total del generador en dlls</label>
+                            <input type="number" class="form-control" id="tbMontoDLL" />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Abonado dlls</label>
+                            <input type="text" class="form-control" id="tbCantidadAbono" disabled />
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label># de Credito</label>
+                            <input type="text" class="form-control" id="tbClaveCredito" disabled />
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Archivo:</label>
+                            <input type="file" id="fupAdjunto" style="width:300px;" disabled multiple>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarAceptacion">
+                    <span class="glyphicon glyphicon-ok"></span> Guardar
+                </button>
+
+                @if (ViewBag.Autoriza)
+                {
+                <button type="button" class="btn btn-success hide" id="btnAutoriza">
+                    <span class="glyphicon glyphicon-ok"></span> Autorizar
+                </button>
+                }
+
+                <button type="button" class="btn btn-primary hide" id="btnEditarAccion">
+                    <span class="glyphicon glyphicon-ok"></span> Guardar
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmacionDelete" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Confirmación de acciones.</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" id="tbComentarioRechazo" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="col-lg-12"><br /></div>
+                    </div>
+                    <div class="col-lg-12">
+                        <label>Evidencia:</label>
+                        <input type="file" id="evidenciaFile" style="width:300px;" required="" multiple="" aria-required="true">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmacionDelete">
+                    <span class="glyphicon glyphicon-ok"></span> Rechazar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="divVerComentario" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog" style="overflow: hidden;">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios">
+                                <!-- timeline time label -->
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;" id="divFacturaComentarios">
+                    <div class="col-lg-4">
+                        <label class="pull-left">Factura:</label>
+                        <input type="text" class="form-control" id="tbFactura" placeholder="ingresar factura" />
+                    </div>
+                </div>
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <div class="col-lg-12">
+                        <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnAddComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mdlComentarioRechazo" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog" style="overflow: hidden;">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentario rechazo</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <label>Comentario de rechazo</label>
+                <p id="comentarioRechazo">
+
+                </p>
+                <br />
+                <button class="btn btn-primary" id="btnDescargarEvidencia"><i class="fas fa-file-download"></i> Descargar evidencia</button>
+            </div>
+            <div class="modal-footer">
+                
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalListaArchivos" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1200px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Lista de Archivos</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblListaArchivo" class="table table-fixed table-responsive table-striped">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="Accion" data-formatter="Accion" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Descarga</th>
+                                    <th data-column-id="noCredito" data-align="center" data-header-align="center">No Nota</th>
+                                    <th data-column-id="nombArchivo" data-align="center" data-header-align="center">Nombre Archivo</th>
+                                    <th data-column-id="Fecha" data-align="center" data-header-align="center">Fecha</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 capOC">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="width: 50px !important;">OC</span>
+                                    <input id="txtValOC" type="text" class="form-control" style="width: 200px;" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="width: 50px !important;">Factura</span>
+                                    <input id="txtValFactura" type="text" class="form-control" style="width: 200px;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                        <label>Archivo:</label>
+                        <input type="file" id="fupAdjunto2" multiple>
+                    </div>
+                    <div class="col-lg-7">
+                        <button type="button" id="btnSubirN" class="btn btn-primary" style="font-weight:bold;font-size:large;">Subir</button>
+                        <button type="button" id="btnEnviarCorreo" class="btn btn-primary" style="font-weight:bold;font-size:large;">Enviar Correo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalOC" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title">
+                    Aplicar factura
+                </h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class='row'>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" style="width: 50px !important;">OC</span>
+                            <input type="text" class="form-control txtValOC" style="width: 200px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" style="width: 50px !important;">Factura</span>
+                            <input type="text" class="form-control txtValFactura" style="width: 200px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnAplicar" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Aplicar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@Html.Partial("reportViewerView", false)

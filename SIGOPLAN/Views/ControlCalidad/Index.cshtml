@@ -1,0 +1,168 @@
+﻿@{
+ViewBag.Title = "Index";
+bool polizasCapturadas = (bool)ViewBag.PolizasCapturadas;
+string visible = polizasCapturadas ? "true" : "false";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/Sytle-Wizard.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<script src="~/Scripts/js/Maquinaria/Inventario/CalidadJS.js"></script>
+<script src="~/Scripts/Utilities/wizardjs.js"></script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h2 style="margin-top: 0;">
+                Control de Calidad de Envío / Recepción de Maquinaria y Equipo
+            </h2>
+        </div>
+    </div>
+    <div class="row" id="divListaPendientesLiberar">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Filtros:</label></legend>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <label>Tipo de Documento:</label>
+                            <select id="cboTipoControl" class="form-control">
+                                <option value="1">Envio Maquinaria</option>
+                                <option value="2">Recepción Maquinaria</option>
+                                <option value="3">Envio TMC/Proveedor</option>
+                                <option value="4">Recepcón TMC/Proveedor</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Filtros Equipos:</label>
+                            <select id="cboFiltroEquipos" class="form-control">
+                                <option value="1">Controles Pendientes</option>
+                                <option value="2">Controles Realizados</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Fecha Inicio:</label>
+                            <!-- <input id="fechaFiltroInicio" name="fechaInicioFiltro" class="form-control text-center" autocomplete="off"></td> -->
+                            <input type="date" id="fechaFiltroInicio" name="fechaFiltroInicio" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Fecha Final:</label>
+                            <!-- <input id="fechaFinFiltro" name="fechaFinFiltro" class="form-control text-center" autocomplete="off"></td> -->
+                            <input type="date" id="fechaFiltroFin" name="fechaFiltroFin" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+
+                        </div>
+                        <div class="col-lg-2 pull-right">
+                            @{
+                            if (!polizasCapturadas)
+                            {
+                            <label style="color: #ac2d2d;">Inventario bloqueado, (se están realizando pólizas de depreciación).</label>
+                            }
+                            }
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>AC:</label>
+                            <select id="cboFiltroCC" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>Economico:</label>
+                            <select id="cboFiltroEconomico" class="form-control select2"></select>
+                        </div>
+                        <div class="col-lg-2 pull-right">
+                            <br>
+                            <button type="button" id = "btnFiltroBuscar" class="btn btn-primary"><i class="fas fa-search"></i>Buscar</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label id="lblTitulotblEquiposPendientes">Listado de Equipos Pendientes:</label></legend>
+                    <table id="tblEquiposPendientes" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Folio" data-width="25%" data-searchable="true" data-sortable="true">Folio</th>
+                                <th data-column-id="CCName" data-width="25%" data-searchable="true" data-sortable="true">Centro Costos</th>
+                                <th data-column-id="nomb" data-width="25%" data-searchable="true" data-sortable="true">Economico</th>
+                                <th data-column-id="Fecha" data-width="25%" data-searchable="true" data-sortable="true">Fecha</th>
+                                <th data-column-id="VerControlCalidad" data-formatter="VerControlCalidad" data-sortable="false" data-width="25px" data-searchable="false" data-visible="@visible">Ver Control de Calidad</th>
+                                <th data-column-id="VerReporte" data-formatter="VerReporte" data-sortable="false" data-width="25px" data-searchable="false">Imprimir Calidad</th>
+                                <th data-column-id="VerControl" data-formatter="VerControl" data-sortable="false" data-width="25px" data-searchable="false">Imprimir Control</th>
+                                <th data-column-id="DescargarArchivos" data-formatter="DescargarArchivos" data-sortable="false" data-width="25px" data-searchable="false">Descargar Archivos</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<div class="modal fade " id="modalListaEquiposAsignados" role="dialog">
+    <div class="modal-dialog modal-large" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal">Lista de Equipos Pendientes por Asignar</label></h3>
+                </div>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Información Solicitud:</legend>
+
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Tipo Maquinaria:</label>
+                                <input class="form-control" id="tbTipoMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Grupo Maquinaria:</label>
+                                <input class="form-control" id="tbGrupoMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Modelo Maquinaria:</label>
+                                <input class="form-control" id="tbModeloMaquinariaModal" readonly />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-3">
+                                <label>Horas:</label>
+                                <input class="form-control" id="tbHorasModal" readonly />
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                        <fieldset class="fieldset-custm fielset-Filtros">
+                            <legend class="legend-custm">Listado Economicos no asignados</legend>
+
+                            <table id="tblEconomicosNoAsignados" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="Economico" data-formatter="Economico" data-width="25%">Economico</th>
+                                        <th data-column-id="Grupo" data-width="25%">Descripcion</th>
+                                        <th data-column-id="Modelo" data-width="25%">Modelo</th>
+                                        <th data-column-id="Marca" data-width="25%">Marca</th>
+                                        <th data-column-id="localizacion" data-width="25%">Localizacion</th>
+                                        <th data-column-id="Asignar" data-formatter="Asignar" data-searchable="false" data-sortable="false" data-width="25px">Asignar</th>
+
+                                    </tr>
+                                </thead>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/select2.js'></script>

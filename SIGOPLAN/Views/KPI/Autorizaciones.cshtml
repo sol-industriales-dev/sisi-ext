@@ -1,0 +1,202 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Genericos/_authPanel.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Maquinaria/KPI/Autorizaciones.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/KPI/Dashboard.css" rel="stylesheet" />
+
+<style>
+    .highcharts-figure,
+    .highcharts-data-table table {
+        min-width: 320px;
+        max-width: 800px;
+        margin: 1em auto;
+    }
+    .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid #EBEBEB;
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+    }
+    .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: #555;
+    }
+    .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+    }
+    .highcharts-data-table td,
+    .highcharts-data-table th,
+    .highcharts-data-table caption {
+        padding: 0.5em;
+    }
+    .highcharts-data-table thead tr,
+    .highcharts-data-table tr:nth-child(even) {
+        background: #f8f8f8;
+    }
+    .highcharts-data-table tr:hover {
+        background: #f1f7ff;
+    }
+
+    input[type="number"] {
+        min-width: 50px;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /* DATATABLE */
+    table.dataTable {
+        width: 100% !important;
+    }
+    table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+    .highcharts-title {
+        display: none;
+    }
+</style>
+
+<h3 class="text-center">Autorización de KPI</h3>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Buscar</legend>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <label>Areas-Cuenta</label>
+            <select id='cboAC' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <label>Periodo</label>
+            <select id='cboPeriodo' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <label>Estatus</label>
+            <select id='cboEstado' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3 margin-top'>
+        <button id='btnBuscar' type='button' class='btn btn-primary'><i class='fa fa-search'></i> Buscar</button>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'>Autorizaciones</legend>
+    <div class='table-responsive'>
+        <table id='tblAuth' class='table' width="100%">
+            <thead class='bg-table-header'>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<div id='mdlPanelAuth' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'>Autorización</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div id="divAuthPanel">
+                        <fieldset class='fieldset-custm text-center'>
+                            <legend class='legend-custm'><i class="fa fa-home"></i> Reporte</legend>
+                            <div class="col-lg-12 text-center">
+                                <iframe id="report" align="middle" marginwidth="0"
+                                        marginheight="0"
+                                        hspace="0"
+                                        vspace="0"
+                                        frameborder="0"
+                                        scrolling="no" class="StyleIframe"></iframe>
+                            </div>
+                        </fieldset>
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'><i class="fa fa-user"></i> Autorizantes</legend>
+                            <div id="divAutorizantes" class="flex-container text-center"></div>
+                            <label id="lblAuthMessage"></label>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning btnGenericAuthPanel' data-dismiss='modal'>
+                    <i class='fa fa-arrow-left'></i> regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" id="divGraficaDiario">
+    <canvas id="imgGraficaDiario"></canvas>
+    <div id="graficaDisponibilidadUtilizacion_modeloDiario"></div>
+</div>
+<div class="row" id="divGraficaSemanal">
+    <canvas id="imgGraficaSemanal"></canvas>
+    <div id="graficaDisponibilidadUtilizacion_modeloSemanal"></div>
+</div>
+<div class="row" id="divGraficaMensual">
+    <canvas id="imgGraficaMensual"></canvas>
+    <div id="graficaDisponibilidadUtilizacion_modeloMensual"></div>
+</div>
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/js/Maquinaria/KPI/Autorizaciones.js"></script>
+
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>

@@ -1,0 +1,253 @@
+﻿@{
+    var empresa = (int)ViewBag.Empresa;
+    
+    ViewBag.Title = "Solicitudes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+
+@if (empresa == 6) {
+    <input id="txtEmpresa" style="display: none;" value="6">;
+}else if (empresa == 3){
+    <input id="txtEmpresa" style="display: none;" value="3">;
+}
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <!-- SOLICITUDES -->
+  
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>SOLICITUDES DE  VACANTES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboFiltroCC" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Puesto</span>
+                                <select class="form-control" id="cboFiltroPuesto" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar </button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroNuevaSolicitud">Nuevo</button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroLimpiar">Limpiar</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-success" id="btnFiltroSolicitudesConclusas">Buscar solicitudes conclusas</button>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE SOLICITUDES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblRH_REC_Solicitudes" class="table table-hover compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: SOLICITUDES -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODALES -->
+
+<!-- CREAR/EDITAR SOLICITUD -->
+<div id='mdlCrearEditarSolicitud' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="spanTitleCrearEditarSolicitud"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha inicio</span>
+                            <input type="text" id="txtFechaCreacionSolicitud" class="form-control" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha terminación</span>
+                            <input type="text" id="txtFechaAltaUltimaVacante" class="form-control" disabled="disabled">
+                        </div>
+                    </div>
+                </div>
+                <div class="row marginBottom">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">CC</span>
+                            <select class="form-control" id="cboCrearEditarCC" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="checkbox" id="chkCrearEditarPuesto" data-toggle="toggle" data-on="Puesto nuevo" data-off="Puesto existente" data-onstyle="success" data-offstyle="default" data-width="150" disabled>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="checkbox" id="chkCrearEditarGeneral" data-toggle="toggle" data-on="General" data-off="General" data-onstyle="success" data-offstyle="danger" data-width="100" checked="checked">
+                    </div>
+                </div>
+                <div class='row'>
+                    <!-- <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Departamento</span>
+                            <select class="form-control" id="cboCrearEditarDepartamento" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div> -->
+                    <div class="col-sm-8">
+                        <div id="divCboCrearEditarPuesto">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Puesto</span>
+                                <select class="form-control" id="cboCrearEditarPuesto" style="width: 100%; height: 33.99px"></select>
+                            </div>
+                        </div>
+                        <div id="divTxtCrearEditarPuesto">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Puesto</span>
+                                <input type="text" id="txtCrearEditarPuesto" class="form-control" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 pull-right">
+                        <div id="divCrearEditarCaja" style="border-style: groove; height: 35px; padding: 4px;" class="col-sm-5">
+                            <div id="divCrearEditarEsDisp" style="display: initial;">
+                                Disp. <b><span id="txtCrearEditarSolicitados">0</span></b>
+                                Falt. <b><span id="txtCrearEditarFaltante">0</span></b>
+                            </div>
+                        </div>
+                        <div class="col-sm-6" id="divCrearEditarNoEsDisp" style="display: none; padding: 4px;">
+                            <span>No disponible.</span>
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" type="button" id="btnCrearPuesto" style="display: none;">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <span id="lblPuestosCategorias" style="display:none;"></span>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-7">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Motivo</span>
+                            <select class="form-control" id="cboCrearEditarMotivo" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Sexo</span>
+                            <select class="form-control" id="cboCrearEditarSexo" style="width: 100%; height: 33.99px">
+                                <option value="">Indistinto</option>
+                                <option value="F">Femenino</option>
+                                <option value="M">Masculino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-sm-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Rango edad</span>
+                            <input type="number" class="form-control inputRangoEdad no-margin-right" id="txtCrearEditarInicioEdad" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2" />
+                            <input type="number" class="form-control inputRangoEdad no-margin-left" id="txtCrearEditarFinEdad" autocomplete="off" onkeydown="javascript: return event.keyCode == 69 /* (～o￣3￣) ～*/ ? false : true" oninput="javascript: if (this.value.length > this.maxLength && this.value.length != 1) this.value = this.value.slice(0, this.maxLength); maxLength=2" />
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Escolaridad</span>
+                            <select class="form-control" id="cboCrearEditarEscolaridad" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">País</span>
+                            <select class="form-control" id="cboCrearEditarPais" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "Departamento" : "Estado")</span>
+                            <select class="form-control" id="cboCrearEditarEstado" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">@(empresa == 6 ? "Provinicia" : "Municipio")</span>
+                            <select class="form-control" id="cboCrearEditarMunicipio" style="width: 100%; height: 33.99px"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Años experiencia</span>
+                            <input type="text" class="form-control" id="txtCrearEditarAniosExp" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Cantidad de vacantes</span>
+                            <input type="text" class="form-control" id="txtCrearEditarCantVacantes" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>&nbsp;Experiencia Laboral&nbsp;</legend>
+                            <textarea type="text" class="inputTextArea" id="txtCrearEditarConocimientosGen" rows="5"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>&nbsp;Comentarios adicionales&nbsp;</legend>
+                            <textarea type="text" class="inputTextArea" id="txtCrearEditarExpEspecializada" rows="5"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' id="btnCrearEditarSolicitud"><span id="spanCrearEditarSolicitud"></span></button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR SOLICITUD -->
+
+<!-- END: MODALES -->
+
+<!-- JS -->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Reclutamientos/Solicitudes.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>

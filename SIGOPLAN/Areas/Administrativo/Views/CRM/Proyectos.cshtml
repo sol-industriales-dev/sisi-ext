@@ -1,0 +1,690 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/Proyectos.css" rel="stylesheet" />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/General.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>PROYECTOS</h2>
+        </div>
+    </div>
+    <!-- PANEL FILTROS -->
+    <div class='row'>
+        <div class='col-sm-12'>
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTROS DE BÚSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class="row">
+                        <div class='col-lg-5'>
+                            <label for='cboFiltro_TipoFiltro'>Filtro</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_TipoFiltro' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-5'>
+                            <label for='cboFiltro_Busqueda'>Busqueda</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Busqueda' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <label for=''>&nbsp;</label>
+                            <div class='input-group'>
+                                <button class="btn btn-primary" id="btnFiltro_Buscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_Nuevo"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: PANEL FILTROS -->
+
+    <div class='row'>
+        <!-- MENU -->
+        @Html.Partial("_Menu")
+        <!-- END: MENU -->
+
+        <!-- SEGUIMIENTO -->
+        <div class="col-lg-10" id="divSeguimiento">
+            <fieldset class='fieldset-custm'>
+                <legend class="legend-custm"><span class="badge">Seguimiento</span></legend>
+                <div class="contenido">
+                    <!-- PROSPECCIÓN -->
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="contenedor">
+                                <button class="btn btn-block btn-success absolute">Prospección</button>
+                                <select id="cboFiltro_Proyecto_Prospeccion" class="form-control"></select><br>
+                                <div id="divProyectosProspeccion"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: PROSPECCIÓN -->
+
+                    <!-- LABOR DE VENTA -->
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="contenedor">
+                                <button class="btn btn-block btn-warning absolute">Labor de venta</button>
+                                <select id="cboFiltro_Proyecto_LaborVenta" class="form-control"></select><br>
+                                <div id="divProyectosLaborVenta"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: LABOR DE VENTA -->
+
+                    <!-- COTIZACIÓN -->
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="contenedor">
+                                <button class="btn btn-block btn-danger absolute">Cotización</button>
+                                <select id="cboFiltro_Proyecto_Cotizacion" class="form-control"></select><br>
+                                <div id="divProyectosCotizacion"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: COTIZACIÓN -->
+
+                    <!-- NEGOCIACIÓN -->
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="contenedor">
+                                <button class="btn btn-block btn-success absolute">Negociación</button>
+                                <select id="cboFiltro_Proyecto_Negociacion" class="form-control"></select><br>
+                                <div id="divProyectosNegociacion"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: NEGOCIACIÓN -->
+
+                    <!-- CIERRE -->
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="contenedor">
+                                <button class="btn btn-block btn-success absolute">Cierre</button>
+                                <select id="cboFiltro_Proyecto_Cierre" class="form-control"></select><br>
+                                <div id="divProyectosCierre"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: CIERRE -->
+                </div>
+            </fieldset>
+        </div>
+        <!-- SEGUIMIENTO -->
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PROYECTO -->
+<div id='mdlCE_Proyecto' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Proyecto_NombreProyecto'>Nombre del proyecto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Proyecto_NombreProyecto' placeholder="Indicar nombre del proyecto." class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6' id="div_cboCE_Proyecto_Cliente">
+                            <label for='cboCE_Proyecto_Cliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Cliente' class='form-control select2'></select>
+                                <span class='input-group-addon btn-primary fncChangeCliente'><i class='fas fa-plus'></i></span>
+                            </div>
+                        </div>
+                        <div class='col-lg-6' id="div_txtCE_Proyecto_Cliente" style="display: none">
+                            <label for='txtCE_Proyecto_Cliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Proyecto_Cliente' placeholder="Indicar nombre del cliente." class='form-control'>
+                                <span class='input-group-addon btn-primary fncChangeCliente'><i class='fas fa-plus'></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Proyecto_Prioridad'>Fases</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Prioridad' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Proyecto_Division'>División</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Proyecto_Estatus'>Estatus</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Estatus' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Proyecto_Importe'>Importe</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Proyecto_Importe' placeholder="Indicar el importe." class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Proyecto_FechaInicio'>Fecha de inicio</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Proyecto_FechaInicio' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-3'>
+                            <label for='cboCE_Proyecto_Escenario'>Escenario</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Escenario' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for='cboCE_Proyecto_Pais'>País</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Pais' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for='cboCE_Proyecto_Estado'>Estado</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Estado' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for='cboCE_Proyecto_Municipio'>Municipio</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Municipio' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-9'>
+                            <label for='cboCE_Proyecto_Responsable'>Responsable</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Responsable' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-3'>
+                            <label for='cboCE_Proyecto_Riesgo'>Riesgo</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Riesgo' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6' id="div_txtCE_Proyecto_Contacto" style="display: none">
+                            <label for='txtCE_Proyecto_Contacto'>Contacto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Proyecto_Contacto' placeholder="Indicar nombre del contacto." class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Proyecto_DescripcionObra'>Descripción obra</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <textarea id="txtCE_Proyecto_DescripcionObra" cols="30" rows="7" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Proyecto"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR PROYECTO -->
+
+<!-- MODAL RESUMEN PROYECTO -->
+<div id='mdlResumen_Proyecto' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="tab">
+                    <button class="tablinks" data-tab="tabResumen" id="btnTabResumen">Resumen</button>
+                    <button class="tablinks" data-tab="tabComentarios">Comentarios</button>
+                    <button class="tablinks" data-tab="tabAcciones">Acciones</button>
+                    <button class="tablinks" data-tab="tabCotizaciones">Cotización</button>
+                </div>
+
+                <!-- GENERALES -->
+                <div id="tabResumen" class="tabcontent">
+                    <fieldset class='fieldset-custm seccion'>
+                        <div class='row'>
+                            <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'><span class="badge">Generales</span></legend>
+                                    <b>Cliente:&nbsp;</b><span id="lblResumen_Generales_Cliente"></span><br>
+                                    <b>Tipo cliente:&nbsp;</b><span id="lblResumen_Generales_TipoCliente"></span><br>
+                                    <b>Divisón:&nbsp;</b><span id="lblResumen_Generales_Division"></span><br>
+                                    <b>Importe aproximado o cotizado:&nbsp;</b><span id="lblResumen_Generales_ImporteAprox"></span><br>
+                                    <b>Localización:&nbsp;</b><span id="lblResumen_Generales_Localizacion"></span><br>
+                                    <b>Fecha de inicio:&nbsp;</b><span id="lblResumen_Generales_FechaInicio"></span><br>
+                                    <b>Estatus:&nbsp;</b><span id="lblResumen_Generales_Estatus"></span><br>
+                                    <b>Escenario:&nbsp;</b><span id="lblResumen_Generales_Escenario"></span><br>
+                                    <b>Prioridad:&nbsp;</b><span id="lblResumen_Generales_Prioridad"></span><br>
+                                    <b>Responsable:&nbsp;</b><span id="lblResumen_Generales_Responsable"></span><br>
+                                    <b>Riesgo:&nbsp;</b><span id="lblResumen_Generales_Riesgo"></span><br>
+                                    <b>Descripción de obra:&nbsp;</b><span id="lblResumen_Generales_DescripcionObra"></span><br>
+                                </fieldset>
+                            </div>
+                            <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'><span class="badge">Contactos</span></legend>
+                                    <div id="divResumen_Contactos"></div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'><span class="badge">Último comentario</span></legend>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <span id="lblResumen_UltimoComentario"></span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'><span class="badge">Próxima acción</span></legend>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <b>Acción:&nbsp;</b><span id="lblResumen_ProximaAccion_Accion"></span><br>
+                                            <b>Fecha:&nbsp;</b><span id="lblResumen_ProximaAccion_Fecha"></span><br>
+                                            <b>Responsable:&nbsp;</b><span id="lblResumen_ProximaAccion_Responsable"></span><br>
+                                            <b>Progreso:&nbsp;</b><span id="lblResumen_ProximaAccion_Progreso"></span><br>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: GENERALES -->
+
+                <!-- COMENTARIOS -->
+                <div id="tabComentarios" class="tabcontent">
+                    <fieldset class='fieldset-custm seccion'>
+                        <div class="row">
+                            <div class="col-lg-11"></div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-primary" id="btnFiltro_Comentario"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'><span class="badge">Comentarios</span></legend>
+                                    <div class="contenedor" id="divComentarios">
+                                        <div id="tblComentarios"></div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: COMENTARIOS -->
+
+                <!-- ACCIONES -->
+                <div id="tabAcciones" class="tabcontent">
+                    <fieldset class='fieldset-custm seccion'>
+                        <div class="row">
+                            <div class="col-lg-11"></div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-primary" id="btnFiltro_Accion"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table class="table" id="tblAcciones"></table>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: ACCIONES -->
+
+                <!-- COTIZACIONES -->
+                <div id="tabCotizaciones" class="tabcontent">
+                    <fieldset class='fieldset-custm seccion'>
+                        <div class="row">
+                            <div class="col-lg-11"></div>
+                            <div class="col-lg-1">
+                                <button class="btn btn-primary" id="btnFiltro_Cotizacion"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table class="table" id="tblCotizaciones"></table>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- END: COTIZACIONES -->
+            </div>
+            <div class='modal-footer'>
+                <button class="btn btn-danger" id="btnEliminarProyecto"><i class='fas fa-trash'></i>&nbsp;Eliminar proyecto</button>
+                <button class="btn btn-warning" id="btnActualizarProyecto"><i class='fas fa-pencil-alt'></i>&nbsp;Actualizar proyecto</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL RESUMEN PROYECTO -->
+
+<!-- MODAL CREAR COMENTARIO -->
+<div id='mdlCE_Comentario' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Comentario'>Comentario</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <textarea id="txtCE_Comentario" cols="30" rows="10" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Comentario"><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR COMENTARIO -->
+
+<!-- MODAL CREAR ACCIÓN -->
+<div id='mdlCE_Accion' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtCE_Accion_Accion'>Proxima acción</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Accion_Accion' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Accion_FechaAccion'>Fecha</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Accion_FechaAccion' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Accion_Progreso'>Progreso</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Accion_Progreso' class='form-control' disabled="true">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCE_Accion_ResponsableAccion'>Responsable</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Accion_ResponsableAccion' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Accion"><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR ACCIÓN -->
+
+<!-- MODAL CREAR ACCIÓN DETALLE -->
+<div id='mdlCE_AccionDet' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='txtCE_AccionDet_Accion'>Proxima acción</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_AccionDet_Accion' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_AccionDet_FechaAccion'>Fecha</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_AccionDet_FechaAccion' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_AccionDet_Progreso'>Progreso</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_AccionDet_Progreso' class='form-control' disabled="true">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCE_AccionDet_ResponsableAccion'>Responsable</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_AccionDet_ResponsableAccion' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_AccionDet"><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR ACCIÓN DETALLE -->
+
+<!-- MODAL LISTADO ACCIONES DETALLE -->
+<div id='mdlListado_AccionesDet' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Listado acciones detalle</h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class="row">
+                        <div class="col-lg-11"></div>
+                        <div class="col-lg-1">
+                            <button class="btn btn-primary" id="btnFiltro_AccionDet"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table" id="tblAccionesDet"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL LISTADO ACCIONES DETALLE -->
+
+<!-- MODAL CREAR / EDITAR COTIZACIÓN -->
+<div id='mdlCE_Cotizacion' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for='cboCE_Cotizacion_Responsable'>Responsable</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Cotizacion_Responsable' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_ImporteFinal'>Importe final</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Cotizacion_ImporteFinal' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_fechaFinal'>Fecha final</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Cotizacion_fechaFinal' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_ImporteRevN'>Importe Rev N.</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Cotizacion_ImporteRevN' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_fechaRevN'>Fecha Rev N.</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Cotizacion_fechaRevN' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_ImporteOriginal'>Importe original</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Cotizacion_ImporteOriginal' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='txtCE_Cotizacion_fechaOriginal'>Fecha original</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Cotizacion_fechaOriginal' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for='txtCE_Cotizacion_Comentario'>Comentario</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <textarea id="txtCE_Cotizacion_Comentario" cols="30" rows="5" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCE_Cotizacion"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR / EDITAR COTIZACIÓN -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/_Menu.js"></script>
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/Proyectos.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/moment-with-locales.min.js'></script>
+<!-- END: JS -->

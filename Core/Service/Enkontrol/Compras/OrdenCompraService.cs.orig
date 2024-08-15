@@ -1,0 +1,378 @@
+﻿using Core.DAO.Enkontrol.Compras;
+using Core.DTO.Enkontrol.Alamcen;
+using Core.DTO.Enkontrol.OrdenCompra;
+using Core.DTO.Enkontrol.Requisicion;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace Core.Service.Enkontrol.Compras
+{
+    public class OrdenCompraService : IOrdenCompraDAO
+    {
+        #region Atributos
+        public IOrdenCompraDAO e_ocDAO;
+        #endregion
+        #region Propiedades
+        public IOrdenCompraDAO OcDAO 
+        {
+            get { return e_ocDAO; }
+            set { e_ocDAO = value; }
+        }
+        #endregion
+        #region Constructor
+        public OrdenCompraService(IOrdenCompraDAO ocDAO)
+        {
+            this.OcDAO = ocDAO;
+        }
+        #endregion
+        public List<int> generaNuevaOC(List<GenOrdenCompraDTO> lstOC)
+        {
+            return OcDAO.generaNuevaOC(lstOC);
+        }
+        public dynamic getComprador()
+        {
+            return OcDAO.getComprador();
+        }
+        public dynamic busqReq(BusqReq busq)
+        {
+            return OcDAO.busqReq(busq);
+        }
+        public dynamic busqReqNum(BusqReq busq)
+        {
+            return OcDAO.busqReqNum(busq);
+        }
+        public dynamic getPartidas(string cc, int num, int moneda)
+        {
+            return OcDAO.getPartidas(cc, num, moneda);
+        }
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcReqComprador(BusqReq busq)
+        {
+            return OcDAO.FillComboCcReqComprador(busq);
+        }
+        public dynamic getProvFromNum(string term)
+        {
+            return OcDAO.getProvFromNum(term);
+        }
+        public dynamic getProvFromNom(string term)
+        {
+            return OcDAO.getProvFromNom(term);
+        }
+
+        public OrdenCompraDTO getCompra(string cc, int num)
+        {
+            return OcDAO.getCompra(cc, num);
+        }
+        public Dictionary<string, object> updateRetencionesCompra(List<OrdenCompraRetencionesDTO> retenciones)
+        {
+            return OcDAO.updateRetencionesCompra(retenciones);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcComComprador()
+        {
+            return OcDAO.FillComboCcComComprador();
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcComCompradorModalEditar()
+        {
+            return OcDAO.FillComboCcComCompradorModalEditar();
+        }
+
+        public OrdenCompraDTO updateCompra(OrdenCompraDTO compra)
+        {
+            return OcDAO.updateCompra(compra);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAut(bool isAuth)
+        {
+            return OcDAO.FillComboCcAut(isAuth);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAutTodas()
+        {
+            return OcDAO.FillComboCcAutTodas();
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcFiltroPorUsuario()
+        {
+            return OcDAO.FillComboCcFiltroPorUsuario();
+        }
+
+        public List<OrdenCompraDTO> getListaCompras(bool isAuth, string cc, bool propias)
+        {
+            return OcDAO.getListaCompras(isAuth, cc, propias);
+        }
+
+        public List<OrdenCompraDTO> getListaComprasTodas(string cc, bool propias)
+        {
+            return OcDAO.getListaComprasTodas(cc, propias);
+        }
+
+        public List<VoboDTO> getVobos(OrdenCompraDTO compra)
+        {
+            return OcDAO.getVobos(compra);
+        }
+
+        public List<dynamic> getAutorizaciones(OrdenCompraDTO compra)
+        {
+            return OcDAO.getAutorizaciones(compra);
+        }
+
+        public void autorizarCompra(string cc, int numero, bool isAut)
+        {
+            OcDAO.autorizarCompra(cc, numero, isAut);
+        }
+
+        public void desautorizarCompra(string cc, int numero)
+        {
+            OcDAO.desautorizarCompra(cc, numero);
+        }
+
+        public dynamic getUsuarioEnKontrol(int numEmpleado)
+        {
+            return OcDAO.getUsuarioEnKontrol(numEmpleado);
+        }
+
+        public void voboCompra(OrdenCompraDTO compra, string voboNumero, List<VoboDTO> vobos)
+        {
+            OcDAO.voboCompra(compra, voboNumero, vobos);
+        }
+
+        public bool getFlagPuedeDarVobo(List<int> numUsuariosEnkontrol, OrdenCompraDTO compra)
+        {
+            return OcDAO.getFlagPuedeDarVobo(numUsuariosEnkontrol, compra);
+        }
+
+        public List<OrdenCompraDesautorizacionDTO> getListaComprasDes(string cc)
+        {
+            return OcDAO.getListaComprasDes(cc);
+        }
+
+        public List<entradasAlmacenDTO> guardarSurtido(OrdenCompraDTO compra, List<SurtidoCompraDTO> surtido)
+        {
+            return OcDAO.guardarSurtido(compra, surtido);
+        }
+        public List<entradasAlmacenDTO> guardarSurtidoNoInventariable(OrdenCompraDTO compra, List<SurtidoCompraDTO> surtido)
+        {
+            return OcDAO.guardarSurtidoNoInventariable(compra, surtido);
+        }
+        public List<CuadroComparativoDTO> buscarCuadros(BusquedaCuadroDTO filtros)
+        {
+            return OcDAO.buscarCuadros(filtros);
+        }
+
+        public dynamic requisicionesNumeros(string cc)
+        {
+            return OcDAO.requisicionesNumeros(cc);
+        }
+
+        public CuadroComparativoDTO getCuadroDet(CuadroComparativoDTO cuadro)
+        {
+            return OcDAO.getCuadroDet(cuadro);
+        }
+        public string getLABFromNum(int num)
+        {
+            return OcDAO.getLABFromNum(num);
+        }
+
+        public dynamic getProveedorInfo(int num)
+        {
+            return OcDAO.getProveedorInfo(num);
+        }
+        public void guardarNuevoCuadro(CuadroComparativoDTO nuevoCuadro)
+        {
+            OcDAO.guardarNuevoCuadro(nuevoCuadro);
+        }
+        public void updateCuadro(CuadroComparativoDTO cuadro)
+        {
+            OcDAO.updateCuadro(cuadro);
+        }
+
+        public Dictionary<string, object> guardarNuevaCompra(OrdenCompraDTO compra)
+        {
+            return OcDAO.guardarNuevaCompra(compra);
+        }
+
+        public OrdenCompraDTO getRequisicion(string cc, int num)
+        {
+            return OcDAO.getRequisicion(cc, num);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboTipoReq()
+        {
+            return OcDAO.FillComboTipoReq();
+        }
+
+        public string getNombreUsuarioEmpleado(int numEmpleado)
+        {
+            return OcDAO.getNombreUsuarioEmpleado(numEmpleado);
+        }
+
+        public string getNombreAlmacen(int numAlmacen)
+        {
+            return OcDAO.getNombreAlmacen(numAlmacen);
+        }
+
+        public RetencionInfoDTO getRetencionInfo(int id_cpto)
+        {
+            return OcDAO.getRetencionInfo(id_cpto);
+        }
+
+        public dynamic getProveedorNumero(string proveedor)
+        {
+            return OcDAO.getProveedorNumero(proveedor);
+        }
+
+        public dynamic getCompradorNumero(string comprador)
+        {
+            return OcDAO.getCompradorNumero(comprador);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAsigComp()
+        {
+            return OcDAO.FillComboCcAsigComp();
+        }
+
+        public List<RequisicionDTO> ObtenerComprasPendientes(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal)
+        {
+            return OcDAO.ObtenerComprasPendientes(cc, estatus, proveedor, fechaInicial, fechaFinal);
+        }
+
+        public UltimaCompraDTO getUltimaCompra(CuadroComparativoDetDTO partidaCuadro)
+        {
+            return OcDAO.getUltimaCompra(partidaCuadro);
+        }
+
+        public rptOrdenCompraInfoDTO getOrdenCompraRpt(string cc, int numero)
+        {
+            return OcDAO.getOrdenCompraRpt(cc, numero);
+        }
+
+        public Dictionary<string, object> puedeCancelar()
+        {
+            return OcDAO.puedeCancelar();
+        }
+
+        public Dictionary<string, object> cancelarCompra(string cc, int numero)
+        {
+            return OcDAO.cancelarCompra(cc, numero);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCc()
+        {
+            return OcDAO.FillComboCc();
+        }
+
+        public List<ComboFamiliaInsumoDTO> FillComboFamiliasInsumos()
+        {
+            return OcDAO.FillComboFamiliasInsumos();
+        }
+
+        public Dictionary<string, object> getRequisicionesValidadas(List<string> listCC, List<string> listFamiliasInsumos, List<string> listCompradores)
+        {
+            return OcDAO.getRequisicionesValidadas(listCC, listFamiliasInsumos, listCompradores);
+        }
+
+        public Dictionary<string, object> cancelarParcialCompra(OrdenCompraDTO compra)
+        {
+            return OcDAO.cancelarParcialCompra(compra);
+        }
+
+        public Dictionary<string, object> getPreciosPorProveedor(string cc, int numeroRequisicion, int numeroProveedor)
+        {
+            return OcDAO.getPreciosPorProveedor(cc, numeroRequisicion, numeroProveedor);
+        }
+
+        public Dictionary<string, object> checkEstatusOrdenCompraImpresa(string cc, int numero)
+        {
+            return OcDAO.checkEstatusOrdenCompraImpresa(cc, numero);
+        }
+
+        public Dictionary<string, object> getContadorRequisicionesPendientes()
+        {
+            return OcDAO.getContadorRequisicionesPendientes();
+        }
+
+        public void borrarCompra(string cc, int numero, bool autorizante)
+        {
+            OcDAO.borrarCompra(cc, numero, autorizante);
+        }
+
+        public CuadroComparativoReporteDTO getCuadroReporte(string cc, int numero, int folio)
+        {
+            return OcDAO.getCuadroReporte(cc, numero, folio);
+        }
+
+        public bool checarUbicacionesValidas(OrdenCompraDTO compra, List<SurtidoCompraDTO> entradas)
+        {
+            return OcDAO.checarUbicacionesValidas(compra, entradas);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCompradores()
+        {
+            return OcDAO.FillComboCompradores();
+        }
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCompradores(string cc)
+        {
+            return OcDAO.FillComboCompradores(cc);
+        }
+        public List<RetencionInfoDTO> getCatalogoRetenciones()
+        {
+            return OcDAO.getCatalogoRetenciones();
+        }
+
+        public MovimientoEnkontrolDTO getMovimientoNoInv(int almacenID, int remision)
+        {
+            return OcDAO.getMovimientoNoInv(almacenID, remision);
+        }
+
+        public dynamic getPresupuestoCC(string cc)
+        {
+            return OcDAO.getPresupuestoCC(cc);
+        }
+
+        public dynamic getPeriodoContable()
+        {
+            return OcDAO.getPeriodoContable();
+        }
+
+        public List<entradasAlmacenDTO> GetDatosReporteEntradaOC(string cc, int num, long numMovimiento)
+        {
+            return OcDAO.GetDatosReporteEntradaOC(cc, num, numMovimiento);
+        }
+
+        public List<entradasAlmacenDTO> GetDatosReporteEntradaNoInvOC(string cc, int num, long numMovimiento)
+        {
+            return OcDAO.GetDatosReporteEntradaNoInvOC(cc, num, numMovimiento);
+        }
+
+        public List<Core.DTO.Principal.Generales.ComboDTO> FillComboProveedores()
+        {
+            return OcDAO.FillComboProveedores();
+        }
+
+        public dynamic getEntradas(string cc, int numero)
+        {
+            return OcDAO.getEntradas(cc, numero);
+        }
+
+        public void actualizarColocadaFechaYProveedor()
+        {
+            OcDAO.actualizarColocadaFechaYProveedor();
+        }
+
+<<<<<<< Updated upstream
+        public void actualizarImpresa()
+        {
+            OcDAO.actualizarImpresa();
+=======
+        public void enviarOCProv(string cc, int numero, string correo, HttpPostedFileBase cotizacion)
+        {
+            OcDAO.enviarOCProv(cc, numero, correo, cotizacion);
+>>>>>>> Stashed changes
+        }
+    }
+}

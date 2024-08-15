@@ -1,0 +1,140 @@
+﻿
+
+<link href="~/Content/style/Dropzone/basic.min.css" rel="stylesheet" />
+<link href="~/Content/style/Dropzone/dropzone.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/SOS/Style-CargaArchivos.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/Dropzone/dropzone.min.js"></script>
+
+<script type="text/javascript">
+    //File Upload response from the server
+    Dropzone.autoDiscover = true;
+    Dropzone.options.dZUpload = {
+        url: "/SolicitudEquipo/SaveSolicitudReemplazo",
+        paramName: "Files",
+        maxFiles: 1,
+        addRemoveLinks: true,
+        autoProcessQueue: false,
+        init: function () {
+            var BntGuardarDocumento = document.querySelector("#BntGuardarDocumento");
+            myDropzoneD = this;
+            $('#BntGuardarDocumento').click(function () {
+                var Lista = $("#tblEconomicosAsignados").bootgrid('getCurrentRows');
+                var cantidad = myDropzoneD.files.length;
+                if (cantidad > 0) {
+                    $.blockUI({ message: mensajes.PROCESANDO });
+                    $.ajax({
+                        datatype: "json",
+                        type: "POST",
+                        url: '/SolicitudEquipo/SetInfoSave',
+                        data: { obj: GetInfoSet(), listaDetalle: GetListaEconomicos() },
+                        success: function (response) {
+                            $.unblockUI();
+                            myDropzoneD.processQueue();
+                            $("#ModalUploadFile").modal('hide');
+                            $('a[href^="#Step1"]').trigger('click');
+                            $('a[href^="#Step2"]').attr("disabled", "disabled");
+                            $("#tblListaEquiposRemplazo").bootgrid('clear');
+                            ConfirmacionGeneral("Confirmación", "Se genero el folio " + $("#tbCC").val() + "-" + $("#tbFolioSolicitud").val());
+                            $("#tbCC").trigger('change');
+                        },
+                        error: function () {
+                            $.unblockUI();
+                        }
+                    });
+
+                } else {
+                    ConfirmacionGeneral("Confirmación", "No hay Archivos.");
+                }
+            });
+            $('#BtnCancelar').click(function () {
+
+                myDropzoneD.removeAllFiles();
+                $("#ModalUploadFile").modal('hide');
+            });
+
+            this.on("maxfilesexceeded", function (file) {
+                ConfirmacionGeneral("Confirmación", "Solo se permite un archivo al mismo tiempo", "bg-red");
+                this.removeFile(file);
+            });
+            this.on("success", function (file, response) {
+                ConfirmacionGeneral("Confirmación", "La operacion se proceso correctamente", "bg-green");
+                $("#ModalUploadFile").modal('hide');
+                this.removeFile(file);
+            });
+            this.on("error", function (file, response) {
+
+            });
+            this.on("removedfile", function (file) {
+
+            });
+
+        }
+    };
+
+    function GetInfoSet() {
+        return {
+
+            id: 0,
+            folio: $("#tbFolioSolicitud").val(),
+            CC: $("#tbCC").val(),
+            descripcion: $("#tbComentario").val()
+        }
+    }
+
+    function GetListaEconomicos() {
+        var ListaEquiposRemplazo = tblListaEquiposRemplazo.bootgrid('getCurrentRows');
+
+        return ListaEquiposRemplazo;
+
+    }
+
+</script>
+
+<div class="container-fluid">
+
+
+    <div id="uploadFiles" class="row form-group">
+        <div class="col-lg-12 form-group">
+            <fieldset class="position fieldsetUpdExcel">
+                <div id="dZUpload" class="dropzone upload-drop-zone">
+                    <div class="dz-message acomodo">
+                        <div>
+                            <i class="fa fa-file-o  tamano" aria-hidden="false"></i>
+                            <span style="
+    position: absolute;
+    top: 51px;
+    left: 255px;
+    font-size: small;
+">PDF</span>
+                        </div>
+
+                        <h3>Arrastrar aquí archivo pdf aquí</h3>
+                        <h3>Elige un archivo</h3>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 form-group">
+            <label>Comentarios: </label>
+            <input id="tbComentario" class="form-control" type="text" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+            <div>
+                <button type="button" class="btn btn-primary pull-right" id="BntGuardarDocumento">
+                    <span class="glyphicon glyphicon-floppy-save"></span> Guardar
+                </button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary pull-right" id="BtnCancelar" style="margin-right: 5px;">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

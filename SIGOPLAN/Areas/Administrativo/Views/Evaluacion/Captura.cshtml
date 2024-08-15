@@ -1,0 +1,139 @@
+﻿@{
+ViewBag.Title = "Captura";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Evaluacion/EvaluacionEstilo.css" rel="stylesheet" />
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Captura</h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+        <div class='col-md-2 noPadRight'>
+            <label>Fecha:</label>
+            <div class='input-group'>
+                <input id="inputFechaInicio" class="form-control" />
+                <span class='input-group-addon'></span>
+                <input id="inputFechaFin" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-2 noPadRight">
+            <label>Evaluador:</label>
+            <select class="form-control select2" id="selectEvaluador"></select>
+        </div>
+
+        <div class="col-md-2 noPadRight">
+            <label>Estatus:</label>
+            <select class="form-control select2" id="selectEstatus">
+                <option value="">Todas</option>
+                <option value="1">Evaluadas</option>
+                <option value="2">No Evaluadas</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 20px;">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="fieldset-custm margin-top">
+    <legend class="legend-custm">Capturas:</legend>
+    <div class="row mrgTop">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary pull-right" id="botonAgregar"><i class="fas fa-plus"></i> Agregar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaCapturas" class="table table-hover table-fixed table-bordered compact" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<!-- Modal Captura -->
+<div class="modal fade" id="modalCaptura">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Captura</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label>Actividad:</label>
+                        <select class="form-control select2" id="selectActividad"></select>
+                    </div>
+
+                    <div class="col-sm-3">
+                        <label>Fecha Actividad:</label>
+                        <input type="text" name="inputFechaActividad" id="inputFechaActividad" class="form-control">
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Evidencia:</label>
+
+                        <div class="form-group" id="divEvidencia">
+                            <input type="file" name="inputEvidencia" id="inputEvidencia" accept="application/pdf, image/*" class="form-control"></input>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group" id="divDescargarEvidencia" style="display: none;">
+                            <div class="row">
+                                <div class="col-xs-10">
+                                    <button id="botonDescargarEvidencia" class="btn btn-primary botonFullWidth">
+                                        <i class="fas fa-file-download"></i> Descargar
+                                    </button>
+                                </div>
+
+                                <div class="col-xs-2">
+                                    <button id="botonVerEvidencia" class="btn btn-primary botonFullWidth">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="inputComentariosEmpleado" class="form-label">Comentarios (opcional):</label>
+                        <input type="text" name="inputComentariosEmpleado" id="inputComentariosEmpleado" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Action("_visorGrid")
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Evaluacion/Captura.js"></script>

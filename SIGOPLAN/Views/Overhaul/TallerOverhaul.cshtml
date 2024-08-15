@@ -1,0 +1,836 @@
+﻿
+@{
+    ViewBag.Title = "TallerOverhaul";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<!--Estilos-->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Overhaul/TallerOverhaul.css" rel="stylesheet" />
+
+<!--Cuerpo-->
+<h2 class="text-center">Taller Overhaul</h2>
+<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 no-padding">
+    <fieldset class="fieldset-custm fielset-Filtros no-padding">
+        <legend class="legend-custm">Filtros:</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding: 0 8px 0 8px;">
+            <label>Calendario:</label>
+            <select class="form-control" id="cboCalendarioEstatus"></select>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding: 0 8px 0 8px;">
+            <label>Tipo:</label>
+            <select class="form-control" id="cboTipoParo">
+                <option selected>Todos</option>
+                <option value="0">Programado</option>
+                <option value="3">Falla</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding: 0 8px 0 8px;">
+            <label>Estatus:</label>
+            <select class="form-control" id="cboEstatusTaller">
+                <option value="0">Sin ejecutar</option>
+                <option value="1" selected>En taller</option>
+                <option value="2">Terminado</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="padding: 10px 8px 10px 8px;">
+            <button type="button" class="btn btn-info" id="btnBuscarEstatus">
+                <span class="glyphicon glyphicon-search"></span> Cargar
+            </button>
+        </div>
+    </fieldset>
+    <fieldset class="fieldset-custm fielset-Filtros no-padding">
+        <legend class="legend-custm">Actividades</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="padding: 10px 8px 10px 8px;">
+            <button class="btn btn-info" id="btnCatActividades">
+                <i class="far fa-list-alt"></i> Cargar Catálogo
+            </button>
+        </div>
+    </fieldset>
+    <fieldset class="fieldset-custm fielset-Filtros no-padding">
+        <legend class="legend-custm">Acotaciones:</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <span class="dot" style="background-color:#5cb85c;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;OVERHAUL GENERAL</b>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <span class="dot" style="background-color:#204d74;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;CAMBIO DE MOTOR</b>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <span class="dot" style="background-color:#ff1919;vertical-align: middle;margin-bottom: 5px;"></span><b>&nbsp;&nbsp;&nbsp;FALLO</b>
+        </div>
+    </fieldset>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10" style="padding: 0px 0px 0px 2px;">
+    <fieldset class="fieldset-custm no-padding">
+        <legend id="lgTablaTaller" class="legend-custm">Taller Overhaul</legend>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+            <table id="gridEstatusTaller" class="table table hover row-border compact">
+                <thead class="bg-table-header"></thead>
+            </table>
+        </div>
+    </fieldset>
+</div>
+
+<div class="modal fade" id="modalNuevoOverhaul" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-nuevo"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-xs-6 col-md-4 col-lg-2 form-group">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Dias:</legend>
+                                <div class="form-group">
+                                    <label>Horas Trabajadas:</label>
+                                    <input class="form-control text-center" id="txtHorasTrabajadas" type="number">
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasLunes" type="checkbox" name="horasLunes" value="" data-index="lunes" checked />
+                                    <br />LUNES
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasMartes" type="checkbox" name="horasMartes" value="" data-index="martes" checked />
+                                    <br />MARTES
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasMiercoles" type="checkbox" name="horasMiercoles" value="" data-index="miercoles" checked />
+                                    <br />MIÉRCOLES
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasJueves" type="checkbox" name="horasJueves" value="" data-index="jueves" checked />
+                                    <br />JUEVES
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasViernes" type="checkbox" name="horasViernes" value="" data-index="viernes" checked />
+                                    <br />VIERNES
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasSabado" type="checkbox" name="horasSabado" value="" data-index="sabado" checked />
+                                    <br />SÁBADO
+                                </div>
+                                <div class="form-group">
+                                    <input class="checkbox-actividad checkbox-horas-trabajadas" id="ckhorasDomingo" type="checkbox" name="horasDomingo" value="" data-index="domingo" checked />
+                                    <br />DOMINGO
+                                </div>
+                            </fieldset>
+                        </div>
+                            @*<fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Actividades:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                    <table id="gridModalGantt" style="width:100%">
+                                        <tr>
+                                            <th></th>
+                                            <th>ACTIVIDAD</th>
+                                            <th>HORAS</th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-6 form-group pull-right">
+                                    <div>
+                                        <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-right" id="btnModalIniciarNuevo" style="display:none">
+                                            <span class="glyphicon glyphicon-play"></span> Iniciar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarNuevo" disabled>
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarNuevo" data-dismiss="modal">
+                                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>*@
+                        <div class="col-xs-12 col-xs-12 col-md-8 col-lg-10 form-group">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Actividades:  <i class="glyphicon glyphicon-tasks"></i> </legend>
+
+                                <div class="subject-info-box-1 col-xs-12 col-xs-12 col-md-12 col-lg-5">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">Actividades a agregar:  <i class="fas fa-thumbtack"></i> </legend>
+                                        <button id="btnAgregarAct" class="btn btn-primary pull-right" style="margin-bottom:10px;"><i class="fas fa-plus"></i></button>
+                                        <select multiple="multiple" id='lstBox1' class="form-control"></select>                                        
+                                    </fieldset>
+                                </div>
+                                <div class="subject-info-arrows text-center col-xs-12 col-xs-12 col-md-12 col-lg-1">
+                                    <br /><br /><br /><br /><br /><br /><br /><br /><br />
+                                    <input type="button" id="btnRight" value=">" class="btn btn-success boton-agregar" /><br />
+                                    <input type="button" id="btnLeft" value="<" class="btn btn-warning boton-agregar" />
+                                </div>
+                                <div class="subject-info-box-2 col-xs-12 col-xs-12 col-md-12 col-lg-6">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">Diagrama de Gantt:  <i class="fas fa-list-ol"></i> </legend>
+                                        @*<select multiple="multiple" id='lstBox2' class="form-control"></select>*@
+                                        <table id="tblDiagrama" class="display nowrap">
+                                            <thead class="bg-table-header"></thead>
+                                        </table>
+                                    </fieldset>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                    <div>
+                                        <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-right" id="btnModalIniciarNuevo" style="display:none">
+                                            <span class="glyphicon glyphicon-play"></span> Iniciar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarNuevo" >
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarNuevo" data-dismiss="modal">
+                                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalActividadesOverhaul" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-nuevo"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Actividades:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                <table id="gridActividadesOverhaul" class="table table-condensed table-hover table-striped" style="width:100%;">
+                                    <thead class="bg-table-header"></thead>
+                                </table>
+                            </div>
+                            <div class="modal-footer col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                <div>
+                                    <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-left" id="btnModalPortada" style="display:none;">
+                                        <span class="glyphicon glyphicon-blackboard"></span> Portada
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-left" id="btnModalEvidencia" style="display:none;">
+                                        <span class="glyphicon glyphicon-plus"></span> Evidencias
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalCancelarActividades" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cerrar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-right" id="btnModalTerminarOverhaul" >
+                                        <span class="glyphicon glyphicon-play"></span> Terminar
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalGuardarComentario" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-comentario"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"></legend>
+
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-10 form-group" style="float: none; margin: 0 auto;">
+                                <label>Comentario:</label>
+                                <textarea class="form-control" id="tbComentario" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                <div>
+                                    <span class="pull-right" id="txtfechaComentario"></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarComentario">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarComentario" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalGuardarArchivo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-archivo"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Imágenes de Actividades:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                        <button id="btncargarArchivo" class="btn btn-primary"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>                                                                            
+                                    </div>      
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarArchivo" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="gridArchivos" class="display nowrap">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>FECHA</th>
+                                            <th>NOMBRE</th>
+                                            <th>ELIMINAR</th>
+                                            <th>DESCARGAR</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Comentario:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="float: none; margin: 0 auto;">
+                                <label></label>
+                                <textarea class="form-control" id="tbComentarioReporte" title="Introducir comentario" style="height:200px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                <div>
+                                    <span class="pull-right" id="txtfechaComentarioReporte"></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarComentarioReporte">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarComentarioReporte" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalOverhaulFalla" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-falla"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm"></legend>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                <label>Económico:</label>
+                                <select class="form-control" id="cboEconomicoFalla"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                <label>Tipo:</label>
+                                <select class="form-control" id="cboTipoFalla">
+                                    <option value="0">Overhaul General</option>
+                                    <option value="1">Cambio de motor</option>
+                                    <option value="2">Componente desfazados</option>
+                                    <option value="3">Falla</option>
+                                </select>
+                            </div>
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Componentes:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <table id="gridOHFalla" class="display nowrap">
+                                        <thead class="bg-table-header"></thead>
+                                    </table>
+                                </div>
+                                <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                    <div>
+                                        <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalOverhaulFalla" disabled>
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarOHFalla" data-dismiss="modal">
+                                            <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGuardarArchivoFL" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-fl"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Archivos:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                    <label>ARCHIVO:</label>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                        <button id="btncargarArchivoFL" class="btn btn-primary"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                    </div>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarArchivoFL" accept="application/pdf">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="gridArchivosFL" class="display nowrap">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>FECHA</th>
+                                            <th>NOMBRE</th>
+                                            <th>ELIMINAR</th>
+                                            <th>DESCARGAR</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnEnviarLiberacion" type="button" class="btn btn-success" data-dismiss="modal">Enviar Liberación</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGuardarPortada" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-portada"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Archivos:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                    <label>ARCHIVO:</label>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                        <button id="btncargarPortada" class="btn btn-primary"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                    </div>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarPortada" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblPortada" class="display nowrap">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>FECHA</th>
+                                            <th>NOMBRE</th>
+                                            <th>ELIMINAR</th>
+                                            <th>DESCARGAR</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Comentario:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="float: none; margin: 0 auto;">
+                                <label></label>
+                                <textarea class="form-control editor" id="tbComentarioPortada" title="Introducir comentario" style="height:200px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                                <div>
+                                    <span class="pull-right" id="txtfechaComentarioPortada"></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group pull-right">
+                                <div>
+                                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarComentarioPortada">
+                                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelarComentarioPortada" data-dismiss="modal">
+                                        <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGuardarEvidencia" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal-evidencia"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Archivos:</legend>
+                            <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-12">
+                                    <label>ARCHIVO:</label>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group" style="text-align: center">
+                                        <button id="btncargarEvidencia" class="btn btn-primary"> <i class="fa fa-upload"></i>   SELECCIONAR ARCHIVO</button>
+                                    </div>
+                                    <div class="col-xs-3 col-xs-3 col-md-3 col-lg-12 form-group">
+                                        <input type="file" class="form-control btn btn-info pull-left" id="inCargarEvidencia" accept="image/*">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblEvidencia" class="display nowrap">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>FECHA</th>
+                                            <th>NOMBRE</th>
+                                            <th>ELIMINAR</th>
+                                            <th>DESCARGAR</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardarEvidencia" data-dismiss="modal">
+                        <span class="glyphicon glyphicon-check"></span> Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalCorreos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCorreos">Inicio de Overhaul</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row" style="width:100%; text-align:center;">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">FECHA INICIO:</legend>
+                            <input class="text-center form-control" style="width:50%; margin: 0 auto;" type="text" id="fechaInicioParo" autocomplete="off">                            
+                        </fieldset>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">AGREGAR CORREO:</legend>
+                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                <input class="form-control" type="email" id="txtCorreo" size="30" required>
+                            </div>
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                <button id="agregarCorreo" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered pull-right'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                            </div>
+                        </fieldset>
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">CORREOS:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblCorreos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                            <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                            <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnEnviarCorreo">
+                                <span class="glyphicon glyphicon-envelope"></span> Enviar
+                            </button>
+                            <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnCancelarEnvio" data-dismiss="modal">
+                                <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAgregarAct" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-md" style="" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCorreos">Agregar Actividad</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row" style="width:100%; text-align:center;">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Actividades:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <table id="tblAgregAct" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                    <thead class="bg-table-header">
+                                        <tr>
+                                            <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                            <th data-column-id="actividad" class="text-left" style="" data-formatter="actividad">ACTIVIDAD</th>
+                                            <th data-column-id="duracion" class="text-left" style="" data-formatter="duracion">DURACION EN HRS.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnCargarAgrAct">
+                                <span class="glyphicon glyphicon-arrow-right"></span> Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCatActividades" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog" style="width: 70%" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCatActividades">Catálogo de Actividades Taller por Modelo</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row" style="width:100%; text-align:center;">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Filtros</legend>
+
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                                    <label>Actividad:</label>
+                                    <input class="text-center form-control" type="text" id="descripcionCatAct" autocomplete="off" placeholder="Descripción" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                                    <label>Modelo Máquina:</label><br />
+                                    <select id="cbModeloCatAct" class="form-control" name="cbModeloCatAct"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                                    <label>Estatus:</label>
+                                    <select id="cbEstatusCatAct" class="form-control" name="cbEstatusCatAct">
+                                        <option value="1">Activo</option>
+                                        <option value="0">Inactivo</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 text-center">
+                                    <button type="button" class="btn btn-primary margin-top" id="btnBuscarCatAct">
+                                        <span class="glyphicon glyphicon-search"></span> Buscar
+                                    </button>
+                                    <button type="button" class="btn btn-success margin-top" id="btnAgregarCatAct">
+                                        <span class="glyphicon glyphicon-plus"></span> Alta
+                                    </button>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Actividades</legend>
+                                <table id="tblCatActividades" class="table table-condensed table-hover table-striped text-center bootgrid-table" style="width:100%" aria-busy="false">
+                                    <thead class="bg-table-header"></thead>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCatActUpdate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+    <div class="modal-dialog modal-bg" style="width:800px;" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="text-center">
+                    <h3><label id="lblCatActUpdate">Alta Actividad</label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Datos Actividad</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 text-center">
+                                <label>Descripción:</label>
+                                <input class="text-center form-control" type="text" id="descripcionCatActUpdate" autocomplete="off" placeholder="Descripción" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 text-center">
+                                <label>Duración:</label>
+                                <input class="text-center form-control" type="number" id="horasCatActUpdate" autocomplete="off" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center">
+                                <label>Modelo Máquina:</label><br />
+                                <select id="cbModeloCatActUpdate" class="form-control" name="cbModeloCatActUpdate"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center">
+                                <label>Estatus:</label>
+                                <select id="cbEstatusCatActUpdate" class="form-control" name="cbEstatusCatActUpdate">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center">
+                                <label for="ckbRECatActUpdate"> Reporte Ejecutivo:</label><br />
+                                <input type="checkbox" id="ckbRECatActUpdate" name="ckbRECatActUpdate" style="width: 35px;height: 35px;margin: 0;">
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnGuardarCatActUpdate">
+                    <span class="glyphicon glyphicon-save"></span> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='modalFechaFin' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Terminar Overhaul</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">FECHA FINAL:</legend>
+                            <input class="text-center form-control" style="width:50%; margin: 0 auto;" type="text" id="fechaFinParo" autocomplete="off">                            
+                        </fieldset>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success margin-top modal-margin-rigth pull-right" id="btnTerminarOverhaul">
+                        <span></span> Terminar
+                    </button>
+                    <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" data-dismiss="modal">
+                        <span class="glyphicon glyphicon-arrow-left"></span> Regresar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reporteEjecutivo">
+    @Html.Partial("reportViewerView")
+</div> 
+
+<!--Scripts-->
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/Overhaul/TallerOverhaulJS.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>
+<script src="~/textboxio-client/textboxio/textboxio.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.1.1/js/dataTables.rowGroup.min.js"></script>

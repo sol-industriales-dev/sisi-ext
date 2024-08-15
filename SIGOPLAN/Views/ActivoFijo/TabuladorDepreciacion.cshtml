@@ -1,0 +1,277 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseC = new SIGOPLAN.Controllers.BaseController();
+    var display = baseC.getEmpresaID() == (int)Core.Enum.Multiempresa.EmpresaEnum.Arrendadora ? "block" : "none";
+
+    var JS_VERSION = 2;
+}
+
+<input type="hidden" value="@JS_VERSION" id="JS_VERSION" />
+
+<style>
+    #tblDetalleDepreciacion tbody tr td, #tblDepMaquina tbody tr td {
+        border: 0px solid white;
+    }
+
+    #cboFiltroPeriodo, #cboFiltroCC {
+        width: 150px;
+    }
+
+    .modal-lg {
+        width: 90% !important;
+    }
+
+    .modal-body {
+        max-height: calc(100vh - 212px);
+        overflow-y: auto;
+    }
+
+    .blockUI {
+        z-index: 6000 !important;
+    }
+
+    #tblDetalleDepreciacion tbody tr:last-child td {
+        /*background-color: #53bb4f;*/
+    }
+
+    .dataTables_scrollHeadInner table thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+
+    .dataTables_scroll {
+        font-size: 12px !important;
+    }
+
+    .dataTable thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+
+    .trTotalesDetDep td {
+        background-color: lightgray;
+        font-weight: bold;
+    }
+
+    #leyendaTipoMovimiento {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        margin-top: 15px;
+        overflow: hidden;
+    }
+    #leyendaTipoMovimiento li {
+        float: left;
+        margin-right: 25px;
+        color: #337ab7;
+    }
+    #leyendaTipoMovimiento li span {
+        float: left;
+        display: block;
+        border: 1px solid black;
+        padding-left: 2px;
+        padding-right: 2px;
+        margin-right: 5px;
+        background-color: black;
+        color: white;
+    }
+    #leyendaTitulo {
+        float: left;
+        padding-top: 15px;
+        margin-right: 10px;
+    }
+</style>
+
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h1 class="text-center">@baseC.getEmpresaNombre()</h1>
+            <h2></h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>DEPRECIACIÓN MAQUINARIA</h2>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Concepto</span>
+                                <select class="form-control" id="cboFiltroConceptos" value=""></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3" id="filtroNoEconomico">
+                            <div class="input-group">
+                                <span class="input-group-addon"># económico</span>
+                                <input type="text" class="form-control" id="txtFiltroNoEconomico" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3" id="filtroTipoDelMovimiento">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo movimiento</span>
+                                <select class="form-control" id="cboFiltroTipoMovimiento" value=""></select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estado</span>
+                                <select class="form-control" id="cboFiltroActivos" value="">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Depreciando</option>
+                                    <option value="0">Depreciadas</option>
+                                    <option value="2">Bajas</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <br />
+                            <div class="row">
+                                <div class="col-sm-3" id="filtroAreaCuenta">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Área cuenta</span>
+                                        <select class="form-control" id="cboFiltroAreaCuenta" value=""></select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Fecha</span>
+                                        <input type="text" class="form-control" id="txtFiltroFecha" />
+                                    </div>
+                                </div>
+
+                                <div style="display:@display">
+                                    <div class="col-sm-3" id="filtroCuentasOverhaul" style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Cuentas Overhaul</span>
+                                            <select class="form-control" id="cboFiltroCuentasOverhaul" value=""></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+
+                                <div class="col-sm-4">
+                                    <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar</button>
+                                    <button type="button" class="btn btn-primary" id="btnImprimirResumen" value="184" disabled>Imprimir dep semanal</button>
+                                    <button type="button" class="btn btn-info" id="btnImprimirTab" value="XX" disabled><i class="fas fa-file-download"></i> Excel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        @*<div class="col-sm-2">
+                            <button type="button" class="btn btn-success" id="btnFiltroBuscar">Buscar</button>
+                            <button type="button" class="btn btn-primary" id="btnImprimirResumen" value="184" disabled>Imprimir</button>
+                        </div>*@
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <span id="leyendaTitulo">Tipos de movimientos: </span>
+                            <ul id="leyendaTipoMovimiento"></ul>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="tblDepMaquina" class="hover stripe order-column compact" style="width: 100%">
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="9" class="text-right">TOTAL</th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleDep" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title" id="modalTitulo">Detalle de depreciación</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                @*<div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Periodos</span>
+                                <select class="form-control" id="cboFiltroPeriodo" value=""></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />*@
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-success" id="btnTabExcel">Excel</button>
+                        
+                        <br />
+                        <br />
+
+                        <div class="table-responsive">
+                            <table id="tblDetalleDepreciacion" class="hover stripe order-column compact" style="width: 100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-right">TOTAL</th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        @*<th class=""></th>*@
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/ActivoFijoTabuladorDepreciacion.js"></script>

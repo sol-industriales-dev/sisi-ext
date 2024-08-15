@@ -1,0 +1,1183 @@
+﻿@{
+    ViewBag.Title = "Presupuestos Gastos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/Conceptos.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.css" rel="stylesheet" />
+
+<style>
+    #menu_click {
+        z-index: 99999 !important;
+    }
+</style>
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h1>@baseController.getEmpresaNombre()</h1>
+            <h2>DASHBOARD</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-1 col-sm-1 col-xs-1">
+                            <label for="cboFiltroAnio">Año</label>
+                            <select id="cboFiltroAnio" class="form-control select2"></select>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <label for="cboFiltroMes">Mes</label>
+                            <select id="cboFiltroMes" class="form-control select2">
+                                <option value="">--Seleccione--</option>
+                                <option value="1">ENERO</option>
+                                <option value="2">FEBRERO</option>
+                                <option value="3">MARZO</option>
+                                <option value="4">ABRIL</option>
+                                <option value="5">MAYO</option>
+                                <option value="6">JUNIO</option>
+                                <option value="7">JULIO</option>
+                                <option value="8">AGOSTO</option>
+                                <option value="9">SEPTIEMBRE</option>
+                                <option value="10">OCTUBRE</option>
+                                <option value="11">NOVIEMBRE</option>
+                                <option value="12">DICIEMBRE</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2" style="display: none;">
+                            <label for="cboFiltroDivisiones">Divisiones</label>
+                            <select id="cboFiltroDivisiones" class="form-control select2"></select>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-2">
+                            <label for="cboFiltroEmpresas">Empresa</label>
+                            <select id="cboFiltroEmpresas" class="form-control select2"></select>
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-3">
+                            <label for="cboFiltroCC">CC</label>
+                            <select id="cboFiltroCC" class="form-control" multiple></select>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4 margin-form-top">
+                            <input type="checkbox" checked data-toggle="toggle" data-on="Costos Administrativos" data-off="Costo Totales" data-onstyle="success" data-offstyle="primary" data-width="180" style="display:none;" id="btnCostosTotales">
+                            <button type="button" class="btn btn-info" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroReportePlanAccion"><i class="fas fa-file"></i>&nbsp;Reporte plan acción</button>
+                            <button type="button" class="btn btn-primary" id="btnFiltroEnvioInforme" style="display:none;"><i class="fas fa-mail-bulk"></i>&nbsp;Informe</button>
+                        </div><br><br>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div id="panelGraficas">
+
+                            <!-- CALCULOS ANA -->
+                            <div class="col-sm-3">
+                                <div class="panel panel-primary panel-grafica">
+                                    <div class="panel-heading text-center">
+                                        <h5>CUMPLIMIENTO AL PRESUPUESTO DE INGRESOS</h5>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">INGRESO ESTIMADO</label>
+                                                <p class="form-control-static" id="montoGastoPpto"></p>
+                                            </div>
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">INGRESO REAL</label>
+                                                <p id="montoIngresoPpto" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGastoPpto" style="font-size: 50px;"></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" style="display:none;">
+                                            <div class="col-sm-12 text-center">
+                                                <b>
+                                                    <p>CUMPLIMIENTO</p>
+                                                </b>
+                                                <div class="progress">
+                                                    <div id="gastoIngresoBarPpto" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                                </div>
+                                                <p>
+
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END: CALCULOS ANA -->
+
+                            <div class="col-sm-3">
+                                <div class="panel panel-primary panel-grafica">
+                                    <div class="panel-heading text-center">
+                                        <h5>GASTOS VS INGRESOS - ACUMULADO</h5>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">GASTO</label>
+                                                <p class="form-control-static" id="montoGasto"></p>
+                                            </div>
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">INGRESO</label>
+                                                <p id="montoIngreso" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">OBJETIVO</label>
+                                                <p class="form-control-static" id="txtRatioGastoVsIngresoAcumulado">3.6%</p>
+                                            </div>
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">REAL</label>
+                                                <p id="montoReal" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGasto" style="font-size: 50px;"></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" style="display:none;">
+                                            <div class="col-sm-12 text-center">
+                                                <b>
+                                                    <p>CUMPLIMIENTO</p>
+                                                </b>
+                                                <div class="progress">
+                                                    <div id="gastoIngresoBar" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                                </div>
+                                                <p>
+
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="panel panel-primary panel-grafica">
+                                    <div class="panel-heading text-center">
+                                        <h5>GASTOS VS INGRESOS - MENSUAL</h5>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">GASTO</label>
+                                                <p class="form-control-static" id="montoGastoMensual"></p>
+                                            </div>
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">INGRESO</label>
+                                                <p id="montoIngresoMensual" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">OBJETIVO</label>
+                                                <p class="form-control-static" id="txtRatioGastoVsIngresoMensual">3.6%</p>
+                                            </div>
+                                            <div class="col-sm-6 text-center">
+                                                <label for="">REAL</label>
+                                                <p id="montoRealMensual" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGastoMensual" style="font-size: 50px;"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="panel panel-primary panel-grafica">
+                                    <div class="panel-heading text-center">
+                                        <h5>CUMPLIMIENTO A PRESUPUESTO - ACUMULADO</h5>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="graficaArcoPresupuesto"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="panel panel-primary panel-grafica">
+                                <div class="panel-heading text-center">
+                                    <h5>CUMPLIMIENTO A PRESUPUESTO - MENSUAL</h5>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="graficaArcoPresupuestoMensual"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-8">
+                            <div class="panel panel-primary panel-grafica">
+                                <div class="panel-heading text-center">
+                                    <h5>PROYECCIÓN</h5>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="graficaArcoProyeccion"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4" style="display: none;">
+                            <div class="panel panel-primary panel-grafica">
+                                <div class="panel-heading text-center">
+                                    <h5>CUMPLIMIENTO</h5>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="graficaArcoCumplimiento"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL DETALLE CAPTURA -->
+<div id='mdlDetalleNivel' class='modal fade' role='dialog' style="" data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color: white;">&times;</span>
+                </button>
+                <h4 class='modal-title'>DETALLE PRESUPUESTO</h4>
+                <input type="text" style="display: none;" id="inpConsultaNivel">
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="lstBtnDetalleNivel" class="col" style="padding-right: 15px; padding-left: 15px; text-align:left;">
+                            <button id="btnNivel2" type="button" class="btn btn-primary"><span id="txtBtnNivel2">DETALLE PRESUPUESTO / GASTOS</span></button>
+                            <button id="btnNivel3" type="button" class="btn btn-primary" style="display:none;"><span id="txtBtnNivel3"></span></button>
+                            <button id="btnNivel4" type="button" class="btn btn-primary" style="display:none;"><span id="txtBtnNivel4"></span></button>
+                            <button id="btnPlanAccion" class="btn btn-primary pull-right" style="display:none;"><i class="fas fa-scroll"></i>&nbsp;Plan de acción</button>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="panelGeneral0">
+                        <div class="col-sm-3">
+                            <div class="panel panel-default panel-principal">
+                                <div class="panel-heading">
+                                    <h4 class="text-center">INFORMACIÓN GENERAL</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12 text-center">
+                                            <h6>CUMPLIMIENTO ACUMULADO EMPRESA</h6>
+                                            <b><span id="txtCumplimientoControlEjecucion" style="color:red; font-size:26px;">0%</span></b>
+                                        </div>
+
+                                        <div class="col-sm-12 text-center">
+                                            <br>
+                                            <h6>ACTUALIZADO AL CIERRE DE <b><span id="txtMesCierreControlEjecucion">SEPTIEMBRE</span></b></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-9">
+                            <div class="panel panel-default panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4>COMPARACIÓN MENSUAL</h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div id="graficaControlEjecucion" style="height: 200px"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <button id="btnConceptosAgrupacionCC" class="btn btn-primary form-control" style="display:inline;">Conceptos Agrupación CC</button>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <div id="panelDetalleNivel2">
+                            <div class="panel panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4 class="periodoResumen">DETALLE POR CC</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <table id="tblControlEjecucion" class="table table-hover table-bordered table-striped compact" width="100%">
+                                        <tfoot>
+                                            <tr>
+                                                <th style="background-color: #dbdcd9;">TOTAL</th>
+                                                <th style="background-color: #dbdcd9;">TOTAL</th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                @* <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th> *@
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="panel panel-principal panel-detalle-total">
+                                <div class="panel-heading text-center">
+                                    <h4 class="periodoResumen">DETALLES TOTAL</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <table id="tblCapturas" class="table table-hover table-bordered compact" width="100%">
+                                        @*<tfoot>
+                                        <tr>
+                                        <th style="background-color: #dbdcd9;">TOTAL</th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                        </tr>
+                                        </tfoot>*@
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="panelDetalleAgrupacion" style="display: none;">
+                            <div class="panel panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4>DETALLE POR AGRUPACIÓN</h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <table id="tablaAgrupaciones" class="table table-hover table-bordered table-striped compact" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="panelDetalleNivel3" style="display: none;">
+                            <div class="panel panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4 class="periodoResumen">DETALLE POR CC</h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            @* <table id="tblCapturas" class="table table-hover table-bordered compact" width="100%"></table> *@
+                                            <table id="tblGastosVsPresupuestos" class="table table-hover table-bordered compact" width="100%">
+                                                <tfoot>
+                                                    <tr>
+                                                        <th style="background-color: #dbdcd9;">TOTAL</th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="graficaPresuestoGasto"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="panelDetalleNivel4" style="display: none;">
+                            <div class="panel panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4 class="periodoResumen">DETALLE POR CC</h4>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tblNivel4" class="table table-hover table-bordered compact" width="100%"></table>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="graficaNivel4"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TABLA CUENTAS LIGADAS AL CC -->
+                        <div id="panelDetalleNivel4Ctas" style="display: none;">
+                            <div class="panel panel-principal">
+                                <div class="panel-heading text-center">
+                                    <h4 class="periodoResumen"></h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="tblNivel4Ctas" class="table table-hover table-bordered compact" width="100%">
+                                                <tfoot>
+                                                    <tr>
+                                                        <th style="background-color: #dbdcd9;"></th>
+                                                        <th style="width: 5% !important; background-color: #dbdcd9;"></th>
+                                                        <th style="width: 5% !important; background-color: #dbdcd9;"></th>
+                                                        <th style="width: 5% !important; background-color: #dbdcd9;"></th>
+                                                        <th style="width: 5% !important; background-color: #dbdcd9;"></th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;">TOTAL</th>
+                                                        <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END: TABLA CUENTAS LIGADAS AL CC -->
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="panelGeneral3" style="display: block;">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table id="tblNivel3DeIngresosGastos" class="table table-hover table-bordered compact" style="display: none;" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' id="btnCerrarModal" class='btn btn-default'><i class="fa fa-arrow-left"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA -->
+
+<!-- MODAL DETALLE ANUAL -->
+<div id='modalDetalleAnual' class='modal fade' role='dialog' style="" data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>DETALLE ANUAL</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div id="panelGeneral5" style="display: block;">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table id="tablaDetalleAnual" class="table table-hover table-bordered compact" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="2">Descripción</th>
+                                                <th colspan="2">Enero</th>
+                                                <th colspan="2">Febrero</th>
+                                                <th colspan="2">Marzo</th>
+                                                <th colspan="2">Abril</th>
+                                                <th colspan="2">Mayo</th>
+                                                <th colspan="2">Junio</th>
+                                                <th colspan="2">Julio</th>
+                                                <th colspan="2">Agosto</th>
+                                                <th colspan="2">Septiembre</th>
+                                                <th colspan="2">Octubre</th>
+                                                <th colspan="2">Noviembre</th>
+                                                <th colspan="2">Diciembre</th>
+                                            </tr>
+                                            <tr>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                                <th>G</th>
+                                                <th>P</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE ANUAL -->
+
+<!-- MODAL PLAN DE ACCION -->
+<div id='mdlPlanAccion' class='modal fade' role='dialog' style="" data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>PLAN DE ACCIÓN</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Plan de acción</label>
+                        <textarea id="txtCEPlanAccion" placeholder="Ingresar plan de acción a ejecutar." cols="30" rows="5" class="form-control"></textarea>
+                    </div>
+                    <div class="col-lg-6">
+                        <label>Resultado que se obtuvo</label>
+                        <textarea id="txtCEPlanAccionJustificacion" placeholder="Ingresar el resultado obtenido en base al plan de acción." cols="30" rows="5" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Correo del responsable de seguimiento</label>
+                        <input id="txtCEPlanAccionCorreoResponsableSeguimiento" placeholder="Ejemplo: seguimiento@construplan.com.mx" class="form-control" autocomplete="off">
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Fecha compromiso</label>
+                        <input id="txtCEPlanAccionFechaCompromiso" type="date" class="form-control">
+                    </div>
+                    <div class="col-lg-3">
+                        <label>Estatus plan de acción</label>
+                        <button id="btnCEEstatusPlanAccion" class="form-control">ABIERTO</button>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default pull-left' id="btnCerrarPlanAccion"><i class="far fa-check-circle"></i>&nbsp;Concluir plan de acción</button>
+                <button type='button' class='btn btn-success pull-left' id="btnVoBo" style="display:none;"><i class="far fa-check-circle"></i>&nbsp;Indicar visto bueno</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id="btnCEPlanAccion"><i class='fas fa-save'></i>&nbsp;<span id="lblBtnCEPlanAccion"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE CAPTURA -->
+
+<!-- MODAL "REPORTE" PLAN DE ACCION -->
+<div id='mdlReportePlanAccion' class='modal fade' role='dialog' style="" data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>INFORME PLAN DE ACCIÓN</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="panelGraficasDashboard">
+                            <div id="panelGraficas" class="panel panel-default panel-principal">
+                                <div class="panel-heading">
+
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div id="panelGraficasInforme">
+
+                                            <!-- CALCULOS ANA -->
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-primary panel-grafica">
+                                                    <div class="panel-heading text-center">
+                                                        <h5>CUMPLIMIENTO AL PRESUPUESTO DE INGRESOS</h5>
+                                                    </div>
+
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">INGRESO ESTIMADO</label>
+                                                                <p class="form-control-static" id="montoGastoPptoInforme"></p>
+                                                            </div>
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">INGRESO REAL</label>
+                                                                <p id="montoIngresoPptoInforme" class="form-control-static"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-12 text-center">
+                                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGastoPptoInforme" style="font-size: 50px;"></button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row" style="display:none;">
+                                                            <div class="col-sm-12 text-center">
+                                                                <b>
+                                                                    <p>CUMPLIMIENTO</p>
+                                                                </b>
+                                                                <div class="progress">
+                                                                    <div id="gastoIngresoBarPptoInforme" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                                                </div>
+                                                                <p>
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- END: CALCULOS ANA -->
+
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-primary panel-grafica">
+                                                    <div class="panel-heading text-center">
+                                                        <h5>GASTOS VS INGRESOS - ACUMULADO</h5>
+                                                    </div>
+
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">GASTO</label>
+                                                                <p class="form-control-static" id="montoGastoInforme"></p>
+                                                            </div>
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">INGRESO</label>
+                                                                <p id="montoIngresoInforme" class="form-control-static"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">OBJETIVO</label>
+                                                                <p class="form-control-static" id="txtRatioGastoVsIngresoAcumuladoInforme">3.6%</p>
+                                                            </div>
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">REAL</label>
+                                                                <p id="montoRealInforme" class="form-control-static"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-12 text-center">
+                                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGastoInforme" style="font-size: 50px;"></button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row" style="display:none;">
+                                                            <div class="col-sm-12 text-center">
+                                                                <b>
+                                                                    <p>CUMPLIMIENTO</p>
+                                                                </b>
+                                                                <div class="progress">
+                                                                    <div id="gastoIngresoBarInforme" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                                                </div>
+                                                                <p>
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-primary panel-grafica">
+                                                    <div class="panel-heading text-center">
+                                                        <h5>GASTOS VS INGRESOS - MENSUAL</h5>
+                                                    </div>
+
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">GASTO</label>
+                                                                <p class="form-control-static" id="montoGastoMensualInforme"></p>
+                                                            </div>
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">INGRESO</label>
+                                                                <p id="montoIngresoMensualInforme" class="form-control-static"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">OBJETIVO</label>
+                                                                <p class="form-control-static" id="txtRatioGastoVsIngresoMensualInforme">3.6%</p>
+                                                            </div>
+                                                            <div class="col-sm-6 text-center">
+                                                                <label for="">REAL</label>
+                                                                <p id="montoRealMensualInforme" class="form-control-static"></p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-12 text-center">
+                                                                <button class="btn btn-link btn-lg" id="porcentajeCumplimientoIngresoGastoMensualInforme" style="font-size: 50px;"></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-primary panel-grafica">
+                                                    <div class="panel-heading text-center">
+                                                        <h5>CUMPLIMIENTO A PRESUPUESTO - ACUMULADO</h5>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div id="graficaArcoPresupuestoInforme"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="panel panel-primary panel-grafica">
+                                                <div class="panel-heading text-center">
+                                                    <h5>CUMPLIMIENTO A PRESUPUESTO - MENSUAL</h5>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div id="graficaArcoPresupuestoMensualInforme"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-8">
+                                            <div class="panel panel-primary panel-grafica">
+                                                <div class="panel-heading text-center">
+                                                    <h5>PROYECCIÓN</h5>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div id="graficaArcoProyeccionInforme"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-4" style="display: none;">
+                                            <div class="panel panel-primary panel-grafica">
+                                                <div class="panel-heading text-center">
+                                                    <h5>CUMPLIMIENTO</h5>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div id="graficaArcoCumplimientoInforme"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <h2>¿Qué resultado tuvo?</h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="divReportePlanesAccionesHTMLInforme"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-primary' id="botonDescargarReportePlanAccion"><i class="fas fa-save"></i>&nbsp;Descargar informe</button>
+                <button type='button' class='btn btn-primary' title="Enviar informe plan de acción." id="btnReportePlanAccionEnviarInforme"><i class="fas fa-envelope"></i>&nbsp;Enviar informe</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL "REPORTE" PLAN DE ACCION -->
+
+<!-- MODAL LISTADO DE ENVIO DE INFORMES -->
+<div id='mdlEnvioInforme' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white;">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;" id="titleEnvioInformes">ENVIO DE INFORMES</h4>
+                </div>
+            </div>
+            <div class='modal-body'>
+                <div class="row" style="display: none;">
+                    <div class="col-lg-3">
+                        <label for="cboFiltroCC">Año</label>
+                        <select id="cboFiltroInformeAnio" class="form-control select2">
+                            <option value="">--Seleccione--</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="cboFiltroCC">Mes</label>
+                        <select id="cboFiltroInformeMes" class="form-control select2">
+                            <option value="">--Seleccione--</option>
+                            <option value="1">ENERO</option>
+                            <option value="2">FEBRERO</option>
+                            <option value="3">MARZO</option>
+                            <option value="4">ABRIL</option>
+                            <option value="5">MAYO</option>
+                            <option value="6">JUNIO</option>
+                            <option value="7">JULIO</option>
+                            <option value="8">AGOSTO</option>
+                            <option value="9">SEPTIEMBRE</option>
+                            <option value="10">OCTUBRE</option>
+                            <option value="11">NOVIEMBRE</option>
+                            <option value="12">DICIEMBRE</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="cboFiltroCC">Empresa</label>
+                        <select id="cboFiltroInformeEmpresa" class="form-control select2"></select>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="button" class="btn btn-info" id="btnFiltroInformeBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="tblAF_CtrlPptalOfCe_EnvioInforme" class="table table-hover table-bordered compact table-responsive" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            @*<div class='modal-footer'>
+            <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE ENVIO DE INFORMES -->
+
+<!-- MODAL AGRUPACIÓN CONCEPTOS CC -->
+<div id='mdlAgrupacionConceptosCC' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>PPTOS VS GASTOS AGRUPACIÓN CONCEPTOS</h4>
+            </div>
+            <div class='modal-body'>
+                <!-- PANEL AGRUPACIÓN CONCEPTOS CC -->
+                <div id="panelAgrupacionCC" style="display: none;">
+                    <div class="panel panel-principal">
+                        <div class="panel-heading text-center">
+                            <h4>DETALLE PRESUPUESTOS / GASTOS</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <table id="tblAgrupacionConceptosCC" class="table table-hover table-bordered compact" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: PANEL AGRUPACIÓN CONCEPTOS CC -->
+                <!-- PANEL CONCEPTO POR CC -->
+                <div id="panelConceptosPorCC" style="display: none;">
+                    <div class="panel panel-principal">
+                        <div class="panel-heading text-center">
+                            <h4>DETALLE PRESUPUESTOS / GASTOS</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <table id="tblConceptosRelCC" class="table table-hover table-bordered table-striped compact" width="100%">
+                                        <tfoot>
+                                            <tr>
+                                                <th style="background-color: #dbdcd9;">TOTAL</th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                                <th style="text-align: right; background-color: #dbdcd9;"></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: PANEL CONCEPTO POR CC -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' id="btnCerrarMdlAgrupacionCC"><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO DE ENVIO DE INFORMES -->
+
+<!-- MODAL MENSAJES DASHBOARD -->
+<div id="divVerComentario" class='modal fade' role='dialog' data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white;">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Comentarios</h4>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 300px;overflow-y: auto;width: 100%;">
+                <div class="scroll-wrap">
+                    <div class="row">
+                        <div class="tab-pane active" id="timeline">
+                            <!-- The timeline -->
+                            <ul class="timeline timeline-inverse" id="ulComentarios">
+                                <!-- timeline time label -->
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-left:30px;margin-bottom:5px;">
+                    <textarea class="form-control" id="txtComentarios" title="Introducir comentario" style="height:100px; width:97%;" placeholder="Escribe un comentario"></textarea>
+                </div>
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" id="btnAddComentario" class="btn btn-primary" style="font-weight:bold;font-size:large;">Agregar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL MENSAJES DASHBOARD -->
+
+<!-- MODAL AUTORIZAR  -->
+<div id="divAditivas" class='modal fade' role='dialog' style="" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="overflow-y: initial !important;height: 800px;">
+        <div class="modal-content" style="height: 800px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white;">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;">Gestión Aditivas</h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="panelFiltro" class="panel panel-default panel-principal">
+                            <div class="panel-heading">
+                                <h4 class="text-center">FILTRO DE BUSQUEDA</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-4 col-xs-12">
+                                        <label>Año</label>
+                                        <select id="comboBoxYear" class="form-control"></select>
+                                    </div>
+
+                                    <div class="col-md-3 col-sm-4 col-xs-12">
+                                        <label>CC</label>
+                                        <select id="comboBoxCC" class="form-control"></select>
+                                    </div>
+
+                                    <div class="col-md-3 col-sm-4 col-xs-12">
+                                        <label>Estatus</label>
+                                        <select id="comboBoxEstatus" class="form-control select2">
+                                            <option value="">-- Todos --</option>
+                                            <option value="true">Autorizados</option>
+                                            <option value="false" selected>Pendientes</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 col-sm-4 col-xs-12" style="margin-top: 25px;">
+                                        <button id="botonBuscar" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default panel-principal">
+                            <div class="panel-heading"></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <table id="tablaAditivas" class="table hover stripe compact nowrap" width="100%"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modalSeguimientoFirmas" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                    <div class="modal-dialog" role="documento">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="text-center">
+                                    <h4 id="modalSeguimientoFirmasTitulo"></h4>
+                                </div>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table id="tablaSeguimientoFirmas" class="table hover stripe compact nowrap"></table>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" id="cerrarModalSeguimientoFirmas">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modalRechazo" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                    <div class="modal-dialog" role="documento">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="text-center">
+                                    <h4 id="modalRechazoTitulo"></h4>
+                                </div>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>Favor de ingresar un comentario de rechazo:</p>
+                                <p>
+                                    <textarea id="comentarioRechazo" rows="4"></textarea>
+                                </p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" id="cerrarModalRechazo">Cerrar</button>
+                                <button type="button" class="btn btn-danger" id="btnRechazar">Rechazar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modalJustificacion" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                    <div class="modal-dialog" role="documento">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="text-center">
+                                    <h4 id="">Justificación</h4>
+                                </div>
+                            </div>
+
+                            <div class="modal-body">
+                                <p id="txtMdlJustificacion"></p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" id="cerrarModalJustificacion">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL MENSAJES DASHBOARD -->
+
+<!-- SCRIPTS -->
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/PresupuestosGastos.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+@* <script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script> *@
+<script src="~/Scripts/Utilities/Highcharts/modules/data.js"></script>
+@* <script src="~/Scripts/Utilities/Highcharts/modules/exporting.js"></script> *@
+<script src="~/Scripts/Utilities/Highcharts/modules/export-data.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/modules/accessibility.js"></script>
+<script src="~/Scripts/js/Maquinaria/Rentabilidad/Externos/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/AutorizacionesAditivas.js"></script>
+
+@Html.Partial("reportViewerView", false)
+
+@Html.Action("_menuClick", "Mouse", new { area = "" })
+@Html.Action("_visorGrid", "Visor", new { area = "" })

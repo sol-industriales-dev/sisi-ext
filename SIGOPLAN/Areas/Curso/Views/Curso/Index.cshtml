@@ -1,0 +1,172 @@
+﻿@{
+    ViewBag.Title = "Formato de Cambio";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<script src="~/Scripts/js/Cursos/Cursos.js"></script>
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/summernote/summernote.css")">
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/summernote-es-ES.js")"></script>
+<link href="~/Content/style/css/Cursos/Cursos.css" rel="stylesheet" />
+
+<di class="container-fluid">
+    <div class="row">
+        <h1 class="text-center">Creación De Cursos</h1>
+    </div>
+    <div id="divInfoCambio" class="row">
+        <div class="col-lg-12" id="Html_padre">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Datos del Curso:</legend>
+
+                <div class="col-lg-12">
+                    <input type="number" class="hidden" id-folio="1">
+
+                    @*raguilar 31/1/18 11:56AM*@
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre Curso:</span>
+                                <input type="text" id="nombreCurso" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha de Creación:</span>
+                                <input type="text" id="fechaIniCurso" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">Descripción:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea type="text" id="descripcionCurso" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    @*modificacion vista 31/1/18*@
+    <div id="divInfoUsuario" class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Visualización Modulos
+                </legend>
+                <div class="col-lg-12">
+                    <row>
+                        <div class="col-lg-12">
+                            <button class="btn btn-default pull-right" id="btnA" style="font-size:medium; margin-bottom:3px; margin-top:4px; margin-left:2px;">
+                                <span class="fa fa-university"></span> Guardar
+                            </button>
+                            <button type="button" id="btnBAgregar" class="btn btn-default  pull-right" style="font-size:medium; margin-bottom:3px; margin-top:4px; margin-left:2px;">
+                                <span class="fa fa-plus"></span> Agregar Modulo
+                            </button>
+                          
+                        </div>
+                    </row>
+                        <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%; margin-top:4px;" border="1" id="tablaB">
+                            <thead class="bg-table-header table-responsive" style="text-align:center">
+                                <tr>
+                                    <th rowspan="2" class="col-lg-3">Nombre Modulo</th>
+                                    <th rowspan="2">Descripcion</th>
+                                    <th rowspan="2" class="col-lg-1" style=text-align:center !important">Editar</th>
+                                    <th rowspan="2" class="col-lg-1" style=text-align:center !important">Detalle</th>
+                                    <th rowspan="2" class="col-lg-1" style=text-align:center !important">Remover</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        @*</div>*@
+                    </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    @*Modal Modulos*@
+    <div tabindex="-1" id="modalC" class="modal fade " role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-fix modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-center modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="tituloC"></h4>
+                </div>
+                <div class="modal-body ajustar-texto">
+                    <h5 id="pMessage"></h5>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button type="button" id="btnAgregarC" class="pull-right btn-default" style="font-size:medium; margin-bottom:3px; margin-top:4px;">
+                                <span class="fa fa-file-o"></span> Agregar Pagina
+                            </button>
+                            <h3> </h3>
+                            <table class=" table table-condensed table-hover table-striped text-center table-responsive " style="border:1px solid black; width:100%; margin-top:4px;" border="1" id="tablaModalC">
+                                <thead class="bg-table-header table-responsive" style="text-align:center">
+                                    <tr>
+                                        <th rowspan="2" class="col-lg-2">Pagina</th>
+                                        <th rowspan="2">Descripción</th>
+                                        <th rowspan="2" class="col-lg-1">Agregar Contenido</th>
+                                        <th rowspan="2" class="col-lg-1">Remover</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblPlantilla"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a data-dismiss="modal" id="btnAceptarB" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-ok"></span> Aceptar</a>
+                    <a data-dismiss="modal" id="btnCancelarC" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-remove"></span> Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pantalla Completa -->
+    <div class="modal fullscreen-modal fade" id="modalD" tabindex="2" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-dialog-fix " role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center modal-bg">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="tituloD"></h4>
+                </div>
+                <div class="modal-body ajustar-texto">
+                    <div class="row form-group">
+                        <div class="col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Contenido Pagina:</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            @*<div id="summernote" style="height:100px; width:100px;"></div>*@
+                                            <div id="summernote" class="modal-summer"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="btnBorrar">Borrar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnAceptarD">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>

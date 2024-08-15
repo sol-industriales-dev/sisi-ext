@@ -1,0 +1,82 @@
+﻿@{List<Core.DTO.Kubrix.VencimientoDTO> lst = new SIGOPLAN.Areas.Kubrix.Controllers.BaseDatosController().lstVencimiento();}
+<div class="table-responsive">
+    <table id="tblVencimiento" class="table table-condensed table-hover table-striped text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>numpro</th>
+                <th>nombre</th>
+                <th>por_vencer</th>
+                <th>plazo1</th>
+                <th>plazo2</th>
+                <th>plazo3</th>
+                <th>plazo4</th>
+                <th>factura</th>
+                <th>moneda</th>
+                <th>fecha</th>
+                <th>fechavenc</th>
+                <th>tm</th>
+                <th>autorizapago</th>
+                <th>saldo_factura</th>
+                <th>plazo1</th>
+                <th>plazo2</th>
+                <th>plazo3</th>
+                <th>plazo4</th>
+                <th>cc</th>
+                <th>descripcion</th>
+                <th>tipocambio</th>
+                <th>nomcorto</th>
+                <th>corto</th>
+                <th>telefono1</th>
+                <th>saldo_factura_dlls</th>
+                <th>concepto</th>
+                <th>moneda</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (lst.Count == 0)
+            {
+                <tr><td colspan="27" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                foreach (var x in lst)
+                {
+                    <tr>
+                        <td>@x.numpro</td>
+                        <td>@x.nombre</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>@x.factura</td>
+                        <td>@(x.moneda == 1 ? "MN" : "DLL")</td>
+                        <td>@x.fecha.ToShortDateString()</td>
+                        <td>@x.fechavenc.ToShortDateString()</td>
+                        <td>@x.tm</td>
+                        <td>@x.autorizapago</td>
+                        <td class="text-right">@x.saldo_factura.ToString("C2")</td>
+                        <td>7</td>
+                        <td>14</td>
+                        <td>30</td>
+                        <td>30</td>
+                        <td>@x.cc</td>
+                        <td>@x.descripcion</td>
+                        <td>@x.tipocambio</td>
+                        <td>@x.nomcorto</td>
+                        <td>@x.corto</td>
+                        <td>@x.telefono1</td>
+                        <td class="text-right">@((x.saldo_factura * x.tipocambio).ToString("C2"))</td>
+                        <td>@x.concepto</td>
+                        <td>@x.moneda</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="col-md-12 text-center">
+    <ul class="pagination" id="lstPaginador" data-showprevnext="true" data-hidepagenumbers="false" data-perpage="10"></ul>
+</div>
+<script src="~/Scripts/Utilities/pageMe.js"></script>
+<script src="~/Scripts/js/Kubrix/BaseDatos/_tblVencimiento.js"></script>

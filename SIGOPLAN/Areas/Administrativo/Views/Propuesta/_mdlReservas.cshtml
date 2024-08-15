@@ -1,0 +1,73 @@
+﻿<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/Datepicker/semana highlight.css" rel="stylesheet" />
+<link href="~/Content/style/css/Contabilidad/Propuesta/_mdlReservas.css" rel="stylesheet" />
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-search"></i> Búsqueda</legend>
+    <div class='col-md-4 col-lg-4'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Fecha</span>
+            <input type='text' id='dpResFecha' class='form-control' readonly>
+        </div>
+    </div>
+    <div class='col-md-4 col-lg-4'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Tipo</span>
+            <select id='selResTipo' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#mdlReservaTotales'><i class='fa fa-list'></i> Total</button>
+        @if(!Core.DTO.vSesiones.sesionUsuarioDTO.esAuditor)
+        {
+            <button id="btnGuardarReserva" type="button" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+        }
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-prescription"></i> Reservas</legend>
+    <button id='btnResElimina' type='button' class='btn btn-danger'><i class='fa fa-minus'></i></button>
+    <button id="btnResAgrega" type="button" class="btn btn-success"><i class="fa fa-plus"></i></button>
+    <div class='col-md-4 col-lg-4'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Total</span>
+            <input type='text' id='txtReservaTotal' class='form-control text-right' disabled>
+        </div>
+    </div>
+    <div class='table-responsive col-md-12 col-lg-12'>
+        <table id='tblReserva' class='table table-fixed'>
+            <thead>
+                <tr>
+                    <th>Totales</th>
+                    <th></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                </tr>
+                <tr>
+                    <th>Centro Costos</th>
+                    <th>Anterior</th>
+                    <th>Cargo</th>
+                    <th>Abono</th>
+                    <th>Global</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</fieldset>
+<div id='mdlReservaTotales' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'>Reserva Totales</h1>
+            </div>
+            <div class='modal-body'>
+                @Html.Partial("_tblReservasTotales")
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-toggle='modal' href="#mdlReservaTotales"><i class='fa fa-arrow-left'></i> Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Propuesta/_mdlReservas.js"></script>

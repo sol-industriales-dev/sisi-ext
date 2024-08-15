@@ -1,0 +1,147 @@
+﻿<!-- Razor -->
+@{
+ViewBag.Title = "Dashboard";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/ActoCondicion/Dashboard.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+
+<style>
+    .spanInfo {
+        background: #FF802C;
+        border-radius: 10px;
+        width: 100%;
+        display: inline-block;
+        text-align: center;
+        font-weight: bold;
+        font-size: 30px;
+        color: white;
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .select2-selection {
+        max-height: 142px;
+        overflow: auto;
+    }
+</style>
+
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Dashboard <i class="fas fa-chart-bar"></i></h2>
+</div>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros:</legend>
+    <div class="row">
+
+        <div class="col-sm-4">
+            <label>Centro de Costo:</label>
+            <select class="form-control" id="selectCentroCosto" multiple></select>
+        </div>
+
+        <div class="col-sm-4">
+            <label>Área:</label>
+            <select class="form-control" id="selectArea" multiple></select>
+        </div>
+
+        <div class="col-sm-12">
+            <label>Actividad Autorizada:&nbsp;<input type="checkbox" id="checkboxTodasActividades"></label>
+            <select class="form-control col-sm-12" id="selectActividadAutorizada" placeholder="Ninguno seleccionado" name="states[]" multiple style="height: 34px !important;"></select>
+        </div>
+
+        <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" id="botonBuscar" style="margin-top: 5px;">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+
+    </div>
+</fieldset>
+
+
+
+<div class="row margin-top">
+    <div class="col-xs-12 col-md-12">
+        <div class="panel-group">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                </div>
+                <div id="panel1" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div id="rowInfo" class="row" style="display: none;">
+                            <div class="col-xs-12 col-md-4 text-center">
+                                <h1 class="spanInfo">
+                                    <span id="spanAutorizados" style="margin-top: 50px; display: block;"></span>
+                                    <!-- <br> -->
+                                    <span style="margin-bottom: 50px; display: block;">AUTORIZADOS</span>
+                                </h1>
+                                <h1 class="spanInfo" style="margin-top: 15px;">
+                                    <span id="spanPersonalPuesto" style="margin-top: 50px; display: block;"></span>
+                                    <!-- <br> -->
+                                    <span style="margin-bottom: 50px; display: block;">PERSONAL EN PUESTO</span>
+                                </h1>
+                            </div>
+                            <div class="col-xs-12 col-md-8 text-center" style="height: 400px">
+                                <canvas id="chartPersonalAutorizado"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<fieldset class="fieldset-custm" style="margin-top: 5px; border-radius: 0px !important;">
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tblTablaAutorizante" class="table compact" style="width: 100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="row margin-top">
+    <div class="col-xs-12 col-md-12">
+        <div class="panel-group">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                </div>
+                <div id="panel2" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div id="rowInfo2" class="row" style="display: none;">
+                            <div class="col-xs-12 col-md-4 text-center">
+                                <h1 class="spanInfo">
+                                    <span id="spanPersonalDC3" style="margin-top: 50px; display: block;"></span>
+                                    <span style="margin-bottom: 50px; display: block;">PERSONAL CON DC-3</span>
+                                </h1>
+                            </div>
+                            <div class="col-xs-12 col-md-8 text-center" style="height: 400px">
+                                <canvas id="chartDC3"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/IndicadoresSeguridad/chartLabel.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/CapacitacionSeguridad/DashboardPersonalAutorizado.js"></script>

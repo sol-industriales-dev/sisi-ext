@@ -1,0 +1,476 @@
+﻿@{
+    var Menu = new SIGOPLAN.Controllers.BaseController();
+    var AlertasBySistema = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var AlertasALL = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var GEmpresaID = Menu.getEmpresaID();
+    var GEmpresaNombre = Menu.getEmpresaActualNombre();
+    var esCliente = Core.DTO.vSesiones.sesionUsuarioDTO.esCliente;
+    var vistCalendario = Core.DTO.vSesiones.sesionUsuarioDTO.VistaCalendario;
+    var externoGestor = Core.DTO.vSesiones.sesionUsuarioDTO.externoGestor;
+}
+<!DOCTYPE html>
+
+<html lang="es-mx" style="height:100%;">
+<head>
+    <script type="text/javascript">
+        var _GEmpresaID=@GEmpresaID;
+        var _GEmpresaNombre = _GEmpresaID==1?"CONSTRUPLAN":"ARRENDADORA";
+        var _SessionMainURL = '@Menu.getSessionMainUrl()';
+        var _permitirAlertaPublicacion = '@System.Configuration.ConfigurationManager.AppSettings["alertaPublicacion"]';
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta http-equiv="pragma" content="no-cache" />
+    <title>SISI v1.1</title>
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.theme.min.css")">
+    <link href="~/Content/bootstrap5_3/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/MobileResponsive.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/bootstrap-multiselect.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/styleV2.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/Style-LayoutV2.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/CustomNavBarV2.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/bootgrid/jquery.bootgrid.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/MonthPicker.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Utilities.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/font-awesome/css/all.min.css")">
+
+
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-3.1.0.js")"></script>
+    <script src="~/Scripts/bootstrap5_3/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.mask.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/linq/linq.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap-multiselect.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/localization/messages_es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.blockUI.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.bundle.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.ui.datepicker-es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MonthPicker.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/bootgrid/jquery.bootgrid.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Axios.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/sweetalert2@10.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/Utilities.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MasteredFuntions/Utilities.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/js/Layout.js")"></script>
+</head>
+
+<body style="height:100%;">
+    <div id="_headersigoplan">
+
+        <nav id="menuNuevo" class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 @(esCliente ? " hidden" : "")">
+                        @Html.Raw((String)Menu.getMenuStringNew())
+                    </ul>
+
+                    <form class="d-flex">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li style="display: table-cell;" id="liCorreo" class="@(vistCalendario || externoGestor ? " hidden" : "")">
+                                <a href="https://webmail.construplan.com.mx/" target="_blank" title="ZIMBRA" style="height: 20px;">
+                                    @*<img src="/Content/img/zimbra-logo-color-282.png" alt="ZIMBRA" style="height: 20px;">*@
+                                    <img src="~/Content/img/Iconos_menu/Zimbra2.png" alt="ZIMBRA" style="height: 20px;" />
+                                </a>
+                            </li>
+                        </ul>
+                    </form>
+
+                    <form class="d-flex">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            @{AlertasALL = Menu.getAlertasByUsuario(Menu.getUsuario().id);}
+                            <li class="nav-item dropdown notification-menu @(vistCalendario || externoGestor ? " hidden" : "")" id="liNotificaciones">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-flag-o"></i>
+                                    <span class="badge text-bg-danger totalAlertas">@AlertasALL.Count()</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end text-end dropdown-notificaciones">
+                                    @foreach (var i in Menu.getSistemas())
+                                    {
+                                        <li class="dropdown-submenu">
+                                            @{AlertasBySistema = Menu.getAlertasByUsuarioAndSistema(Menu.getUsuario().id, i.id);}
+                                            <a href="#" data-sistemaid="@i.id" class="dropdown-item" data-toggle="dropdown">
+                                                <span>@i.nombre</span>
+                                                <i class="fa fa-flag-o"></i>
+                                                <span class="badge text-bg-danger">
+                                                    @if (i.id == 6)
+                                                    {
+                                                        <span class="promoverActividadesCantidadLO"></span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @AlertasBySistema.Count();
+                                                    }
+                                                </span>
+                                            </a>
+                                            @if (i.id == 6)
+                                            {
+                                                <ul class="dropdown-menu" id="promoverActividadesLO"></ul>
+                                            }
+                                            else
+                                            {
+                                                <ul class="dropdown-menu Notificaciones">
+                                                    @if (AlertasBySistema.Count > 0)
+                                                    {
+                                                        foreach (var j in AlertasBySistema)
+                                                        {
+                                                            <li class="menuOption">
+                                                                <a class="dropdown-item" href="@j.url" data-id="@j.id" data-tipoalerta="@j.tipoAlerta">@j.msj</a>
+                                                            </li>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <li class="menuOption">
+                                                            <a href="#" class="dropdown-item">!Sin alertas!</a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </form>
+
+                    <form class="d-flex">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item user user-menu">
+                                <span class="desplegaOpcionUsuario">
+                                    <img src="@Url.Content("~/Content/img/Iconos_Sistemas/Sistema_Maquinaria/Catalogo/Componente.png")" class="user-image" alt="User Image" id="btnMenuUsuario">
+                                    <span class="hidden-xs spNombreUsuario"></span>
+                                </span>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </div>
+    @**
+    <div id="_headersigoplan" class="row navbar-fixed-top">
+        <nav class="navbar navbar-inverse" id="menuNuevo" style="background-color:#3A515A !important; font-size:smaller; color:red !important;" role="navigation">
+            <div class="navbar-header" style="padding-left:20px;padding-right:4px;">
+                <button class="navbar-toggle desplegaOpcionUsuario pull-right opButtons" style="color:white;">
+                    <i class="fa fa-user-circle" aria-hidden="true"></i>
+                </button>
+
+                <button type="button" class="navbar-toggle pull-left opButtons" data-toggle="collapse"
+                        data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Desplegar navegación</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @foreach (var i in Menu.getEmpresaCambio())
+                {
+
+                    <button class="navbar-toggle opButtons pull-left" style="color:white !important;">
+                        <a href="@Html.Raw((String)i.urlRedireccion)" title=" cambio de empresa">
+                            <i class="fa fa-share"></i><span> @((i.nombre.Equals("ARRENDADORA") ? "ARREND" : i.nombre.Equals("COLOMBIA") ? "COLOMB" : "CPLAN"))</span>
+                        </a>
+
+                    </button>
+                }
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav horizontalMenu @(esCliente ? " hidden" : "")">
+                    @Html.Raw((String)Menu.getMenuStringNew())
+                </ul>
+                <ul class="nav navbar-nav pull-right noMostrarMobile @(esCliente ? " hidden" : "")" id="ulAcciones">
+                    <li class="pull-right">
+                        <div class="navbar-custom-menu">
+                            <ul class="nav navbar-nav">
+                                @if ((String)Menu.getMenuEmpresa() != "")
+                                {
+                                    foreach (var i in Menu.getEmpresaCambio())
+                                    {
+
+                                        <li style='display: table-cell;' id="liCambiaEmpresa" class='@(vistCalendario || externoGestor ? " hidden" : "") '>
+                                            <a href="@Html.Raw((String)i.urlRedireccion)" style="padding:7px 5px;" title=" cambio de empresa">
+                                                <div class="input-group" title="Cambio de empresa" style="height:27px;">
+                                                    <span class="input-group-addon" style="background-image:url(@i.iconoRedireccion);background-repeat: no-repeat; border: 1px solid black;width:43px;min-width:43px; height:27px;"></span>
+                                                    <span class="form-control" style="padding-left:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">@(i.nombre)</span>
+                                                </div>
+                                            </a>
+
+                                        </li>
+                                    }
+
+                                }
+                                <li style="display: table-cell;" id="liCorreo" class="@(vistCalendario || externoGestor ? " hidden" : "")">
+                                    <a href="https://webmail.construplan.com.mx/" target="_blank" title="ZIMBRA">
+                                        <img src="/Content/img/zimbra-logo-color-282.png" alt="ZIMBRA" style="height: 20px;">
+                                    </a>
+                                </li>
+                                @{AlertasALL = Menu.getAlertasByUsuario(Menu.getUsuario().id);}
+                                <li class="dropdown notification-menu @(vistCalendario || externoGestor ? " hidden" : "")" id="liNotificaciones">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-flag-o"></i>
+                                        <span class="label label-danger totalAlertas">@AlertasALL.Count()</span>
+                                    </a>
+                                    <ul class="dropdown-menu multi-level " style="background-color:#f4aa5f !important;width:371px;">
+                                        @foreach (var i in Menu.getSistemas())
+                                        {
+                                            <li class="dropdown-submenu">
+                                                @{AlertasBySistema = Menu.getAlertasByUsuarioAndSistema(Menu.getUsuario().id, i.id);}
+                                                <a href="#" data-sistemaid="@i.id" class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="fa fa-flag-o"></i>
+                                                    <span class="label label-danger">
+                                                        @if (i.id == 6)
+                                                        {
+                                                            <span class="promoverActividadesCantidadLO"></span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @AlertasBySistema.Count();
+                                                        }
+                                                    </span>
+                                                    <span>@i.nombre</span>
+                                                </a>
+                                                @if (i.id == 6)
+                                                {
+                                                    <ul class="dropdown-menu" id="promoverActividadesLO" style="width:371px;left:-100%"></ul>
+                                                }
+                                                else
+                                                {
+                                                    <ul class="dropdown-menu Notificaciones" style="width:371px;left:-100%">
+
+                                                        @if (AlertasBySistema.Count > 0)
+                                                        {
+                                                            foreach (var j in AlertasBySistema)
+                                                            {
+                                                                <li class="menuOption">
+                                                                    <a href="@j.url" data-id="@j.id" data-tipoalerta="@j.tipoAlerta">@j.msj </a>
+                                                                </li>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <li class="menuOption">
+                                                                <a href="#">¡Sin alertas!</a>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li class="user user-menu" style=" margin-top: 9px;">
+                                    <span class="desplegaOpcionUsuario">
+                                        <img src="@Url.Content("~/Content/img/Iconos_Sistemas/Sistema_Maquinaria/Catalogo/Componente.png")" class="user-image" alt="User Image" id="btnMenuUsuario">
+                                        <span class="hidden-xs spNombreUsuario"></span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="col-xs-1 fix-ul menuPrincipalOld" style="display: none;">
+            <ul class="fix-menuPpal">
+                <li class="dropdown">
+                    <div>
+                        <button class="btnMenuPpal form-control dropdown-toggle" id="btnMenuPpal" data-toggle="dropdown"> <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+                        <ul id="listaMenu" class="dropdown-menu">
+                            @foreach (var i in Menu.getSistemas())
+                            {
+                                <li><a href="@i.url" data-sistemaid="@i.id"><img class="tamano-icono " src="@i.icono"> @i.nombre</a></li>
+                            }
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    **@
+    <div class="text-center">
+        <div class="col-lg-12" style="top: 42px;position: fixed;">
+            <div id="alertaGeneralMantenimiento" class="col-md-2 col-md-offset-10">
+            </div>
+        </div>
+    </div>
+    <div id="_bodysigoplan" style="height:100%;" class="RenderBody">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                    @if (!Menu.isLiberado())
+                    {
+                        <div style="top: 20px; right: 0; position: fixed; z-index: 1029;">
+                            <h2><span class="label label-danger">Este módulo no ha sido liberado</span></h2>
+                        </div>
+                    }
+                    <div id="divAlertaMantenimiento" style="top: 30px; left: 5%; position: fixed; z-index: 1029;">
+                        <h2 id="botonAlertaMantenimiento" title="Favor de anticiparse y guardar cambios necesarios.">
+                            <span id="spanMensajeMantenimiento" class="label label-danger"></span>
+                        </h2>
+                    </div>
+                    <div class="heartbeat">&hearts;</div>
+                    <center>
+                        <div class="opcionesUsuario">
+                            <div class="row ouHeader">
+                                <p>
+                                    <span class="hidden-xs spNombreUsuario">@Menu.getUsuario().nombre</span>
+                                    <br />
+                                    <span>@Menu.getEmpresaDescripcion()</span>
+                                </p>
+                            </div>
+                            <div class="row ouFooter">
+                                @if (Menu.isUserSistemas())
+                                {
+                                    <button id="btnModelConfig" type="button" class="btn btn-default btn-block"><i class="glyphicon glyphicon-cog"></i></button>
+                                }
+                                <a href="/Home/Ayuda" title="Manuales de Ayuda" class="btn btn-default btn-block @(vistCalendario || externoGestor ? " hidden" : "") " id=" lkayuda"><i class="glyphicon glyphicon-question-sign"></i></a>
+                                <button id="btnModelSistemas" type="button" class="btn btn-default btn-block @(vistCalendario || externoGestor ? " hidden" : "") ">Modulos</button>
+                                <button id="btnModelSistemas" onclick="AbandonarSession(this)" type="button" class="btn btn-default btn-block">Cerrar Sesion</button>
+                            </div>
+                        </div>
+                    </center>
+                    @RenderBody()
+                    <br />
+                    <br />
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav id="_footersigoplan" class="navbar fixed-bottom cumtomFotter text-center">
+        @{
+            DateTime today = DateTime.Now;
+            var year = today.Year;
+            <div class="container-fluid">
+                <div class="text-center">Todos los Derechos Reservados ©@year Construplan</div>
+            </div>
+        }
+    </nav>
+</body>
+</html>
+<div id="divDialogPromoverLO" class="modal fade" data-keyboard="false" data-backdrop="static" role="dialog">
+    <div class="modal-dialog modal-md" style="overflow-y: initial !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="col-md-3">
+                    <h4 class="modal-title" style="font-weight:bold;"><span id="spPromover" style="display:block;width: 200px;"></span></h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Minuta</span>
+                            <input id="txtMinutaLO" type="text" class="form-control" placeholder="Minuta" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Actividad</span>
+                            <input id="txtActividadLO" type="text" class="form-control" placeholder="Actividad" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Promover a</span>
+                            <input id="txtPromoverLo" type="text" class="form-control" placeholder="% a promover" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-addon fijo">Enviado por</span>
+                            <input id="txtEnviadoPor" type="text" class="form-control" placeholder="Enviado por" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group" style="width:100%;text-align:center;">
+                            <input type="text" class="form-control" style="width:100%;text-align:center;font-weight:bold;" placeholder="Descripción" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="txtDescripcionLO" title="Descripción de la actividad" style="height:100px;" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group" style="width:100%;text-align:center;">
+                            <input type="text" class="form-control" style="width:100%;text-align:center;font-weight:bold;" placeholder="Observación de propuesta de avance" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="txtObservacionLO" title="Introducir observación" style="height:100px;" placeholder="Escribe un observación" disabled></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading text-center">MOTIVO RECHAZO<p style="font-style:italic;color:gray;">(Solo si aplica)</p></div>
+                            <div>
+                                <textarea class="form-control" id="txtObservacionLORechazo" title="Introducir observación" style="height:100px;" placeholder="Escribe un observación"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" style="padding-right:30px;">
+                    <button type="button" data-dismiss="modal" id="btnPromoverLO" class="btn btn-primary" style="font-weight:bold;font-size:large;">Promover</button>
+                    <button type="button" id="btnRechazarLO" class="btn btn-primary" style="font-weight:bold;font-size:large;">Rechazar</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary" style="font-weight:bold;font-size:large;">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="divModalMenuSistemas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog" style="width:95%;" role="document">
+        <div class="modal-content modal-content-ppal">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>MENÚ PRINCIPAL - <span>@Menu.getEmpresaDescripcion()</span></h3>
+                </div>
+            </div>
+            <div class="modal-body modal-body-ppal text-center modal-content-tamaño">
+                <div class="PanelMenuppal">
+                    <div id="divMenuAcceso" class="row text-center">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dialogalertaGeneral" style="z-index:99999;" class="content_dialog hide">
+    <center><p id="txtComentarioAlerta"> </p></center>
+</div>
+@Html.Partial("SessionView", false)
+@Html.Partial("_mdlAceptaRechaza")
+
+
+<iframe id="iframeDownload" style="display:none;"></iframe>
+
+

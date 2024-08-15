@@ -1,0 +1,439 @@
+﻿@{
+    ViewBag.Title = "Captura";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/bootstrap-switch.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/bootstrap-switch.min.js"></script>
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/js/Maquinaria/Inventario/MaquinariaRentada.js"></script>
+
+<div class="container-fluid">
+
+
+    <div class="stepwizard hidden">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step">
+                <a href="#step-1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                <p>Paso 1</p>
+            </div>
+            <div class="stepwizard-step">
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p>Paso 2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="setup-content" id="step-1">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+            <div class="row">
+                <h1 class="text-center">Captura de Renta</h1>
+            </div>
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm"><label id="lblTitulotblEquiposPendientes">Control de rentas de maquinaria</label></legend>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Centro Costos:</label>
+                    <select type="text" class="form-control" id="cboCC" value=""></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>No economico:</label>
+                    <select class="form-control" id="filtroNoEconomico" value=""></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Perido inicio:</label>
+                    <input type="text" class="form-control" id="filtroPeriodoInicio" value="" />
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                    <label>Ultimo periodo:</label>
+                    <input type="text" class="form-control" id="filtroPeriodoFin" value="" />
+                </div>
+                <div class="col-lg-offset-4"></div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button type="button" class="btn btn-info margin-top" id="btnBuscar">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button class="btn btn-success  margin-top" type="button" id="btnProceso">
+                        <span class="glyphicon glyphicon-print"></span> Proceso
+                    </button>
+                </div>
+                <div class="col-xs-6 col-sm-3 col-md-3 col-lg-1">
+                    <button class="btn btn-success  margin-top" type="button" id="btnNuevo">
+                        <span class="glyphicon glyphicon-arrow-right"></span> Nueva
+                    </button>
+                </div>
+                <table id="tblMaquinasRentadas" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th data-column-id="Folio"><label>Folio</label></th>
+                            <th data-column-id="CentroCosto"><label>Centro costo</label></th>
+                            <th data-column-id="AreaCuenta"><label id="data['value'].NumeroAreaCuenta">Área cuenta</label></th>
+                            <th data-column-id="PeriodoDel"><label>Del</label></th>
+                            <th data-column-id="PeriodoA"><label>Al</label></th>
+                            <th data-column-id="TotalRenta"><label>Total de la renta</label></th>
+                            <th data-column-id="ContraRecibo"><label>Contrarecibo</label></th>
+                            <th data-column-id="Id"><label>Opción</label></th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+
+
+    </div>
+    <div class="setup-content" id="step-2" hidden="hidden">
+        <div class="row">
+            <h1 class="text-center">Gerencia de Adquisición y Renta de Equipo</h1>
+            <h1 class="text-center">Control de rentas de maquinaria</h1>
+
+        </div>
+
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Maquina:</legend>
+                <div class="row col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10 col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <button class="btn btn-danger nextBtn" style="float:right;" type="button" id="btnCancelar">
+                        Regresar
+                    </button>
+                    <button class="btn btn-success nextBtn" style="float:right;" type="button" id="btnNuevo2">
+                        Limpiar campos
+                    </button>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group" hidden="hidden">
+                    <input type="text" class="form-control" id="txtId" />
+                    <input type="text" class="form-control" id="txtFolio" />
+                    <input type="text" class="form-control" id="txtEsEditar" />
+                    <select class="form-control" id="cboProveedor" data-proveedorId=""></select>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No Economico:</label>
+                    <select class="form-control no-padding" id="txtNoEconomico"></select>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Equipo:</label>
+                    <input type="text" class="form-control" id="txtEquipo" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No Serie:</label>
+                    <input type="text" class="form-control" id="txtNoSerie" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Modelo:</label>
+                    <input type="text" class="form-control" id="txtModelo" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Proveedor:</label>
+                    <input type="text" class="form-control" id="txtProveedor" value="" disabled/>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row form-group">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Generales:</legend>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Obra:</label>
+                    <input type="text" class="form-control" id="txtObra" value="" data-obraId="" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>No. Factura:</label>
+                    <input type="number" class="form-control" id="txtNoFactura" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Dep. Garantia:</label>
+                    <input type="number" class="form-control" id="txtDepGarantia" value="" />
+                </div>
+
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Tramite DG:</label><br />
+                    <input type="checkbox" id="txtTramiteDG" checked>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Nota de credito:</label>
+                    <input type="text" class="form-control" id="txtNotaCredito" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Aplico NC:</label><br />
+                    <input type="checkbox" id="txtAplicoNC" checked>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Base hora mensual:</label>
+                    <input type="number" class="form-control" id="txtNBaHoraMensual" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Perido del:</label>
+                    <input type="text" class="form-control" id="txtPeriodoDel" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Periodo Al:</label>
+                    <input type="text" class="form-control" id="txtPeriodoAl" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horometro Inicial:</label>
+                    <input type="number" class="form-control" id="txtHorometroInicial" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horometro Final:</label>
+                    <input type="number" class="form-control" id="txtHorometroFinal" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horas Trabajadas:</label>
+                    <input type="number" class="form-control" id="txtHorasTrabajadas" value="" disabled="disabled" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Horas Extras:</label>
+                    <input type="number" class="form-control" id="txtHorasExtras" value="" />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Total $ HRS EXT:</label>
+                    <input type="number" class="form-control" id="txtTotalHRS" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Precio por Mes:</label>
+                    <input type="number" class="form-control" id="txtPrecioMes" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Seguro por Mes:</label>
+                    <input type="number" class="form-control" id="txtSeguroMes" value="" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>IVA:</label>
+                    <input type="number" class="form-control" id="txtIVA" />
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Total Renta:</label>
+                    <input type="number" class="form-control" id="txtTotalRenta" disabled />
+                </div>
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Orden de Compra:</label>
+                    <input type="text" class="form-control" id="txtOrdenCompra" value="" />
+                </div>
+
+                
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Contra Recibo:</label>
+                    <input type="text" class="form-control" id="txtContraRecibo" value="" />
+                </div>
+
+
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group">
+                    <label>Anotaciones:</label>
+                    <input type="text" class="form-control" id="txtAnotaciones" value="" />
+                </div>
+
+                
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                    <label>Moneda</label><br />
+                    <select id="cbMoneda" class="form-control">
+                        <option value="1" selected>MX</option>
+                        <option value="2">US</option>
+                    </select>
+                </div>
+
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Diferencía entre horas:</legend>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtDifHorasExtra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Contra Recibo:</label>
+                        <input type="text" class="form-control" id="txtDifHoraContra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtDifHoraFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtDifHoraOrdenCompra" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Fecha de contra recibo:</label>
+                        <input type="text" class="form-control" id="dtDifHorafecha" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbDifHoras" checked>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Cargo por daño:</legend>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group" hidden>
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtDañoHorasExtra" value="" />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtDañoFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtDañoOrdenCompra" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbCargoDaño" checked>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Fletes:</legend>
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 form-group" hidden>
+                        <label>Horas Extras:</label>
+                        <input type="number" class="form-control" id="txtFletesExtras" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>No. factura:</label>
+                        <input type="text" class="form-control" id="txtFletesFactura" value="" disabled />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <label>Orden de compra:</label>
+                        <input type="text" class="form-control" id="txtFletesOrdenCompra" value="" disabled />
+                    </div>
+
+                    
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                        <input type="checkbox" id="cbFletes" checked>
+                    </div>
+                </fieldset>
+            </fieldset>
+        </div>
+
+        <div class="col-md-12 text-right">
+            <button class="btn btn-success btnGuardar" id="btnNuevoRegistro">Nuevo registro</button>
+            <button class="btn btn-success" id="btnActualizar">Actualizar registro</button>
+            <button class="btn btn-success btnGuardar" id="btnSiguiente">Siguiente registro</button>
+        </div>
+
+    </div>
+    @Html.Partial("reportViewerView", false)
+
+</div>
+
+<div id="modalActualizarRenta">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Actualizar renta</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center">
+            <label>¿Desea cerrar o actualizar la renta?</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnModalTerminarRenta" value="">Terminar renta</button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" value="" id="btnModalActualizarRenta" onclick="getDetalleMaquinaEditar(this.value)">
+                    Rentar de nuevo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalNuevo">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Nuevo Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center">
+            <label>Se va guardar un nuevo registro</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalNuevoRegistro">
+                    Nuevo registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelNuevo">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalActualizar">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Actualizar Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center" ">
+            <label>Se va actualizar el registro presente</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalActualizar">
+                    Actualiar registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelActualizar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalSiguiente">
+    <div class="row form-group">
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+            <h2 class="text-center">Siguiente Registro</h2>
+        </div>
+        <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12 text-center" ">
+            <label>Se va guardar un nuevo registro</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 pull-right">
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button class="btn btn-success form-control" id="btnModalSiguiente">
+                    Siguiente registro
+                </button>
+            </div>
+            <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+                <button type="button" class="btn btn-warning form-control" id="btnCancelSiguiente">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12" id="modalProceso">
+    <div class="containerGraficaProcesoPesos">
+        <canvas id="GraficaProcesoPesos" width="1150" height="400"></canvas>
+    </div>
+    <div class="containerGraficaProcesoDlls">
+        <canvas id="GraficaProcesoDlls" width="1150" height="400"></canvas>
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 form-group">
+        <label>Conclusión:</label>
+        <textarea class="form-control" id="txProcesoConclusion" rows="4" cols="100"></textarea>
+    </div>
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+        <label>Tipo de cambio:</label>
+        <input type="number" class="form-control" id="txTC" />
+    </div>
+    <div class="col-lg-4 col-xs-4 col-sm-4 col-md-4 pull-right">
+        <button class="btn btn-success form-control" id="btnModalRptProceso" value="40">
+            <span class="glyphicon glyphicon-print"></span>  Abrir reporte
+        </button>
+    </div>
+</div>

@@ -1,0 +1,232 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/Backlogs/TMC/FrenteTMC.css" rel="stylesheet" />
+<link href="~/Content/style/css/Backlogs/TMC/General.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/select2.css" rel="stylesheet" />
+
+<!-- TITULO MODULO -->
+<fieldset class='fieldset-custm seccion'>
+    <h2 class="title-1 text-center">ASIGNACIÓN DE FRENTES</h2>
+</fieldset>
+
+<!-- BODY -->
+<fieldset class="fieldset-custm seccion">
+
+    <!-- LISTADO DE PROYECTOS -->
+    <div class="row form-group" style="display: none">
+        <div class="col-lg-12" style="padding: 0;">
+            <div class="col-lg-3">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">PROYECTO<span id="lblErrorProyecto"></span></legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <select class="form-control" id="cboProyecto"></select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <fieldset class="fieldset-custm">
+                    <!-- MENU -->
+                    <legend class="legend-custm"><span class="badge">Menú</span></legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioTMC">
+                        <i class="fas fa-chart-line icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnPresupuestoRehabilitacion">
+                        <i class="fas fa-tools icono-menu"></i>&nbsp;Presupuesto de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnSeguimientoPresupuestos">
+                        <i class="fas fa-file-invoice-dollar icono-menu"></i>&nbsp;Seguimiento a Presupuestos
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnFrenteBackLogs">
+                        <i class="fas fa-briefcase icono-menu"></i>&nbsp;Frentes de Trabajo
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fas fa-file-contract icono-menu"></i>&nbsp;Informes de Rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnIndicadoresRehabilitacionTMC">
+                        <i class="fa fa-file-pdf icono-menu"></i>&nbsp;Reportes e Indicadores
+                    </button>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <!-- ESTATUS -->
+                    <legend class="legend-custm"><span class="badge">Estatus</span></legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">
+                        Elaboración de Presupuesto (20%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">
+                        Autorización de Presupuesto (40%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">
+                        Elaboración de OC (50%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">
+                        Suministro de Refacciones (60%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">
+                        Rehabilitación Programada (80%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">
+                        Proceso de Instalación (90%)
+                    </button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">
+                        BackLogs Instalados (100%)
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA SEGUIMIENTOS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'><span class="badge">Seguimientos</span></legend>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Motivo</span>
+                        <select id="cboMotivo" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="0">Obra</option>
+                            <option value="1">Venta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">Frente</span>
+                        <select id="cboFiltroFrente" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="col-sm-4 margin-right">
+                    <button id="btnBuscarSeguimiento" class="btn btn-primary" title="Realizar búsqueda."><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                    <button id="btnGuardar" class="btn btn-primary" title="Guardar asignación de prespuesto a frente."><i class="fas fa-save"></i>&nbsp;Guardar</button>
+                    <button id="btnCrearEditarFrente" title="Asignar nuevo frente." class="btn btn-primary"> <i class="fas fa-plus"></i>&nbsp;Frente</button>
+                </div><br>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-center"><br>
+                    <div class="table-responsive">
+                        <table id="tblAsignacionFrente" class="hover stripe order-column center"></table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: TABLA SEGUIMINENTOS -->
+
+    <!-- TABLAS FRENTES -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'><span class="badge">Frentes</span></legend>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Frente</span>
+                        <select class="form-control" id="cboFrentes"></select>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-addon">Estatus</span>
+                        <select class="form-control" id="cboFiltroEstatusSeguimientoFrente">
+                            <option value="">--Seleccione--</option>
+                            <option value="1">Pendiente</option>
+                            <option value="2">Terminado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <button class="btn btn-primary" id="btnBuscarDetFrente"><i class="glyphicon glyphicon-search"></i>&nbsp;Buscar</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-center"><br>
+                    <div class="table-responsive">
+                        <table id="tblFrentes" class="hover stripe order-column center"></table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: TABLAS FRENTES -->
+
+</fieldset>
+
+<!-- MODAL CREAR/EDITAR CONJUNTO -->
+<div class="modal fade-in disenioModal" id="modalCrearEditarFrente">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title">Frentes</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-inline">
+                    <button class="btn btn-primary form-control" id="btnNuevoConjuntoCatConjuntos" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="false" aria-controls="divCrearEditarConjuntoCatConjuntos">
+                        <i class="fas fa-plus "></i>&nbsp;Frente
+                    </button>
+                    <button class="btn" id="btnCollapseConjuntosCatConjuntos" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="false" aria-controls="divCrearEditarConjuntoCatConjuntos" style="display:none;"></button>
+                </div>
+                <div id="divCrearEditarConjuntoCatConjuntos" class="collapse">
+                    <br />
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <label>Nombre del frente: </label>&nbsp;
+                            <input id="txtNombreFrente" placeholder="Ingresar nombre del frente." class="form-control" />
+                        </div>
+                        <div class="col-sm-4  width: 100%">
+                            <label>Usuario: </label><br>
+                            <select class="form-control" id="cboUsuarios"></select>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 text-right">
+                                <button class="btn btn-default margin-top" id="btnCrearEditarCancelarConjunto" data-toggle="collapse" data-target="#divCrearEditarConjuntoCatConjuntos" aria-expanded="true" aria-controls="divCrearEditarConjuntoCatConjuntos">
+                                    <i class="fas fa-undo"></i>&nbsp;Cancelar
+                                </button>
+                                <button class="btn btn-success margin-top" id="btnCrearEditarFrenteCatFrente"><i class="fas fa-check"></i>&nbsp;Guardar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_CatFrentes" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="cargar" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CONJUNTO -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/moment-with-locales.js"></script>
+@* <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/export-data.js"></script>
+    <script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/exporting.js"></script> *@
+<script src="~/Scripts/js/Maquinaria/Backlogs/highcharts/highcharts.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/FrenteTMCJS.js"></script>
+<script src="~/Scripts/select2.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>

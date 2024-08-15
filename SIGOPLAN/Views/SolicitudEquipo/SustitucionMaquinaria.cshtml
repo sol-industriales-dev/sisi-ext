@@ -1,0 +1,233 @@
+﻿@{
+    ViewBag.Title = "Solicitud de Sustitucion.";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+
+}
+<script>
+    var centro_costos = @Base.getUsuario().cc;
+</script>
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-ElaboracionSolicitudesEquipo.css" rel="stylesheet" />
+<link href="@Url.Content("~/Content/style/Sytle-Wizard.css")" rel="stylesheet" />
+<script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/wizardjs.js")"></script>
+<script src="~/Scripts/js/Maquinaria/Inventario/SustitucionMaquinaria.js"></script>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="text-center">
+            <h3 style="    margin-top: 0px !important;">Solicitud de Sustitución de maquinaria</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="stepwizard">
+            <div class="stepwizard-row setup-panel">
+                <div class="stepwizard-step">
+                    <a href="#Step1" type="button" class="btn btn-circle btn-default btn-primary">1</a>
+                    <p>Paso 1</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a href="#Step2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                    <p>Finalizar</p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="setup-content" id="Step1">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Generales :</legend>
+                    <div class="col-xs-6 col-xs-6 col-md-2 col-lg-2 form-group">
+                        <label>Folio Solicitud:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="tbFolioSolicitud" disabled="">
+                            @*<select class=" form-control hide" id="cboFolio">
+                                    <option></option>
+                                </select>*@
+                            @*<span class="input-group-addon" id="btnFolioSolicitud" data-toggle="tooltip" title="botón de Consulta"><span class="glyphicon glyphicon-pencil"></span></span>*@
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 form-group">
+                        <label>Centro de Costos:</label>
+                        <input class="form-control" type="text" id="tbCC" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group">
+                        <label>Descripción:</label>
+                        <input class="form-control" type="text" id="tbDescripcionCC" disabled />
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>Fecha Elaboró:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            <input type="text" disabled class="form-control" aria-describedby="sizing-addon2" id="tbSingleDate">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+                        <button type="button" class="btn btn-primary margin-top" id="btnEquipoAsignado" style="margin-top:24px!important">
+                            <span class="glyphicon glyphicon-eye-open"></span> Equipo Asignado
+                        </button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Lista Economicos:</legend>
+                    <div class="scroll" style=" overflow-x: hidden;">
+                        <table id="tblEconomicosAsignados" class="table table-responsive table-striped" style=" margin-bottom: 0px; ">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="Tipo" data-align="center" data-sortable="false" data-header-align="center">Tipo</th>
+                                    <th data-column-id="Grupo"  data-sortable="false" data-align="center" data-header-align="center">Grupo</th>
+                                    <th data-column-id="Modelo" data-sortable="false" data-align="center" data-header-align="center">Modelo</th>
+                                    <th data-column-id="Economico"  data-align="center" data-sortable="false" data-header-align="center">Economico</th>
+                                    <th data-column-id="FechaInicio" data-formatter="FechaInicio" data-align="center" data-sortable="false" data-header-align="center" data-searchable="false">Fecha en Obra</th>
+                                    <th data-column-id="FechaFin" data-formatter="FechaFin" data-align="center" data-sortable="false" data-header-align="center" data-searchable="false">Fecha Termino</th>
+                                    <th data-column-id="Remplazar" data-formatter="Remplazar" data-sortable="false" data-align="center" data-header-align="center">Remplazar</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-lg-offset-2 col-xs-offset-2 col-sm-offset-2">
+                        <button class="btn btn-info btn-margin-top modal-margin-rigth pull-right nextBtn" type="button" id="btnSiguiente1">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="setup-content" id="Step2" style="display: none;">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Vista Preliminar:</legend>
+                    <div class="clsFrame text-center form-group" style=" margin-top: -20px;">
+                        <iframe id="report" align="middle" marginwidth="0"
+                                marginheight="0"
+                                hspace="0"
+                                vspace="0"
+                                frameborder="0"
+                                scrolling="no" class="StyleIframe"></iframe>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnRegresar">
+                                <span class=" glyphicon glyphicon-arrow-left"></span> Regresar
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnGuardarSolicitud">
+                                <span class=" glyphicon glyphicon-upload"></span> Cargar Archivo
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalListaMaquinaria" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div id="modalDivtamaño" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Lista Maquinaria Remplazo</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">
+                                    Detalle de equipo solicitado:
+                                </legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top">
+                                    <table id="tblListaEquiposRemplazo" class="table table-responsive table-striped">
+                                        <thead class="bg-table-header">
+                                            <tr>
+                                                <th data-column-id="Tipo" data-align="center" data-sortable="false" data-header-align="center">Tipo</th>
+                                                <th data-column-id="Grupo" data-order="desc" data-sortable="false" data-align="center" data-header-align="center">Grupo</th>
+                                                <th data-column-id="Modelo" data-sortable="false" data-align="center" data-header-align="center">Modelo</th>
+                                                <th data-column-id="Economico" data-align="center" data-sortable="false" data-header-align="center">Economico</th>
+                                                <th data-column-id="Comentario" data-formatter="AddComentario" data-sortable="false" data-align="center" data-header-align="center">Comentario</th>
+                                                <th data-column-id="FechaInicio" data-align="center" data-sortable="false" data-header-align="center" data-searchable="false">Fecha en Obra</th>
+                                                <th data-column-id="FechaFin" data-align="center" data-sortable="false" data-header-align="center" data-searchable="false">Fecha Termino</th>
+                                                <th data-column-id="Archivo" data-formatter="Archivo" data-align="center" data-sortable="false" data-header-align="center" data-css-class="hide"
+                                                    data-header-css-class="hide"></th>
+                                                <th data-column-id="Remover" data-formatter="RemoveEquipo" data-sortable="false" data-align="center" data-header-align="center">Quitar Equipos</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row" id="DivComentario">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group margin-top">
+                            <button type="button" class="btn btn-success pull-right margin-top" id="btnGuardarComentarios">
+                                <span class="glyphicon glyphicon-plus"></span> Guardar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="DivsendInfo">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary pull-right" id="BntGuardarDocumento">
+                                    <span class="glyphicon glyphicon-floppy-save"></span> Guardar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-primary pull-right" id="BtnCancelar" style="margin-right: 5px;">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalUploadFile" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header text-center modal-bg">
+
+            <h4 class="modal-title">Importación de archivos excel.</h4>
+        </div>
+        <!-- Modal content-->
+        <div class="modal-content">
+         @*   @Html.Partial("_CargarArchivoReemplazo", false);*@
+        </div>
+
+    </div>
+</div>
+
+<div id="ModalResponse" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-header text-center modal-bg">
+
+            <h4 class="modal-title">Confirmacion</h4>
+        </div>
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="row">
+                <h4>La solicitud se ha realizado correctamente.</h4>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group margin-top">
+                    <button type="button" class="btn btn-success pull-right margin-top" id="btnGuardarComentarios">
+                        <span class="glyphicon glyphicon-plus"></span> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

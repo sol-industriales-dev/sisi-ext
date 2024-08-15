@@ -1,0 +1,479 @@
+﻿@{
+    ViewBag.Title = "Dashboard KPI Homologado";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var baseC = new SIGOPLAN.Controllers.BaseController();
+}
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Maquinaria/KPI/Dashboard.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+
+<style>
+    .highcharts-figure,
+    .highcharts-data-table table {
+        min-width: 320px;
+        max-width: 800px;
+        margin: 1em auto;
+    }
+    .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid #EBEBEB;
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+    }
+    .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: #555;
+    }
+    .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+    }
+    .highcharts-data-table td,
+    .highcharts-data-table th,
+    .highcharts-data-table caption {
+        padding: 0.5em;
+    }
+    .highcharts-data-table thead tr,
+    .highcharts-data-table tr:nth-child(even) {
+        background: #f8f8f8;
+    }
+    .highcharts-data-table tr:hover {
+        background: #f1f7ff;
+    }
+
+    input[type="number"] {
+        min-width: 50px;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /* DATATABLE */
+    table.dataTable {
+        width: 100% !important;
+    }
+    table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+    .highcharts-title {
+        display: none;
+    }
+</style>
+
+<br />
+
+<div class="col-sm-12">
+
+    <div class="h1 text-center">Dashboard KPI Homologado</div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">FILTROS DE BUSQUEDA</div>
+                <div class="panel-body" id="panelFiltro">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="text-color" for="cboAreaCuenta">Area Cuenta: </label>
+                            <select id="cboAreaCuenta" class="form-control"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="text-color" for="cboGrupo">Grupo: </label>
+                            <select id="cboGrupo" class="form-control" multiple="multiple"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="text-color" for="cboModelo">Modelo: </label>
+                            <select id="cboModelo" class="form-control" multiple="multiple"></select>
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="text-color" for="cboEconomico">Economico: </label>
+                            <select id="cboEconomico" class="form-control" multiple="multiple"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="text-color" for="cboTurno">Turnos: </label>
+                            <select id="cboTurno" class="form-control">
+                                <option value="1">Matutino</option>
+                                <option value="2">Vespertino</option>
+                                <option value="3">Nocturno</option>
+                                <option value="0">Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="text-color" for="txtFechaInicio">Fecha inicio: </label>
+                            <input type="text" id="txtFechaInicio" class="form-control">
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="text-color" for="txtFechaFin">Fecha final: </label>
+                            <input type="text" id="txtFechaFin" class="form-control">
+                        </div>
+                        <div class="col-lg-2">
+                            <br>
+                            <button class="btn btn-primary form-control" id="btnBuscar"><i class="fas fa-search"></i>
+                                Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">RESULTADO DEL PERIODO (ANUAL)</div>
+                <div class="panel-body" id="panelAnual">
+                    <table id="tablaAnual">
+                        <thead>
+                            <tr>
+                                <th class="text-center">DISP (A) DEL PERIODO</th>
+                                <th class="text-center">UTILIZACION (OPT) DEL PERIODO</th>
+                                <th class="text-center">EFICIENCIA OPERATIVA (WK)</th>
+                                <th class="text-center">HORAS PROGRAMADAS DEL PERIODO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="txtDisponibilidadAnual" class="text-center"></td>
+                                <td id="txtUtilizacionAnual" class="text-center"></td>
+                                <td id="txtEficienciaAnual" class="text-center"></td>
+                                <td id="txtHorasAnual" class="text-center"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <button type="button" class="btn btn-success pull-right" id="btnExcel" disabled>
+                <i class="far fa-file-excel"></i> Descargar
+            </button>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div style="height:322px;" id="seccionTiempos">
+                <div class="catTiempos"
+                    style="width:100%; background-color:#bc4dbc; color:white; border-bottom: 1px solid black;"><span
+                        class="textTiempos">PROGRAMADO (S) <span class="textInfo" id="hrsProgramado">5000
+                            HORAS</span></span></div>
+                <div class="catTiempos"
+                    style="width:73.2%; background-color:#d1fd50; float:left; border-bottom: 1px solid black; border-right: 1px solid black;">
+                    <span class="textTiempos">DISPONIBLE (A) <span class="textInfo" id="hrsDisponible">4500 HORAS</span>
+                        <span class="textInfo2" id="porDisponible">90%</span></span></div>
+                <div class="catTiempos"
+                    style="width:26.8%; background-color:#d17b4e; float:left; color:white; border-bottom: 1px solid black;">
+                    <span class="textTiempos">Mantenimiento (MT)<br /><span class="textInfo" id="hrsMantenimiento">500
+                            HORAS</span> <span class="textInfo" id="porMantenimiento">10%</span></span></div>
+                <div class="" style="width:60%; float:left;">
+                    <div class="catTiempos"
+                        style="width:100%; background-color:#4dffff; float:left; border-bottom: 1px solid black; border-right: 1px solid black;">
+                        <span class="textTiempos">OPERACION (OPT) <span class="textInfo" id="hrsOperacion">3800
+                                HORAS</span> <span class="textInfo2" id="porOperacion">84%</span></span></div>
+                    <div class="catTiempos"
+                        style="width:60%; background-color:#604dff; float:left; color:white; border-right: 1px solid black;">
+                        <span class="textTiempos">TRABAJO (WK) <span class="textInfo" id="hrsTrabajo">3550 HORAS</span>
+                            <span class="textInfo" id="porTrabajo">93%</span></span></div>
+                    <div class="catTiempos"
+                        style="width:40%; background-color:#4dff4d; float:left; border-right: 1px solid black;"><span
+                            class="textTiempos"><span class="textInfo" id="hrsDemora">250 HORAS</span> Demora (DL) <span
+                                class="textInfo" id="porDemora">7%</span></span></div>
+                </div>
+                <div class="" style="width:40%; float:left;">
+                    <div class="catTiempos"
+                        style="width:33%; background-color:#ffff4d; float:left; height:160px; border-right: 1px solid black;">
+                        <span class="textTiempos"><span class="textInfo" id="hrsParado">700 HORAS</span><br />Sin Uso
+                            (ID) (Parado)<br /><span class="textInfo" id="porParado">16%</span></span></div>
+                    <div class="catTiempos"
+                        style="width:33%; background-color:#ffd14d; float:left; height:160px; border-right: 1px solid black;">
+                        <span class="textTiempos"><span class="textInfo"
+                                id="hrsProgramadoSM">410</span><br /><span>Programado (SM)</span><br /><span
+                                class="textInfo" id="porProgramadoSM">82</span></span></div>
+                    <div class="catTiempos" style="width:34%; background-color:#ffa74d; float:left; height:160px;"><span
+                            class="textTiempos"><span class="textInfo" id="hrsNoProgramadoUM">90
+                                HORAS</span><br /><span>No Programado <br />(UM)</span><br /><span class="textInfo"
+                                id="porNoProgramadoUM">18</span></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">DISPONIBILIDAD VS UTILIZACION</div>
+                <div class="panel-body">
+                    <div class="col-sm-10">
+                        <div id="graficaDisponibilidadUtilizacion_grupo"></div>
+                        <div id="graficaDisponibilidadUtilizacion_modelo"></div>
+                        <div id="graficaDisponibilidadUtilizacion_economico"></div>
+                        <div id="graficaDisponibilidadUtilizacion_semanal"></div>
+                        <div id="graficaDisponibilidadUtilizacion_mensual"></div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>FILTRO FLOTA:</label><br>
+                        <button id="btnDisVsUti_grupo" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">GRUPO</button><br>
+                        <button id="btnDisVsUti_modelo" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">MODELO</button><br>
+                        <button id="btnDisVsUti_economico" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">ECONOMICO</button><br>
+                        <br /><label>TENDENCIA:</label><br />
+                        <button id="btnDisVsUti_semanal" class="btn btn-primary"
+                            style="margin-top:1px; width: 119px;">SEMANAL</button><br />
+                        <button id="btnDisVsUti_mensual" class="btn btn-primary"
+                            style="margin-top:1px; width: 119px;">MENSUAL</button><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                @* <div class="panel-heading">UTILIZACION OPERACION (OPT) VS TRABAJO (KW)</div> *@
+                <div class="panel-heading">UTILIZACIÓN VS EFICIENCIA DE LA UTILIZACIÓN</div>
+                <div class="panel-body">
+                    <div class="col-sm-10">
+                        <div id="graficaOperacionTrabajo_grupo"></div>
+                        <div id="graficaOperacionTrabajo_modelo"></div>
+                        <div id="graficaOperacionTrabajo_economico"></div>
+                        <div id="graficaOperacionTrabajo_semanal"></div>
+                        <div id="graficaOperacionTrabajo_mensual"></div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>FILTRO FLOTA:</label><br>
+                        <button id="btnOpeVsTra_grupo" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">GRUPO</button><br>
+                        <button id="btnOpeVsTra_modelo" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">MODELO</button><br>
+                        <button id="btnOpeVsTra_economico" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">ECONOMICO</button><br>
+                        <br /><label>TENDENCIA:</label><br />
+                        <button id="btnOpeVsTra_semanal" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">SEMANAL</button><br>
+                        <button id="btnOpeVsTra_mensual" class="btn btn-primary"
+                            style="margin-top: 1px; width: 119px;">MENSUAL</button><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">UTILIZACIÓN</div>
+                <div class="panel-body">
+                    <div class="col-sm-10">
+                        <div id="graficaUT_grupo"></div>
+                        <div id="graficaUT_modelo"></div>
+                        <div id="graficaUT_economico"></div>
+                        <div id="graficaUT_semanal"></div>
+                        <div id="graficaUT_mensual"></div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>FILTRO FLOTA:</label><br>
+                        <button id="btnOpeUT_grupo" class="btn btn-primary" style="margin-top: 1px; width: 119px;">GRUPO</button><br>
+                        <button id="btnOpeUT_modelo" class="btn btn-primary" style="margin-top: 1px; width: 119px;">MODELO</button><br>
+                        <button id="btnOpeUT_economico" class="btn btn-primary" style="margin-top: 1px; width: 119px;">ECONOMICO</button><br>
+                        <br /><label>TENDENCIA:</label><br />
+                        <button id="btnOpeUT_semanal" class="btn btn-primary" style="margin-top: 1px; width: 119px;">SEMANAL</button><br>
+                        <button id="btnOpeUT_mensual" class="btn btn-primary" style="margin-top: 1px; width: 119px;">MENSUAL</button><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">PAROS DE MANTENIMIENTO (MT)</div>
+                <div class="panel-body">
+                    <div id="graficaParosMantenimiento"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">PAROS DE RESERVA / SIN USO (ID)</div>
+                <div class="panel-body">
+                    <div id="graficaReservaSinUso"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">PAROS DE DEMORA (DL)</div>
+                <div class="panel-body">
+                    <div id="graficaParosDemora"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">DIAGRAMA DE PARETO DE PAROS PRINCIPALES</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4">
+                            <button id="btnTiempo" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">TIEMPO</button>
+                            <button id="btnFrecuencia" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">FRECUENCIA</button>
+                        </div>
+                        <div class="col-lg-4"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <!-- TIEMPO -->
+                            <div id="graficaParetoParosPrincipalesTiempoMT"></div>
+                            <div id="graficaParetoParosPrincipalesTiempoID"></div>
+                            <div id="graficaParetoParosPrincipalesTiempoDL"></div>
+                            <div id="graficaParetoParosPrincipalesTiempoGeneral"></div>
+
+                            <!-- FRECUENCIA -->
+                            <div id="graficaParetoParosPrincipalesFrecuenciaMT"></div>
+                            <div id="graficaParetoParosPrincipalesFrecuenciaID"></div>
+                            <div id="graficaParetoParosPrincipalesFrecuenciaDL"></div>
+                            <div id="graficaParetoParosPrincipalesFrecuenciaGeneral"></div>
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="TIPO DE PARO">TIPO DE PARO</label><br>
+                            <button id="btnTipoParoMT" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">MTTO (MT)</button><br>
+                            <button id="btnTipoParoID" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">RESERVA (ID)</button><br>
+                            <button id="btnTipoParoDL" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">DEMORA (DL)</button><br>
+                            <button id="btnTipoParoGeneral" class="btn btn-primary"
+                                style="margin-top: 1px; width: 119px;">GENERAL</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+
+<!-- MODAL DETALLES GRAFICA MANTENIMIENTO -->
+<div id="mdlGraficaDetallesParosMantenimiento" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Detalles - Paros de mantenimiento (MT)</h1>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 table-responsive ">
+                        <table id="tblGraficaDetallesParosMantenimiento" class="hover stripe order-column"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DETALLES GRAFICA PAROS -->
+<div id="mdlGraficaDetallesParosReservaSinUso" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Detalles - Paros de reserva / sin uso (ID)</h1>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 table-responsive ">
+                        <table id="tblGraficaDetallesParosReservaSinUso" class="hover stripe order-column"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DETALLES GRAFICA PAROS DEMORA -->
+<div id="mdlGraficaDetallesGraficaParosDemora" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Detalles - Paros de demora (DL)</h1>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 table-responsive ">
+                        <table id="tblGraficaDetallesParosDemora" class="hover stripe order-column"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>Regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <script src="~/Scripts/js/Encuestas/highcharts/highcharts.js"></script>
+    <script src="~/Scripts/js/Encuestas/highcharts/highcharts-more.js"></script>
+    <script src="~/Scripts/js/Encuestas/highcharts/exporting.js"></script>
+    <script src="~/Scripts/js/Encuestas/highcharts/export-data.js"></script>
+    <script src="~/Scripts/js/Encuestas/highcharts/accessibility.js"></script> *@
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<script src="~/Scripts/js/Maquinaria/KPI/Dashboard.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>

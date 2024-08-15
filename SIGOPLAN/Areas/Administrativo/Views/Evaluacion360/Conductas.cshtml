@@ -1,0 +1,290 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/Conductas.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Evaluacion360/General.css' rel='stylesheet' />
+
+<!-- END: CONTAINER -->
+<div class='container-fluid'>
+
+    <!-- SECCIÓN MENÚ -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div id="menuPrincipal" class="seccion">
+                <div id="menuPeriodos">
+                    <h2><i class="far fa-calendar-alt"></i></h2>
+                    <h5>Periodos</h5>
+                </div>
+                <div id="menuPersonal">
+                    <h2><i class="fas fa-user-tie"></i></h2>
+                    <h5>Personal</h5>
+                </div>
+                <div id="menuConductas" class="opcionSeleccionada">
+                    <h2><i class="fas fa-list"></i></h2>
+                    <h5>Conductas</h5>
+                </div>
+                <div id="menuCuestionarios">
+                    <h2><i class="fas fa-book"></i></h2>
+                    <h5>Cuestionarios</h5>
+                </div>
+                <div id="menuCriterios">
+                    <h2><i class="fas fa-tasks"></i></h2>
+                    <h5>Criterios</h5>
+                </div>
+                <div id="menuRelaciones">
+                    <h2><i class="fas fa-user-friends"></i></h2>
+                    <h5>Relaciones</h5>
+                </div>
+                <div id="menuEvaluaciones">
+                    <h2><i class="fas fa-window-restore"></i></h2>
+                    <h5>Evaluaciones</h5>
+                </div>
+                <div id="menuAvances">
+                    <h2><i class="fas fa-chart-pie"></i></i></h2>
+                    <h5>Avances</h5>
+                </div>
+                <div id="menuReporte360">
+                    <h2><i class="fas fa-bullseye"></i></h2>
+                    <h5>Reporte 360</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: SECCIÓN MENÚ -->
+
+    <!-- CONTAINER FILTROS -->
+    <div class="row">
+        <div class="col-sm-12 no-gutter">
+            <div class="seccion">
+                <div class="row">
+                    <div class='col-lg-4'>
+                        <label for="cboFiltroGrupos">Seleccione un grupo:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-network-wired"></i></span>
+                            <select id="cboFiltroGrupos" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <label for="btnModalGrupo" style="display:none">Seleccione un grupo:</label>
+                        <button type="button" class="btn btn-primary" id="btnModalGrupo" title="Listado de grupos."><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <div class='col-lg-4'>
+                        <label for="cboCompetencias">Seleccione una competencia:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-stream"></i></span>
+                            <select id="cboCompetencias" class="form-control select2"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <button type="button" class="btn btn-primary" id="btnModalCompetencia" title="Listado de competencias"><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <div class='pull-right'>
+                        <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        <button type="button" class="btn btn-primary" id="btnModalConducta"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class='col-xs-12'>
+                        <table id='tblRH_Eval360_CatConductas' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CONTAINER FILTROS -->
+
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL GRUPO -->
+<div id='modalGrupo' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>GRUPOS</h4>
+            </div>
+            <div class='modal-body'>
+                <!-- ACORDEON PARA CREAR/EDITAR GRUPO -->
+                <div id="divCrearEditarGrupo" class="collapse seccion">
+                    <div class='row'>
+                        <div class="col-sm-7">
+                            <label for="inputDescripcionGrupo">Grupo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                                <input type="text" id="inputDescripcionGrupo" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <button type='button' class='btn btn-default' id='btnCancelarCEGrupo'><i class="fas fa-undo-alt"></i>&nbsp;Cancelar</button>
+                            <button type='button' class='btn btn-success' id='btnGuardarGrupo'></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: ACORDEON PARA CREAR/EDITAR GRUPO -->
+
+                <!-- LISTADO DE GRUPOS -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="pull-right">
+                            <button id="btnNuevoGrupo" class="btn btn-primary" data-toggle="collapse" data-target="#divCrearEditarGrupo" aria-expanded="false" aria-controls="divCrearEditarGrupo">
+                                <i class="fas fa-plus"></i>&nbsp;Nuevo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id='tblRH_Eval360_CatGrupos' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- LISTADO DE GRUPOS -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL GRUPO -->
+
+<!-- MODAL COMPETENCIAS -->
+<div id='modalCompetencia' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>COMPETENCIAS</h4>
+            </div>
+            <div class='modal-body'>
+                <!-- ACORDEON PARA CREAR/EDITAR COMPETENCIA -->
+                <div id="divCrearEditarCompetencia" class="collapse seccion">
+                    <div class='row'>
+                        <div class="col-lg-6">
+                            <label for="inputDescripcionGrupo">Seleccione un grupo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                                <select class="form-control select2" id="cboGrupoCompetencia"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="inputDescripcionCompetencia">Competencia:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <input type="text" id="inputDescripcionCompetencia" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label for="inputDefinicionCompetencia">Definición de competencia:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-justify"></i></span>
+                                <textarea id="inputDefinicionCompetencia" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div><br>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="pull-right">
+                                <button type='button' class='btn btn-default' id='btnCancelarCECompetencia'><i class="fas fa-undo-alt"></i>&nbsp;Cancelar</button>
+                                <button type='button' class='btn btn-success' id='btnGuardarCompetencia'></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: ACORDEON PARA CREAR/EDITAR COMPETENCIA -->
+
+                <!-- LISTADO DE COMPETENCIAS -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <label for="inputDescripcionGrupo">Seleccione un grupo:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                                <select class="form-control select2" id="cboFiltroGruposCECompetencia"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="pull-right">
+                                <button type='button' class='btn btn-default' id='btnFiltroBuscarCECompetencia' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                                <button id="btnNuevaCompetencia" class="btn btn-primary" data-toggle="collapse" data-target="#divCrearEditarCompetencia" aria-expanded="false" aria-controls="divCrearEditarCompetencia">
+                                    <i class="fas fa-plus"></i>&nbsp;Nuevo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id='tblRH_Eval360_CatCompetencias' class='table table-hover table-bordered compact table-striped' width='100%'></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- LISTADO DE COMPETENCIAS -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL COMPETENCIAS -->
+
+<!-- MODAL CONDUCTAS -->
+<div id='modalConducta' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'><i class='fa fa-dollar'></i>CONDUCTAS</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-sm-12">
+                        <label for="cboGrupoConducta">Grupo:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                            <select class="form-control select2" id="cboGrupoConducta"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <label for="cboCompetenciaGrupo">Competencia:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                            <select class="form-control select2" id="cboCompetenciaGrupo"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <label for="inputDefinicionCompetenciaGrupo">Definición:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                            <textarea type="text" class="form-control" id="inputDefinicionCompetenciaGrupo" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <label for="inputDescripcionConducta">Descripción de conducta:</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fas fa-align-left"></i></span>
+                            <textarea type="text" class="form-control" id="inputDescripcionConducta" rows="3" placeholder="Descripción de conducta"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class="fas fa-undo-alt"></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnGuardarConducta'></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CONDUCTAS -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Evaluacion360/Conductas.js"></script>
+<script src='~/Scripts/select2.js'></script>

@@ -1,0 +1,359 @@
+﻿@{
+    ViewBag.Title = "Capturas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Seguridad/MedioAmbiente/Estilo.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h2>CAPTURAS</h2></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Agrupación</span>
+                                <select class="form-control" id="cboFiltroAgrupacion"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus captura</span>
+                                <select class="form-control" id="cboFiltroEstatusCaptura">
+                                    <option>--Seleccione--</option>
+                                    <option value="1">ACOPIO</option>
+                                    <option value="2">TRAYECTO</option>
+                                    <option value="3">COMPLETADO</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Mes</span>
+                                <input id="txtMesInicio" class="form-control date-picker">
+                                <span class="input-group-addon"></span>
+                                <input id="txtMesFinal" class="form-control date-picker">
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary marginRight" id="btnCECapturaModal"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                        </div><br><br>
+                    </div>
+                    <div class="row">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnListadoTrayectos"><i class="fas fa-shipping-fast"></i>&nbsp;Trayecto</button>
+                            <button type="button" class="btn btn-primary marginRight" id="btnListadoDestinoFinal"><i class="fas fa-people-carry"></i>&nbsp;Destino final</button>
+                        </div><br><br>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblS_MedioAmbienteCaptura" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR/EDITAR CAPTURA -->
+<div id='mdlCECaptura' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCECaptura"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="btn-group btn-group-justified marginBottom" role="group" aria-label="...">
+                            <div class="btn-group" role="group">
+                                <button id="btnCapturaTipoAspectoAmbiental" class="btn btn-primary">Aspecto ambiental</button>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button id="btnCapturaTipoResiduoPeligroso" class="btn btn-primary">Residuo peligroso</button>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button id="btnCapturaTipoRsuRme" class="btn btn-primary">RSU y RME</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="divModalCECaptura">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Agrupación</span>
+                                <select id="cboAgrupacion" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Técnico responsable</span>
+                                <select id="cboTecnicoResponsable" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha entrada</span>
+                                <input id="txtFechaEntrada" type="date" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div id="divCantContenedor"></div>
+                        </div>
+                        @* <div class="col-lg-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Código contenedor</span>
+                                <input id="txtCodigoContenedor" type="text" class="form-control" autocomplete="off" />
+                            </div>
+                        </div> *@
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Tipo contenedor</span>
+                                <input id="txtTipoContenedor" type="text" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Planta/Proceso de generación</span>
+                                <input id="txtPlantaProcesoGeneracion" type="text" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <fieldset class='fieldset-custm'>
+                                <legend class='legend-custm'>Archivo</legend>
+                                <input id='txtArchivoAcopio' type="file" />
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-4">
+                            <br>
+                            <button id="btnDescargarAcopio" class="btn btn-primary">Descargar</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-12 col-lg-12" style="margin-top: 5px;">
+                            <button id="botonQuitarPunto" type="button" class="btn btn-sm btn-danger pull-right"><i class="fa fa-minus"></i></button>
+                            <button id="botonAgregarPunto" type="button" class="btn btn-sm btn-primary pull-right" style="margin-right: 5px; margin-bottom: 5px;">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="col-xs-12 mrgTop">
+                            <table id="tablaAspectosAmbientales" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label>Nota: Código de contenedor tentativo.</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnCECaptura"><span id="titleBtnCECaptura"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA -->
+
+<!-- MODAL CREAR/EDITAR CAPTURA - TRAYECTO -->
+<div id='mdlCETrayecto' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCETrayecto">ACOPIO A TRAYECTO</span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Agrupación</span>
+                            <select id="cboAgrupacionTrayecto" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Folio</span>
+                            <input type='text' id='txtConsecutivoTrayecto' class='form-control' placeholder="Ejemplo: 00058">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Tratamiento</span>
+                            <input id="txtTratamiento" type="text" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Manifiesto</span>
+                            <input id="txtManifiesto" type="text" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha embarque</span>
+                            <input id="txtFechaEmbarque" type="date" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Tipo transporte</span>
+                            <input id="txtTipoTransporte" type="text" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Transportista</span>
+                            <select id="cboTransportista"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Archivo</legend>
+                            <input id='txtArchivoTrayecto' type="file" />
+                        </fieldset>
+                    </div>
+                    @* <div class="col-lg-4">  
+                        <br>
+                        <button id="btnDescargarTrayecto" class="btn btn-primary">Descargar</button>
+                    </div> *@
+                </div><br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="tblAspectosAmbientalesAcopioToTrayectos" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnCETrayecto"><span id="titleBtnCETrayecto">Guardar</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA - TRANSPORTISTA -->
+
+<!-- MODAL CREAR/EDITAR CAPTURA - DESTINO FINAL -->
+<div id='mdlCEDestinoFinal' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCEDestinoFinal">TRAYECTO A DESTINO FINAL</span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Agrupación</span>
+                            <select id="cboAgrupacionDestinoFinal" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Folio</span>
+                            <input type='text' id='txtConsecutivoDestinoFinal' class='form-control' placeholder="Ejemplo: 00058">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha destino final</span>
+                            <input id="txtFechaDestinoFinal" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Transportista</span>
+                            <select id="cboTransportistaDestinoFinal"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Archivo</legend>
+                            <input id='txtArchivoDestinoFinal' type="file" />
+                        </fieldset>
+                    </div>
+                    @* <div class="col-lg-4">
+                        <br>
+                        <button id="btnDescargarDestinoFinal" class="btn btn-primary">Descargar</button>
+                    </div> *@
+                </div><br>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="tblAspectosAmbientalesTrayectoToDestinoFinal" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnCEDestinoFinal"><span id="titleBtnCEDestinoFinal">Guardar</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA - TRANSPORTISTA -->
+
+<!-- MODAL ARCHIVOS -->
+<div id='mdlArchivos' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivos</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table id="tblArchivos" class="table table-hover table-bordered compact" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA - TRANSPORTISTA -->
+
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/MedioAmbiente/Captura.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>

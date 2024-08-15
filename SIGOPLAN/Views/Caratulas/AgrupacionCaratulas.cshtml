@@ -1,0 +1,196 @@
+﻿
+@{
+    ViewBag.Title = "AgrupacionCaratulas";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<center><h2>Agrupacion Caratulas</h2></center>
+
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<script>
+    $(document).ready(function () {
+        $('#cboModelo').select2();
+    });
+    $(document).ready(function () {
+        $('#cboGrupo').select2();
+    });
+</script>
+<!-- STYLE -->
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+        table.dataTable tbody tr td, table thead tr th, table.dataTable, .dataTables_scrollBody {
+            border: 0px solid #ffffff !important;
+        }
+
+            table.dataTable thead {
+                font-size: 15px;
+                background-color: #3556ae;
+                color: white;
+            }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #7460ee;
+        border-color: #7460ee;
+    }
+
+        .btn-primary:hover {
+            background-color: #624de2 !important;
+            border-color: #624de2 !important;
+        }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+        .modal-header .titleHeader {
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        .modal-header .modal-title {
+            font-weight: bold;
+        }
+
+        .modal-header .modal-subtitle {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.14), 0 2px 2px 0 rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+</style>
+<div class="col-sm-12">
+    <br />
+    <!-- CONTROLES DE FILTRO -->
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"></legend>
+        <div class="row">
+            <br />
+            <div class="col-lg-4">
+            </div>
+            <div class="col-lg-6"></div>
+            <div class="col-lg-2">
+                <button type='button' class="btn btn-primary" id="btnLimpiar" style="display:none;"><i class="fa fa-brush"></i> Limpiar</button>
+                <button type='button' class="btn btn-primary" id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
+                <button type="button" data-toggle="modal" data-target="#mdlCrearAgrupacion" class="btn btn-primary" id="btnNuevo">
+                    <i class="fas fa-plus"></i> Nuevo
+                </button>
+            </div>
+        </div><br>
+    </fieldset>
+    <br />
+    <!-- END: CONTROLES DE FILTRO -->
+
+    <!-- LISTADO -->
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'></legend>
+        <div class="row">
+            <div class="col-lg-12 table-responsive table-bordered">
+                <br />
+                <table id="tblAgrupacionCaratulas" class="table-bordered hover stripe order-column"></table>
+            </div>
+        </div>
+    </fieldset><br><br>
+    <!-- END: LISTADO -->
+</div>
+
+
+
+
+
+
+<div id="mdlCrearAgrupacion" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h1 class="modal-title"><i class="fa fa-dollar"></i>Nueva agrupación</h1>
+            </div>
+            <div class="modal-body">
+                <!-- SECCION DE CONTROLES -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboNuevoClaveDepto">Nombre Agrupación: </label>
+                                <input id="txtNombreAgrupacion" class="form-control"/>
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="text-color" for="cboGrupo">Seleccionar Grupo : </label>
+                                <select id="cboGrupo">
+                                </select>
+                            </div>
+                            <div class="col-lg-12">
+                                <label class="text-color" for="cboModelo">Seleccionar Modelo : </label>
+                                <select id="cboModelo" class="js-example-basic-multiple" name="states[]" multiple="multiple">
+                                </select>
+                            </div>
+                        </div>
+                    </div><br>
+
+                </div>
+                <!-- END: SECCION DE CONTROLES -->
+            </div>
+            <div class="modal-footer">
+                <button type='button' class="btn btn-primary" id="btnNuevoLimpiar" style="display:none;"><i class="fa fa-brush"></i> Limpiar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i> Regresar</button>
+                <button type="button" id="btnCrearEditar" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script>
+
+<script src="~/Scripts/js/Maquinaria/_Caratulas/AgrupacionCaratulas.js"></script>

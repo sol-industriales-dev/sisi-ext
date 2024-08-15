@@ -1,0 +1,423 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+<input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/css/RecursosHumanos/Tabuladores/General.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <div class="row">
+        <div class="col-sm-12 seccion">
+            @Html.Partial("_MenuTabuladores")
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>ASIGNACIÓN DE TABULADORES</h2>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col-sm-12'>
+            <!-- PANEL FILTROS -->
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <div class="pull-right">
+                                @* <button class="btn btn-primary" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button> *@
+                                <button class="btn btn-primary" id="btnFiltroNuevo"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+            <!-- BODY -->
+            <div id='panelGraficas' class='panel panel-default panel-principal'>
+                <div class='panel-heading'></div>
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class="col-lg-12">
+                            <table class="table" id="tblAsignacionTabulador"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: BODY -->
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR ASIGNACIÓN DE TABULADOR -->
+<div id='mdlCEAsignacionTabuladores' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <!-- SECCION -->
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-2'>
+                            <label for='txtCE_ID'>ID</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type='text' id='txtCE_ID' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-10'>
+                            <label for='cboCE_Puesto'>Puesto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_Puesto' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-5'>
+                            <label for='cboCE_AreaDepartamento'>Área / Departamento</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_AreaDepartamento' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-5'>
+                            <label for='cboCE_TipoNomina'>Tipo de nómina</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_TipoNomina' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for='txtCE_Nivel'>Nivel</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <input type='text' id='txtCE_Nivel' class='form-control'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-6'>
+                            <label for='cboCE_Sindicato'>Sindicalizado</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_Sindicato' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-6'>
+                            <label for='cboCE_NivelMando'>Nivel de mando</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                <select id='cboCE_NivelMando' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SECCION -->
+                <!-- SECCION -->
+                <div class="seccion">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div id='panelGraficas' class='panel panel-default panel-principal'>
+                                <div class='panel-heading text-center'>ASIGNACIÓN LINEA DE NEGOCIO</div>
+                                <div class='panel-body'>
+                                    <div id="divLineaNegocios"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div id="divLineaNegocioDet"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: SECCION -->
+                <!-- AUTORIZANTES -->
+                <fieldset class='fieldset-custm seccion'>
+                    <!-- AUTORIZANTE: CAPITAL HUMANO -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table">
+                                <thead>
+                                    <th>VoBo</th>
+                                    <th>Puesto</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_CapitalHumano1' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2" style="width: 35%; text-align: center">Capital humano</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_CapitalHumano2' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- END: AUTORIZANTE: CAPITAL HUMANO -->
+
+                    <!-- AUTORIZANTE: GERENTE / SUBDIRECTOR / DIRECTOR DE ÁREA -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table">
+                                <thead>
+                                    <th>Autoriza 1</th>
+                                    <th>Puesto</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_GerenteSubdirectorDirector1' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2" style="width: 35%; text-align: center">Gerente / Subdirector / Directo de área</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_GerenteSubdirectorDirector2' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- END: AUTORIZANTE: GERENTE / SUBDIRECTOR / DIRECTOR DE ÁREA -->
+
+                    <!-- AUTORIZANTE: DIRECTOR DE LÍNEA DE NEGOCIOS -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table">
+                                <thead>
+                                    <th>Autoriza 2</th>
+                                    <th>Puesto</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_LineaNegocio1' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2" style="width: 35%; text-align: center">Director de línea de negocios</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_LineaNegocio2' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- END: AUTORIZANTE: DIRECTOR DE LÍNEA DE NEGOCIOS -->
+
+                    <!-- AUTORIZANTE: ALTA DIRECCIÓN -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table">
+                                <thead>
+                                    <th>Autoriza 3</th>
+                                    <th>Puesto</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_AltaDireccion1' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2" style="width: 35%; text-align: center">Alta dirección</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class='col-lg-12'>
+                                                <div class='input-group'>
+                                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                                    <select id='cboCE_Autorizante_AltaDireccion2' class='form-control select2'></select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- END: AUTORIZANTE: ALTA DIRECCIÓN -->
+                </fieldset>
+                <!-- END: AUTORIZANTES -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCEAsignacionTabuladores'></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR ASIGNACIÓN DE TABULADOR -->
+
+<!-- MODAL LISTADO/ACTUALIZAR TABULADOR DET -->
+<div id='mdlListadoActualizar_TabuladorDet' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <!-- LISTADO TABULADORES -->
+                <div id="divListadoTabuladores">
+                    <div class="row seccion">
+                        <div class="col-lg-12">
+                            <table class="table" id="tblTabuladorDet" style="width: 100%"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: LISTADO TABULADORES -->
+
+                <!-- ACTUALIZAR TABULADOR -->
+                <div id="divActualizarTabulador">
+                    <div class="seccion">
+                        <div class="row">
+                            <div class='col-lg-2'>
+                                <label for='txtActualizar_SueldoBase'>Sueldo base</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <input type='text' id='txtActualizar_SueldoBase' class='form-control'>
+                                </div>
+                            </div>
+                            <div class='col-lg-2'>
+                                <label for='txtActualizar_Complemento'>Complemento</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <input type='text' id='txtActualizar_Complemento' class='form-control'>
+                                </div>
+                            </div>
+                            <div class='col-lg-2'>
+                                <label for='txtActualizar_TotalNominal'>Total nominal</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <input type='text' id='txtActualizar_TotalNominal' class='form-control'>
+                                </div>
+                            </div>
+                            <div class='col-lg-2'>
+                                <label for='txtActualizar_SueldoMensual'>Sueldo mensual</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <input type='text' id='txtActualizar_SueldoMensual' class='form-control'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class='col-lg-4'>
+                                <label for='cboActualizar_LineaNegocio'>Linea de negocio</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <select id='cboActualizar_LineaNegocio' class='form-control select2'></select>
+                                </div>
+                            </div>
+                            <div class='col-lg-4'>
+                                <label for='cboActualizar_Categoria'>Categoría</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <select id='cboActualizar_Categoria' class='form-control select2'></select>
+                                </div>
+                            </div>
+                            <div class='col-lg-4'>
+                                <label for='cboActualizar_EsquemaPago'>Esquema de pago</label>
+                                <div class='input-group'>
+                                    <span class='input-group-addon'><i class='fas fa-plus'></i></span>
+                                    <select id='cboActualizar_EsquemaPago' class='form-control select2'></select>
+                                </div>
+                            </div>
+                        </div><br>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="pull-right">
+                                    <button type='button' class='btn btn-default' id="btnActualizar_Cancelar"><i class='fas fa-undo-alt'></i>&nbsp;Cancelar</button>
+                                    <button type='button' class='btn btn-success' id='btnActualizar_TabuladorDet'><i class='fas fa-save'></i>&nbsp;Actualizar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: ACTUALIZAR TABULADOR -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL LISTADO/ACTUALIZAR TABULADOR DET -->
+
+<!-- MODAL DETALLE TABULADOR -->
+<div id='mdlTabuladorDetalle' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title text-center'>TABULADOR DETALLE</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblTabuladoresDet"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE TABULADOR -->
+
+<!-- JS -->
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Tabuladores/AsignarTabulador.js'></script>
+<script src='~/Scripts/js/Administrativo/RecursosHumanos/Tabuladores/_MenuTabuladores.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<!-- END: JS -->

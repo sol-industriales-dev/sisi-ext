@@ -1,0 +1,685 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/starrr.css")">
+<style>
+    .btn-huge {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    select {
+        font-family: 'FontAwesome', 'sans-serif';
+    }
+</style>
+<script src="@Url.Content("~/Scripts/starrr.js")" type="text/javascript"></script>
+<script src="~/Scripts/FileSaver.min.js"></script>
+<script src="~/Scripts/canvas-toBlob.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+
+<link href="~/Content/style/css/Encuestas/Dashboard.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+
+<script src="~/Scripts/js/Encuestas/Dashboard.js"></script>
+
+<div class="row form-group">
+    <div class="col-lg-12">
+
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#tabGeneral">General</a></li>
+    @if (Base.getAction("DepCalidad"))
+    {
+        <li><a data-toggle="tab" href="#tabReporte">Reportes</a></li>
+    }
+    @if (Base.getAction("controlUsuarios"))
+    {
+        <li><a data-toggle="tab" href="#tabControlUsuarios">Control Usuarios</a></li>
+    }
+</ul>
+<div class="tab-content">
+    <div id="tabGeneral" class="tab-pane fade in active">
+        <div class="col-lg-12" style="padding-left: 0px; padding-right: 0px;">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">FILTROS:</legend>
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="input-group">
+                            <span class="input-group-addon">Encuestas</span>
+                            <select id="cboEncuestas" class=" form-control" style="width:100%;"></select>
+
+                            <span class="btn input-group-addon" id="btnEditar" title="Editar encuesta seleccionada" style="display: none;"><i class="fa fa-edit"></i></span>
+                            <span class="btn input-group-addon" id="btnOpenEnviar" title="Enviar encuesta a usuarios" style="display: none;"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                            <span class="btn input-group-addon" id="btnOpenTelefono" title="Responder encuesta telefónica" style="display: none;"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                            <span class="btn input-group-addon" id="btnOpenPapel" title="Responder encuesta por papel" style="display: none;"><i class="fas fa-file-signature" aria-hidden="true"></i></span>
+
+                            @if (Base.getAction("encuestaFisica"))
+                            {
+                                <span class="btn input-group-addon" id="btnOpenCapEncuesta" title="Responder encuesta" style="display: none;"><i class="fas fa-file-signature"></i></span>
+                            }
+
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Inicio</span>
+                            <input type="text" id="txtFechaInicio" class="form-control" placeholder="Fecha Inicio" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha Fin</span>
+                            <input type="text" id="txtFechaFin" class="form-control" placeholder="Fecha Fin" />
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <button id="btnBuscar" class="btn btn-default btn-block"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-12">
+                <fieldset id="fieldExp" class="col-md-4" style="border: 2px solid black; border-radius: 8px; display: none;">
+                    <legend style="border: none; width: auto;">Exportar:</legend>
+                    <div>
+                        <label>Todo:</label>
+                        <button id="btnExportarTodos" class="btn btn-primary" style="display: inline; margin-bottom: 5px; margin-left: 57px;">Exportar todas</button>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-12" id="divDatos">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">DATOS:</legend>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-12" style="width:99% !important">
+                                    <button id="btnExportar" class="btn btn-primary" style="float:right; display:none; margin-bottom: 5px;">Exportar</button>
+                                    <button id="btnExportarTodos" class="btn btn-primary" style="float:right;display:none;">Exportar todas</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="table-responsive">
+                                        <table id="tblData" class="table table-condensed table-hover table-striped text-center" style="width:99% !important">
+                                            <thead class="bg-table-header">
+                                                <tr>
+                                                    <th data-column-id="usuarioEnvioNombre" data-width="300" data-align="center" data-header-align="center" data-sortable="false">Usuario Env</th>
+                                                    <th data-column-id="usuarioResponderNombre" data-width="300" data-align="center" data-header-align="center" data-sortable="false">Usuario Resp</th>
+                                                    <th data-column-id="fecha" data-align="center" data-width="100" data-header-align="center" data-sortable="false">Fecha Envio</th>
+                                                    <th data-column-id="fechaRespndio" data-align="center" data-width="100" data-header-align="center" data-sortable="false">Fecha Respondió</th>
+                                                    <th data-column-id="calificacionPorcentajePromedio" data-align="center" data-width="100" data-header-align="center" data-sortable="false">Calificación</th>
+                                                    <th data-column-id="comentario" data-align="center" data-width="600" data-header-align="center" data-sortable="false">Comentario</th>
+                                                    <th data-column-id="asunto" data-align="center" data-width="600" data-header-align="center" data-sortable="false">Asunto</th>
+                                                    <th data-column-id="ver" data-align="center" data-width="100" data-header-align="center" data-sortable="false"></th>
+                                                    <th data-column-id="tipoRespuestaDesc" data-align="center" data-width="100" data-header-align="center" data-sortable="false">Tipo Respuesta</th>
+                                                    <th data-column-id="descarga" data-align="center" data-width="50" data-header-align="center" data-sortable="false">descarga</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row form-group" id="divGrafica">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" download="ChartJpg.jpg">GRÁFICA:</legend>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button id="printChart" class="btn btn-primary" style="float:right;display:none;">Descargar gráfica</button>
+                            <canvas id="myChart" height="200" width="590" style="background-color:white !important;"></canvas>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="modal fade" id="dialogEnviar" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="text-center">
+                            <h3><label> Enviar encuesta a usuarios</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Asunto de encuesta:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <textarea id="txtAsunto" class="form-control" style="height:50px;" placeholder="Asunto"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><button id="btnDisplayUsers" class="addUser btn btn-xs btn-success pull-left">Agregar Usuario</button></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="usersInProyect">
+                                    <input id="newUser" class="newUser" type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="btnEnviar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-send" style="font-size: medium;"></span></a>
+                        <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dialogVerEncuesta" title="Ver encuesta" style="display:none;">
+            <div class="divImprimir">
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Departamento:</span>
+                                    <span id="txtDepartamento" class="form-control" placeholder="Departamento" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Titulo:</span>
+                                    <span id="txtTitulo" class="form-control" placeholder="Titulo" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Descripción:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <span id="txtDescripcion" class="form-control" style="height:100px;" placeholder="Descripción" disabled></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Envio:</span>
+                                    <span id="txtEnvio" class="form-control" placeholder="Envio" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Fecha Envio:</span>
+                                    <span id="txtFechaEnvio" class="form-control" placeholder="Fecha Envio" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Respondio:</span>
+                                    <span id="txtRespondio" class="form-control" placeholder="Respondio" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon" style="text-align:left; min-width: 200px !important;">Fecha Respondió:</span>
+                                    <span id="txtFechaRespondio" class="form-control" placeholder="Fecha Respondio" disabled></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <hr />
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <div class="Preguntas">
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                @*<div class="row form-group printMargenComentario">*@
+                <div class="row form-group">
+                    <div class="col-lg-12 Comentario">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentario:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <span id="txtComentario" style="height: auto;" class="form-control" placeholder="Comentario" disabled></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="dialogTelefonica" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="text-center">
+                            <h3><label id="modalTituloEncuesta"> Responder Encuesta Telefónica</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Titulo:</span>
+                                    <input id="txtTelefonicaTitulo" class="form-control" placeholder="Titulo" disabled @*style="background-color: white;"*@ />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Descripción:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <textarea id="txtTelefonicaDescripcion" class="form-control" placeholder="Descripción" disabled @*style="background-color: white;"*@></textarea>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm" @*style="border: 2px solid #808080; border-radius: 5px; margin-top: 10px; margin-bottom: 10px;"*@>
+                            <legend class="legend-custm">Cliente:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Empresa:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <select id="txtEmpresa" class="form-control"></select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Cliente:</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="rowCliente" class="row">
+                                <div id="divTxtCliente" class="col-lg-9" style="padding-right: 0px; margin-top: 5px; margin-bottom: 5px;">
+                                    <select id="txtCliente" class="form-control"></select>
+                                </div>
+                                <div id="divBotones" class="col-lg-3">
+                                    <div class="input-group pull-right" style="width: 100%;">
+                                        <button id="btnAgregarUsuario" class="btn btn-md btn-primary btn-nuevo">Nuevo Cliente</button>
+                                        <button id="btnCancelarUsuario" class="btn btn-md btn-primary btn-cancelar" style="display: none;">Cancelar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="rowAsunto" class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Asunto de encuesta:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtTelefonicaAsunto" class="form-control" style="height:50px;" placeholder="Asunto"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="row form-group" style="margin-bottom: 0px;">
+                            <div class="col-lg-12">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">Encuesta:</legend>
+                                    <div class="Preguntas"></div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Agregar Comentario:</legend>
+
+                            <div class="row form-group" style="margin-bottom: 0px;">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Comentario:</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <textarea id="txtTelefonicaComentario" class="form-control" placeholder="Comentario"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row form-group" style="margin-bottom: 0px;">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Evidencia:</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input type="file" class="form-control" id="fupdateEvidencia" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="btnGuardar" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-disk" style="font-size: medium;"></span> Guardar</a>
+                        <a data-dismiss="modal" id="btnCancelActivity" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="dialogPapel" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="text-center">
+                            <h3><label> Responder Encuesta Papel</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Titulo:</span>
+                                    <input id="txtTelefonicaTituloPapel" class="form-control" placeholder="Titulo" disabled @*style="background-color: white;"*@ />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Descripción:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <textarea id="txtTelefonicaDescripcionPapel" class="form-control" placeholder="Descripción" disabled @*style="background-color: white;"*@></textarea>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm" @*style="border: 2px solid #808080; border-radius: 5px; margin-top: 10px; margin-bottom: 10px;"*@>
+                            <legend class="legend-custm">Cliente:</legend>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Empresa:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <select id="txtEmpresaPapel" class="form-control"></select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Cliente:</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="rowClientePapel" class="row">
+                                <div id="divTxtClientePapel" class="col-lg-9" style="padding-right: 0px; margin-top: 5px; margin-bottom: 5px;">
+                                    <select id="txtClientePapel" class="form-control"></select>
+                                </div>
+                                <div id="divBotonesPapel" class="col-lg-3">
+                                    <div class="input-group pull-right" style="width: 100%;">
+                                        <button id="btnAgregarUsuarioPapel" class="btn btn-md btn-primary btn-nuevo">Nuevo Cliente</button>
+                                        <button id="btnCancelarUsuarioPapel" class="btn btn-md btn-primary btn-cancelar" style="display: none;">Cancelar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="rowAsuntoPapel" class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Asunto de encuesta:</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <textarea id="txtTelefonicaAsuntoPapel" class="form-control" style="height:50px;" placeholder="Asunto"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="row form-group" style="margin-bottom: 0px;">
+                            <div class="col-lg-12">
+                                <fieldset class="fieldset-custm">
+                                    <legend class="legend-custm">Encuesta:</legend>
+                                    <div class="Preguntas"></div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Agregar Comentario:</legend>
+
+                            <div class="row form-group" style="margin-bottom: 0px;">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Comentario:</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <textarea id="txtTelefonicaComentarioPapel" class="form-control" placeholder="Comentario"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row form-group" style="margin-bottom: 0px;">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Evidencia:</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input type="file" class="form-control" id="fupdateEvidenciaPapel" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="btnGuardarPapel" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-floppy-disk" style="font-size: medium;"></span> Guardar</a>
+                        <a data-dismiss="modal" id="btnCancelActivityPapel" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tabReporte" class="tab-pane fade">
+        <div class="col-md-4">
+            <fieldset id="fieldExcel" class="" style="border: 2px solid black; border-radius: 8px; display: inline-block;">
+                <legend style="border: none; width: auto;">Exportar a Excel:</legend>
+
+                <div style="margin-left: 10px; margin-right: 10px;">
+                    <div style="margin-bottom: 5px;">
+                        <div>
+                            <label>Departamentos: </label>
+                        </div>
+                        <select id="cboDepartamentos" style="height: 34px; border-radius: 5px;"></select>
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <div>
+                            <label>Por mes: </label>
+                        </div>
+                        <select id="selectMes" style="height: 34px; border-radius: 5px;">
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <select id="selectMesYear" style="height: 34px; border-radius: 5px;">
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                        </select>
+                        <button id="btnExportarMes" class="btn btn-primary" style="display: inline; margin-bottom: 3px; margin-left: 30px;">Exportar por mes</button>
+                    </div>
+
+                    <div style="margin-bottom: 5px; display: none;">
+                        <div>
+                            <label>Por trimestre:</label>
+                        </div>
+                        <select id="selectTrimestre" style="height: 34px; border-radius: 5px;">
+                            <option value="1">TRIMESTRE I</option>
+                            <option value="2">TRIMESTRE II</option>
+                            <option value="3">TRIMESTRE III</option>
+                            <option value="4">TRIMESTRE IV</option>
+                        </select>
+                        <select id="selectTrimestreYear" style="height: 34px; border-radius: 5px;">
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                        </select>
+                        <button id="btnExportarTri" class="btn btn-primary" style="display: inline; margin-bottom: 3px; margin-left: 4px;">Exportar por trimestre</button>
+                    </div>
+
+                    <div style="margin-bottom: 5px; display: none;">
+                        <div>
+                            <label>Por semestre:</label>
+                        </div>
+
+                        <select id="selectSemestre" style="height: 34px; border-radius: 5px;">
+                            <option value="1">SEMESTRE I</option>
+                            <option value="2">SEMESTRE II</option>
+                        </select>
+                        <select id="selectSemestreYear" style="height: 34px; border-radius: 5px;">
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                        </select>
+                        <button id="btnExportarSem" class="btn btn-primary" style="display: inline; margin-bottom: 3px; margin-left: 15px;">Exportar por semestre</button>
+                    </div>
+
+                    <div style="margin-bottom: 5px;">
+                        <div>
+                            <label>Por año:</label>
+                        </div>
+
+                        <select id="selectYear" style="height: 34px; border-radius: 5px;">
+                            <option value="2018">2018</option>
+                            <option value="2017">2017</option>
+                        </select>
+                        <button id="btnExportarYear" class="btn btn-primary" style="display: inline; margin-bottom: 3px; margin-left: 133px;">Exportar por año</button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-lg-4">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">
+                    Reporte Certeza Información
+                </legend>
+                <div class="col-lg-12 form-group">
+                    <label>Encuestas:</label>
+                    <select id="cboEncuestasRpt" class=" form-control" style="width:100%;" multiple></select>
+                </div>
+                <div class="col-lg-12 form-group">
+                    <div class="col-lg-6 no-padding">
+                        <label for="fechaIniRpt">Fecha Inicio:</label>
+                        <input type="text" id="fechaIniRpt" class="form-control" />
+                    </div>
+                    <div class="col-lg-6 no-padding-right">
+                        <label for="fechaFinRpt">Fecha Fin:</label>
+                        <input type="text" id="fechaFinRpt" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-lg-12 form-group">
+                    <button id="btnExportarRptCerteza" class="btn btn-primary">Exportar Reporte</button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div id="tabControlUsuarios" class="tab-pane fade">
+        <div class="row">
+            <div class="col-lg-12">
+
+            </div>
+            <div class="col-lg-12">
+                <table class="table table-responsive" id="tblConciliacionHorometros" width="100%">
+                    <thead class="bg-table-header text-center">
+                        <tr>
+                            <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                            <th style="border-right: 1px solid;" class="text-center">Correo</th>
+                            <th style="border-right: 1px solid;" class="text-center">Obra</th>
+                            <th style="border-right: 1px solid;" class="text-center">Departamento</th>
+                            <th style="border-right: 1px solid;" class="text-center"></th>
+                            <th style="border-right: 1px solid;" class="text-center"></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "Autorizacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var empresaActual = (int)ViewBag.empresaActual;
+}
+
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href='~/Content/style/css/RecursosHumanos/BajasPersonal/BajasPersonal.css' rel='stylesheet' />
+
+<style>
+    /* Estilo CheckBox */
+    label {
+        display: inline;
+    }
+
+    .regular-checkbox,
+    .regular-checkboxdanger {
+        display: none;
+    }
+
+    .regular-checkbox+label,
+    .regular-checkboxdanger+label {
+        background-color: #fafafa;
+        border: 1px solid #cacece;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);
+        padding: 9px;
+        border-radius: 20px;
+        display: inline-block;
+        position: relative;
+        height: 17px;
+        width: 17px;
+        margin-bottom: 0px;
+        vertical-align: middle;
+    }
+
+    td .regular-checkbox+label {
+        border-radius: 2px;
+    }
+
+    .regular-checkbox+label:active,
+    .regular-checkbox:checked+label:active,
+    .regular-checkboxdanger+label:active,
+    .regular-checkboxdanger:checked * label:active {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .regular-checkbox:checked+label {
+        color: #fff;
+        background-color: #449d44;
+        border-color: #398439;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05), inset 15px 10px -12px rgba(255, 255, 255, 0.1);
+    }
+
+    .regular-checkboxdanger:checked+label {
+        color: #fff;
+        background-color: #d9534f;
+        border-color: #d43f3a;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05), inset 15px 10px -12px rgba(255, 255, 255, 0.1);
+    }
+
+    .regular-checkbox:checked+label:after {
+        content: '\2714';
+        font-size: 17px;
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        color: #fff;
+    }
+
+    .regular-checkboxdanger:checked+label:after {
+        content: '\2716';
+        font-size: 17px;
+        position: absolute;
+        top: 0px;
+        left: 4px;
+        color: #fff;
+    }
+
+    .big-checkbox+label {
+        padding: 18px;
+    }
+
+    .big-checkbox:checked+label:after {
+        font-size: 28px;
+        left: 6px;
+    }
+
+    .tag {
+        font-family: Arial, sans-serif;
+        width: 200px;
+        position: relative;
+        top: 5px;
+        font-weight: bold;
+        text-transform: uppercase;
+        display: block;
+        float: left;
+    }
+
+    .radio-1 {
+        width: 193px;
+    }
+
+    .button-holder {
+        float: left;
+    }
+
+    /* Fin Estilo CheckBox */
+
+    #tablaRegistros tbody td a {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+
+    .radioBtn .notActive {
+        color: #3276b1;
+        background-color: #fff;
+    }
+
+    .radioBtn .notActive.btn-success {
+        color: #398439;
+    }
+
+    .radioBtn .notActive.btn-danger {
+        color: #d43f3a;
+    }
+
+    .radioBtn .notActive.btn-success:active {
+        color: #fff;
+    }
+
+    .radioBtn .notActive.btn-danger:active {
+        color: #fff;
+    }
+</style>
+
+@if (empresaActual == 1)
+{
+    <input type="text" id="empresaActual" value="1" style="display: none;">
+}
+else if(empresaActual == 2)
+{
+    <input type="text" id="empresaActual" value="2" style="display: none;">
+}
+else if(empresaActual == 3)
+{
+    <input type="text" id="empresaActual" value="3" style="display: none;">
+}
+else if(empresaActual == 6)
+{
+    <input type="text" id="empresaActual" value="6" style="display: none;">
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h3>Autorización</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control select2" id="selectCC" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-default" id="botonBuscar">Buscar</button>
+                        </div>
+                        <div class="col-md-5">
+                            <!-- <button type="button" class="btn btn-primary marginRight pull-right" id="botonGuardar">Guardar</button> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tablaRegistros" class='table table-bordered compact' style="width:100%"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL COMENTARIO -->
+<div id='mdlComentario' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Comentario.</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p id="txtMdlComentario">
+                        </p>
+                    </div>
+				</div>
+            </div>
+            <div class='modal-footer'>
+				<!-- <button type='button' class='btn btn-primary' data-dismiss='modal' id="btnCalendarioGuardar"><i class='fa fa-save'></i>&nbsp;<span id="btnTxtCalendario">Guardar</span></button> -->
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana"><button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/BajasPersonal/Autorizacion.js"></script>

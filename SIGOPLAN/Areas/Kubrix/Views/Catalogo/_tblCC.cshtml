@@ -1,0 +1,36 @@
+﻿@using Newtonsoft.Json;
+@{
+    var lst = new SIGOPLAN.Areas.Kubrix.Controllers.CatalogoController().getlstCcDiv(ViewBag.cc, ViewBag.idDiv);
+}
+<table id="tblBal12" class="table table-condensed table-hover table-striped text-center">
+    <thead class="bg-table-header">
+        <tr>
+            <th>CENTRO DE COSTO</th>
+            <th>NOMBRE DE LA UNE</th>
+            <th>DIVISION</th>
+            <th>GIRO</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            if (lst.Count == 0)
+            {
+                <tr><td colspan="14" class="text-center"><text>No hay datos disponibles</text></td></tr>
+            }
+            else
+            {
+                var jr = JsonConvert.SerializeObject(lst);
+                var l = JsonConvert.DeserializeObject<dynamic>(jr);
+                for (int i = 0; i < l.Count; i++)
+                {
+                    <tr>
+                        <td>@l[i].cc</td>
+                        <td>@l[i].NombreUne</td>
+                        <td>@l[i].idDiv</td>
+                        <td>@l[i].division</td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>

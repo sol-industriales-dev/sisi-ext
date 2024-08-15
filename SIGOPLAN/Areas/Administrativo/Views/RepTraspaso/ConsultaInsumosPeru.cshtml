@@ -1,0 +1,292 @@
+﻿@{
+ViewBag.Title = "ConsultaInsumosPeru";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Administrativo/ControlInterno/ConsultaInsumosPeruJS.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+
+<style>
+    .ui-autocomplete {
+        z-index: 2147483647 !important;
+    }
+
+    .cursorClick {
+        cursor: pointer;
+        font-size: larger;
+    }
+
+    .row.no-gutter {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .row.no-gutter [class*='col-']:not(:first-child),
+    .row.no-gutter [class*='col-']:not(:last-child) {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    .mrgBottom {
+        margin-bottom: 5px;
+    }
+
+    .noPadLeft {
+        padding-left: 0px;
+    }
+
+    .noPadRight {
+        padding-right: 0px;
+    }
+
+    .bg-table-header tr th {
+        text-align: center;
+    }
+
+    td {
+        font-size: 12px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="col-lg-12">
+        <h4 class="text-center">CONSULTA DE INSUMOS</h4>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row no-gutters">
+                <div class="col-lg-9">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Insumos:</legend>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12 mrgBottom">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default btn-sm pull-right" type="button" data-tipo="1" id="btnDesplegarBusquedaConstruplan">Busqueda avanzada</button>
+                                            <button class="btn btn-default btn-sm pull-right" type="button" data-tipo="1" id="btnByIDConstruplan"><span class="glyphicon glyphicon-search"></span></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea id="tbNoInsumo" class="form-control" placeholder="Ingrese listado de insumos aqui"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-md-3" style="margin-top: 91px;">
+                    <div class="row" style="display: none;">
+                        <div class="col-md-12 mrgBottom">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="width:85px;">CPLAN</span>
+                                <input type="text" id="tbAlmacenConstruplan" class="form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display: none;">
+                        <div class="col-md-12 mrgBottom">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="width:85px;">ARREND</span>
+                                <input type="text" id="tbAlmacenArrendadora" class="form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="width:70px;">TOTAL</span>
+                                <input type="text" id="tbTotalStock" style="width:70%;padding:2px !important;" class="form-control" disabled />
+                                <button type="button" class="btn btn-primary" id="btnExportar" style="margin-left: 5px;"><span class="glyphicon glyphicon-print"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5" style="width:40%; display: none;">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">ARRENDADORA:</legend>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12 mrgBottom">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default btn-sm pull-right" type="button" data-tipo="2" id="btnDesplegarBusquedaArrendadora">Busqueda avanzada</button>
+                                            <button class="btn btn-default btn-sm pull-right" type="button" data-tipo="2" id="btnByIDArrendadora"><span class="glyphicon glyphicon-search"></span></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <textarea id="tbNoInsumoArrendadora" class="form-control" placeholder="Ingrese listado de insumos aqui"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados:</legend>
+                <table class="table display nowrap" style="width:100%" id="tblConstruplan">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th>Insumo</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Almacén</th>
+                            <th>Ubicaciones</th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+        <div class="col-lg-6" style="display: none;">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados Arrendadora:</legend>
+                <table class="table display nowrap" style="width:100%" id="tblArrendadora">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th>Insumo</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Almacén</th>
+                            <th>Ubicaciones</th>
+                        </tr>
+                    </thead>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div id="modalBusquedaInsumos" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-ppal">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3> <label id="lblModalTitulo" class="nofontweight"></label></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Filtros Busqueda:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group" style="display:none;">
+                                <label>Tipo Insumo:</label>
+                                <select class="form-control" id="cboTipoInsumo"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group" style="display:none;">
+                                <label>Grupo Insumo:</label>
+                                <select class="form-control" id="cboGrupoInsumo"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 form-group noPadLeft">
+                                <label>Descripción Insumo:</label>
+                                <input type="text" class="form-control" id="tbModalInsumo" />
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 form-group margin-top noPadLeft">
+                                <button type="button" class="btn btn-primary" id="btnBuscar"><span class="glyphicon glyphicon-search"></span></button>
+                                <button type="button" class="btn btn-primary" id="btnSeleccionar">Seleccionar todo</button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Insumos a elegir:</legend>
+                            <table class="display bg" width="100%" id="tblInsumosBusqueda">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Insumos a buscar:</legend>
+                            <table class="display bg" width="100%" id="tblInsumosBusquedaFinal">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Descripción</th>
+                                        <th>Quitar</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a data-dismiss="modal" id="btnConsultar" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Consultar</a>
+                <a data-dismiss="modal" class="btn btn-primary btn-sm"><span class="glyphicon"></span>Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlExistencias" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Existencias </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblExistencias" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)

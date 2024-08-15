@@ -1,0 +1,135 @@
+﻿
+@{
+    ViewBag.Title = "SubConjunto";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<script src="~/Scripts/js/Maquinaria/Catalogo/SubConjunto.js"></script>
+
+<div class="row">
+    <h2 class="text-center">Catálogo Sub-Conjunto</h2>
+</div>
+<div class="row form-group">
+    <div class="col-lg-10">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <label>Escenarios Principales:</label>
+                <select class="form-control" id="cboFiltroConjunto" title="Seleccione Conjunto:">
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-5">
+                <label>Sub Escenario:</label>
+                <input class="form-control" id="txtFiltroDescripcionSubConjunto" type="text" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Estatus:</label>
+                <select class="form-control" id="cboFiltroSubConjunto">
+                    <option value="1">ACTIVO</option>
+                    <option value="0">INACTIVO</option>
+                </select>
+            </div>
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-info margin-top" id="btnBuscar">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-lg-2 text-center">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Nuevo Escenario:</legend>
+            <button type="button" class="btn btn-success margin-top" id="btnNuevo_SubConjunto">
+                <span class="glyphicon glyphicon-plus"></span> Nuevo
+            </button>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row form-group">
+    <div class="col-lg-12" id="divFilstroBusqueda">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Resultados Búsqueda:</legend>
+            <table id="grid_SubConjunto" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th data-column-id="update" data-formatter="update" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Modificar</th>
+                        <th data-column-id="delete" data-formatter="delete" data-align="center" data-header-align="center" data-sortable="false" data-width="6%">Deshabilitar</th>
+                        @*<th data-column-id="id" data-align="center" data-header-align="center" data-sortable="false">Id</th>*@
+                        <th data-column-id="conjunto" data-align="center" data-header-align="center" data-sortable="false">Conjunto</th>
+                        <th data-column-id="descripcion" data-align="center" data-header-align="center">Descripción</th>
+                        @*<th data-column-id="posicion" data-align="center" data-header-align="center" data-sortable="false">Posicion</th>*@
+                        <th data-column-id="estatus" data-align="center" data-header-align="center">Estatus</th>
+                    </tr>
+                </thead>
+            </table>
+        </fieldset>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modalSubConjunto" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="title-modal"></label></h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmSubConjunto">
+                        <div class="row">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Datos Sub-Conjunto:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
+                                    <label>Conjunto:</label>
+                                    <select class="form-control" id="cboModalConjunto" title="Seleccione Conjunto">
+                                    </select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
+                                    <label>Posicion:</label>
+                                    <select class="form-control" id="cboModalPosicion" multiple="multiple"></select>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left form-group">
+                                    <label>Nombre Corto:</label>
+                                    <input class="form-control" id="txtModalPrefijo" type="text" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 text-left form-group">
+                                    <label>Descripción:</label>
+                                    <input class="form-control" id="txtModaldescripcionSubConjunto" type="text"/>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 form-group text-left">
+                                    <label>Estatus:</label>
+                                    <select class="form-control" id="cboModalEstatusSubConjunto">
+                                        <option value="1">ACTIVO</option>
+                                        <option value="0">INACTIVO</option>
+                                    </select>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar_SubConjunto">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar_SubConjunto" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

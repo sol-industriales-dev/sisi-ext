@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Control impactos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/CtrlPptalOficinasCentrales/ControlImpactos.css" rel="stylesheet" />
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+    <br><br>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h2>CONTROL DE IMPACTOS</h2></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                            <button type="button" class="btn btn-primary marginRight" id="btnFiltroNuevoControlImpactos"><i class="fas fa-plus"></i>&nbsp;Nuevo</button>
+                        </div><br><br>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table id="tblAF_CtrlPptalOfCe_ControlImpactos" class="table table-hover table-bordered compact" width="100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR/EDITAR CONTROL IMPACTO -->
+<div id='mdlCEControlImpacto' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCEControlImpacto"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">N° Cuenta</span>
+                            <input type="text" id="txtNoCuenta" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Descripción</legend>
+                            <textarea id="txtDescripcion" class="inputTextArea" cols="30" rows="2"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Total 12 meses</span>
+                            <input id="txtTotal12Meses" type="text" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Promedio por mes</span>
+                            <input type="text" id="txtPromMes" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Estrategia</span>
+                            <select id="cboEstrategia" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Responsable (Líder cuenta)</span>
+                            <select id="cboResponsableLiderCuenta" class="form-control select2"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">% Ahorro esperado</span>
+                            <input type="text" id="txtPorcAhorroEsperado" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Ahorro esperado anual</span>
+                            <input type="text" id="txtAhorroEsperadoAnual" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Posibles acciones</span>
+                            <input type="text" id="txtPosiblesAcciones" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Estatus</span>
+                            <input type="text" id="txtEstatus" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Acciones establecidas</span>
+                            <input type="text" id="txtAccionesEstablecidas" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha implementación</span>
+                            <input type="date" id="txtFechaImplementacion" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Pendientes</legend>
+                            <textarea id="txtPendientes" class="inputTextArea" cols="30" rows="2"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnCEControlImpacto"><span id="lblTitleBtnCEControlImpacto"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR CAPTURA -->
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/datetime-moment.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/js/Administrativo/CtrlPptalOficinasCentrales/ControlImpactos.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>

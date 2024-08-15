@@ -1,0 +1,376 @@
+﻿@{
+    ViewBag.Title = "Permisos";
+
+    bool esConsulta = ViewBag.esConsulta;
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.print.min.css" rel='stylesheet' media='print' />
+<link href='~/Content/style/css/RecursosHumanos/Reclutamientos/Solicitudes.css' rel='stylesheet' />
+
+<style>
+    .esConsulta {
+        @(esConsulta ? "display: none;" : "")
+    }
+</style>
+
+@if(esConsulta)
+{
+    <input type="text" id="inputEsConsulta" value="1" style="display: none;">
+}else{
+    <input type="text" id="inputEsConsulta" value="0" style="display: none;">
+}
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+
+    <!-- BAJAS -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>JUSTIFICACIONES</h2>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estado</span>
+                                <select class="form-control select2" id="cboFiltroEstado">
+                                    <option value="0">--Seleccione--</option>
+                                    <option value="1">Aprobada</option>
+                                    <option value="2">No Aprobadas</option>
+                                    <option value="3">Pendiente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Tipo de Permiso</span>
+                                <select class="form-control" id="cboTipoVacaciones">
+                                    <option value="0">Permiso CON goce de sueldo</option>
+                                    <option value="8">Permiso SIN goce de sueldo</option>
+                                    <option value="9">Permiso de comision de trabajo</option>
+                                </select>
+                            </div>
+                        </div> -->
+                        <div class="col-sm-3">
+                            <div class="input-group" id="divCboPermisosingoce">
+                                <span class="input-group-addon">Motivo de ausencia</span>
+                                <select class="form-control" id="cboTipoPermiso">
+                                    <!-- <option value="7">Vacaciones</option> -->
+                                    <option value="">--Seleccione--</option>
+                                    <option value="0">Justificacion de incidecia mayor</option>
+                                    <option value="1">Jornada laboral</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="input-group" id="divCECboPermisosingoce">
+                                <span class="input-group-addon">Fecha Inicial</span>
+                                <input type="date" id="dateFiltroIni" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="input-group" id="divCECboPermisosingoce">
+                                <span class="input-group-addon">Fecha Final</span>
+                                <input type="date" id="dateFiltroFin" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="cboVacacionCC"></select>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            <div class="col-sm-12 margin-right">
+                                <button type="button" class="btn btn-default" id="btnFiltroBuscar">Buscar</button>
+                                <button type="button" class="btn btn-primary marginRight" id="btnFiltroNuevo">Nuevo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- VACAIONES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_Vacaciones_Vacaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: BAJAS -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- MODAL CREAR EDITAR VACACION -->
+<div id='mdlVacacion' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 id="titleCEVacacion" class='modal-title'><i class='fa fa-dollar'></i></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Num. Empleado</span>
+                            <input type="text" class="form-control" id="txtCEVacacionClaveEmp" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control" id="txtCEVacacionNombreEmp" spellcheck="false" placeholder="Ingrese su nombre..">
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Fecha ingreso</span>
+                            <input type="text" class="form-control" id="txtCEVacacionFechaIngreso" readonly>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">CC</span>
+                            <input type="text" class="form-control" id="txtCEVacacionCC" spellcheck="false" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Puesto</span>
+                            <input type="text" class="form-control" id="txtCEVacacionPuesto" spellcheck="false" readonly>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon" title="Autorizador o Responsable de CC">Responsable de CC</span>
+                            <input type="text" class="form-control" id="txtCEVacacionClaveResponsable" style="display: none;">
+                            <select class="form-control" id="txtCEVacacionNombreResponsable"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-addon" title="Autorizador o Jefe Inmediato">Jefe inmediato</span>
+                            <input type="text" class="form-control" id="txtCEVacacionNumJefeInmediato" style="display: none;">
+                            <select class="select2" id="txtCEVacacionNombreJefeInmediato"></select>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="input-group" id="">
+                            <span class="input-group-addon">Tipo</span>
+                            <select class="form-control" id="cboCETipoRetardo">
+                                <option value="">--Seleccione--</option>
+                                <option value="0">Justificacion de Incidencia mayor</option>
+                                <option value="1">Permiso de salida durante la jornada laboral</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="input-group" id="">
+                            <span class="input-group-addon">Motivos</span>
+                            <select class="form-control" id="cboCERetardoMotivos">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">   
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">Dia</span>
+                            <input type="date" class="form-control" id="dateCEDiaTomado" disabled>
+                        </div>
+                    </div>                    
+                    <div class="col-sm-4" id="divHorarioIncidencia">
+                        <div class="input-group" id="">
+                            <span class="input-group-addon">Horario</span>
+                            <select class="form-control" id="cboCEHorario">
+                                <option value="">--Seleccione--</option>
+                                <option value="0">Horario de entrada</option>
+                                <option value="1">Salida a comer</option>
+                                <option value="2">Entrada de comer</option>
+                                <option value="3">Horario de salida</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="display: none;" id="divHorarioPermiso">
+                        <div class="input-group" id="">
+                            <span class="input-group-addon">Horario De</span>
+                            <input type="time" class="form-control" id="txtCEHorarioLower" >
+                            <span class="input-group-addon">A</span>
+                            <input type="time" class="form-control" id="txtCEHorarioUpper" >
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group">
+                            <span class="input-group-addon">Tiempo Requerido Hrs</span>
+                            <input type="text" class="form-control" id="txtCEHorasRequeridas" >
+                            <span class="input-group-addon">Min</span>
+                            <input type="text" class="form-control" id="txtCEMinutosRequeridos" >
+                        </div>
+                    </div>                           
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Justificacion</legend>
+                            <textarea id="txtCEVacacionJustific" class="inputTextArea" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+                <br>
+                <div id="divArchivoActa" class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Adjuntar evidencia</legend>
+                            <label id="botonArchivoActa" for="inputArchivoActa" class="btn btn-sm btn-default"><i class="fa fa-upload"></i></label>
+                            <label id="labelArchivoActa" class="labelArchivo"></label>
+                            <input id="inputArchivoActa" type="file" class="inputArchivoActa" accept="application/pdf, image/*" style="display: none;">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- CALENDARIO -->
+                    <div class="col-lg-12" style="margin-top:15px;">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Permisos</legend>
+                            <br>
+                            <div class="row" id="divCECalendario" style="display: initial;">
+                                <h4 style="text-align: center;">&nbsp;&nbsp;&nbsp;<u><span id="txtCalendarioNumDias"></span> dias disponibles.</u></h4>
+                                <div id='calendar'></div>
+                            </div>
+                            <div class="row" id="divCELactancia" style="display: none;">
+                                <div class="row">
+                                    <h4 style="text-align: center;">&nbsp;&nbsp;&nbsp;<u>3 meses disponibles.</u></h4>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Fecha Inicial</span>
+                                            <input class="form-control" id="dateCELactanciaInicio" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Fecha Final</span>
+                                            <input class="form-control" id="dateCELactanciaFin" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <!-- END CALENDARIO -->
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-primary esConsulta' id="btnCEVacacionActualizar"><i class='fa fa-save'></i>&nbsp;<span id="btnTxtCEVacacion">Guardar</span></button>
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana"><button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button></span>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL FIRMAS -->
+<div id='mdlFirmas' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <table class="table" id="tblFirmas"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL FIRMAS -->
+
+<!-- MODAL JUSTIFICACION -->
+<div id='mdlJustific' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'>Justificacion</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="row seccion">
+                    <div class="col-lg-12">
+                        <textarea id="txtVacacionJustific" class="inputTextArea" cols="30" rows="6" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL JUSTIFICACION -->
+
+@Html.Partial("reportViewerView", false)
+
+<!-- JS -->
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/moment.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Mantenimiento/panel/fullcalendar.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Vacaciones/Retardos.js"></script>

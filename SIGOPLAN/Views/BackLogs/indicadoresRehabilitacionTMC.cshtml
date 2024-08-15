@@ -1,0 +1,278 @@
+﻿@{
+    ViewBag.Title = "Indicadores Rehabilitación TMC";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/css/Backlogs/Backlogs.css" rel="stylesheet" />
+<link href="~/Content/select2.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- TITULO MODULO -->
+<h2 class="title-1 text-center">Indicadores rehabilitación TMC</h2>
+
+<fieldset class="fieldset-custm">
+    <!-- MENU Y LISTADO DE ESTATUS -->
+    <div class="col-lg-2 col-md-2 col-sm-2" style="margin-top:15px;">
+        <div class=" row">
+            <div class="col-lg-12 col-md-12 col-sm-12" style="padding: 0;">
+                <!-- MENU -->
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Menú</legend>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInicioTMC">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Inicio
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnProgramaInspeccion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Programa de rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnPresupuestoRehabilitacion">
+                        <i class="fa fa-clipboard icono-menu"></i>&nbsp;Presupuesto de rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnSeguimientoPresupuestos">
+                        <i class="glyphicon glyphicon-th-list icono-menu"></i>&nbsp;Seguimiento a presupuestos
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnFrenteBackLogs">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Frentes de trabajo
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnInformeRehabilitacion">
+                        <i class="fa fa-clipboard-check icono-menu"></i>&nbsp;Informes de rehabilitación
+                    </button>
+                    <button class="btn btn-block btn-social btn-primary-menu boton-menu" id="btnIndicadoresRehabilitacionTMC">
+                        <i class="fa fa-file-pdf icono-menu"></i>&nbsp;Reportes e indicadores
+                    </button>
+                </fieldset>
+                <!-- END: MENU -->
+                <!-- ESTATUS -->
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Estatus</legend>
+                    <button class="btn btn-block boton-estatus boton-estatus-20">Elaboración de Presupuesto (20%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-40">Autorización de Presupuesto (40%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-50">Elaboración de OC (50%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-60">Suministro de Refacciones (60%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-80">Rehabilitacion Programada (80%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-90">Proceso de Instalacion (90%)</button>
+                    <button class="btn btn-block boton-estatus boton-estatus-100">Backlogs instalado (100%)</button>
+                </fieldset>
+                <!-- END: ESTATUS -->
+            </div>
+        </div>
+    </div>
+    <!-- END: MENU Y LISTADO DE ESTATUS -->
+
+    <!-- FILTROS -->
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class='fieldset-custm'>
+            <legend class='legend-custm'>Filtros</legend>
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Año:</span>
+                        <select id="cboFiltroAnios" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Mes:</span>
+                        <select id="cboFiltroMes" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">Tipo:</span>
+                        <select id="cboFiltroTipo" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="col-lg-3" style="display: none;">
+                    <div class="input-group">
+                        <span class="input-group-addon">Motivo:</span>
+                        <select id="cboFiltroMotivo" class="form-control">
+                            <option value="">--Seleccione--</option>
+                            <option value="0">Obra</option>
+                            <option value="1">Venta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pull-right">
+                    <button id="btnFiltroBuscar" class="btn btn-primary"><i class="fas fa-search"></i>&nbsp;Buscar</button>
+                    <button id="btnFiltroLimpiar" class="btn btn-default" style="margin-right: 15px;">Limpiar</button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <!-- END: FILTROS -->
+
+    <div class="col-lg-10 col-md-10 col-sm-10" style="margin-top:15px;">
+        <fieldset class='fieldset-custm'>
+            <!-- TABS -->
+            <ul class="nav nav-tabs">
+                <li class="nav-item" style="display: none;">
+                    <a class="nav-link" data-toggle="tab" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabtbl1" id="tabMenuTbl1">Indicador cumplimiento de tiempos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabtbl2" id="tabMenuTbl2">Indicador cumplimiento de ppto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabtbl3" id="tabMenuTbl3">Indicador cumplimiento de tiempos y BL</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabtbl4" id="tabMenuTbl4">Indicador cantidad de Obras o Ventas</a>
+                </li>
+            </ul>
+            <!-- END: TABS -->
+
+            <!-- TABS -->
+            <div class="tab-content">
+                <!-- TABLA #1 -->
+                <div id="tabtbl1" class="container tab-pane fade" style="width: 100%"><br>
+                    @* <fieldset class='fieldset-custm'> *@
+                    @* <div class="col-lg-12"> *@
+                    <div class="table-responsive"><br>
+                        <table id="tbl1" class="hover stripe order-column compact"></table><br>
+                    </div>
+                    @* </div> *@
+                    @* </fieldset> *@
+                    <br>
+                    <div id="graficaTbl1"></div>
+                    <div id="graficaEconomicoTabla1"></div>
+                    <div id="graficaGlobalTabla1"></div>
+                    <button class="btn btn-success" id="btnEconomicoTabla1">Ecónomico</button>
+                    <button class="btn btn-success" id="btnMes">Mensual</button>
+                </div>
+                <!-- END: TABLA #1 -->
+                <!-- TABLA #2 -->
+                <div id="tabtbl2" class="container tab-pane fade" style="width: 100%"><br>
+                    @* <fieldset class='fieldset-custm'>
+                        <div class="col-lg-12"> *@
+                    <div class="table-responsive"><br>
+                        <table id="tbl2" class="hover stripe order-column compact"></table><br>
+                    </div>
+                    @* </div>
+                        </fieldset> *@
+                    <div id="graficaTbl2"></div>
+                    <div id="graficaEconomico"></div>
+                    <div id="graficaGlobal"></div>
+                    <button class="btn btn-success" id="btnEconomico">Ecónomico</button>
+                    <button class="btn btn-success" id="btnGlobal">Global</button>
+
+                </div>
+                <!-- END: TABLA #2 -->
+                <!-- TABLA #3 -->
+                <div id="tabtbl3" class="container tab-pane fade" style="width: 100%"><br>
+                    @* <fieldset class='fieldset-custm'>
+                        <div class="col-lg-12"> *@
+                    <div class="table-responsive"><br>
+                        <table id="tbl3" class="hover stripe order-column compact"></table><br>
+                    </div>
+                    @* </div>
+                        </fieldset> *@
+                    <div id="graficaTbl3"></div>
+                </div>
+                <!-- END: TABLA #3 -->
+                <!-- TABLA #4 -->
+                <div id="tabtbl4" class="container tab-pane fade" style="width: 100%"><br>
+                    @* <fieldset class='fieldset-custm'>
+                        <div class="col-lg-12"> *@
+                    <div class="table-responsive"><br>
+                        <table id="tbl4" class="hover stripe order-column compact"></table><br>
+                    </div>
+                    @* </div>
+                        </fieldset> *@
+                    <div id="graficaTbl4"></div>
+                </div>
+                <!-- END: TABLA #4 -->
+            </div>
+            <!-- END: TABS -->
+        </fieldset>
+    </div>
+
+</fieldset>
+
+<!-- MODAL BACKLOGS -->
+<div class="modal fade-in disenioModal" id="mdlBackLogs">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">BackLogs</h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblBL_CatBackLogs" class="hover stripe order-column"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btnMdlCerrarBL" type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-undo"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL BACKLOGS -->
+
+<!-- MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+<div id='mdlDescripcionBL' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Descripción del BL</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <textarea id="txtDescripcionBL" onkeypress="return false;" cols="30" rows="10" data-width="100%"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PARA VISUALIZAR LA DESCRIPCIÓN DEL BL -->
+
+@Html.Action("_visorGrid")
+
+<!-- SCRIPTS -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/js/Maquinaria/Backlogs/IndicadoresRehabilitacionTMC.js"></script>
+<script src="~/Scripts/select2.js"></script>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>

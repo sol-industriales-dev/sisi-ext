@@ -1,0 +1,152 @@
+﻿@{
+    ViewBag.Title = "Gestion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Captura/Style-CapturaReportes.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.rowReorder.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/chart/Chart.labelPie.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/GestionCargoNominaCC.js"></script>
+
+<style>
+    #tblDataCargosNomina_wrapper thead > tr > th {
+        background-color: #81bd72;
+        color: #fff;
+    }
+
+    #tblDataCargosNomina tbody > tr td {
+        border-bottom: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
+
+    #fieldTablaCargosNomina .dataTables_wrapper .ui-corner-tl {
+        display: none;
+    }
+
+    #fieldTablaCargosNomina .ui-widget-header {
+        background-color: #81bd72;
+        color: #fff;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Gestión de cargo de nómina por CC</h2>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <fieldset id="fieldTabsCargosNomina">
+                <div class="row">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">Filtros:</legend>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Areas-Cuenta: </label>
+                            <select class="form-control" id="cboCentroCostos"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                            <label>Periodo: </label>
+                            <select class="form-control" id="cboPeriodos"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                            <label>Estatus: </label>
+                            <select class="form-control" id="cboStatus">
+                                <option value="0">En espera</option>
+                                <option value="1">Verificado/Virtual</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-1">
+                            <button class="btn btn-info margin-top" id="btnAplicarFiltros">
+                                <span class="glyphicon glyphicon-search"></span> Filtrar
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divCargosNomina">
+                        <fieldset id="fieldTablaCargosNomina" style="border: 1px solid black;">
+                            <div class="container-fluid">
+                                <div class="row" id="rowTabla">
+                                    <div class="widget">
+                                        <div class="widget-header"></div>
+                                        <div class="widget-content">
+                                            <table class="hover" id="tblDataCargosNomina" style="width: 100%;">
+                                                <thead></thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div id="mdlCalculo" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">
+                    <label>Calculo Nómina</label>
+                    <span id="spVerificado"></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row container-fluid">
+                    <div class="col-md-6 col-lg-6">
+                        <label>Proyectos:</label>
+                        <input class="form-control" id="txtProyectos" readonly>
+                    </div>
+                    <div class="col-md-3 col-lg-3">
+                        <label>Nómina Semanal:</label>
+                        <input class="form-control" id="txtNominaSemanal">
+                    </div>
+                    <div class="col-md-3 col-lg-3">
+                        <button id="btnImprimir" class="btn btn-primary margin-top glyphicon glyphicon-print" type="button" data-toggle="tooltip" title="Imprimir"></button>
+                        <button id="btnGuardar" class="btn btn-success margin-top glyphicon glyphicon-floppy-save" type="button" data-toggle="tooltip" title="Guardar" data-isVerifica="false"></button>
+                        <button id="btnVerificar" class="btn btn-success margin-top glyphicon glyphicon-check" type="button" data-toggle="tooltip" title="Verificar" data-isVerifica="true"></button>
+                    </div>
+                    <div class="col-md-12 col-lg-12">
+                        <div class="table-responsive">
+                            <table id="tblDet" class="table table-fixed table-responsive table-striped">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th class="text-center">Económico</th>
+                                        <th class="text-center">Descripción</th>
+                                        <th class="text-center">CentroCostos</th>
+                                        <th class="text-center">H-H del Periodo</th>
+                                        <th class="text-center">% cargo</th>
+                                        <th class="text-center">Cargo por Máquina $</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-2 col-lg-2">
+                        <label>H-H del Periodo:</label>
+                        <input class="form-control text-right" id="txtTotalHH" readonly>
+                    </div>
+                    <div class="col-md-2 col-lg-2">
+                        <label>Cargo por Máquina $:</label>
+                        <input class="form-control text-right" id="txtTotalCargo" readonly>
+                    </div>
+                <button type="button" class="btn btn-warning margin-top" data-dismiss="modal"><i class="fa fa-arrow-left"></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("reportViewerView", false)

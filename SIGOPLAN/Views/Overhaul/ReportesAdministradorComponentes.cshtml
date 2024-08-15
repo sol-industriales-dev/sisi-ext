@@ -1,0 +1,902 @@
+﻿
+@{
+    ViewBag.Title = "ReportesAdministradorComponentes";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!--CSS-->
+<link href="~/Content/style/css/Maquinaria/Overhaul/ReportesAdministracionComponentes.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Scripts/js/Principal/Home/vendor/select2/select2.min.css" rel="stylesheet" />
+<!---->
+<h2 class="text-center">Reportes</h2>
+<div class="container-fluid">
+    <ul class="nav nav-tabs" id="ulNuevo">
+        <li class="active"><a id="tabRemociones" data-toggle="tab" href="#remociones">Bitácora de Componentes Removidos</a></li>
+        <li><a id="tabReparacionesPendientes" data-toggle="tab" href="#reparacionesPendientes" style="display:none">Reparaciones Pendientes</a></li>
+        <li><a id="tabTiemposCRC" data-toggle="tab" href="#tiemposCRC">Tiempos Reparación</a></li>
+        <li><a id="tabVidaUtil" data-toggle="tab" href="#vidaUtil" style="display:none">Vida Útil</a></li>            
+        <li><a id="tabDesecho" data-toggle="tab" href="#desecho" style="display:none">Desecho de componentes</a></li>            
+        
+        <li><a id="tabValorAlmacen" data-toggle="tab" href="#valorAlmacen" style="display:none">Histórico de valor de almacén</a></li>
+        <li><a id="tabMaestro" data-toggle="tab" href="#maestro" style="display:none">Listado Maestro</a></li>
+        <li><a id="tabComponent" data-toggle="tab" href="#component">Component List</a></li>
+        <li><a id="tabInventario" data-toggle="tab" href="#inventario">Inventario</a></li>
+        <li><a id="tabCompReparacion" data-toggle="tab" href="#compReparacion">Componentes en Reparación</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="vidaUtil" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Grupo Máquina:</label>
+                        <select class="form-control" id="cboGrupoVida"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Modelo Máquina:</label>
+                        <select class="form-control" id="cboModeloVida" disabled></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Fecha Inicio:</label>
+                        <input class="form-control" id="txtFIVida" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Fecha Fin:</label>
+                        <input class="form-control" id="txtFFVida" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-11">
+                        <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarVida">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                    </div> 
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteVida" disabled>
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>                     
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes vida útil:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridVidaUtil" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="equipo" class="text-center" style="">EQUIPO</th>
+                                    <th data-column-id="componente" class="text-center" style="">COMPONENTE</th>
+                                    <th data-column-id="ordenCRC" class="text-center" style="">ORDEN CRC</th>
+                                    <th data-column-id="dlls" class="text-center" style="">COSTO US</th>
+                                    <th data-column-id="costoPromedio" class="text-center" style="" data-formatter="costoPromedio">COSTO PROMEDIO</th>
+                                    <th data-column-id="fecha" class="text-center" style="" data-formatter="fecha">FECHA</th>
+                                    <th data-column-id="noComponente" class="text-center" style="" data-formatter="noComponente">SERIE COMPONENTE</th>
+                                    <th data-column-id="vida" class="text-center" style="" data-formatter="vida">VIDA</th>
+                                    <th data-column-id="horometro" class="text-center" style="" data-formatter="horometro">HOROMETRO</th>
+                                    <th data-column-id="horasAcumuladas" class="text-center" style="" data-formatter="horasACumuladas">HOROMETRO ACUMULADO</th>
+                                    <th data-column-id="motivo" class="text-center" style="" data-formatter="motivo">MOTIVO DE REMOCION</th>
+                                    <th data-column-id="causa" class="text-center" style="" data-formatter="causa">CAUSA</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteVidaUtil">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        @*<div id="removidos" class="tab-pane">
+            </div>*@
+        <div id="reparacionesPendientes" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Fecha inicial:</label>
+                            <input class="form-control" id="txtFechaInicioReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Fecha final:</label>
+                            <input class="form-control" id="txtFechaFinReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtSubconjuntoReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Serie:</label>
+                            <input class="form-control" id="txtNoCompReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Obra:</label>
+                            <select class="form-control" id="cboObraReparaciones"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Económico:</label>
+                            <input class="form-control" id="txtEconomicoReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Proveedor:</label>
+                            <select class="form-control" id="cboProveedorReparaciones"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Cotización:</label>
+                            <input class="form-control" id="txtCotizacionReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Comprador:</label>
+                            <input class="form-control" id="txtCompradorReparaciones">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarReparaciones">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                            <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteReparaciones" disabled>
+                                <span class="glyphicon glyphicon-file"></span> Reporte
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reparaciones Pendientes:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">                            
+                        <table id="tblReparaciones" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="descripcion" class="text-center" style="" data-formatter="descripcion">DESCRIPCIÓN</th>
+                                    <th data-column-id="noComponente" class="text-center" style="" data-formatter="noComponente">SERIE</th>
+                                    <th data-column-id="noEconomico" class="text-center" style="" data-formatter="noEconomico">ECO.</th>
+                                    <th data-column-id="obra" class="text-center" style="" data-formatter="obra">OBRA</th>
+                                    @*<th data-column-id="fecha_envio" class="text-center" style="" data-formatter="fecha_envio">FECHA&lt;br&gt;ENVÍO</th>*@
+                                    <th data-column-id="fecha_recepcion" class="text-center" style="" data-formatter="fecha_recepcion">FECHA&lt;br&gt;RECEPCIÓN</th>
+                                    <th data-column-id="cotizacion" class="text-center" style="" data-formatter="cotizacion">COTIZACIÓN</th>
+                                    <th data-column-id="proveedor" class="text-center" style="" data-formatter="proveedor">PROVEEDOR</th>
+                                    <th data-column-id="rq" class="text-center" style="" data-formatter="rq">&nbsp;&nbsp;&nbsp;RQ&nbsp;&nbsp;&nbsp;</th>
+                                    @*<th data-column-id="fecha_rq" class="text-center" style="" data-formatter="fecha_rq">FECHA&lt;br&gt;RQ</th>*@
+                                    <th data-column-id="comprador" class="text-center" style="" data-formatter="comprador">COMPRADOR</th>
+                                    <th data-column-id="oc" class="text-center" style="" data-formatter="oc">&nbsp;&nbsp;&nbsp;OC&nbsp;&nbsp;&nbsp;</th>
+                                    <th data-column-id="fecha_terminacion" class="text-center" style="" data-formatter="fecha_terminacion">FECHA&lt;br&gt;TERMINADO</th>
+                                    @*<th data-column-id="factura" class="text-center" style="" data-formatter="factura">FACTURA</th>*@ 
+                                    @*<th data-column-id="almacen" class="text-center" style="" data-formatter="almacen">ALMACEN</th>*@                               
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteReparaciones">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="tiemposCRC" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Tipo Rastreo:</label>
+                            <select class="form-control" id="cbotipoRastreoTiemposCRC">
+                                <option value="1">Operativo</option>
+                                <option value="2">Administrativo</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Fecha inicial:</label>
+                            <input class="form-control" id="txtFechaInicioTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Fecha final:</label>
+                            <input class="form-control" id="txtFechaFinTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Subconjunto:</label>
+                            <input class="form-control" id="txtSubconjuntoTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Serie:</label>
+                            <input class="form-control" id="txtNoCompTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Obra:</label>
+                            <select class="form-control" id="cboObraTiemposCRC"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Económico:</label>
+                            <input class="form-control" id="txtEconomicoTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Proveedor:</label>
+                            <select class="form-control" id="cboProveedorTiemposCRC" style="width:100%" multiple="multiple"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                            <label>Cotización:</label>
+                            <input class="form-control" id="txtCotizacionTiemposCRC">
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4 margin-top pull-right">
+
+                             <button type="button" class="btn btn-info" id="btnBuscarTiemposCRC">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                            &nbsp;&nbsp;
+                             <button type="button" class="btn btn-warning " id="btnReporteTiemposCRC" disabled>
+                                <span class="glyphicon glyphicon-file"></span> Reporte
+                            </button> 
+                        &nbsp;&nbsp;
+                             <button type="button" data-toggle="modal" data-target="#ModalCorreosAlmacen" class="btn btn-primary borrar" id="btnCorreosAlmacen">
+                                <span class="glyphicon glyphicon-envelope"></span> Correo
+                            </button>    
+                        &nbsp;&nbsp;                                     
+                        </div>
+                    </div>
+
+          <div class="modal fade" id="ModalCorreosAlmacen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+            <div class="modal-dialog modal-md" style="" role="document">
+                <div class="modal-content">
+                    <div class="modal-header modal-bg">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                        <div class="text-center">
+                            <h3><label>Enviar reporte a:</label></h3>
+                        </div>
+                    </div>
+                    <div class="modal-body text-center modal-content-tamaño">
+                        <div class="container-fluid">
+
+                            <form novalidate="novalidate">
+                                <div class="row" style="width:100%; text-align:center;">
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">AGREGAR CORREO:</legend>
+                                        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+                                            <input class="form-control" type="email" id="txtCorreo" size="30" required>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                            <button id="agregarCorreo" type='button' class='btn btn-primary col-xs-6 col-sm-6 col-md-6 col-lg-6 eliminar col-centered'><span class='glyphicon glyphicon-plus-sign'></span></button>
+                                        </div>
+                                    </fieldset>                                            
+                                    <fieldset class="fieldset-custm">
+                                        <legend class="legend-custm">CORREOS:</legend>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tablaMediana">
+                                            <table id="tblCorreos" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th data-column-id="id" class="text-center" style="display:none;" data-formatter="id" data-identifier="true" data-type="numeric" data-visible="false">ID</th>
+                                                        <th data-column-id="correo" class="text-left" style="" data-formatter="fecha">CORREO</th>
+                                                        <th data-column-id="eliminar" class="text-left" style="" data-formatter="eliminar">ELIMINAR</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody><tr><td colspan="3" class="no-results">No se encontró información</td></tr></tbody>
+                                            </table>
+                                             <button type="button" class="btn btn-primary" id="btnEnviar">
+                                                    <span class="glyphicon glyphicon-envelope"></span> Enviar Reporte
+                                             </button>    
+
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       </fieldset>
+                
+
+ 
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Tiempos de Reparación:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="tblTiemposCRC" class="table table-condensed table-hover table-striped text-center bootgrid-table " aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="descripcion" data-header-css-class="text-center verticalText" style="" data-formatter="descripcion">DESC</th>
+                                    <th data-column-id="noComponente" data-header-css-class="text-center verticalText" style="" data-formatter="noComponente">SERIE</th>
+                                    <th data-column-id="noEconomico" data-header-css-class="text-center verticalText" style="" data-formatter="noEconomico">ECO</th>
+                                    <th data-column-id="obra" data-header-css-class="text-center verticalText" style="" data-formatter="obra">OBRA</th>
+                                    <th data-column-id="cotizacion" data-header-css-class="text-center verticalText" style="" data-formatter="cotizacion">COTI</th>
+                                    <th data-column-id="proveedor" data-header-css-class="text-center verticalText" style="" data-formatter="proveedor">PROV</th>
+                                    <th data-column-id="fechaEnvioCRC" data-header-css-class="text-center verticalText" style="" data-formatter="fechaEnvioCRC">FECHA&lt;br&gt;ENVÍO</th>
+                                    <th data-column-id="trasladoCRC" data-header-css-class="text-center verticalText" style="" data-formatter="trasladoCRC">TRAS&lt;br&gt;CRC</th>
+                                    <th data-column-id="fechaRecepcionCRC" data-header-css-class="text-center verticalText" style="" data-formatter="fechaRecepcionCRC">FECHA&lt;br&gt;RECEP</th>
+                                    <th data-column-id="desarmado" data-header-css-class="text-center verticalText" style="" data-formatter="desarmado">DESAR</th>
+                                    <th data-column-id="fechaCotizacion" data-header-css-class="text-center verticalText" style="" data-formatter="fechaCotizacion">FECHA&lt;br&gt;COTI</th>
+                                    <th data-column-id="autorizacion" data-header-css-class="text-center verticalText" style="" data-formatter="autorizacion">AUTOR</th>
+                                    <th data-column-id="fechaAutorizacion" data-header-css-class="text-center verticalText" style="" data-formatter="fechaAutorizacion">FECHA&lt;br&gt;AUTO</th>
+                                    <th data-column-id="armado" data-header-css-class="text-center verticalText" style="" data-formatter="armado">ARM</th>
+                                    <th data-column-id="fechaTerminado" data-header-css-class="text-center verticalText" style="" data-formatter="fechaTerminado">FECHA&lt;br&gt;TERM</th>
+                                    <th data-column-id="recoleccion" data-header-css-class="text-center verticalText" style="" data-formatter="recoleccion">RECOL</th>
+                                    <th data-column-id="fechaRecoleccion" data-header-css-class="text-center verticalText" style="" data-formatter="fechaRecoleccion">FECHA&lt;br&gt;RECOL</th>
+                                    <th data-column-id="trasladoAlmacen" data-header-css-class="text-center verticalText" style="" data-formatter="trasladoAlmacen">TRAS&lt;br&gt;ALM</th>
+                                    <th data-column-id="fechaEntradaAlmacen" data-header-css-class="verticalText" style="" data-formatter="fechaEntradaAlmacen">FECHA&lt;br&gt;ALM</th>
+                                    <th data-column-id="diasProceso" data-header-css-class="verticalText" style="" data-formatter="diasProceso">DIAS&lt;br&gt;PROCESO</th>
+                                    <th data-column-id="diasCRC" data-header-css-class="verticalText" style="" data-formatter="diasCRC">DIAS&lt;br&gt;CRC</th>
+                                    <th data-column-id="diasReparacion" data-header-css-class="verticalText" style="" data-formatter="diasReparacion">DIAS&lt;br&gt;REPARA</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla" hidden>
+                        <table id="tblRastreoAdminTiemposCRC" class="table table-condensed table-hover table-striped text-center bootgrid-table " aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="descripcion" data-header-css-class="text-center verticalText" style="" data-formatter="descripcion">DESC</th>
+                                    <th data-column-id="noComponente" data-header-css-class="text-center verticalText" style="" data-formatter="noComponente">SERIE</th>
+                                    <th data-column-id="noEconomico" data-header-css-class="text-center verticalText" style="" data-formatter="noEconomico">ECO</th>
+                                    <th data-column-id="horasRemocion" data-header-css-class="text-center verticalText" style="" data-formatter="horasRemocion">HORAS&lt;br&gt;REMOCIÓN</th>
+                                    <th data-column-id="obra" data-header-css-class="text-center verticalText" style="" data-formatter="obra">OBRA</th>
+                                    <th data-column-id="fechaEnvioCRC" data-header-css-class="text-center verticalText" style="" data-formatter="fechaEnvioCRC">FECHA&lt;br&gt;ENVÍO</th>
+                                    <th data-column-id="proveedor" data-header-css-class="text-center verticalText" style="" data-formatter="proveedor">PROV</th>
+                                    <th data-column-id="trasladoCRC" data-header-css-class="text-center verticalText" style="" data-formatter="trasladoCRC">TRAS&lt;br&gt;CRC</th>
+                                    <th data-column-id="fechaRecepcionCRC" data-header-css-class="text-center verticalText" style="" data-formatter="fechaRecepcionCRC">FECHA&lt;br&gt;RECEP</th>
+                                    <th data-column-id="diasReparacion" data-header-css-class="verticalText" style="" data-formatter="diasReparacion">DIAS&lt;br&gt;REPARA</th>
+                                    <th data-column-id="cotizacion" data-header-css-class="text-center verticalText" style="" data-formatter="cotizacion">COTI</th>
+                                    <th data-column-id="rq" data-header-css-class="text-center verticalText" style="" data-formatter="rq">RQ</th>
+                                    <th data-column-id="comprador" data-header-css-class="text-center verticalText" style="" data-formatter="comprador">COMPRADOR</th>
+                                    <th data-column-id="oc" data-header-css-class="text-center verticalText" style="" data-formatter="oc">OC</th>
+                                    <th data-column-id="costoCotizacion" data-header-css-class="text-center verticalText" style="" data-formatter="costoCotizacion">COSTO&lt;br&gt;COTI</th>
+                                    <th data-column-id="fechaTerminado" data-header-css-class="text-center verticalText" style="" data-formatter="fechaTerminado">FECHA&lt;br&gt;TERM</th>
+                                    <th data-column-id="recoleccion" data-header-css-class="text-center verticalText" style="" data-formatter="recoleccion">RECOL</th>
+                                    <th data-column-id="fechaRecoleccion" data-header-css-class="text-center verticalText" style="" data-formatter="fechaRecoleccion">FECHA&lt;br&gt;RECOL</th>
+                                    <th data-column-id="trasladoAlmacen" data-header-css-class="text-center verticalText" style="" data-formatter="trasladoAlmacen">TRAS&lt;br&gt;ALM</th>
+                                    <th data-column-id="fechaEntradaAlmacen" data-header-css-class="verticalText" style="" data-formatter="fechaEntradaAlmacen">FECHA&lt;br&gt;ALM</th>
+                                    <th data-column-id="factura" data-header-css-class="verticalText" style="" data-formatter="factura">FOLIO&lt;br&gt;FACTURA</th>
+                                    <th data-column-id="diasProceso" data-header-css-class="verticalText" style="" data-formatter="diasProceso">DIAS&lt;br&gt;PROCESO</th>
+                                    <th data-column-id="diasCRC" data-header-css-class="verticalText" style="" data-formatter="diasCRC">DIAS&lt;br&gt;CRC</th>   
+                                    <th data-column-id="fechaInstalacion" data-header-css-class="verticalText" style="" data-formatter="fechaInstalacion">FECHA&lt;br&gt;INSTALACIÓN</th> 
+                                    <th data-column-id="equipoInstalacion" data-header-css-class="verticalText" style="" data-formatter="equipoInstalacion">EQUIPO&lt;br&gt;INSTALACIÓN</th> 
+                                    <th data-column-id="horasSiguientes" data-header-css-class="verticalText" style="" data-formatter="horasSiguientes">HORAS&lt;br&gt;ACTUALES</th> 
+                                    <th data-column-id="fechaRemocion" data-header-css-class="verticalText" style="" data-formatter="fechaRemocion">FECHA&lt;br&gt;REMOCIÓN</th> 
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteTiemposCRC">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="desecho" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Componente:</label>
+                        <input class="form-control ui-autocomplete-input" id="txtComponenteDesecho" type="text" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Conjunto:</label>
+                        <select class="form-control" id="cboConjuntoDesecho"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Subconjunto:</label>
+                        <select class="form-control" id="cboSubconjuntoDesecho" disabled></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Fecha Inicio:</label>
+                        <input class="form-control" id="txtFechaInicioDesecho">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Fecha Fin:</label>
+                        <input class="form-control" id="txtFechaFinDesecho">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-9">
+                        <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarDesecho">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes Desecho:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="tblDesecho" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="fecha" class="text-center" style="">Fecha</th>
+                                    <th data-column-id="noComponente" class="text-center" style="">Componente</th>
+                                    <th data-column-id="subConjunto" class="text-center" style="">Subconjunto</th>
+                                    <th data-column-id="verReporte" class="text-center" data-formatter="verReporte">Ver Reporte</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteDesecho">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="remociones" class="tab-pane fade in active">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Estatus:</label>
+                        <select class="form-control" id="cboEstatusRR">
+                            <option value="-2">Todos</option>
+                            <option value="2">VoBo</option>
+                            <option value="5" selected>Autorizado</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Motivo:</label>
+                        <select class="form-control" id="cboMotivoRemocion">
+                            <option value=''>--Seleccione--</option>
+                            <option value="0">VIDA ÚTIL</option>
+                            <option value="1">FALLA</option>
+                            <option value="2">ESTRATEGIA</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                        <label>Fecha inicial:</label>
+                        <input class="form-control" id="txtFechaInicioRR">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3">
+                        <label>Fecha final:</label>
+                        <input class="form-control" id="txtFechaFinRR">
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2" style="padding:0;">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding:0;">
+                            <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarRR">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-left:0;">
+                            <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteRR">
+                                <span class="glyphicon glyphicon-file"></span> Reporte
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Obra:</label>
+                        <select class="form-control" multiple="multiple" id="cboCCRR"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Modelo:</label>
+                        <select class="form-control" multiple="multiple" id="cboModeloRR"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Económico:</label>
+                        <input class="form-control ui-autocomplete-input" id="txtFiltroEconomicoRR" type="text" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Subconjunto:</label>
+                        <input class="form-control ui-autocomplete-input" id="txtFiltroDescripcionComponenteRR" type="text" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Serie:</label>
+                        <input class="form-control" id="txtNoComponenteRR">
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes Remoción:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridReportes" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="noEconomico" class="text-center" style="">EQUIPO</th>
+                                    <th data-column-id="fecha" class="text-center" style="">FECHA&lt;br&gt;REMOCIÓN</th>
+                                    <th data-column-id="subConjunto" class="text-center" style="">DESCRIPCIÓN</th>
+                                    <th data-column-id="componenteRemovido" class="text-center" style="">SERIE&lt;br&gt;COMPONENTE</th>
+                                    <th data-column-id="motivo" class="text-center" style="" data-formatter="motivo">CONCEPTO</th>
+                                    <th data-column-id="horasCiclo" class="text-center" style="" data-formatter="horasCiclo">HORAS&lt;br&gt;VIDA ÚTIL</th>
+                                    <th data-column-id="target" class="text-center" style="" data-formatter="target">HORAS&lt;br&gt;ESTIMADAS</th>                                        
+                                    <th data-column-id="porcentajeRemocion" class="text-center" style="whidth:3%">% precision&lt;br&gt;de remocion</th> 
+                                    <th data-column-id="cc" class="text-center" style="">OBRA</th>
+                                    <th data-column-id="destinoStr" class="text-center" style="">DESTINO</th> 
+                                    <th data-column-id="costo" class="text-center" style="" data-formatter="costo">COSTO</th>
+                                    <th data-column-id="verReporte" class="text-center" style="" data-formatter="verReporte">REPORTE</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteRemocion">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="valorAlmacen" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                            <label>Año:</label>
+                            <select class="form-control" id="cboAnioValorAlmacen"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8">
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarValorAlmacen">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                            <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteValorAlmacen">
+                                <span class="glyphicon glyphicon-file"></span> Reporte
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Historial de valor de almacén:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridValorAlmacen" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="almacen" class="text-center" style="">Almacén</th>
+                                    <th data-column-id="enero" class="text-center" style="" data-formatter="enero">Enero</th>
+                                    <th data-column-id="febrero" class="text-center" style="" data-formatter="febrero">Febrero</th>
+                                    <th data-column-id="marzo" class="text-center" style="" data-formatter="marzo">Marzo</th>
+                                    <th data-column-id="abril" class="text-center" style="" data-formatter="abril">Abril</th>
+                                    <th data-column-id="mayo" class="text-center" style="" data-formatter="mayo">Mayo</th>
+                                    <th data-column-id="junio" class="text-center" style="" data-formatter="junio">Junio</th>
+                                    <th data-column-id="julio" class="text-center" style="" data-formatter="julio">Julio</th>
+                                    <th data-column-id="agosto" class="text-center" style="" data-formatter="agosto">Agosto</th>
+                                    <th data-column-id="septiembre" class="text-center" style="" data-formatter="septiembre">Septiembre</th>
+                                    <th data-column-id="octubre" class="text-center" style="" data-formatter="octubre">Octubre</th>
+                                    <th data-column-id="noviembre" class="text-center" style="" data-formatter="noviembre">Noviembre</th>
+                                    <th data-column-id="diciembre" class="text-center" style="" data-formatter="diciembre">Diciembre</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteValorAlmacen">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="maestro" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                            <label>Calendario:</label>
+                            <select class="form-control" id="cboCalendarioMaestro"></select>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-8">
+                            <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarMaestro">
+                                <span class="glyphicon glyphicon-search"></span> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Historial de valor de almacén:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridMaestro" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="obra" class="text-center" style="">Obra</th>
+                                    <th data-column-id="equipo" class="text-center" style="" data-formatter="equipo">Equipo</th>
+                                    <th data-column-id="ritmo" class="text-center" style="" data-formatter="ritmo">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text"></span>Ritmo<span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>
+                                    <th data-column-id="hrsComponente" class="text-center" style="" data-formatter="hrsComponente">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text"></span>Horas componente al corte<span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>
+                                    <th data-column-id="target" class="text-center" style="" data-formatter="target">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text"></span>Target<span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>
+                                    <th data-column-id="fechaPCR" class="text-center" style="" data-formatter="fechaPCR">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text"></span>Próximo PCR<span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>
+                                    <th data-column-id="causa" class="text-center" style="" data-formatter="causa">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text">Causa</span><span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>  
+                                    <th data-column-id="detalle" class="text-center" style="" data-formatter="detalle">
+                                        <a href="javascript:void(0);" class="column-header-anchor ">
+                                            <span class="text">Detalle</span><span class="icon glyphicon "></span>
+                                        </a>
+                                    </th>                                       
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteMaestro">
+                @Html.Partial("reportViewerView")
+            </div>
+            <div class="modal fade" id="modalDetallesMaestro" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" style="display: none;">
+                <div class="modal-dialog modal-lg" style="width:95%;" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header modal-bg">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            <div class="text-center">
+                                <h3><label id="title-modal-maestro"></label></h3>
+                            </div>
+                        </div>
+                        @*<div class="modal-body text-center modal-content-tamaño">
+                            <div class="container-fluid">
+                                <fieldset class="fieldset-custm fielset-Filtros">
+                                    <legend class="legend-custm">Filtros:</legend>
+                                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                        <label>No. Económico:</label>
+                                        <select class="form-control" id="cboFiltroModalEconomico"></select>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-2">
+                                        <label>No. Componente:</label>
+                                        <input class="form-control" id="txtFiltroModalComponente" type="text" maxlength="100">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                                        <button type="button" class="btn btn-info margin-top" id="btnBuscarModal">
+                                            <span class="glyphicon glyphicon-search"></span> Buscar
+                                        </button>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>*@
+                        <div class="modal-body text-center modal-content-tamaño">
+                            <div class="container-fluid">
+                                <form id="frmDetalleOHMaestro" novalidate="novalidate">
+
+                                    <div class="row">
+                                        <fieldset class="fieldset-custm">
+                                            <legend class="legend-custm">Detalles componentes equipo:</legend>
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                                                <table id="gridDetallesModalMaestro" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                                                    <thead class="bg-table-header" style="color:white">
+                                                        <tr>
+                                                            <th data-column-id="Text" class="text-center" style="" data-formatter="Text">
+                                                                <a href="javascript:void(0);" class="column-header-anchor " style="color:white">
+                                                                    <span class="text">Estatus</span><span class="icon glyphicon "></span>
+                                                                </a>
+                                                            </th>
+                                                            <th data-column-id="Prefijo" class="text-center" style="" data-formatter="Prefijo">
+                                                                <a href="javascript:void(0);" class="column-header-anchor " style="color:white">
+                                                                    <span class="text">Descripcion</span><span class="icon glyphicon "></span>
+                                                                </a>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="component" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Locación:</label>
+                        </div>
+                        <select class="form-control" id="cboLocacionComponent" style="width:100%"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Serie:</label>
+                        </div>
+                        <select class="form-control" id="noComponenteComponent" style="width:100%"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Conjunto:</label>
+                        <select class="form-control" id="cboConjuntoComponent"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Subconjunto:</label>
+                        <select class="form-control" id="cboSubconjuntoComponent" disabled></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>Modelo:</label>
+                        <select class="form-control" id="cboModeloComponent" style="width:100%" multiple="multiple"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <label>Obra:</label>
+                        <select class="form-control" id="cboObraComponent"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarComponent">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteComponent" disabled>
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Component List:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridComponent" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="locacion" class="text-center">LOCACIÓN</th>
+                                    <th data-column-id="noComponente" class="text-center">SERIE</th>
+                                    <th data-column-id="noParte" class="text-center">No. DE&lt;br&gt;PARTE</th>
+                                    <th data-column-id="subconjunto" class="text-center">SUBCONJUNTO</th>
+                                    <th data-column-id="horasAcumuladas" class="text-center">HORAS&lt;br&gt;ACUMULADAS</th>
+                                    <th data-column-id="numVidasAcumuladas" class="text-center"># VIDAS</th>
+                                    <th data-column-id="fechaRaw" class="text-center" data-formatter="fechaRaw">FECHA&lt;br&gt;ENTRADA</th>
+                                    <th data-column-id="horasCicloActual">HORAS&lt;br&gt;CICLO</th>
+                                    <th data-column-id="cicloVidaHoras" class="text-center">TARGET</th>
+                                    <th data-column-id="fechaProxRemocionRaw" class="text-center" data-formatter="fechaProxRemocionRaw">PRÓXIMO&lt;br&gt;PCR</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteComponent">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="inventario" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Almacén:</label>
+                        </div>
+                        <select class="form-control" id="cboLocacionInventario" style="width:100%"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Serie:</label>
+                        </div>
+                        <select class="form-control" id="noComponenteInventario" style="width:100%"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Conjunto:</label>
+                        <select class="form-control" id="cboConjuntoInventario"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Subconjunto:</label>
+                        <select class="form-control" id="cboSubconjuntoInventario" disabled></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <label>Fecha Entrada:</label>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-left:0;">
+                            <input class="form-control" id="fechaInicioInventario" placeholder="Inicio" />
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-right:0;">
+                            <input class="form-control" id="fechaFinInventario" placeholder="Fin" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                        <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarInventario">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteInventario" disabled>
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Inventario de componentes:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridInventario" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="locacion" class="text-center">LOCACIÓN</th>
+                                    <th data-column-id="noComponente" class="text-center">SERIE</th>
+                                    <th data-column-id="subconjunto" class="text-center">SUBCONJUNTO</th>
+                                    <th data-column-id="horasAcumuladas" class="text-center">HORAS&lt;br&gt;ACUMULADAS</th>
+                                    <th data-column-id="numVidasAcumuladas" class="text-center"># VIDAS</th>
+                                    <th data-column-id="fechaRaw" class="text-center" data-formatter="fechaRaw">FECHA&lt;br&gt;ENVÍO</th>
+                                    <th data-column-id="horasCicloActual">HORAS&lt;br&gt;CICLO</th>
+                                    <th data-column-id="cicloVidaHoras" class="text-center">TARGET</th>
+                                    <th data-column-id="diasAlmacenado" class="text-center" data-formatter="diasAlmacenado">DÍAS&lt;br&gt;ALMACÉN</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteInventario">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+        <div id="compReparacion" class="tab-pane">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Filtros:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>CRC:</label>
+                        <select class="form-control" id="cboLocacionCompReparacion" style="width:100%"> </select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Grupo:</label>
+                        <select class="form-control" id="cboGrupoCompReparacion" style="width:100%"></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2">
+                        <label>Modelo:</label>
+                        <select class="form-control" id="cboModeloCompReparacion" style="width:100%" disabled></select>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                        <label>Subconjunto:</label>
+                        <input class="form-control" id="subconjuntoCompReparacion" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                        <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscarCompReparacion">
+                            <span class="glyphicon glyphicon-search"></span> Buscar
+                        </button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                        <button type="button" class="btn btn-warning margin-top pull-right" id="btnReporteCompReparacion" disabled>
+                            <span class="glyphicon glyphicon-file"></span> Reporte
+                        </button>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Reportes vida útil:</legend>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                        <table id="gridCompReparacion" class="table table-condensed table-hover table-striped text-center bootgrid-table" aria-busy="false">
+                            <thead class="bg-table-header">
+                                <tr>
+                                    <th data-column-id="subconjunto" class="text-center" style="">DESCRIPCIÓN</th>
+                                    <th data-column-id="noComponente" class="text-center" style="">SERIE</th>
+                                    <th data-column-id="noEconomico" class="text-center" style="">No. ECONÓMICO</th>
+                                    <th data-column-id="cc" class="text-center" style="">OBRA</th>
+                                    <th data-column-id="locacion" class="text-center" style="" data-formatter="costoPromedio">PROVEEDOR</th>
+                                    <th data-column-id="cotizacion" class="text-center" style="" data-formatter="fecha">COTIZACIÓN</th>
+                                    <th data-column-id="costo" class="text-center" style="" data-formatter="noComponente">COSTO DE&lt;br&gt;REPARACIÓN</th>
+                                    <th data-column-id="costoPromedio" class="text-center" style="" data-formatter="vida">COSTO PROMEDIO&lt;br&gt;DE REPARACIÓN</th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="reporteCompReparacion">
+                @Html.Partial("reportViewerView")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!--Scripts-->
+<script src="~/Scripts/moment.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Overhaul/ReportesAdministradorComponentesJS.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src="~/Scripts/js/Principal/Home/vendor/select2/select2.min.js"></script>

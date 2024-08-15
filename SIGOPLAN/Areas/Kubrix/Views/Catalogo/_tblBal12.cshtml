@@ -1,0 +1,62 @@
+﻿@{List<Core.Entity.Kubrix.tblK_Bal12> lst = new SIGOPLAN.Areas.Kubrix.Controllers.CatalogoController().getlstBal12((string)Session["cc"]);}
+<link href="~/Content/style/css/Kubrix/Catalogo/_tblBal12.css" rel="stylesheet" />
+<div class="table-responsive">
+    <table id="tblBal12" class="table table-condensed table-hover table-striped text-center">
+        <thead class="bg-table-header">
+            <tr>
+                <th>DESCRIP.CONTABLE</th>
+                <th>MES ACTUAL</th>
+                <th>SALDO INICIAL</th>
+                <th>ENERO</th>
+                <th>FEBRERO</th>
+                <th>MARZO</th>
+                <th>ABRIL</th>
+                <th>MAYO</th>
+                <th>JUNIO</th>
+                <th>JULIO</th>
+                <th>AGOSTO</th>
+                <th>SEPT</th>
+                <th>OCTUBRE</th>
+                <th>NOVIEMBRE</th>
+                <th>DICIEMBRE</th>
+            </tr>
+            <tr><td colspan="16" class="text-center">@lst.FirstOrDefault().centroCosto</td></tr>
+        </thead>
+        <tbody>
+            @{
+                if (lst.Count == 0)
+                {
+                    <tr><td colspan="16" class="text-center"><text>No hay datos disponibles</text></td></tr>
+                }
+                else
+                {
+                    foreach (var g in lst.OrderBy(x => x.cc).GroupBy(g => g.cc))
+                    {
+                        foreach (var i in g)
+                        {
+                            <tr>
+                                <td>@i.cta <br />@i.descContable</td>
+                                <td>@i.mesAct.ToString("C2")</td>
+                                <td>@i.saldoInicial.ToString("C2")</td>
+                                <td>@i.enero.ToString("C2")</td>
+                                <td>@i.febrero.ToString("C2")</td>
+                                <td>@i.marzo.ToString("C2")</td>
+                                <td>@i.abril.ToString("C2")</td>
+                                <td>@i.mayo.ToString("C2")</td>
+                                <td>@i.junio.ToString("C2")</td>
+                                <td>@i.julio.ToString("C2")</td>
+                                <td>@i.agosto.ToString("C2")</td>
+                                <td>@i.septiembre.ToString("C2")</td>
+                                <td>@i.octubre.ToString("C2")</td>
+                                <td>@i.noviembre.ToString("C2")</td>
+                                <td>@i.diciembre.ToString("C2")</td>
+                            </tr>
+
+                        }
+                    }
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<script src="~/Scripts/js/Kubrix/catalogo/_tblBal12.js"></script>

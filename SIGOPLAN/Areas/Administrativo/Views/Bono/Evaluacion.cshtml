@@ -1,0 +1,252 @@
+﻿@{
+    ViewBag.Title = "Evaluacion";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<style type="text/css">
+    table.dataTable thead th,
+    table.dataTable tfoot th {
+        text-align: center;
+    }
+
+    .clsOne {
+        top: -7px;
+    }
+
+    #tblBono {
+        font-size: 10px;
+    }
+
+    #tblBono,
+    #tblBono.form-control {
+        font-size: 11px;
+    }
+
+    .select-editable {
+        position: relative;
+        background-color: white;
+        /*border:solid grey 1px;*/
+        width: 50px;
+        height: 18px;
+        color: black !important;
+    }
+
+    .select-editable select {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        font-size: 14px;
+        /*border:none;*/
+        width: 50px;
+        margin: 0;
+        margin-top: -9px;
+    }
+
+    .select-editable input {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 30px;
+        padding: 1px;
+        font-size: 12px;
+        /*border:none;*/
+        margin-top: -9px;
+    }
+
+    .select-editable select:focus,
+    .select-editable input:focus {
+        outline: none;
+    }
+</style>
+<h2 class="text-center">Evaluación Mensual</h2>
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fa fa-search"></i> Búscar</legend>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>CC</span>
+            <select id='selCC' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Tipo Nomina</span>
+            <select id='cboTipoNomina' class='form-control'>
+                <option value="1">SEMANAL</option>
+                <option value="4">QUINCENAL</option>
+                @*<option value="5">MENSUAL</option>*@
+            </select>
+        </div>
+    </div>
+    <div class='col-md-3 col-lg-3'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Periodo Aplica</span>
+            <select id='mpPeriodo' class='form-control'></select>
+        </div>
+    </div>
+    <div class='col-md-2 col-lg-1'>
+        <button id='btnCargar' type='button' class='btn btn-primary'><i class='fa fa-load'></i> Cargar</button>
+    </div>
+    <div class='col-md-2 col-lg-1'>
+        <button id='btnGuardar' type='button' class='btn btn-primary' style="display:none;"><i class='fa fa-save'></i> Guardar</button>
+    </div>
+    <div class='col-md-2 col-lg-1 pull-right'>
+        <button id='btnExcluidos' type='button' class='btn btn-primary' style="display:none;"><i class='fa fa-exclamation-triangle'></i> Excluidos</button>
+    </div>
+</fieldset>
+
+<fieldset class='fieldset-custm'>
+    <legend class='legend-custm'><i class="fas fa-hand-holding-usd"></i> Bono</legend>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1">
+            @*<b>% Asig</b>
+                <div class="select-editable">
+                <select id="cboSetTodoSel" onchange="this.nextElementSibling.value=this.value"></select>
+                <input id="cboSetTodo" type="text" name="format" value=""/>
+                </div>*@
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-1"></div>
+    </div>
+    <table id='tblBono' class='display compact' style="width:100%">
+        <thead class='bg-table-header'></thead>
+    </table>
+</fieldset>
+<fieldset class='fieldset-custm' id="divAceptacion">
+    <legend class='legend-custm'><i class="fas fa-user"></i> Aceptación</legend>
+    <div class="col-sm-12">
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-sm-6">Solicita: (Requerido)</th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input requerido autoriza" id="inpAuth1" placeholder="*" autocomplete="off" data-puesto="Gerente Obra" data-tipo="Solicita" data-orden="1" data-requerido="true"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Responsable de CC</label></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-sm-6">Valida: (Requerido)</th>
+                    <th class="col-sm-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input requerido autoriza" id="inpAuth2" placeholder="*" autocomplete="off" data-puesto="Capital Humano Obra" data-tipo="Valida" data-orden="2" data-requerido="true"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Capital Humano en Proyecto</label></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <label> Autoriza 1: (Requerido)</label>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+
+                            </div>
+                        </div>
+                    </th>
+                    <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input autoriza" id="inpAuth3" placeholder="*" autocomplete="off" data-puesto="Gerente / Director de Área" data-tipo="Autoriza 1" data-orden="3" data-requerido="true"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Gerente / Director de Área</label></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class=" table table-condensed table-hover table-striped text-center">
+            <thead class="bg-table-header">
+                <tr>
+                    <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                <label> VoBo: (Requerido)</label>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+
+                            </div>
+                        </div>
+                    </th>
+                    <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control ui-autocomplete-input autoriza" id="inpAuth4" placeholder="*" autocomplete="off" data-puesto="Capital Humano Central" data-tipo="VoBo" data-orden="4" data-requerido="true"> </td>
+                    <td class="text-center" style="vertical-align: middle;"><label>Capital Humano Central</label></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</fieldset>
+<div class="modal fade centered-modal text-center" id="modalExcluidos">
+    <div class="modal-dialog modal-lg" style="width:100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Listado de personal no candidato para bono</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id='tblExcluidos' class='display compact' style="width:100%">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Salir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Bono/Evaluacion.js"></script>

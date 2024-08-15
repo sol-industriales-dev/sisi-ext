@@ -1,0 +1,161 @@
+﻿<!-- Razor -->
+@{
+    ViewBag.Title = "Autorización capacitación";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/Capacitacion/AutorizacionCapacitacion.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .select2-container {
+        width: 100% !important;
+        display: block;
+        height: 34px !important;
+    }
+
+    .select2-selection {
+        height: 34px !important;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Autorización de capacitaciones <i class="fas fa-user-check"></i></h2>
+</div>
+
+<div id="divCapacitaciones">
+    <fieldset class="fieldset-custm">
+        <legend class="legend-custm"><label>Filtros:</label></legend>
+        <div class="row">
+
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Centro de Costos</span>
+                    <select name="" id="comboCC" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Curso</span>
+                    <select id="comboCurso" class="form-control select2"></select>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Estatus autorización:</span>
+                    <select id="comboEstatusAutorizacion" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <button id="botonBuscar" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button id="botonImprimir" class="btn btn-default">Imprimir Resultados</button>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset id="fieldsetCapacitaciones" class="fieldset-custm">
+        <legend class="legend-custm"><label>Capacitaciones:</label></legend>
+        <div class="row">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="tablaCapacitaciones" class="table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                    </thead>
+                </table>
+            </div>
+
+        </div>
+    </fieldset>
+</div>
+
+
+<fieldset id="fieldsetReporte" hidden class="fieldset-custm text-center">
+    <legend id="legendHome" class="legend-custm">
+        <i class="fa fa-home"></i> Reporte
+    </legend>
+    <iframe id="reportAutorizantesIndividual" align="middle" height="200" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+</fieldset>
+<fieldset id="fieldsetAutorizacion" hidden class="fieldset-custm text-center">
+    <legend class="legend-custm"><i class="fa fa-user"></i> Autorizantes</legend>
+    <div id="divAutorizantes" class="flex-container"></div>
+</fieldset>
+
+<div class="modal fade centered-modal" id="modalAutorizar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea autorizar este curso de capacitación?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="modalAutorizarbtnAutorizar">
+                    <i class='fa fa-check'></i> Autorizar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade centered-modal text-center" id="modalRechazar">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Está seguro que desea rechazar el curso de capacitación?</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modalAvisoCuerpo"><strong>Justifique el rechazo:</strong></p>
+                <textarea id="textAreaRechazo" required placeholder="Describa su rechazo en un mínimo de 20 caracteres" minlength="20" maxlength="450"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="modalAutorizarbtnRechazar">
+                    <i class='fa fa-ban'></i> Rechazar
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class='fa fa-arrow-left'></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCargaMasiva">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Carga Masiva</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFile" type="file">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button id="botonGuardarCargaMasiva" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/Capacitacion/AutorizacionCapacitacion.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+@Html.Partial("reportViewerView", false)

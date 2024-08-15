@@ -1,0 +1,458 @@
+﻿(() => {
+    $.namespace('Maquinaria.KPI.Autorizacion');
+    Autorizacion = function () {
+<<<<<<< Updated upstream
+        let busq, dtAuth, EnTurno, colExcel = [];
+=======
+        urlCboCC = '/Conciliacion/getCboCC';
+        let busq, dtAuth, EnTurno;
+>>>>>>> Stashed changes
+        var formatosID = 0;
+        const report = $('#report');
+        const mdlPanelAuth = $('#mdlPanelAuth');
+        const divAuthPanel = $('#divAuthPanel');
+        const lblAuthMessage = $('#lblAuthMessage');
+        const divAutorizantes = $('#divAutorizantes');
+        const cboAC = $('#cboAC');
+        const tblAuth = $('#tblAuth');
+        const cboEstado = $('#cboEstado');
+        const btnBuscar = $('#btnBuscar');
+        const cboPeriodo = $('#cboPeriodo');
+        const AuthCargar = originURL('/KPI/AuthCargar');
+        const AuthAprueba = originURL('/KPI/AuthAprueba');
+        const AuthRechaza = originURL('/KPI/AuthRechaza');
+        const CargarCaptura = originURL('/KPI/CargarCaptura');
+        const CargarAutorizantes = originURL('/KPI/CargarAutorizantes');
+        const CargarComboxAutorizantes = originURL('/KPI/CargarComboxAutorizantes');
+        const tblKPI = $("#tblKPI");
+
+        function builtTables(tbl1, tbl2, tbl3) {
+            let tr;
+            $('#theadID').empty();
+            $('#tbodyID').empty();
+
+            let pFilas = tbl1;
+            let pColumnas = tbl2;
+            let titulos = true;
+            let last = null;
+
+            for (let index = 0; index < pFilas.length; index++) {
+                if (pFilas[index].cod == '' && pFilas[index].tipoGrupo == 0) { //Crea los encabezados de la tabla tanto como las columnas.
+
+                    tr = createTR(theadID);
+                    tr.append(`<th colspan='2'class='clsEncabezado fix' >${pFilas[index].descripcion}</td>`);
+                    if (index == 0)
+                        tr.append(`<th colspan='${pColumnas.length}' class='clsEncabezadoColumnas '>${$("#cboGrupoEquipo option:selected").text()}</td > `);
+                    else {
+                        for (let index2 = 0; index2 < pColumnas.length; index2++) {
+                            if (index == 1)
+                                tr.append(`<th class='clsEncabezadoColumnas' style="width: 350px;"> ${pColumnas[index2].modelo}</td> `);
+                            else
+                                tr.append(`<th class='clsEncabezadoColumnas' style="width: 350px;"> ${pColumnas[index2].economico}</td> `);
+                        }
+                    }
+                }
+                else {
+                    tr = createTR(tbodyID);
+                    if (titulos) {
+
+                        //Columnas de los codigos.
+                        tr.append(`<th class='clsEncabezado fix'>COD</td > `);
+                        tr.append(`<th class='clsEncabezado fix'>Descripción</td > `);
+                        tr.append(`<td colspan = '${pColumnas.length}' class='clsEncabezado'> </td > `);
+                        titulos = false;
+                    }
+                    else {
+                        if (last !== pFilas[index].tipoGrupo) {
+                            //Este es el separador de los tipos de codigo
+                            tr.append(`<th colspan='2' class='clsEncabezadoCodigos fix'> ${pFilas[index].descripcionGrupo}</td >`);
+                            tr.append(`<td colspan='${pColumnas.length}' class='tdBlanco'></td >`);
+                            last = pFilas[index].tipoGrupo;
+                        }
+                        else {
+                            if (pFilas[index].cod == '') {
+                                //Esta es la seccion de los totales.
+                                tr.append((`<th colspan='2' class='clsTotales '> ${pFilas[index].descripcion}</td >`));
+                                for (let index2 = 0; index2 < pColumnas.length; index2++) {
+                                    tr.append(`<td> <input class="form-control clsTotales totalValue" data-tipo='${pFilas[index].tipoGrupo}' name='${pColumnas[index2].economico}' value='' disabled/></td >`);
+                                }
+                            }
+                            else {
+                                //Esta primera parte es la descripcion y codigo del valor.
+                                tr.append(`<th class='fix'> ${pFilas[index].cod}</td > `);
+                                tr.append(`<th class='fix'> ${pFilas[index].descripcion}</td > `);
+                                //Se encarga de rellenar los valores
+                                for (let index2 = 0; index2 < pColumnas.length; index2++) {
+                                    let newTD = document.createElement("td");
+                                    let newInput = document.createElement("input");
+                                    tr.append(newTD);
+                                    $(newTD).append(newInput);
+                                    $(newInput).addClass('form-control').addClass('inputCaptura');
+                                    const rebels = tbl3.filter(economico => economico.idEconomico == pColumnas[index2].economicoID && pFilas[index].cod == economico.codigoParo);
+
+                                    $(newInput).data().economico = pColumnas[index2].economico;
+                                    $(newInput).data().economicoID = pColumnas[index2].economicoID;
+                                    $(newInput).data().codigoID = pFilas[index].coidID;
+                                    $(newInput).data().codigo = pFilas[index].cod;
+                                    $(newInput).data().modeloID = pColumnas[index2].modeloID;
+                                    $(newInput).data().grupoID = pColumnas[index2].grupoID;
+                                    $(newInput).data().id = pColumnas[index2].id;
+                                    $(newInput).data().tipoGrupo = pFilas[index].tipoGrupo;
+                                    if (rebels.length > 0)
+                                        $(newInput).val(rebels[0].valor);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $('.inputCaptura').trigger('change');
+        }
+
+        function createTR(element) {
+            let newTR = document.createElement("tr");
+            element.append(newTR);
+            return $(newTR);
+        }
+
+        objPanelAuth = {
+            idPanelReporte: 11,
+            urlAuth: AuthAprueba,
+            urlRech: AuthRechaza,
+            urlLstAuth: AuthCargar,
+            callbackAuth: null,
+            callbackRech: null
+        };
+        (() => {
+            GeneraArregloColumnas();
+            setIframeResolution();
+            initDataTblAuth();
+            InitForm();
+            btnBuscar.click(setAutorizantes);
+        })();
+        //#region Solicitudes
+        function setAutorizantes() {
+            dtAuth.clear().draw();
+            GetBusqForm();
+            axios.post(CargarAutorizantes, { busq })
+                .then(response => {
+                    let { success, lst } = response.data;
+                    if (success) {
+                        dtAuth.rows.add(lst).draw();
+                    }
+                }).catch(o_O => AlertaGeneral('Aviso', o_O.message));
+        }
+        //#endregion
+        //#region Formulario
+        function InitForm() {
+            axios.get(CargarComboxAutorizantes)
+                .then(response => {
+                    let { success, itemsAuth, itemsPeriodo, itemsAreaCuenta } = response.data;
+                    if (success) {
+                        cboEstado.fillComboItems(itemsAuth, undefined);
+                        cboPeriodo.fillComboItems(itemsPeriodo, undefined);
+                        cboAC.fillComboItems(itemsAreaCuenta, "TODOS");
+                        CargarPanelDeseAlerta();
+                    }
+                }).catch(o_O => AlertaGeneral('Aviso', o_O.message));
+        }
+
+
+        function CargarPanelDeseAlerta() {
+            let url_string = window.location.href,
+                url = new URL(url_string),
+                idAuth = +url.searchParams.get("idAuth");
+            if (idAuth > 0) {
+                setPanelAutorizantes({ id: idAuth });
+            }
+        }
+        function GetBusqForm() {
+            let periodo = GetPeriodoSeleccionado();
+            busq = {
+                ac: cboAC.val(),
+                estatus: +cboEstado.val(),
+                año: periodo.año,
+                semana: periodo.semana,
+                min: periodo.min,
+                max: periodo.max
+            }
+        }
+        function GetPeriodoSeleccionado() {
+            let prefijo = cboPeriodo.find("option:selected").data().prefijo,
+                periodo = JSON.parse(prefijo);
+            periodo.max = new Date(periodo.max);
+            periodo.min = new Date(periodo.min);
+            return periodo;
+        }
+        function initDataTblAuth() {
+            dtAuth = tblAuth.DataTable({
+                destroy: true,
+                language: dtDicEsp,
+                columns: [
+                    { data: 'Folio', title: 'Folio' },
+                    { data: 'Descripcion', title: 'Area-Cuenta' },
+                    { data: 'Periodo', title: 'Periodo' },
+                    { data: 'Estatus', title: 'Estatus' },
+                    {
+                        data: 'Id', title: 'Reporte', createdCell: function (td, data, rowData, row, col) {
+                            let btn = $(`<button>`, {
+                                text: 'Reporte',
+                                class: 'btn btn-default text-center reporte',
+                            });
+                            $(td).html(btn);
+                        }
+                    },
+                ],
+                initComplete: function (settings, json) {
+                    tblAuth.on('click', '.reporte', function (event) {
+                        let row = $(this).closest("td"),
+                            auth = dtAuth.row(row).data();
+                        setPanelAutorizantes({ id: auth.Id });
+
+                    });
+                }
+            });
+        }
+        //#endregion
+        //#region Autorizantes
+        function setIframeResolution() {
+            let height = screen.height;
+            if (height > 769) {
+                report.css("height", "66.3em");
+            } else {
+                report.css("height", "43em");
+            }
+        }
+        setPanelAutorizantes = (objLstAuth) => {
+            lblAuthMessage.text("");
+            //  report.contents().find("body").html("<center><h3 style='color:white;font-weight:bold;'><br/><br/>Cargando información...</h3></center>");
+            // report.contents().find('body').css('backgroundColor', 'rgb(142, 142, 142)');
+            axios.post(objPanelAuth.urlLstAuth, objLstAuth)
+                .then(response => {
+                    let { success } = response.data;
+                    if (success) {
+                        createPanelAuth(response.data);
+                        formatosID = objLstAuth.id;
+                        setPanelReporte(objLstAuth.id);
+                        mdlPanelAuth.modal(`show`);
+                    }
+
+                }).catch(o_O => console.log(o_O.message));
+        }
+        setPanelReporte = (idCaptura) => {
+            axios.get(CargarCaptura.href, { params: { idCaptura: idCaptura } })
+                .then(response => {
+                    if (response.data.success) {
+                        //  InyectarPanel(response.data);
+
+                    }
+                }).catch(o_O => AlertaGeneral(o_O.message));
+
+        };
+        setAuth = () => {
+            axios.post(objPanelAuth.urlAuth, EnTurno)
+                .then(response => {
+                    if (response.data.success) {
+                        report.attr("src", `/Reportes/Vista.aspx?idReporte=${objPanelAuth.idPanelReporte}&fId=${formatosID}&inMemory=1`);
+                        document.getElementById('report').onload = () => {
+                            if (objPanelAuth.callbackAuth) {
+                                objPanelAuth.callbackAuth(response.data);
+                            }
+                            mdlPanelAuth.modal(`hide`);
+                            AlertaGeneral("Aviso", "Autorización firmada con éxito");
+                        }
+                    } else {
+                        AlertaGeneral("Aviso", response.data.message);
+                    }
+                }).catch(o_O => console.log(o_O.message));
+        };
+        setRech = () => {
+            AlertaAceptarRechazar("Aviso", `<p>¿Cúal es el motivo de rechazo?</p><textarea rows="4" cols="70" class="form-control comentarioRechazo"></textarea>`, objPanelAuth.urlRech, null)
+                .then(btn => {
+                    EnTurno.comentario = $(".comentarioRechazo").val();
+                    axios.post(objPanelAuth.urlRech, EnTurno).then(response => {
+                        if (response.data.success) {
+                            report.attr("src", `/Reportes/Vista.aspx?idReporte=${objPanelAuth.idPanelReporte}&fId=${formatosID}&inMemory=1`);
+                            document.getElementById('report').onload = () => {
+                                if (objPanelAuth.callbackRech) {
+                                    objPanelAuth.callbackRech(response.data);
+                                }
+                                mdlPanelAuth.modal(`hide`);
+                                AlertaGeneral("Aviso", "Autorización rechazada con éxito");
+                            }
+                        } else {
+                            AlertaGeneral("Aviso", response.data.message);
+                        }
+
+                    }).catch(o_O => console.log(o_O.message));
+                })
+        };
+        createPanelAuth = ({ autorizantes, message }) => {
+            EnTurno = null;
+            divAutorizantes.html(``);
+            autorizantes.forEach(auth => {
+                let panel = $("<div>");
+                let encabezado = $("<div>");
+                let cuerpo = $(`<div>`);
+                let pie = $(`<div>`);
+                let color = ColorDesdeEstado(auth);
+                panel.data(auth);
+                panel.addClass("panel panel-default text-center");
+                encabezado.addClass(`panel-heading ${color}`);
+                cuerpo.addClass(`panel-body`);
+                pie.addClass(`panel-footer ${auth.clase} ${color}`);
+                encabezado.text(auth.nombre);
+                cuerpo.text(auth.descripcion);
+                pie.text(auth.clase);
+                if (auth.authEstado === 3) {
+                    EnTurno = auth;
+                    let btnAuth = $(`<button>`);
+                    let btnRech = $(`<button>`);
+                    btnAuth.addClass(`btn btn-success btn-xs pull-right btnAuth`);
+                    btnRech.addClass(`btn btn-danger btn-xs pull-left btnRech`);
+                    btnAuth.html(`<i class="fa fa-check"></i>`);
+                    btnRech.html(`<i class="fas fa-times"></i>`);
+                    pie.text(`Autorice`);
+                    btnAuth.click(setAuth);
+                    btnRech.click(setRech);
+                    pie.append(btnAuth);
+                    pie.append(btnRech);
+                }
+                panel.append(encabezado);
+                panel.append(cuerpo);
+                panel.append(pie);
+                divAutorizantes.append(panel);
+            });
+            if (message !== null) {
+                lblAuthMessage.text(message);
+            }
+        };
+        function ColorDesdeEstado({ authEstado }) {
+            switch (authEstado) {
+                case 0:
+                    return "Espera";
+                case 1:
+                    return "Autorizado";
+                case 2:
+                    return "Rechazado";
+                case 3:
+                    return "AutorizanteEnTurno";
+                default:
+                    return "";
+            }
+        }
+<<<<<<< Updated upstream
+        function InyectarPanel({ lst, maxCol, maxRow }) {
+            let tbl = $(`<table>`, {
+                class: "tblPanel table"
+            }),
+                rowSpanciones = [],
+                colSpanciones = [];
+            for (let iRow = 1; iRow < +maxRow + 1; iRow++) {
+                let tr = $(`<tr>`);
+                tr.attr('data-row', iRow);
+                // let rowSpan = rowSpanciones.find(span => span.row === iRow);
+                // if (rowSpan === undefined) {
+                //     rowSpanciones.push({
+                //         row: iRow,
+                //         span: 1
+                //     });
+                // }
+                for (let iCol = 0; iCol < colExcel.length; iCol++) {
+                    const cCol = colExcel[iCol];
+                    let celda = lst.find(data => data.col === cCol && data.row === iRow.toString());
+                    if (celda === undefined) {
+                        celda = CeldaDefault(iRow, cCol);
+                    }
+                    let td = $(`<td>`, {
+                        text: celda.valor,
+                        class: celda.clase,
+                        style: `background-color: rgba(${celda.color.red}, ${celda.color.green}, ${celda.color.blue}, ${celda.color.aplha})`
+                    });
+                    td.attr('data-col', cCol);
+                    // let celSpan = colSpanciones.find(span => span.col === cCol);
+                    // if (celSpan === undefined) {
+                    //     colSpanciones.push({
+                    //         col: cCol,
+                    //         span: 1
+                    //     });
+                    // }
+                    // if (celSpan.span > 1) {
+                    //     if (celSpan.span === celda.celSpan) {
+                            
+                    //     }
+                    // }
+                    tr.append(td);
+                    if (cCol === maxCol) {
+                        break;
+                    }
+                }
+                tbl.append(tr);
+            }
+            report.empty();
+            report.append(tbl);
+        }
+        function GeneraArregloColumnas() {
+            var i1, i2, i3;
+            for (i1 = 0; i1 < 26; i1++) {
+                colExcel.push(String.fromCharCode(65 + i1));
+            }
+            for (i1 = 0; i1 < 26; i1++) {
+                for (i2 = 0; i2 < 26; i2++) {
+                    colExcel.push(String.fromCharCode(65 + i1) + String.fromCharCode(65 + i2));
+                }
+            }
+            for (i1 = 0; i1 < 26; i1++) {
+                for (i2 = 0; i2 < 26; i2++) {
+                    for (let i3 = 0; i3 < 26; i3++) {
+                        colExcel.push(String.fromCharCode(65 + i1) + String.fromCharCode(65 + i2) + String.fromCharCode(65 + i3));
+                    }
+                }
+            }
+        }
+        function CeldaDefault(row, col) {
+            let celda = {
+                valor: "",
+                row: row,
+                col: col,
+                colSpan: 1,
+                rowSpan: 1,
+                clase: "",
+                color: {
+                    aplha: 0,
+                    red: 0,
+                    blue: 0,
+                    green: 0
+                }
+            };
+            return celda;
+=======
+
+        function CargarCapturaDiaria(capturaID) {
+            $.post('/KPI/getCapturaCompleta', { capturaID: capturaID })
+                .then(response => {
+                    if (response.success) {
+                        // Operación exitosa
+                        builtTables(response.tblDescripciones, response.listaEconomicos, response.capturaDiaria)
+                    } else {
+                        // Operación no completada.
+                        AlertaGeneral(`Operación fallida`, `No se pudo completar la operación: ${response.message}`);
+                    }
+                }, error => {
+                    // Error al lanzar la petición.
+                    AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+                }
+                );
+>>>>>>> Stashed changes
+        }
+
+        function InyectarPanel({ lst, maxCol, maxRow }) {
+
+        }
+
+        //#endregion
+    }
+    $(document).ready(() => {
+        Maquinaria.KPI.Autorizacion = new Autorizacion();
+    });
+})();

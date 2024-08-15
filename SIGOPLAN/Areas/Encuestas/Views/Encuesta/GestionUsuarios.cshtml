@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "Gestion Usuario";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+}
+<link href="~/Content/style/datatables/datatables.css" rel="stylesheet" />
+
+<script src="~/Scripts/Utilities/datatables/datatables.js"></script>
+<script src="~/Scripts/js/Encuestas/GestionUsuariosJS.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Gestión Usuarios</h2>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros</legend>
+
+                <div class="col-lg-4" style="padding-left: 0px;">
+                    <select class="form-control" id="idComboFiltro">
+                        <option value="0">Todos</option>
+                        <option value="1">Cliente Interno</option>
+                        <option value="2">Cliente Externo</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2" style="padding-left: 0px;">
+                    <button type="button" id="btnCargar" class="btn btn-default btn-block">Cargar</button>
+                </div>
+                <div class="col-lg-2" style="padding-left: 0px;">
+                    <button type="button" id="btnViewRpt" class="btn btn-default btn-block">Reporte</button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-responsive" id="tblUsuarios">
+                <thead class="bg-table-header text-center">
+                    <tr>
+                        <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                        <th style="border-right: 1px solid;" class="text-center">Tipo Usuario</th>
+                        <th style="border-right: 1px solid;" class="text-center">Empresa</th>
+                        <th style="border-right: 1px solid;" class="text-center">Obra</th>
+                        <th style="border-right: 1px solid;" class="text-center">Ver Permisos</th>
+                        <th style="border-right: 1px solid;" class="text-center">Permiso Crear</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAsignacionPermisos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Asignar Permisos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body modal-content-tamaño">
+                <div class="container-fluid">
+                    <table class="table table-responsive" id="tblPermisos">
+                        <thead class="bg-table-header text-center">
+                            <tr>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                                <th style="border-right: 1px solid;" class="text-center">Tipo Usuario</th>
+                                <th style="border-right: 1px solid;" class="text-center">Empresa</th>
+                                <th style="border-right: 1px solid;" class="text-center">Obra</th>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                                <th style="border-right: 1px solid;" class="text-center">Nombre</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarPermisos" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrintRpt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label>Reporte de Permisos</label></h3>
+                </div>
+            </div>
+            <div class="modal-body modal-content-tamaño">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>Encuestas:</label>
+                            <select class="form-control" id="cboEncuestas" multiple></select>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>Usuarios:</label>
+                            <select class="form-control" id="cboUsuarios" multiple ></select>
+                        </div>
+                        <div class="col-lg-2">
+                            <button type="button" id="btnConsultar" class="btn btn-default btn-block">Buscar</button>
+                        </div>
+                        <div class="col-lg-2 hidden">
+                            <button type="button" id="btnImprimir" class="btn btn-default btn-block">Imprimir</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-responsive" id="tblPermisosReporte">
+                                <thead class="bg-table-header text-center">
+                                    <tr>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                        <th style="border-right: 1px solid;" class="text-center"></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

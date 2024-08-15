@@ -1,0 +1,234 @@
+@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<!-- CSS -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/style/css/Administrativo/Comercializacion/CRM/General.css" rel="stylesheet" />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class='container-fluid'>
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <h2>PROSPECTOS CLIENTES</h2>
+        </div>
+    </div>
+    <!-- PANEL FILTROS -->
+    <div class='row'>
+        <div class='col-sm-12'>
+            <div id='panelFiltro' class='panel panel-default panel-principal'>
+                <div class='panel-heading'>
+                    <h4 class='text-center'>FILTROS DE BUSQUEDA</h4>
+                </div>
+                <div class='panel-body'>
+                    <div class="row">
+                        <div class='col-lg-2'>
+                            <label for='cboFiltro_Division'>Division</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboFiltro_Cliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Cliente' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-2'>
+                            <label for='cboFiltro_Historial'>Estatus</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboFiltro_Historial' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for=''>&nbsp;</label>
+                            <div class='input-group'>
+                                <button class="btn btn-primary" id="btnFiltro_Buscar"><i class="fas fa-search"></i>&nbsp;Buscar</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_Nuevo"><i class='fas fa-plus'></i>&nbsp;Nuevo</button>&nbsp;
+                                <button class="btn btn-primary" id="btnFiltro_ProspectoProyecto"><i class='fas fa-plus'></i>&nbsp;Enviar prospecto</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: PANEL FILTROS -->
+
+    <div class='row'>
+        <!-- MENU -->
+        @Html.Partial("_Menu")
+        <!-- END: MENU -->
+
+        <!-- TABLA PROSPECTOS CLIENTES -->
+        <div class="col-lg-10">
+            <fieldset class='fieldset-custm'>
+                <legend class="legend-custm"><span class="badge">Prospectos clientes</span></legend>
+                <div class='row'>
+                    <div class='col-sm-12'>
+                        <div id='panelFiltro' class='panel-principal'>
+                            <div class='panel-heading'></div>
+                            <div class='panel-body'>
+                                <div class="row">
+                                    <table class="table" id="tblProspectosClientes"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <!-- END: TABLA PROSPECTOS CLIENTES -->
+    </div>
+</div>
+<!-- END: CONTAINER -->
+
+<!-- MODAL CREAR/EDITAR PROSPECTO CLIENTE -->
+<div id='mdlCE_ProspectoCliente' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Division'>Division</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Division' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='txtCE_Prospecto_NombreProyecto'>Proyecto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Prospecto_NombreProyecto' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Cliente'>Cliente</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Cliente' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Pais'>Pais</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Pais' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Estado'>Estado</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Estado' class='form-control select2'></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Municipio'>Municipio</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Municipio' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-4'>
+                            <label for='txtCE_Prospecto_MontoInversion'>Monto inversion</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='text' id='txtCE_Prospecto_MontoInversion' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='txtCE_Prospecto_FechaInicio'>Fecha proyecto</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <input type='date' id='txtCE_Prospecto_FechaInicio' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for='cboCE_Prospecto_Canal'>Canal</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Prospecto_Canal' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_ProspectoCliente'></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR PROSPECTO CLIENTE -->
+
+<!-- MODAL PROYECTO -->
+<div id='mdlCE_Proyecto' class='modal fade' role='dialog' data-backdrop='static'>
+    <div class='modal-dialog modal-xs'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h4 class='modal-title'></h4>
+            </div>
+            <div class='modal-body'>
+                <div class='seccion'>
+                    <div class='row'>
+                        <div class='col-lg-12'>
+                            <label for='cboCE_Proyecto_Prioridad'>Prioridad</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Prioridad' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCE_Proyecto_Estatus'>Estatus</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Estatus' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class='col-lg-12'>
+                            <label for='cboCE_Proyecto_Escenario'>Escenario</label>
+                            <div class='input-group'>
+                                <span class='input-group-addon'></span>
+                                <select id='cboCE_Proyecto_Escenario' class='form-control select2'></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fas fa-undo-alt'></i>&nbsp;Cerrar</button>
+                <button type='button' class='btn btn-success' id='btnCE_Proyecto'><i class='fas fa-save'></i>&nbsp;Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL PROYECTO -->
+
+<!-- JS -->
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/_Menu.js"></script>
+<script src="~/Scripts/js/Administrativo/Comercializacion/CRM/ProspectosClientes.js"></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/moment-with-locales.min.js'></script>
+<!-- END: JS -->

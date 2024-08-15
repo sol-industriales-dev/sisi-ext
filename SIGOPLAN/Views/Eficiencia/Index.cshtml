@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Maquinaria/Reporte/Style-Reportes.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Captura/Diarias/EficienciaJS.js"></script>
+<script src="~/Scripts/Utilities/jquery.ui.datepicker-es.js"></script>
+<div class="container-fluid">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="row">
+            <h1 class="text-center">Captura de Eficiencia de maquinaria</h1>
+        </div>
+        <fieldset class="fieldset-custm" id="divTabla">
+            <legend class="legend-custm"><label>Control de Eficiencia</label></legend>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                    <label for="txtFecha">Primer día:</label>
+                    <input type="text" class="form-control" id="dtFechaFiltro" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                    <label for="txtFecha">Último día:</label>
+                    <input type="text" class="form-control" id="dtFechaFinFiltro" />
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2" hidden="hidden">
+                    <label for="txtFecha">Semana del turno:</label>
+                    <input type="text" class="form-control" id="txtSemanaFiltro" value="0"/>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                    <label>Centro Costos</label>
+                    <select class="form-control" id="cboCCFiltro"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnBuscarEficiencia">
+                        <span class="glyphicon glyphicon-search"></span> Buscar
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 hidden" id="divBtnObra">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnReporteObra" value="37">
+                        <span class="glyphicon glyphicon-print"></span> Una obra
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1" id="divBtnGeneral">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnReporteGeneral" value="38">
+                        <span class="glyphicon glyphicon-print"></span> Toda obra
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnNuevaEficiencia">
+                        <span class="glyphicon glyphicon-plus"></span> Nueva
+                    </button>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table id="tblEficiencia" class="table table-condensed table-hover table-striped text-center">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th data-column-id="id" data-align="center" data-header-align="center" data-visible="false" hidden>ID</th>
+                                        <th data-column-id="Economico" data-align="center" data-header-align="center" data-width="25%">Economico</th>
+                                        <th data-column-id="Fecha" data-align="center" data-header-align="center" data-width="25%">FECHA</th>
+                                        <th data-column-id="Turno" data-align="center" data-header-align="center" data-width="25%">TURNO</th>
+                                        <th data-column-id="HrsTrabajada" data-align="center" data-header-align="center" data-width="25%">HRS TRABAJADA</th>
+                                        <th data-column-id="HrsTotalReparacion" data-align="center" data-header-align="center" data-width="25%"> TOTAL EN REPARACION</th>
+                                        <th data-column-id="Paro" data-align="center" data-header-align="center" data-width="25%">PARO</th>
+                                        <th data-column-id="Semana" data-align="center" data-header-align="center" data-width="25%">SEMANA</th>
+                                        <th data-column-id="Comentarios" data-align="center" data-header-align="center" data-width="25%">COMENTARIOS</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="fieldset-custm" id="divCaptura" hidden>
+            <legend class="legend-custm"><label>Formulario de captura</label></legend>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2" hidden>
+                <input type="text" id="txtId" class="form-control">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label for="txtFecha">Inicio turno:</label>
+                <input type="text" class="form-control" id="dtFecha" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Centro Costos</label>
+                <select class="form-control" id="cboCC"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Tipo equipo</label>
+                <select class="form-control" id="cboTipoEquipo"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Grupo</label>
+                <select class="form-control" id="cboGrupo"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>No economico</label>
+                <select class="form-control" id="cboEquipo"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2" id="divEconomico" hidden>
+                <label>No economico</label>
+                <input type="text" id="txtEconomico" class="form-control">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Turno</label>
+                <select  id="txtTurno" class="form-control" disabled></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas Inicial</label>
+                <select id="txtHrsInicial" class="form-control horasTrabajadas diferencia" disabled></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas Final</label>
+                <select id="txtHrsFinal" class="form-control horasTrabajadas diferencia" disabled></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas Trabajadas</label>
+                <input type="number" id="txtHrsTrabajada" class="form-control diferencia" disabled value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falla tren rodaje</label>
+                <input type="number" id="txtFallaTrenRodaje" class="form-control totalReparacion total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falla electrica</label>
+                <input type="number" id="txtFallaElectrica" class="form-control totalReparacion total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falla Hidraulica</label>
+                <input type="number" id="txtFallaHidraulica" class="form-control totalReparacion total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falla Otros</label>
+                <input type="number" id="txtFallaOtros" class="form-control totalReparacion total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falla Operacion</label>
+                <input type="number" id="txtFallaOperacion" class="form-control totalReparacion total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Falta Operador</label>
+                <input type="number" id="txtFaltaOperador" class="form-control  total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>S/TRAMO F. MAT.</label>
+                <input type="number" id="txtTramoFMat" class="form-control paro total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>S/TRAMO F. DAT.</label>
+                <input type="number" id="txtTramoFDat" class="form-control paro total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>S/TRAMO F. AVAN.</label>
+                <input type="number" id="txtTramoFAvan" class="form-control paro total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>S/TRAMO I. CLIE.</label>
+                <input type="number" id="txtTramoIClie" class="form-control paro total" value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas total</label>
+                <input type="number" id="txtHrsTotal" class="form-control " value="0" disabled>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas total en reparacion</label>
+                <input type="number" id="txtHrsTotalReparacion" class="form-control total" disabled>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Paro</label>
+                <input type="number" id="txtParo" class="form-control" disabled value="0">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Semana</label>
+                <input type="number" id="txtSemana" class="form-control" value="0" disabled>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Horas base</label>
+                <input type="number" id="txtHrsBase" class="form-control diferencia" value="8">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Difenrencia de horas</label>
+                <input type="number" id="txtHrsDiferencia" class="form-control" value="0" disabled>
+            </div>
+            <div class="col-lg-10 right">
+                <label>Comentarios</label>
+                <textarea id="txtComentario" class="form-control"></textarea>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-info margin-top pull-left" id="btnGuardaEficiencia">
+                        <span class="glyphicon glyphicon-save"></span> Guardar registro
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+                    <button type="button" class="btn btn-danger margin-top pull-left" id="btnCancelarEficiencia">
+                        <span class="glyphicon glyphicon-arrow-left"></span> Regresar
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    @Html.Partial("reportViewerView", false)
+</div>
+
+

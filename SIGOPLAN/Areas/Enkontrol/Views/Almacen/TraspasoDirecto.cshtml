@@ -1,0 +1,462 @@
+﻿@{
+    ViewBag.Title = "EntradaTraspasoSinOrigen";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Enkontrol/Almacen/Movimientos.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .mdlHistorialInsumo {
+        z-index: 99999;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>TRASPASO DIRECTO</h2>
+</div>
+
+<ul class="nav nav-tabs nav-justified">
+    <li class="active"><a data-toggle="tab" href="#tabSalida">Salida</a></li>
+    <li><a data-toggle="tab" href="#tabEntrada">Entrada</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="tabSalida" class="tab-pane fade in active">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6 noPadLeft">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">ORIGEN</legend>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Almacén:</span>
+                                        <input id="almOrigenNumSal" type="number" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="almOrigenDescSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-3 noPadLeft noPadRight">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Número:</span>
+                                    <input id="numMovSal" type="number" class="form-control">
+
+                                </div>
+                            </div>
+                            <div class="col-md-1 noPadLeft noPadRight">
+                                <button id="botonReporteSalida" class="btn btn-default" disabled><i class="fa fa-print"></i></button>
+                            </div>
+                            <div class="col-md-8 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro Costo:</span>
+                                        <input id="ccOrigenNumSal" type="text" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="ccOrigenDescSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4 noPadLeft mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha:</span>
+                                    <input id="fechaMovSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-8 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Entregó:</span>
+                                        <input id="entregoNumSal" type="number" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="entregoDescSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4 noPadLeft mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Mov:</span>
+                                    <input id="tipoMovSal" type="number" class="form-control" value="52" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentarios:</span>
+                                    <input id="comentariosSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </div>
+
+                <div class="col-md-6 noPadLeft noPadRight">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">DESTINO</legend>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Almacén:</span>
+                                        <input id="almDestinoNumSal" type="number" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="almDestinoDescSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro Costo:</span>
+                                        <input id="ccDestinoNumSal" type="text" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="ccDestinoDescSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Orden Traspaso:</span>
+                                    <input id="ordenTraspasoSal" type="number" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mrgTop noPadLeft">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Folio Traspaso:</span>
+                                    <input id="folioTraspasoSal" type="number" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Total:</span>
+                                    <input id="totalSal" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mrgTop">
+                    <div class="row">
+                        <button id="btnAgregarInsumo" type="button" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></button>
+                        <button id="btnQuitarInsumo" type="button" class="btn btn-sm btn-danger"><i class="fa fa-minus"></i></button>
+                        <button id="btnGuardar" class="btn btn-sm btn-primary pull-right"><i class="fa fa-save"> Guardar</i></button>
+                        <button id="btnCargarExcel" class="btn btn-sm btn-primary pull-right" style="margin-right: 5px;"><i class="fa fa-arrow-up"></i> Cargar Excel</button>
+
+                        <fieldset class="mrgTop" style="border: 1px solid black;">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="widget">
+                                        <div class="widget-header"></div>
+                                        <div class="widget-content">
+                                            <table id="tblPartidas" class="table-bordered hover" style="width: 100%;"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="col-md-12 noPadLeft noPadRight mrgTop">
+                    <div class="row">
+                        <div class="col-xs-12 mrgTop" style="margin-bottom: 200px;">
+                            <table id="tablaPartidasSal" class="table table-hover table-bordered compact" style="width: 100%; display:none;"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabEntrada" class="tab-pane fade">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6 noPadLeft">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">DESTINO</legend>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Almacén:</span>
+                                        <input id="almDestinoNumEnt" type="number" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="almDestinoDescEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-3 noPadLeft noPadRight">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Número:</span>
+                                    <input id="numMovEnt" type="number" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-1 noPadLeft noPadRight">
+                                <button id="botonReporteEntrada" class="btn btn-default" disabled><i class="fa fa-print"></i></button>
+                            </div>
+                            <div class="col-md-8 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro Costo:</span>
+                                        <input id="ccDestinoNumEnt" type="text" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="ccDestinoDescEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4 noPadLeft mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Fecha:</span>
+                                    <input id="fechaMovEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-8 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Recibió:</span>
+                                        <input id="recibioNumEnt" type="number" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="recibioDescEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4 noPadLeft mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo Mov:</span>
+                                    <input id="tipoMovEnt" type="number" class="form-control" value="2" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Comentarios:</span>
+                                    <input id="comentariosEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-md-6 noPadLeft noPadRight">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm">ORIGEN</legend>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Almacén:</span>
+                                        <input id="almOrigenNumEnt" type="number" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="almOrigenDescEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Centro Costo:</span>
+                                        <input id="ccOrigenNumEnt" type="text" class="form-control" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                                    <input id="ccOrigenDescEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Orden Traspaso:</span>
+                                    <input id="ordenTraspasoEnt" type="number" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mrgTop noPadLeft">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Folio Traspaso:</span>
+                                    <input id="folioTraspasoEnt" type="number" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mrgTop">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Total:</span>
+                                    <input id="totalEnt" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mrgTop">
+                    <div class="row">
+                        <button id="btnGuardarEntrada" class="btn btn-sm btn-primary pull-right"><i class="fa fa-save"> Guardar</i></button>
+                    </div>
+
+                    <div class="row">
+                        <fieldset class="mrgTop" style="border: 1px solid black;">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="widget">
+                                        <div class="widget-header"></div>
+                                        <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                                            <table id="tblPartidasEntrada" class="table table-fixed table-bordered marginBottom5 compact" width="100%"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="col-md-12 noPadLeft noPadRight mrgTop">
+                    <div class="row">
+                        <div class="col-xs-12 mrgTop" style="margin-bottom: 200px;">
+                            <table id="tablaPartidasEnt" class="table table-hover table-bordered compact" style="width: 100%; display:none;"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlExistencias" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Existencias </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblExistencias" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlUbicacionDetalle" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Ubicación </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <button id="btnAgregarUbicacion" type="button" class="btn btn-sm btn-primary mrgTop mrgBottom"><i class="fa fa-plus"></i></button>
+                        <button id="btnQuitarUbicacion" type="button" class="btn btn-sm btn-danger mrgTop mrgBottom"><i class="fa fa-minus"></i></button>
+
+                        <table id="tblUbicacion" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 col-lg-12 noPadLeft noPadRight" style="margin-top: 5px;">
+                    <button id="btnGuardarUbicacion" class="btn btn-primary"><i class="fa fa-save"></i> Capturar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlHistorialInsumo" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Historial Insumo </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblHistorialInsumo" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlCatalogoUbicaciones" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Catálogo Ubicaciones </label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="table-responsive col-md-12 col-lg-12 noPadLeft noPadRight">
+                        <table id="tblCatalogoUbicaciones" class="table table-fixed table-bordered marginBottom5" width="100%"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlCargarExcel" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Cargar Excel</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFileExcel" type="file">
+                    </div>
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <label>Formato columnas Excel: Almacén Origen | CC Origen | Almacén Destino | CC Destino | Comentarios | Insumo | Cantidad | Ubicación</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGuardarExcel" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Enkontrol/Almacen/TraspasoDirecto.js"></script>
+
+@Html.Partial("reportViewerView", false)

@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "Descuentos";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    #tablaDescuentos thead tr {
+        background: linear-gradient(40deg, #45cafc, #303f9f) !important;
+        color: white;
+    }
+</style>
+
+<div class="row text-center margin-top">
+    <h2>Descuentos</h2>
+</div>
+
+<fieldset class="fieldset-custm margin-top">
+    <div class="row mrgTop">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-sm btn-default" id="botonExcel" style="margin-top: 5px; margin-bottom: 5px;"><i class="fas fa-file"></i> Cargar Excel</button>
+            <button type="button" class="btn btn-sm btn-primary pull-right" id="botonAgregar" style="margin-top: 5px; margin-bottom: 5px;"><i class="fas fa-plus"></i> Agregar</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 mrgTop">
+            <table id="tablaDescuentos" class="table table-hover compact table-bordered" width="100%"></table>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalDescuento">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="text-center">
+                    <h3>Descuento</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label for="inputClaveEmpleado" class="form-label">Clave Empleado:</label>
+                        <input type="text" name="inputClaveEmpleado" id="inputClaveEmpleado" class="form-control" />
+                    </div>
+                    <div class="col-sm-10">
+                        <label for="inputNombreEmpleado" class="form-label">Nombre Empleado:</label>
+                        <input type="text" name="inputNombreEmpleado" id="inputNombreEmpleado" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="selectTipoDescuento" class="form-label">Tipo Descuento:</label>
+                        <select id="selectTipoDescuento" class="form-control"></select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputAnio" class="form-label">Año:</label>
+                        <input type="text" name="inputAnio" id="inputAnio" class="form-control" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="selectTipoNomina" class="form-label">Tipo Nómina:</label>
+                        <select id="selectTipoNomina" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="selectPeriodoInicial" class="form-label">Periodo Inicial:</label>
+                        <select id="selectPeriodoInicial" class="form-control"></select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="selectPeriodoFinal" class="form-label">Periodo Final:</label>
+                        <select id="selectPeriodoFinal" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="inputMonto" class="form-label">Monto:</label>
+                        <input type="text" name="inputMonto" id="inputMonto" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer margin-top">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fas fa-undo"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" id="botonGuardar">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCargarExcel" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3><label> Cargar Excel</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <input id="inputFileExcel" type="file">
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <label>Tipo Nómina: 1 = Semanal, 4 = Quincenal</label>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-xs-12 col-md-12 col-lg-12">
+                        <label>Formato: clave_empleado | tipo_descuento | año | tipo_nomina | periodo_inicial | periodo_final | monto</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="botonGuardarExcel" class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Contabilidad/Nomina/Descuentos.js"></script>

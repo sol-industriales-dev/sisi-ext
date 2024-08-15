@@ -1,0 +1,284 @@
+﻿@{
+ViewBag.Title = "ComparativoExistenciasInventarioFisico";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+var permisoCierreInventario = new SIGOPLAN.Areas.Enkontrol.Controllers.Almacen.AlmacenController().PermisoCierreInventario();
+}
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    /*TABLAS*/
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    table.dataTable tbody tr td,
+    table thead tr th,
+    table.dataTable,
+    .dataTables_scrollBody {
+        border: 0px solid #ffffff !important;
+    }
+
+    table.dataTable thead {
+        font-size: 15px;
+        background-color: #3556ae;
+        color: white;
+    }
+
+    /*BOOTSTRAP BTN*/
+    .btn-primary {
+        background-color: #3556ae;
+        border-color: #3556ae;
+    }
+
+    .btn-primary:hover {
+        background-color: #3556ae !important;
+        border-color: #3556ae !important;
+    }
+
+    /*MODALES*/
+    .modal-xl {
+        width: 80%;
+    }
+
+    .modal-header {
+        color: white;
+        background: linear-gradient(40deg, #45cafc, #303f9f);
+        border: none;
+    }
+
+    .modal-header .titleHeader {
+        font-size: x-large;
+        font-weight: bold;
+    }
+
+    .modal-header .modal-title {
+        font-weight: bold;
+    }
+
+    .modal-header .modal-subtitle {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    /*SELECT2*/
+    .select2-container {
+        width: 100% !important;
+    }
+
+    /* BORDING */
+    .seccion {
+        padding: 15px 25px 15px 25px;
+        margin: 10px 5px;
+        background-color: white;
+        /*border: 1px solid #ececec;*/
+        border-radius: 4px 4px;
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .my-card {
+        position: absolute;
+        left: 40%;
+        top: -20px;
+        border-radius: 50%;
+    }
+
+    #txtFechaInicio {
+        background-color: #fff;
+    }
+
+    .noPadLeft {
+        padding-left: 0px;
+    }
+
+    .noPadRight {
+        padding-right: 0px;
+    }
+
+    .mrgTop {
+        margin-top: 5px;
+    }
+
+    #tblComparativoExistenciasInventario tbody,
+    #tblExactitud tbody,
+    #tblDiferencias tbody {
+        font-size: 12px;
+    }
+
+    .negativo {
+        color: red;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <h2 class="text-center">Comparativo de Existencias y Inventario Fisico</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros</legend>
+                <div class="row">
+                    <div class="col-sm-12 noPadRight">
+                        <div class="col-sm-2 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Almacén</span>
+                                <input id="inputAlmacenNum" class="form-control width30">
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mrgTop noPadLeft noPadRight">
+                            <input id="inputAlmacenDescripcion" class="form-control width30" disabled>
+                        </div>
+                        <div class="col-sm-1 mrgTop noPadLeft noPadRight">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#mdlObtenerAlmacen" id="btnBuscarAlmacen" style="margin-left: 5px;">
+                                <i class="fa fa-align-justify"></i>
+                            </button>
+                        </div>
+                        <div class="col-sm-3 mrgTop noPadLeft noPadRight">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha</span>
+                                <input id="inputFecha" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3 mrgTop">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="checkSoloConDiferencia">
+                                <label class="form-check-label" for="checkSoloConDiferencia">
+                                    Solo con diferencia
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 noPadLeft noPadRight">
+                            <div class="col-sm-4 mrgTop noPadLeft noPadRight">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Insumo Inicio</span>
+                                    <input id="inputInsumoInicio" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-8 mrgTop noPadLeft">
+                                <input id="inputInsumoInicioDescripcion" class="form-control" disabled>
+                            </div>
+                            <div class="col-sm-4 mrgTop noPadLeft noPadRight">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Insumo Final</span>
+                                    <input id="inputInsumoFin" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-8 mrgTop noPadLeft">
+                                <input id="inputInsumoFinDescripcion" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 noPadLeft noPadRight mrgTop">
+                            <button id="btnBuscar" class="btn btn-primary"><i class="fa fa-search"></i>&nbsp;Buscar</button>
+                            <button id="btnReporte" class="btn btn-default"><i class="fa fa-file"></i>&nbsp;Reporte</button>
+
+                            @if (permisoCierreInventario) {
+                            <button id="btnCierreInventario" class="btn btn-default" disabled>Cierre de Inventario</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Indicadores Exactitud</legend>
+                <div class="col-md-6">
+                    <table id="tblExactitud" class="table table-condensed table-hover table-striped text-center compact no-footer dataTable" style="width:500px !important">
+                        <thead>
+                            <tr>
+                                <th style="text-align:right;">Diferencia Positiva</th>
+                                <th style="text-align:right;">Diferencia Negativa</th>
+                                <th style="text-align:right;">Total Diferencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="text-align:right;">
+                                <td id="difCargo">$ 0.000000</td>
+                                <td id="difAbono">$ 0.000000</td>
+                                <td id="difTotal">$ 0.000000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table id="tblDiferencias" class="table table-condensed table-hover table-striped text-center compact no-footer dataTable" style="width:500px !important">
+                        <thead>
+                            <tr style="text-align:right !important;">
+                                <th style="text-align:right;"></th>
+                                <th style="text-align:right;">No. de Insumos</th>
+                                <th style="text-align:right;">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="text-align:right !important;">
+                                <td>Diferencia</td>
+                                <td id="difNumero">0</td>
+                                <td id="difPorcentaje">0.00 %</td>
+                            </tr>
+                            <tr style="text-align:right !important;">
+                                <td>Exactitud</td>
+                                <td id="exactitudNumero">0</td>
+                                <td id="exactitudPorcentaje">0.00 %</td>
+                            </tr>
+                            <tr style="text-align:right !important;">
+                                <td>Total</td>
+                                <td id="totalNumero">0</td>
+                                <td id="totalPorcentaje">0.00 %</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <fieldset class='fieldset-custm'>
+        <legend class="legend-custm">Resultados</legend>
+        <div class="row">
+            <div class="col-lg-12 table-responsive" style="width: 100%;">
+                <table id='tblComparativoExistenciasInventario' class='table table-condensed table-hover table-striped text-center compact'></table>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div id='mdlObtenerAlmacen' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Almacen</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <table id='tblAlmacen' class='table table-condensed table-hover table-striped text-center'>
+                    </table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-warning' data-dismiss='modal'><i class='fa fa-arrow-left'></i> regresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<!-- <script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src='~/Scripts/sweetalert2@10.js'></script> -->
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" type="text/javascript"></script>
+
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js" type="text/javascript"></script>
+
+<script src="~/Scripts/js/Enkontrol/Almacen/ComparativoExistenciasInventarioFisico.js"></script>

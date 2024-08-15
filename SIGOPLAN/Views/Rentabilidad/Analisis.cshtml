@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "Analisis";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+
+<fieldset class="fieldset-custm" style="display:none">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Area Cuenta</span>
+                <select id="comboACAnalisis" class="form-control" disabled></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Tipo</span>
+                <select id="comboTipoAnalisis" class="form-control" disabled></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Grupo</span>
+                <select multiple id="comboGrupo" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">Modelo</span>
+                <select multiple id="comboModelo" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row margin-top">
+        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="input-group">
+                <span class="input-group-addon">CC</span>
+                <select multiple id="comboCC" class="form-control"></select>
+            </div>
+        </div>
+        <div class='col-xs-4 col-md-4 col-lg-4'>
+            <div class='input-group' id="padreFechas">
+                <span class='input-group-addon'>Periodo</span>
+                <input class="text-center form-control weekPicker" type="text" id="inputDiaInicialAnalisis" disabled>
+                <span class='input-group-addon' style='padding:0px;'></span>
+                <input class="text-center form-control weekPicker" type="text" id="inputDiaFinalAnalisis" disabled>
+            </div>
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-3 col-lg-3' style="display:none">
+            <div class='input-group'>
+                <span class="input-group-addon">Rentabilidad</span>
+                <select id='comboTipoReporte' class='form-control'></select>
+            </div>
+        </div>
+        <div class='col-xs-12 col-sm-12 col-md-5 col-lg-5'>
+
+            <button id='botonReporte' type='button' class='btn btn-primary' style="visibility:hidden">
+                <i class='fa fa-print'></i>
+                Reporte
+            </button>
+            <button id="botonBuscarAnalisis" class="btn btn-primary pull-right"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+    </div>
+</fieldset>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7" id="divTablaAnalisis">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm" id="lblLegend" style="text-align:center">Resultado</legend>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table id="tablaAnalisis" class="text-center display compact">
+                    <thead class="bg-table-header"></thead>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="divTablasDetalle">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm" id="lblLegend" style="text-align:center">Detalles</legend>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <i class="fas fa-folder-tree"></i>
+                    <button id="botonNombreNivelCero" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                    <button id="botonNombreNivelUno" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                    <button id="botonNombreNivelTres" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                    <button id="botonNombreNivelDos" class="btn btn-sm btn-primary" style="margin-bottom:3px;" disabled><strong></strong></button>
+                    
+                </div>
+            </div>
+            <div class="row margin-top" id="divTablaNivelCero">
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table id="tablaSctaDetalles" class="text-center display compact" style="width:100%">
+                        <thead class="bg-table-header">
+                        </thead>
+                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="row margin-top" id="divTablaNivelUno">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table id="tablaDetallesA" class="table table-condensed table-hover table-striped text-center" style="width:100%">
+                        <thead class="bg-table-header">
+                        </thead>
+                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="row margin-top" id="divTablaNivelDos">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 tabla">
+                    <table id="tablaSubdetalles"
+                           class="text-center display compact">
+                        <thead class="bg-table-header">
+                        </thead>
+                        <tfoot><tr><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="row margin-top" id="divTablaNivelTres">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table id="tablaSubdetallesIngresos" class="table hover row-border order-column compact" style="width: 100%">
+                        <thead class="bg-table-header">
+                        </thead>
+                        <tfoot><tr><td></td><td></td><td></td></tr></tfoot>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5" id="divGrafica">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm" id="lblLegend" style="text-align:center">Gráfica</legend>
+            <div id="graficaLineas"></div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalles" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modalGrafica" id="modalGrafica" role="dialog" style="z-index: 2050;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" id="botonCerrarGrafica" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="text-center">
+                    <h3>Detalles <i class="fas fa-list"></i></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm" id="lblLegend" style="text-align:center">Gráfica</legend>
+                    <div id="graficaLineasDetalle"></div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment-with-locales.min.js"></script>
+<script src="~/Scripts/js/Principal/Home/js/bootstrap-tooltip.js"></script>

@@ -1,0 +1,212 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Seguridad/Requerimientos/Estilo.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    .select2-selection--single,
+    .select2-selection__rendered {
+        height: 34px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 35px !important;
+    }
+</style>
+
+<!-- HTML -->
+<div class="row text-center margin-top">
+    <h2>Dashboard</h2>
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#tabGeneral">General</a></li>
+    <li><a data-toggle="tab" href="#tabClasificacion">Clasificación</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="tabGeneral" class="tab-pane fade in active">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>División:</label>
+                    <select id="selectDivision" class="form-control" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label style="font-weight: bold;">Linea de Negocio:</label>
+                    <select class="form-control" id="selectLineaNegocio" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label id="lblCC">Centros de Costo:</label>
+                    <select id="selectCentroCosto" class="form-control" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label>Requerimientos:</label>
+                    <select id="selectRequerimiento" class="form-control" multiple></select>
+                </div>
+                <div class="col-sm-3">
+                    <label>Fecha:</label>
+                    <div class="input-group">
+                        <input id="inputFechaInicio" class="form-control">
+                        <span class="input-group-addon"></span>
+                        <input id="inputFechaFin" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-2 noPadLeft">
+                    <button type="button" class="btn btn-primary" id="botonResultados" style="margin-top: 20px;">
+                        <i class="fas fa-search"></i> Resultados
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="fieldset-custm margin-top">
+            <div class="row margin-top">
+                <div class="col-xs-12 col-md-12">
+                    <div class="panel-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h4 class="panel-title text-center">
+                                    <a data-toggle="collapse" href="#panel1">
+                                        Cumplimiento General por Centro de Costo
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-12 text-center" style="height: 400px; overflow-y: auto;">
+                                            <canvas id="chartGeneral"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="panel-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h4 class="panel-title text-center">
+                                    <a data-toggle="collapse" href="#panel1">
+                                        Cumplimiento por Requerimientos
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-12 text-center" style="height: 400px; overflow-y: auto;">
+                                            <canvas id="chartRequerimientos"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="panel-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h4 class="panel-title text-center">
+                                    <a data-toggle="collapse" href="#panel1">
+                                        Cumplimiento por Secciones
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-12 text-center" style="height: 400px; overflow-y: auto;">
+                                            <canvas id="chartSecciones"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div id="tabClasificacion" class="tab-pane fade">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="row">
+                <div class="col-md-3">
+                    <label>División:</label>
+                    <select id="selectDivisionClasificacion" class="form-control" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label style="font-weight: bold;">Linea de Negocio:</label>
+                    <select class="form-control" id="selectLineaNegocioClasificacion" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label>Centros de Costo:</label>
+                    <select id="selectCentroCostoClasificacion" class="form-control" multiple></select>
+                </div>
+                <div class="col-md-3">
+                    <label>Clasificaciones:</label>
+                    <select id="selectClasificacion" class="form-control" multiple></select>
+                </div>
+                <div class="col-sm-3">
+                    <label>Fecha:</label>
+                    <div class="input-group">
+                        <input id="inputFechaInicioClasificacion" class="form-control">
+                        <span class="input-group-addon"></span>
+                        <input id="inputFechaFinClasificacion" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-3 noPadLeft">
+                    <button type="button" class="btn btn-primary" id="botonResultadosClasificacion" style="margin-top: 20px;">
+                        <i class="fas fa-search"></i> Resultados
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="fieldset-custm margin-top">
+            <div class="row margin-top">
+                <div class="col-xs-12 col-md-12">
+                    <div class="panel-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h4 class="panel-title text-center">
+                                    <a data-toggle="collapse" href="#panel1">
+                                        Cumplimiento por Clasificaciones
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-md-12 text-center" style="height: 400px; overflow-y: auto;">
+                                            <canvas id="chartClasificaciones"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Seguridad/Requerimientos/Dashboard.js"></script>
+
+@Html.Partial("reportViewerView", false)

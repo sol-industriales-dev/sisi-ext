@@ -1,0 +1,605 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var idSession = (int)ViewBag.idEmpresa;
+    var baseController = new SIGOPLAN.Controllers.BaseController();
+}
+
+<style>
+    /*.ui-datepicker-calendar {
+        display: none;
+    }*/
+
+    .verDetalle:hover, .difDetalleMensual_saldos, #goBackDetallesSaldos, .verDetalleColombia:hover {
+        cursor: pointer;
+    }
+    .verDetalle, .verDetalleColombia, verDetallePeru {
+        color: blue;
+        text-decoration: underline;
+    }
+    .difDetalleMensual_saldos {
+        text-decoration: underline;
+    }
+
+    .modal-lg {
+        width: 95% !important;
+    }
+    .modal-body {
+        max-height: calc(100vh - 212px);
+        overflow-y: auto;
+    }
+
+    .blockUI {
+        z-index: 6000 !important;
+    }
+
+    .renglonRojo {
+        color: red !important;
+    }
+
+    .numeroRojo {
+        color: red !important;
+        font-weight: bold;
+    }
+
+    .difContabilidad:hover, .difContabilidadDep {
+        cursor: pointer;
+    }
+    .difContabilidad, .difContabilidadDep {
+        color: red;
+        text-decoration: underline;
+    }
+
+    #tblAFDiferenciasSaldos tbody tr td, #tblAFDiferenciasSaldosDetalle tbody tr td {
+        border: 0px solid white;
+    }
+
+    .dataTables_scrollHeadInner table thead tr {
+        background-color: #81bd72;
+        color: white;
+    }
+
+    #tblAFDetalle tbody tr td {
+        border: 0px solid white;
+    }
+</style>
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+
+<input type="hidden" id="idEmpresa" value="@idSession" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+            <h2 class="text-center" id="tituloPrincipal">RESUMEN CÉDULA DE ACTIVO FIJO 2019</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3>SALDOS</h3></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Saldo actual</span>
+                                <input type="text" class="form-control" id="txtSaldoFechaAltaBaja" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-success" id="btnFiltro">Buscar</button>
+                            <button type="button" class="btn btn-info" id="btnDescargarExcel" disabled>Excel</button>
+                            <button type="button" class="btn btn-primary" id="btnDepreciacionCuentas" style="display:none;">Depreciación cuentas</button>
+                            <button type="button" class="btn btn-primary" id="btnImprimir" disabled>Imprimir</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive" style=@(idSession == 6 || idSession == 3 ? "display:none;" : "")>
+                            <table id="tblSaldos" class="display" style="width:100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-right">TOTAL</th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="divColombia" style=@(idSession == 6 ? "display:none;" : "")>
+                            <br />
+                            <h3 class="text-center">COLOMBIA</h3>
+                            <div class="table-responsive">
+                                <table id="tblSaldosColombia" class="display" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Cuenta</th>
+                                            <th colspan="2">Saldo anterior</th>
+                                            <th colspan="2">Altas año actual</th>
+                                            <th colspan="2">Bajas año actual</th>
+                                            <th colspan="2">Saldo al año actual</th>
+                                            <th colspan="2">Contabilidad</th>
+                                            <th colspan="2">Diferencia</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2" class="text-right">TOTAL</th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>    
+                        
+                        <div class="divPeru" style=@(idSession == 3 ? "display:none;" : "")>
+                            <br />
+                            <h3 class="text-center">PERÚ</h3>
+                            <div class="table-responsive">
+                                <table id="tblSaldosPeru" class="display" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Cuenta</th>
+                                            <th colspan="2">Saldo anterior</th>
+                                            <th colspan="2">Altas año actual</th>
+                                            <th colspan="2">Bajas año actual</th>
+                                            <th colspan="2">Saldo al año actual</th>
+                                            <th colspan="2">Contabilidad</th>
+                                            <th colspan="2">Diferencia</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2" class="text-right">TOTAL</th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>                    
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3>CÉDULA DE DEPRECIACIÓN CONTABLE</h3></div>
+                <div class="panel-body">
+                    <div class="row">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive" style=@(idSession == 6 || idSession == 3 ? "display:none;" : "")>
+                            <table id="tblDepreciacion" class="display" style="width:100%;">
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-right">TOTAL</th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="divColombia" style=@(idSession == 6 ? "display:none;" : "")>
+                            <br />
+                            <h3 class="text-center">DEPRECIACIÓN COLOMBIA</h3>
+                            <div class="table-responsive">
+                                <table id="tblDepColombia" class="display" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Cuenta</th>
+                                            <th colspan="2">Depreciación contable ejercicio 2021</th>
+                                            <th colspan="2">Depreciación acumulada al 31/08/2021</th>
+                                            <th colspan="2">Depreciación contable registrada</th>
+                                            <th colspan="2">Diferencia</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2" class="text-right">TOTAL</th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="divPeru" style=@(idSession == 3 ? "display:none;" : "")>
+                            <br />
+                            <h3 class="text-center">DEPRECIACIÓN PERÚ</h3>
+                            <div class="table-responsive">
+                                <table id="tblDepPeru" class="display" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Cuenta</th>
+                                            <th colspan="2">Depreciación contable ejercicio 2021</th>
+                                            <th colspan="2">Depreciación acumulada al 31/08/2021</th>
+                                            <th colspan="2">Depreciación contable registrada</th>
+                                            <th colspan="2">Diferencia</th>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2" class="text-right">TOTAL</th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="row" style=@(idSession == 6 || idSession == 3 ? "display:none;" : "")>
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h3>TOTALIZADORES DE DEPRECIACIÓN</h3></div>
+                <div class="panel-body">
+                    <div class="row">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="tblTotalizadores" class="display" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Cuenta</th>
+                                        <th colspan="2">Dep. contable acumulada anterior</th>
+                                        <th colspan="2">Dep. contable año actual</th>
+                                        <th colspan="2">Baja dep.</th>
+                                        <th colspan="2">Dep. contable acumulada</th>
+                                        <th colspan="2">Valor en libros</th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-right">TOTAL</th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                        <th class="text-right"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleCuenta" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title">Detalle cuenta</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tblAFDetalle" class="hover stripe order-column compact" style="width: 100%;">
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="text-right">TOTAL</th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                                <th class="text-right"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleDiferenciaSaldos" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title">Diferencias en saldos</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <div id="contenedorDifSaldos">
+                        <table id="tblAFDiferenciasSaldos" class="hover stripe order-column" style="width: 100%;">
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-right">TOTAL</th>
+                                    <th class="text-right"></th>
+                                    <th class="text-right"></th>
+                                    <th class="text-right"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div id="contenedorDifSaldosDetalles" style="display:none;">
+                        <span id="goBackDetallesSaldos" data-cuenta=""><i class="fas fa-chevron-left"> Regresar</i></span>
+
+                        <br />
+                        <br />
+
+                        <table id="tblAFDiferenciasSaldosDetalle" class="hover stripe order-column" style="width: 100%;">
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-right">TOTAL</th>
+                                    <th class="text-right"></th>
+                                    <th class="text-right"></th>
+                                    <th class="text-right"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDepreciacionCuentas" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3 class="modal-title">Depreciacion general por cuentas</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary" id="btnModificarDepCuentas" data-cuentas="0">Modificar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleCuentaColombia" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3 class="modal-title">Detalle cuenta</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tblDetalleColombia" class="hover stripe order-column compact nowrap" style="width: 100%;">
+                        <tfoot>
+                            <tr>
+                                <th colspan="10" class="text-right">TOTALES</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDetalleCuentaPeru" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <div class="text-center">
+                    <h3 class="modal-title">Detalle cuenta</h3>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tblDetallePeru" class="hover stripe order-column compact nowrap" style="width: 100%;">
+                        <tfoot>
+                            <tr>
+                                <th colspan="10" class="text-right">TOTALES</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/ActivoFijo.js"></script>

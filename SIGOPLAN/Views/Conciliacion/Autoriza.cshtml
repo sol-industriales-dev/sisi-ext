@@ -1,0 +1,193 @@
+﻿@{
+    ViewBag.Title = "Autoriza";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    var Base = new SIGOPLAN.Controllers.BaseController();
+    var usuarioID = Base.getUsuario().id;
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<style>
+    .dataTables_scrollHead {
+        height: 32px;
+    }
+
+    .radioBtn .notActive {
+        color: #3276b1;
+        background-color: #fff;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <h3 class="text-center">Autorización de conciliación de horómetros</h3>
+    </div>
+    @if (usuarioID == 13)
+    {
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Reenviar conciliación:</legend>
+            <div class="col-md-3">
+                <div class='input-group'>
+                    <span class='input-group-addon'>Conciliacion ID</span>
+                    <input type='text' id='txtConciliacionID' class='form-control' >
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button type="button" id="btnReenviar" class="btn btn-primary">Reenviar</button>
+            </div>
+        </fieldset>
+    }
+    
+    <div id="divPendientes" class="row">
+        <div class="row">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Filtros:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Areas-Cuenta: </label>
+                    <select class="form-control" id="cboCentroCostos"></select>
+                </div>
+                <div class='radioBtn btn-group margin-top'>
+                    <a class='btn btn-primary active' data-toggle='radQuincena' data-title='true'>Quincena</a>
+                    <a class='btn btn-primary notActive' data-toggle='radQuincena' data-title='false'>Semana</a>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Periodo: </label>
+                    <select class="form-control" id="cboPeriodos"></select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <label>Estatus: </label>
+                    <select class="form-control" id="cboStatus">
+                        <option value="0">Pediente</option>
+                        <option value="1">Autorizados</option>
+                        <option value="2">Rechazados</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1 margin-top">
+                    <button type="button" id="btnBuscar" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row">
+            <fieldset class="fieldset-custm">
+                <legend class="legend-custm">Resultados:</legend>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <table id="tblConciliaciones" class="table " width="100%">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th style="border-right: 1px solid;" class="text-center">Folio</th>
+                                <th style="border-right: 1px solid;" class="text-center">Area-Cuenta</th>
+                                <th style="border-right: 1px solid;" class="text-center">Descripcion</th>
+                                <th style="border-right: 1px solid;" class="text-center">Periodo</th>
+                                <th style="border-right: 1px solid;" class="text-center">Estatus</th>
+                                <th style="border-right: 1px solid;" class="text-center">Validar</th>
+                                <th style="border-right: 1px solid;" class="text-center">Reporte</th>
+                                <th style="border-right: 1px solid;" class="text-center">Comentario</th>
+                               
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div id="divAutorizaciones" class="row hidden">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="clsFrame text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick" id="BntRegresar"></span></legend>
+                        <iframe id="report2" align="middle" marginwidth="0"
+                                marginheight="0"
+                                hspace="0"
+                                vspace="0"
+                                frameborder="0"
+                                scrolling="no" class="StyleIframe"></iframe>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-sm-12 col-xs-12 col-md-12 col-lg-12 ajustarDiv">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"> Autorizadores:</legend>
+                    <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblElaboro"></label></div>
+                            <div id="btnElaboro" class="panel-body">Administrador Maquinaria</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblGerente"></label></div>
+                            <div id="btnGerenteObra" class="panel-body">Gerente de Obra</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4 ajustarDiv">
+                        <div class="panel panel-default text-center">
+                            <div class="panel panel-default text-center">
+                                <div class="panel-heading"><label id="lblDirector"></label></div>
+                                <div id="btnDirectorDivision" class="panel-body">Director División</div>
+                                <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="mdlAuth" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title">
+                    <i class="fa fa-user"></i>
+                    Autorización
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div class="row container-fluid">
+                    <div class="text-center">
+                        Desea validar la concilación con el folio : <h4 id="lblFolio"></h4>
+                        <button type="button" class="btn btn-primary" id="btnAceptar" value="1"><i class="fa fa-check"></i> Aceptar</button>
+                        <button type="button" class="btn btn-danger" id="btnRechazar" value="2"><i class="fa fa-remove"></i> Rechazar</button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-arrow-left"></i> Cancelar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalRechazo" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+
+                    <h3> Rechazo de Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnRechazoSave">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Captura/Conciliacion/AutorizacionJS.js"></script>
+@Html.Partial("reportViewerView", false)

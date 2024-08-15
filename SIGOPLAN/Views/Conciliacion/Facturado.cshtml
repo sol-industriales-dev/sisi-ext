@@ -1,0 +1,222 @@
+﻿@{
+    ViewBag.Title = "Facturado";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<style>
+    #tblConciliaciones_filter label {
+        display: inline-flex;
+    }
+
+    #tblConciliaciones tbody tr td:nth-child(6) {
+        padding: 2px;
+    }
+
+    tfoot.bg-table-header {
+        background-color: white;
+    }
+
+    .bg-table-header {
+        font-size: 15px;
+        background: #81bd72 !important;
+        background: linear-gradient(40deg, #81bd72, #96d088) !important;
+        border: none !important;
+    }
+
+    tfoot {
+        font-weight: bold;
+    }
+
+    .dropdown-toggle,
+    .btn-group {
+        width: 100%;
+    }
+
+    .dataTables_scrollHead {
+        overflow: inherit !important;
+    }
+
+    .footerSticky {
+        position: sticky;
+        bottom: 0;
+        background-color: white !important;
+        border-bottom: 1px solid #111;
+        overflow: visible;
+    }
+
+    .facturar {
+        border: none;
+        font-size: 16px;
+        font-weight: 300;
+        padding: 0;
+        color: #337ab7;
+        background-color: rgba(255, 255, 255, .4);
+    }
+
+    .facturar:hover {
+        cursor: pointer;
+        color: #419ff0;
+        background-color: rgba(255, 255, 255, .4);
+    }
+
+    .facturar:active {
+        outline: none;
+        border: none;
+        color: #337ab7;
+        background-color: rgba(255, 255, 255, .4);
+    }
+
+    .facturar:focus {
+        outline: 0;
+        color: #419ff0;
+        background-color: rgba(255, 255, 255, .4);
+    }
+
+    table th:first-child {
+        border-top-left-radius: 5px;
+    }
+
+    table th:last-child {
+        border-top-right-radius: 5px;
+    }
+
+    table tr:last-child td:first-child {
+        border-bottom-left-radius: 5px;
+    }
+
+    table tr:last-child td:last-child {
+        border-bottom-right-radius: 5px;
+    }
+
+    table {
+        box-shadow: 0px 3px 8px #888888;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+
+    .select2-selection--single {
+        height: 34px !important;
+        border: 1px solid #ccc !important;
+        color: #555 !important;
+    }
+</style>
+<!--CSS-->
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+@*<link href="~/Content/style/css/Maquinaria/Captura/Conciliacion/Facturado.css" rel="stylesheet" />*@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Maquinaria/Rentabilidad/Externos/buttons.dataTables.css" rel="stylesheet" />
+
+<!-- -->
+<h2 class="text-center">Conciliaciones Facturadas</h2>
+
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm fielset-Filtros">
+            <legend class="legend-custm">Filtros:</legend>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Estado:</label>
+                <select id="cboEstado" class="form-control" name="cboEstado">
+                    <option value="0">Sin Factura</option>
+                    <option value="1">Con Factura</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                <label>Folio:</label>
+                <input class="form-control" id="txtFolioConciliacion" type="text" />
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <label>Área cuenta:</label>
+                <select id="cboCC" class="form-control" name="cboCC"></select>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-center">
+                <label style="display:block;">Fecha:</label>
+                <input class="text-center form-control" type="text" id="txtFechaInicio" autocomplete="off" placeholder="Desde" style="width:49%; display:inline-block;">
+                <input class="text-center form-control" type="text" id="txtFechaFin" autocomplete="off" placeholder="Hasta" style="width:49%; display:inline-block;">
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1">
+                <button type="button" class="btn btn-info margin-top pull-right" id="btnBuscar">
+                    <span class="glyphicon glyphicon-search"></span> Buscar
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <fieldset class="fieldset-custm">
+            <legend class="legend-custm">Conciliaciones:</legend>
+            <table id="tblConciliaciones" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header"></thead>
+            </table>
+        </fieldset>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGuardarFactura" tabindex="-1" role="dialog" aria-labelledby="Guardar Factura" data-backdrop="static">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label id="txtGuardarFactura"></label>Guardar Factura</h3>
+                </div>
+            </div>
+            <div class="modal-body text-center modal-content-tamaño">
+                <div class="container-fluid">
+                    <form id="frmLocacion">
+                        <div class="row">
+                            <fieldset class="fieldset-custm">
+                                <legend class="legend-custm">Folio Factura:</legend>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 form-group">
+                                        <input class="form-control" id="txtFolioFactura" />
+                                    </div>
+                                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 form-group">
+                                        <button type="button" class="btn btn-default pull-right btn-primary" id="btnAgregarFactura">
+                                            <i class="fas fa-plus-square"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left form-group">
+                                    <table id="tblFacturas" class="table table-condensed table-hover table-striped text-center">
+                                        <thead class="bg-table-header"></thead>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                            <div>
+                                <button type="button" class="btn btn-primary margin-top modal-margin-rigth pull-right" id="btnModalGuardar">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                </button>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-default margin-top modal-margin-rigth pull-right" id="btnModalCancelar" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-arrow-left"></span> Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Maquinaria/Captura/Conciliacion/FacturadoJS.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>

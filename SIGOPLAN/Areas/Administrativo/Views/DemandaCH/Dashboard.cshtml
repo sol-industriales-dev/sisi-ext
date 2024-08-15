@@ -1,0 +1,279 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<!-- CSS -->
+<link href="~/Content/style/css/RecursosHumanos/DemandaCH/General.css" rel="stylesheet" />
+<link href="~/Content/style/css/RecursosHumanos/DemandaCH/Dashboard.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href='~/Content/style/Highcharts/highcharts.css' rel='stylesheet' />
+<!-- END: CSS -->
+
+<!-- CONTAINER -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <br>
+            <h2>DASHBOARD</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- PANEL FILTROS -->
+            <div id="panelFiltro" class="panel panel-default panel-principal">
+                <div class="panel-heading">
+                    <h4 class="text-center">FILTRO DE BÚSQUEDA</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class='col-lg-3'>
+                            <label for="cboFiltro_Anio">Año:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="cboFiltro_Anio" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div class='col-lg-4'>
+                            <label for="cboFiltro_CC">CC:</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                                <select id="cboFiltro_CC" class="form-control select2"></select>
+                            </div>
+                        </div>
+                        <div id="divBotonesFiltro" class='pull-right'>
+                            <label id="labelBotonBuscar">btnBuscar</label>
+                            <button type='button' class='btn btn-default' id='btnFiltroBuscar' title="Buscar registros."><i class='fas fa-search'></i>&nbsp;Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END: PANEL FILTROS -->
+        </div>
+    </div>
+    <!-- BODY GRAFICAS -->
+    <div class="row">
+        <!-- COMPORTAMIENTO HISTORICO DE LAS DEMANDAS -->
+        <div class="col-lg-6">
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="graficaComportamientoHistorico"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: COMPORTAMIENTO HISTORICO DE LAS DEMANDAS -->
+
+        <!-- DEMANDAS ACTIVAS POR AÑO DE PRESENTACIÓN -->
+        <div class="col-lg-6">
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="graficaCantDemandasActivas"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: DEMANDAS ACTIVAS POR AÑO DE PRESENTACIÓN -->
+    </div>
+    <div class="row">
+        <!-- COMPORTAMIENTO DE LAS DEMANDAS EN BASE AL AÑO SELECCIONADO -->
+        <div class="col-lg-12">
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-bordered" id="tblComportamientoDemandas">
+                                <thead>
+                                    <th style="text-align: center">Indicador</th>
+                                    <th style="text-align: center">Año</th>
+                                    <th></th>
+                                    <th style="text-align: center">Ene</th>
+                                    <th style="text-align: center">Feb</th>
+                                    <th style="text-align: center">Mar</th>
+                                    <th style="text-align: center">Abr</th>
+                                    <th style="text-align: center">May</th>
+                                    <th style="text-align: center">Jun</th>
+                                    <th style="text-align: center">Jul</th>
+                                    <th style="text-align: center">Ago</th>
+                                    <th style="text-align: center">Sep</th>
+                                    <th style="text-align: center">Oct</th>
+                                    <th style="text-align: center">Nov</th>
+                                    <th style="text-align: center">Dic</th>
+                                    <th style="text-align: center">Total</th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowspan="6" style="text-align: center">Demandas</td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="5" style="text-align: center" id="tdAnio"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Inicio mes</td>
+                                        <td id="tdInicioMes_Ene" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Feb" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Mar" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Abr" style="text-align: center"></td>
+                                        <td id="tdInicioMes_May" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Jun" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Jul" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Ago" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Sep" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Oct" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Nov" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Dic" style="text-align: center"></td>
+                                        <td id="tdInicioMes_Total" style="text-align: center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Nuevas</td>
+                                        <td id="tdNuevas_Ene" style="text-align: center"></td>
+                                        <td id="tdNuevas_Feb" style="text-align: center"></td>
+                                        <td id="tdNuevas_Mar" style="text-align: center"></td>
+                                        <td id="tdNuevas_Abr" style="text-align: center"></td>
+                                        <td id="tdNuevas_May" style="text-align: center"></td>
+                                        <td id="tdNuevas_Jun" style="text-align: center"></td>
+                                        <td id="tdNuevas_Jul" style="text-align: center"></td>
+                                        <td id="tdNuevas_Ago" style="text-align: center"></td>
+                                        <td id="tdNuevas_Sep" style="text-align: center"></td>
+                                        <td id="tdNuevas_Oct" style="text-align: center"></td>
+                                        <td id="tdNuevas_Nov" style="text-align: center"></td>
+                                        <td id="tdNuevas_Dic" style="text-align: center"></td>
+                                        <td id="tdNuevas_Total" style="text-align: center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Cierres</td>
+                                        <td id="tdCierres_Ene" style="text-align: center"></td>
+                                        <td id="tdCierres_Feb" style="text-align: center"></td>
+                                        <td id="tdCierres_Mar" style="text-align: center"></td>
+                                        <td id="tdCierres_Abr" style="text-align: center"></td>
+                                        <td id="tdCierres_May" style="text-align: center"></td>
+                                        <td id="tdCierres_Jun" style="text-align: center"></td>
+                                        <td id="tdCierres_Jul" style="text-align: center"></td>
+                                        <td id="tdCierres_Ago" style="text-align: center"></td>
+                                        <td id="tdCierres_Sep" style="text-align: center"></td>
+                                        <td id="tdCierres_Oct" style="text-align: center"></td>
+                                        <td id="tdCierres_Nov" style="text-align: center"></td>
+                                        <td id="tdCierres_Dic" style="text-align: center"></td>
+                                        <td id="tdCierres_Total" style="text-align: center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Fin de mes</td>
+                                        <td id="tdFinDeMes_Ene" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Feb" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Mar" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Abr" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_May" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Jun" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Jul" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Ago" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Sep" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Oct" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Nov" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Dic" style="text-align: center"></td>
+                                        <td id="tdFinDeMes_Total" style="text-align: center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="16" style="text-align: center; background-color: #bfbfbf"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Total bajas</td>
+                                        <td id="tdTotalBajas_Anio" style="text-align: center"></td>
+                                        <td></td>
+                                        <td id="tdTotalBajas_Ene" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Feb" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Mar" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Abr" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_May" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Jun" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Jul" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Ago" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Sep" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Oct" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Nov" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Dic" style="text-align: center"></td>
+                                        <td id="tdTotalBajas_Total" style="text-align: center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center">Total empleados</td>
+                                        <td id="tdTotalEmpleados_Anio" style="text-align: center"></td>
+                                        <td></td>
+                                        <td id="tdTotalEmpleados_Ene" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Feb" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Mar" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Abr" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_May" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Jun" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Jul" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Ago" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Sep" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Oct" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Nov" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Dic" style="text-align: center"></td>
+                                        <td id="tdTotalEmpleados_Total" style="text-align: center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: COMPORTAMIENTO DE LAS DEMANDAS EN BASE AL AÑO SELECCIONADO -->
+    </div>
+    <div class="row">
+        <!-- CANTIDAD DE DEMANDAS SEGÚN SEMAFORO -->
+        <div class="col-lg-12">
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="graficaCantDemandasSegunSemaforo"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table" id="tblCantDemandasSegunSemaforo"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: CANTIDAD DE DEMANDAS SEGÚN SEMAFORO -->
+    </div>
+    <div class="row">
+        <!-- GRAFICA CUANTILLA FINAL - FINIQUITO 100% -->
+        <div class="col-lg-12">
+            <div id="panelGraficas" class="panel panel-default panel-principal">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table" id="tblCuantillaFiniquito"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END: GRAFICA CUANTILLA FINAL - FINIQUITO 100% -->
+    </div>
+    <!-- BODY GRAFICAS -->
+</div>
+<!-- END: CONTAINER -->
+
+<!-- SCRIPT -->
+<script src='~/Scripts/select2.js'></script>
+<script src='~/Scripts/Utilities/datatables/datatables.min.js'></script>
+<script src='~/Scripts/moment-with-locales.min.js'></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/DemandaCH/Dashboard.js"></script>
+<script src='~/Scripts/Utilities/Highcharts/highcharts.js'></script>
+<!-- END: SCRIPT -->

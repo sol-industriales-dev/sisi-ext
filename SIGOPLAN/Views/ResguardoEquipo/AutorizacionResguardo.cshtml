@@ -1,0 +1,181 @@
+﻿@{
+ViewBag.Title = "AutorizacionResguardo";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+}
+<link href="~/Content/style/css/Maquinaria/Inventario/Style-Autorizacion.css" rel="stylesheet" />
+<script src="~/Scripts/js/Maquinaria/Inventario/AutorizacionResguardoJS.js"></script>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <h2>Autorización de Resguardos Equipo</h2>
+        <button class="btn btn-primary" id="btnRegresar"><i class="fas fa-undo-alt"></i>&nbsp;Regresar</button>
+    </div>
+
+    <div id="divSolicitudesPendientes">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm"><label>Filtros:</label></legend>
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <label> CC</label>
+                            <select class="form-control" id="txtCC"></select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label>Tipo de Documento:</label>
+                            <select id="cboTipoFiltro" class="form-control">
+                                <option value="1">Pendientes</option>
+                                <option value="2">Autorizados</option>
+                                <option value="3">Rechazados</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Solicitudes Pendientes:</legend>
+                    <table id="tblAsignacionResguardoVehiculo" class="table table-condensed table-hover table-striped text-center">
+                        <thead class="bg-table-header">
+                            <tr>
+                                <th data-column-id="Economico" data-width="25%">No Economico</th>
+                                <th data-column-id="CCName" data-width="25%">Obra</th>
+                                <th data-column-id="UsuarioSolicitud" data-width="25%">Usuario Resguardo</th>
+                                <th data-column-id="Grupo" data-width="25%">Descripción Equipo</th>
+                                <th data-column-id="Vencimiento" data-width="25%">Dias Licencia</th>
+                                <th data-column-id="FechaVigencia" data-width="25%">Fecha Vigencia</th>
+                                <th data-column-id="VerSolicitud" data-formatter="VerSolicitud" data-sortable="false" data-width="25px">Ver Solicitud</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div id="divFirmar" class="hide">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="clsFrame text-center">
+                    <fieldset class="fieldset-custm">
+                        <legend class="legend-custm"> <span class="glyphicon glyphicon-home cursorClick" id="BntRegresar"></span> Vista Previa:</legend>
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a id="tabTitle1" data-toggle="tab" href="#Resguardo">Resguardo</a></li>
+                            <li><a id="tabTitle2" data-toggle="tab" href="#Checklist">Checklist</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="Resguardo" class="tab-pane fade in active">
+                                <iframe id="report" align="middle" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                            </div>
+                            <div id="Checklist" class="tab-pane fade">
+                                <iframe id="report2" align="middle" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" class="StyleIframe"></iframe>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-lg-12">
+                <fieldset class="fieldset-custm">
+                    <legend class="legend-custm">Autorizadores:</legend>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblValidoCurso"></label></div>
+                            <div id="btnValidoCurso" class="panel-body">Valido Curso</div>
+                            <div class="panel-footer panel-footer-Pendiente">Pendiente</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default text-center">
+                            <div class="panel-heading"><label id="lblElaboro"></label></div>
+                            <div id="btnElaboro" class="panel-body">Quien Elaboro</div>
+                            <div class="panel-footer panel-footer-Autoriza">Autorizado</div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="modalRechazo" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3> Rechazo de Solicitud</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12 form-group">
+                        <label>Comentario:</label>
+                        <textarea class="form-control" rows="3" id="txtAreaNota"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-xs-12 col-md-12 col-lg-12">
+                        <button type="button" class="btn btn-primary pull-right" id="btnRechazoSave">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*modal carga doc Curso Manejo A la Defensiva raguilar 10/04/18*@
+
+<div class="modal fade" id="modalCartaManejo" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3>Manejo a la Defensiva</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div class="row form-group">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <fieldset class="fieldset-custm">
+                            <legend class="legend-custm">Curso Manejo a la Defensiva:</legend>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <label>*Archivo:</label>
+                                <input type="file" class="form-control" id="fResguardoManejo" />
+                                @*float: right;
+                                margin-right: 6px;
+                                margin-top: -20px;
+                                position: relative;
+                                z-index: 2;
+                                color: red;*@
+                                <span style="float:right; margin-right:6px; margin-top: -20px; position:relative; z-index:2; color:red;" class="fa fa-car"></span>
+                                @*<i class="fa fa-car"></i>*@
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Fecha Vigencia:</label>
+                                <input id="inputFechaVigencia" class="form-control">
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
+                        <button class="btn btn-success form-control" id="btnGuardarSubidaArchivoManejo">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

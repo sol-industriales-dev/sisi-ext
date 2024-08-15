@@ -1,0 +1,2599 @@
+﻿@{
+    ViewBag.Title = "Bajas de personal";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+
+    var usuarioConsultaTeorico = (bool)ViewBag.UsuarioDeConsultaTeorico;
+    var usuarioConsulta = (bool)ViewBag.UsuarioDeConsulta;
+    var permisoAccionEditarDiasBajas = (bool)ViewBag.UsuarioPermisoEditarDiasBajas;
+    var usuarioNotificar = (bool)ViewBag.UsuarioNotificar;
+
+    var fechaMinima = (string)ViewBag.fechaMinima;
+    var fechaMaxima = (string)ViewBag.fechaMaxima;
+    var empresaActual = (int)ViewBag.empresaActual;
+    var usuarioLiberarNominas = (bool)ViewBag.usuarioLiberarNominas;
+}
+
+<!-- CSS -->
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+<!-- <script src="~/Scripts/bootstrap-toggle.min.js"></script> -->
+<link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+<link href='~/Content/select2.css' rel='stylesheet' />
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<link href='~/Content/style/css/RecursosHumanos/BajasPersonal/BajasPersonal.css' rel='stylesheet' />
+<link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
+<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" />
+
+<style>
+    #btnCEBajaPersonal {
+        @(usuarioConsulta ? "display: none !important;" : "")
+    }
+    .verTeorico {
+        @(usuarioConsultaTeorico ? "display: none;" : "")
+    }
+</style>
+
+@if (empresaActual == 1)
+{
+    <input type="text" id="empresaActual" value="1" style="display: none;">
+}
+else if(empresaActual == 2)
+{
+    <input type="text" id="empresaActual" value="2" style="display: none;">
+}
+else if(empresaActual == 3)
+{
+    <input type="text" id="empresaActual" value="3" style="display: none;">
+}
+else if(empresaActual == 6)
+{
+    <input type="text" id="empresaActual" value="6" style="display: none;">
+}
+
+
+<!-- PERMISOS -->
+@if (usuarioConsultaTeorico) {
+    <input id="inputPermisoUsuarioTeorico" style="display: none;" value="1">;
+}else{
+    <input id="inputPermisoUsuarioTeorico" style="display: none;" value="0">;
+}
+
+@if(usuarioNotificar)
+{
+    <input id="inputPermisoUsuarioNotificar" style="display: none;" value="1">;
+
+}else{
+    <input id="inputPermisoUsuarioNotificar" style="display: none;" value="0">;
+
+}
+
+@if (usuarioLiberarNominas) {
+    <input id="inputPermisoUsuarioLiberarNominas" style="display: none;" value="1">;
+}else{
+    <input id="inputPermisoUsuarioLiberarNominas" style="display: none;" value="0">;
+}
+<!-- END: PERMISOS -->
+
+<!-- CONTAINER FLUID -->
+<div class="container-fluid">
+
+    <!-- BAJAS -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h3>BAJAS DE PERSONAL</h3>
+                </div>
+                <div class="panel-body">
+                    <!-- FILTROS -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">CC</span>
+                                <select class="form-control" id="selectCC" multiple></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Estatus</span>
+                                <select class="form-control select2" id="cboFiltroEstatus">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Contratables</option>
+                                    <option value="2">No Contratables</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Prioridad</span>
+                                <select class="form-control select2" id="cboFiltroPrioridad">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Alta</option>
+                                    <option value="2">Media</option>
+                                    <option value="3">Baja</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio</span>
+                                <input type="date" id="fechaFiltroInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Final</span>
+                                <input type="date" id="fechaFiltroFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Inicio Liberacion</span>
+                                <input type="date" id="fechaFiltroContaInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <span class="input-group-addon">Fecha Final Liberacion</span>
+                                <input type="date" id="fechaFiltroContaFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <span class="input-group-addon"># Emp.</span>
+                                <input id="inputClaveEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nombre</span>
+                                <input id="inputNombreEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-2" style="text-align: center;">
+                            <div class="input-group">
+                                <span class="input-group-addon">Autorizado</span>
+                                <button class="btn btn-xs btn-success botonRedondo" disabled><i class="fa fa-check"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-2" style="text-align: center;">
+                            <div class="input-group">
+                                <span class="input-group-addon">Pendientes</span>
+                                <button class="btn btn-xs btn-warning botonRedondo" disabled><i class="fa fa-clock"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="col-sm-6" style="padding-left: 0px;">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Tipo</span>
+                                    <select class="form-control select2" id="cboFiltroAnticipada">
+                                        <option value="">Todas</option>
+                                        <option value="0">Normal</option>
+                                        <!-- <option value="1">Anticipada</option> -->
+                                        <option value="2">Pendientes de Notificar</option>
+                                        <option value="3">Sin confirmación de baja IMSS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="button" class="btn btn-warning" id="btnDiasBajas" @(permisoAccionEditarDiasBajas ? "" : "style=display:none;")>Periodos</button>
+                        </div>
+                        <div class="col-sm-5">
+                            <button type="button" class="btn btn-primary pull-right" id="btnFiltroNuevo" @(usuarioConsulta ? "style=display:none;" : "style=display:block;")>Nuevo</button>
+                            <button type="button" class="btn btn-default pull-right" id="btnFiltroBuscar" style="margin-right: 5px;">Buscar</button>
+                            <button type="button" class="btn btn-warning pull-right" id="btnFiltroNotificar" style="margin-right: 5px;">Notificar</button>
+                        </div>
+                    </div>
+                    <!-- END: FILTROS -->
+                </div>
+                <!-- LISTADO DE GESTIÓN SOLICITUDES -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblRH_Baja_Registro" class='display compact' style="width:100%"></table>
+                    </div>
+                </div>
+                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+            </div>
+        </div>
+    </div>
+    <!-- END: BAJAS -->
+</div>
+<!-- END: CONTAINER FLUID -->
+
+<!-- CREAR/EDITAR BAJA -->
+<div id='mdlBaja' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg' style="width:90%;">
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTituloCrearEditarBaja"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <fieldset id="fieldRegistro" class='fieldset-custm marginBottom'>
+                    <legend class='legend-custm'>Registro</legend>
+                    <!-- <div class="row">
+                        <div class="pull-right marginBottom">
+                            <div class="col-sm-2">
+                                <input type="checkbox" id="chk_registro_esAnticipada" data-toggle="toggle" data-on="Anticipada" data-off="Anticipada" data-onstyle="success" data-offstyle="danger" data-width="100">
+                                <input type="checkbox" id="chk_registro_esAnticipada" data-toggle="toggle" data-on="Anticipada" data-off="Anticipada" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="150">
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class='row'>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Clave empleado*</span>
+                                <input type="text" id="txt_registro_numeroEmpleado" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Nombre*</span>
+                                <input type="text" id="txt_registro_nombre" class="form-control">
+                                @* <select class="form-control select2" id="txt_registro_nombre"></select> *@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">CC</span>
+                                <input type="text" id="txt_registro_cc" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Puesto</span>
+                                <input type="text" id="txt_registro_puesto" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha ingreso</span>
+                                <input type="text" id="txt_registro_fechaIngreso" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    @if(empresaActual == 6){
+                    <div class="row" style="display:none;">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">CURP</span>
+                                <input type="text" id="txt_registro_curp" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">RFC</span>
+                                <input type="text" id="txt_registro_rfc" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">NSS</span>
+                                <input type="text" id="txt_registro_nss" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">DNI</span>
+                                <input type="text" id="txt_registro_dni" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    }else if(empresaActual == 3){
+                    <div class="row" style="display:none;">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">CURP</span>
+                                <input type="text" id="txt_registro_curp" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">RFC</span>
+                                <input type="text" id="txt_registro_rfc" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">NSS</span>
+                                <input type="text" id="txt_registro_nss" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">CÉDULA DE CUIDADANIA</span>
+                                <input type="text" id="txt_registro_cedula" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    }else{
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">CURP</span>
+                                <input type="text" id="txt_registro_curp" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">RFC</span>
+                                <input type="text" id="txt_registro_rfc" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">NSS</span>
+                                <input type="text" id="txt_registro_nss" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display:none;">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">DNI</span>
+                                <input type="text" id="txt_registro_dni" readonly="true" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Cant. actos</span>
+                                <button class="btn btn-primary" id="btnCantActos"><span id="lblCantActos"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Cant. capacitaciones</span>
+                                <button class="btn btn-primary" id="btnCantCapacitaciones"><span id="lblCantCapacitaciones"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>Habilidades con equipo</legend>
+                                <textarea class="inputTextArea" id="txt_registro_habilidadesEquipo" placeholder="" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Teléfono personal</span>
+                                <input type="text" class="form-control" id="txt_registro_telPersonal" placeholder="##########" autocomplete="off" @(empresaActual == 6 ? "maxlength=9" : "maxlength=10")>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">¿Tiene WhatsApp?</span>
+                                <select class="form-control select2" id="cbo_registro_tieneWha">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">SI</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Teléfono casa</span>
+                                <input type="text" class="form-control" id="txt_registro_telCasa" placeholder="##########" autocomplete="off" @(empresaActual == 6 ? "maxlength=9" : "maxlength=10")>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Contacto familia</span>
+                                <input type="text" class="form-control" id="txt_registro_contactoFamilia" placeholder="##########" autocomplete="off" @(empresaActual == 6 ? "maxlength=9" : "maxlength=10")>
+                            </div>
+                        </div>
+                    </div>
+                    @if(empresaActual == 6){
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Departamento</span>
+                                <select class="form-control select2" id="cbo_registro_idDepartamento"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Provincia</span>
+                                <select class="form-control select2" id="cbo_registro_idEstado"></select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Distrito</span>
+                                <select class="form-control select2" id="cbo_registro_idCiudad"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6" style="display:none;">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Municipio</span>
+                                <select class="form-control select2" id="cbo_registro_idMunicipio"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Dirección</span>
+                                <input type="text" class="form-control" id="txt_registro_direccion" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    }else if (empresaActual == 3){
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Departamento</span>
+                                <select class="form-control select2" id="cbo_registro_idEstado"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Ciudad</span>
+                                <select class="form-control select2" id="cbo_registro_idCiudad"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6" style="display:none;">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Departamento</span>
+                                <select class="form-control select2" id="cbo_registro_idDepartamento"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6" style="display:none;">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Municipio</span>
+                                <select class="form-control select2" id="cbo_registro_idMunicipio"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Dirección</span>
+                                <input type="text" class="form-control" id="txt_registro_direccion" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    }else{
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Estado</span>
+                                <select class="form-control select2" id="cbo_registro_idEstado"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Ciudad</span>
+                                <select class="form-control select2" id="cbo_registro_idCiudad"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6" style="display:none;">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Departamento</span>
+                                <select class="form-control select2" id="cbo_registro_idDepartamento"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Municipio</span>
+                                <select class="form-control select2" id="cbo_registro_idMunicipio"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Dirección</span>
+                                <input type="text" class="form-control" id="txt_registro_direccion" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Facebook</span>
+                                <input type="text" class="form-control" id="txt_registro_facebook" placeholder="Nombre en red social" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Instagram</span>
+                                <input type="text" class="form-control" id="txt_registro_instagram" placeholder="Nombre en red social" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Correo</span>
+                                <input type="text" class="form-control" id="txt_registro_correo" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Fecha baja</span>
+                                <input type="date" class="form-control" id="txt_registro_fechaBaja" placeholder="##/##/####" autocomplete="off" min=@fechaMinima max=@fechaMaxima @(permisoAccionEditarDiasBajas ? "" : "disabled") />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Motivo de Baja de Sistema</span>
+                                <select class="form-control select2" id="cbo_registro_motivoBajaSistema"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>Motivo Separación Empresa</legend>
+                                <textarea class="inputTextArea" id="txt_registro_motivoSeparacionEmpresa" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Regresaria a la Empresa</span>
+                                <select class="form-control select2" id="cbo_registro_regresariaALaEmpresa">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">SI</option>
+                                    <option value="0">NO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divRegresariaEmpresa">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>¿Por qué regresaría a la empresa?</legend>
+                                <textarea class="inputTextArea" id="txt_registro_porqueRegresariaALaEmpresa" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>¿Estaría dispuesto a cambiar de proyecto?</legend>
+                                <textarea class="inputTextArea" id="txt_registro_dispuestoCambioDeProyecto" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>¿Cómo fue su experiencia en la empresa?</legend>
+                                <textarea class="inputTextArea" id="txt_registro_experienciaCP" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Contratable</span>
+                                <select class="form-control select2" id="cbo_registro_contratable">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="0">NO</option>
+                                    <option value="1">SI</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Prioridad</span>
+                                <select class="form-control select2" id="cbo_registro_prioridad">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Alta</option>
+                                    <option value="2">Media</option>
+                                    <option value="3">Baja</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="div_registro_comentariosRecontratable" class="row" style="display:none;">
+                        <div class="col-sm-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>Ingresar comentarios de NO recontratable</legend>
+                                <textarea class="inputTextArea" id="txt_registro_comentariosRecontratable" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class='row' style="display: none;">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Autoriza Baja Cve*</span>
+                                <input type="text" id="txt_registro_numeroEmpleado_baja" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Nombre*</span>
+                                <select class="form-control select2" id="txt_registro_nombre_autoriza"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <fieldset class='fieldset-custm marginBottom'>
+                                <legend class='legend-custm'>Observaciones y/o comentario</legend>
+                                <textarea class="inputTextArea" id="txt_registro_observaciones" cols="30" rows="6"></textarea>
+                            </fieldset>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="pull-right">
+                            <button id="btnCEBajaCardToggle" class="btn btn-primary" type="button" data-toggle="collapse" data-target="#entrevistaCollapse" aria-expanded="false" aria-controls="entrevistaCollapse">
+                                Ver Entrevista
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse" id="entrevistaCollapse">
+                    <fieldset id="fieldEntrevista" class='fieldset-custm marginBottom'>
+                        <legend class='legend-custm'>Entrevista de salida</legend>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Jefe Inmediato Cve</span>
+                                    <input type="text" id="txt_entrevista_gerenteClave" class="form-control" disabled>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Jefe Inmediato Nombre</span>
+                                    <input type="text" id="txt_entrevista_gerenteNombre" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Fecha nacimiento</span>
+                                    <input type="date" id="txt_entrevista_fechaNacimiento" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Estado civil</span>
+                                    <select id="cbo_entrevista_estadoCivilID" class="form-control select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Escolaridad</span>
+                                    <select id="cbo_entrevista_escolaridadID" class="form-control select2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">1.- ¿CUAL ES TU PRINCIPAL MOTIVO PARA DEJAR LA EMPRESA?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p1"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">2.- ¿CUANTO TIEMPO LLEVA PENSANDO DEJAR LA EMPRESA?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p2"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">3.- CÓMO CALIFICAS A LA EMPRESA EN LOS SIGUIENTES ASPECTOS:</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Ambiente Trabajo</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_1"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Salario</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_2"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Horarios</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_3"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Oportunidad</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_4"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Capacitaciòn</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_5"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Carga Laboral</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_6"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Reconocimiento</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_7"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Instalaciones Campamento</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_8"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Instalaciones Comedor</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_9"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">Herramientas Trabajo</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p3_10"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">4.- ¿QUÉ ERA LO QUE MÁS TE GUSTABA DE TU TRABAJO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p4"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">5.- ¿QUÉ ES LO QUE MENOS TE GUSTABA DE TU TRABAJO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p5"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>6.- ¿ALGUNA PRESTACIÓN QUE TE HUBIERA GUSTADO TENER Y QUE TE HUBIERA MOTIVADO A CONTINUAR EN LA EMPRESA?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p6" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>7.- ¿TIENES ALGUNA SUGERENCIA PARA MEJORAR LAS CONDICIONES LABORALES EN LA EMPRESA?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p7" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">8.- ¿CÓMO CONSIDERAS AL GRUPO / DEPARTAMENTO / ÁREA CON EL QUE TRABAJASTE?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p8"></select>
+                                </div>
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>¿Por qué?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p8_porque" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">9.- ¿CÓMO FUE EL TRATO DE TU JEFE INMEDIATO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p9"></select>
+                                </div>
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>¿Por qué?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p9_porque" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">10.- ¿CÓMO CONSIDERAS QUE FUE EL ENTRENAMIENTO O <br>CAPACITACIÓN QUE RECIBISTE PARA DESEMPEÑAR ADECUADAMENTE TUS FUNCIONES O PUESTO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p10"></select>
+                                </div>
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>¿Por qué?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p10_porque" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">11.- ¿TÚ JEFE INMEDIATO ESTÁ ENTERADO DE TU RENUNCIA?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p11"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">¿TE DIO OPCIONES DE AYUDA PARA QUE NO RENUNCIARAS?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p11_1"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">12.- ¿COMO CONSIDERAS EL SERVICIO QUE RECIBISTE DEL PERSONAL DE CAPITAL HUMANO EN TU PROYECTO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p12"></select>
+                                </div>
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>¿Por qué?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_p12_porque" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">13.- ¿CÓMO TE ENTERASTE DE ESTE EMPLEO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p13"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">14.- ¿DURANTE TU ESTANCIA EN LA EMPRESA, DETECTASTE ALGUN TEMA DE FRAUDE, ROBO O ACOSO?</span>
+                                    <select class="form-control select2" id="cbo_entrevista_p14"></select>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12" id="divPreguntaEstancia" style="display:none;">
+                                <div class="input-group marginBottom">
+                                    <span class="input-group-addon">FECHA APROXIMADA</span>
+                                    <input type="date" class="form-control" id="txt_entrevista_fechaAproximada" placeholder="##/##/####" autocomplete="off">
+                                </div>
+                                <fieldset class='fieldset-custm marginBottom'>
+                                    <legend class='legend-custm custom_field'>¿Como fue?</legend>
+                                    <textarea class="inputTextArea" id="txt_entrevista_comoFue" cols="30" rows="6"></textarea>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                    </fieldset>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cancelar</button>
+                <button type='button' class='btn btn-success' id="btnCEBajaPersonal" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><span id="lblTituloBtnCEBajaPersonal"></span></button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR BAJA -->
+
+<!-- MODAL ACTOS -->
+<div id='mdlActos' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Actos</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <table id="tblActos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTOS -->
+
+<!-- MODAL CAPACITACIONES -->
+<div id='mdlCapacitaciones' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Capacitaciones</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <table id="tblCapacitaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTOS -->
+
+<!-- MODAL CCs -->
+<div id='mdlHistorial' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Historico CC</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <table id="tblHistorial" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTOS -->
+
+<!-- END: MODAL AUT -->
+<div id='mdlDetalleaut' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Detalle de autorizacion</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha</span>
+                            <input type="text" class="form-control" id="txt_aut_fecha" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Usuario</span>
+                            <input type="text" class="form-control" id="txt_aut_Usuario" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Comentario</span>
+                            <input type="text" class="form-control" id="txt_aut_comentario" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL DETALLE AUTORIZACION -->
+
+<!-- MODAL ENTREVISTA EXTERNA-->
+<div id='mdlCompartir' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg data-backdrop="static"'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Compartir Entrevista</h1>
+                <h4 id="txtCompartirSubtitulo" class='modal-title'></h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">VERIFICAR CORREO</span>
+                            <input type="text" class="form-control" id="txtCompartirCorreo">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <div class="input-group marginBottom ">
+                            <span class="input-group-addon">LINK</span>
+                            <input type="text" class="form-control" id="txtCompartirLink" value="asdf" readonly>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <button id="txtCompartirCopiar" type='button' class='btn btn-link' style="width:100%"><i class='fas fa-link'></i>&nbsp;Copiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class='modal-footer'>
+                <button id="btnCompartirEnviar" type='button' class='btn btn-primary' @(usuarioConsulta ? "style=display:none;" : "style=display:block;")><i class='far fa-envelope'></i>&nbsp;Enviar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ENTREVISTA EXTERNA-->
+
+<!-- MODAL VER FINIQUITO -->
+<div id='mdlFiniquito' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Ver @(empresaActual == 6|| empresaActual == 3  ? "Evidencia de Liquidacion" : "Finiquito")</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-2">
+                        <h4 style="text-align:center;">Calculo.</h4>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="number" class="form-control" id="txtVerMonto" placeholder="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="text" class="form-control" id="txtVerNombreFiniquito" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 pull-left marginLeft">
+                        <button id="btnImprimirFiniquito" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                        <button id="btnCapturarFiniquito" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-edit"></i> <span id="spanCapturarFiniquito"> Capturar</span></button>
+                        <button id="btnVerFiniquito" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-eye"></i>&nbsp;Visualizar</button>
+                    </div>
+                </div>
+                <hr>
+                <div class='row'>
+                    <div class="col-lg-2">
+                        <h4 style="text-align:center;">Recalculo.</h4>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="number" class="form-control" id="txtVerMontoRecalc" placeholder="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="text" class="form-control" id="txtVerNombreRecalculo" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 pull-left marginLeft">
+                        <button id="btnImprimirFiniquitoRecalc" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                        <button id="btnCapturarRecalculo" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-edit"></i> <span id="spanCapturarRecalculo"> Capturar</span></button>
+                        <button id="btnVerFiniquitoRecalc" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-eye"></i>&nbsp;Visualizar</button>
+                    </div>
+                </div>
+                <hr>
+                <div class='row'>
+                    <div class="col-lg-2">
+                        <h4 style="text-align:center;">@(empresaActual == 6|| empresaActual == 3  ? "Liquidacion" : "Finiquito").</h4>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="number" class="form-control" id="txtVerMontoCierre" placeholder="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="text" class="form-control" id="txtVerNombreCierre" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 pull-left marginLeft">
+                        <button id="btnImprimirFiniquitoCierre" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                        <button id="btnCapturarCierre" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-edit"></i> <span id="spanCapturarCierre"> Capturar</span></button>
+                        <button id="btnVerFiniquitoCierre" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-eye"></i>&nbsp;Visualizar</button>
+                    </div>
+                </div>
+                <!-- <hr>
+                <div class='row'>
+                    <div class="col-lg-2">
+                        <h4 style="text-align:center;">Baja IMSS.</h4>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="number" class="form-control" id="txtVerMontoIMS" placeholder="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="text" class="form-control" id="txtVerNombreIMS" readonly>
+                        </div>
+                    </div>
+                    <div class="pull-left marginLeft">
+                        <button id="btnImprimirFiniquitoIMS" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                        <button id="btnCapturarIMS" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:block;")><i class="fas fa-edit"></i> <span id="spanCapturarIMS"> Capturar</span></button>
+                        <button id="btnVerFiniquitoIMS" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:block;")><i class="fas fa-eye"></i>&nbsp;Visualizar</button>
+                    </div>
+                </div> -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='mdlFiniquitoImss' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>VER BAJA @(empresaActual == 6 ? "SUNAT" : empresaActual == 3 ? "ARL" : "IMSS").</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-2">
+                        <h4 style="text-align:center;">Baja @(empresaActual == 6 ? "SUNAT" : empresaActual == 3 ? "ARL" : "IMSS").</h4>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto</span>
+                            <input type="number" class="form-control" id="txtVerMontoIMS" placeholder="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo</span>
+                            <input type="text" class="form-control" id="txtVerNombreIMS" readonly>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 pull-left marginLeft">
+                        <button id="btnImprimirFiniquitoIMS" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                        <button id="btnCapturarIMS" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-edit"></i> <span id="spanCapturarIMS"> Capturar</span></button>
+                        <button id="btnVerFiniquitoIMS" type="button" class="btn btn-primary" @(usuarioConsulta ? "style=display:none;" : "style=display:initial;")><i class="fas fa-eye"></i>&nbsp;Visualizar</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <span id="txtVencidoIMS"></span>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTOS -->
+
+<!-- MODAL CE FINIQUITO -->
+<div id='mdlCapturarFiniquito' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Añadir <span id="lblCapturarFiniquito"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Tipo de @(empresaActual == 6 || empresaActual == 3 ? "Liquidacion" : "Finiquito") </span>
+                            <select class="form-control" id="cboCEFiniquitoTipo" disabled>
+                                <option value="0">@(empresaActual == 6 || empresaActual == 3 ? "Liquidacion" : "Finiquito") </option>
+                                <option value="1">Recalculo de @(empresaActual == 6 || empresaActual == 3 ? "Liquidacion" : "Finiquito") </option>
+                                <option value="2">Cierre @(empresaActual == 6 || empresaActual == 3 ? "Liquidacion" : "Finiquito") </option>
+                                <option value="3">@(empresaActual == 6 ? "Liquidacion SUNAT" : empresaActual == 3 ? "Liquidacion ARL" : "IMSS Finiquito") </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Monto @(empresaActual == 6 || empresaActual == 3 ? "Liquidacion" : "Finiquito") </span>
+                            <input type="number" class="form-control" id="txtCEFiniquitoMonto" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Archivo </span>
+                            <!-- <input id="inCapturarFiniquito" type="file" style="min-width: 100%;min-height: 100%;"> -->
+                            <input id="txtCEPathFile" type="text" class="form-control" readonly>
+                            <label class="input-group-btn">
+                                <span class="btn btn-primary">
+                                    Seleccionar un archivo&hellip; <input id="inCapturarFiniquito" type="file" style="display: none;">
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button id="btnGuardarFiniquito" type='button' class='btn btn-primary' data-dismiss='modal'><i class="far fa-edit"></i>&nbsp;Guardar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL ACTOS -->
+
+<!-- VER CAPTURA DE BAJA EN EL MODULO DE RECLUTAMIENTOS ↓ -->
+<!-- MODAL CREAR/EDITAR EMPLEADO EK -->
+<div id='mdlCrearEditarEmpleadoEK' class='modal fade' data-backdrop="static" role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCrearEditarEmpleadoEK"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <!-- LISTADO DE CANDIDATOS APROBADOS -->
+                <div class="input-group">
+                    <span class="input-group-addon">Candidatos aprobados</span>
+                    <select class="form-control" id="cboCandidatosAprobados"></select><br>
+                </div>
+                <!-- END: LISTADO DE CANDIDATOS APROBADOS -->
+
+                <!-- DATOS PRINCIPALES EMPLEADO -->
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'>Datos empleado</legend>
+                    <div class='row'>
+                        <div class="col-sm-2">
+                            <label for="lblCEDatosEmpleadoClaveEmpleado">Empleado:&nbsp;<span id="lblCEDatosEmpleadoClaveEmpleado"></span></label>
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="lblCEDatosEmpleadoEstatus">Estatus:&nbsp;<span id="lblCEDatosEmpleadoEstatus">PENDIENTE</span></label>
+                        </div>
+                        <div class="col-sm-2" style="display: none;">
+                            <button class="btn btn-primary">Credencial</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Nombre (s):</span>
+                                <input type="text" id="txtCEDatosEmpleadoNombre" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Apellido paterno:</span>
+                                <input type="text" id="txtCEDatosEmpleadoApePaterno" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Apellido materno:</span>
+                                <input type="text" id="txtCEDatosEmpleadoApeMaterno" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group" style="display: none;">
+                                <span class="input-group-addon">Solicitud:</span>
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*País nacimiento:</span>
+                                <select class="form-control" id="cboCEDatosEmpleadoPaisNac"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Estado nacimiento:</span>
+                                <select class="form-control" id="cboCEDatosEmpleadoEstadoNac"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Lugar nacimiento:</span>
+                                <select class="form-control" id="cboCEDatosEmpleadoLugarNac"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Fecha nacimiento:</span>
+                                <input type="date" id="txtCEDatosEmpleadoFechaNacimiento" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Ingreso:</span>
+                                <input type="date" id="txtCEDatosEmpleadoFechaIngreso" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Localidad nacimiento:</span>
+                                <input type="text" id="txtCEDatosEmpleadoLocalidadNac" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*RFC:</span>
+                                <input type="text" id="txtCEDatosEmpleadoRFC" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*CURP:</span>
+                                <input type="text" id="txtCEDatosEmpleadoCURP" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">*Sexo:</span>
+                                <select class="form-control" id="cboCEDatosEmpleadoSexo">
+                                    <option value="">-Seleccione--</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="M">Masculino</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4" style="display: none;">
+                            <button class="btn btn-primary">Seleccionar fotografía</button>
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- END: DATOS PRINCIPALES EMPLEADO -->
+
+                <!-- TABS -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist" style="height:45px !important;">
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Datos Generales" class="nav-link active" id="home-tab" data-toggle="tab" href="#tabGeneralesContacto" role="tab" aria-controls="home" aria-selected="true"><i class="far fa-id-card fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Familiares" class="nav-link" id="profile-tab" data-toggle="tab" href="#tabFamiliares" role="tab" aria-controls="profile" aria-selected="false"><i class="far fa-user fa-stack-2x fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Beneficiario" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabBeneficiario" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-user-plus fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Compañia" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabCompania" role="tab" aria-controls="contact" aria-selected="false"><i class="far fa-building fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Nomina" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabNomina" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-piggy-bank fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Uniforme" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabUniforme" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-tshirt fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Examen medico" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabExamenMedico" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-briefcase-medical fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="display:none;">
+                        <a title="MAquinaria" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabMaquinaria" role="tab" aria-controls="contact" aria-selected="false">Maquinaria</a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Contratos" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabContratos" role="tab" aria-controls="contact" aria-selected="false"><i class="far fa-handshake fa-stack-2x"></i></a>
+                    </li>
+                    <li class="nav-item" role="presentation" style="width:133px">
+                        <a title="Documentos" class="nav-link" id="contact-tab" data-toggle="tab" href="#tabDocumentos" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-archive fa-stack-2x"></i></a>
+                    </li>
+                </ul>           
+                <!-- END: TABS -->
+
+                <!-- CONTENIDO TABS -->
+                <div class="tab-content" id="myTabContent">
+                    <!-- GENERALES Y CONTACTO -->
+                    <div class="tab-pane fade" id="tabGeneralesContacto" role="tabGeneralesContacto" aria-labelledby="home-tab">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Generales y contacto</legend>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Estado civil</span>
+                                        <select id="cboCEGenContactoEstadoCivil" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Fecha planta</span>
+                                        <input type="date" id="txtCEGenContactoFechaPlanta" class="form-control">
+                                    </div>
+                                </div> -->
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Estudios</span>
+                                        <input type="text" id="txtCEGenContactoEstudios" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Abreviatura</span>
+                                        <input type="text" id="txtCEGenContactoAbreviatura" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Cred. elector</span>
+                                        <input type="text" id="txtCEGenContactoCredElector" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Calle</span>
+                                        <input type="text" id="txtCEGenContactoCalle" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Núm. exterior</span>
+                                        <input type="text" id="txtCEGenContactoNumExterior" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Núm. interior</span>
+                                        <input type="text" id="txtCEGenContactoNumInterior" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Colonia</span>
+                                        <input type="text" id="txtCEGenContactoColonia" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Estado</span>
+                                        <select type="text" id="cboCEGenContactoEstado" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Ciudad</span>
+                                        <select type="text" id="cboCEGenContactoCiudad" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Código postal</span>
+                                        <input type="text" id="txtCEGenContactoCP" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Tel. en casa</span>
+                                        <input type="text" id="txtCEGenContactoTelCasa" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Tel. celular</span>
+                                        <input type="text" id="txtCEGenContactoTelCelular" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Email</span>
+                                        <input type="text" id="txtCEGenContactoEmail" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Tipo casa</span>
+                                        <select id="cboCEGenContactoTipoCasa" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*T. de sangre</span>
+                                        <select id="cboCEGenContactoTipoSangre" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Alergias</span>
+                                        <input type="text" id="txtCEGenContactoAlergias" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <!-- END: GENERALES Y CONTACTO -->
+
+                    <!-- FAMILIARES -->
+                    <div class="tab-pane fade" id="tabFamiliares" role="tabFamiliares" aria-labelledby="profile-tab">
+                        <table id="tblRH_REC_Familiares" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- FAMILIARES -->
+
+                    <!-- BENEFICIARIO -->
+                    <div class="tab-pane fade" id="tabBeneficiario" role="tabBeneficiario" aria-labelledby="contact-tab">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Beneficiario</legend>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Parentesco</span>
+                                        <select class="form-control" id="cboCEBeneficiarioParentesco"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Fecha nacimiento</span>
+                                        <input type="date" id="txtCEBeneficiarioFechaNacimiento" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Código postal</span>
+                                        <input type="text" id="txtCEBeneficiarioCP" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Ape. paterno</span>
+                                        <input type="text" id="txtCEBeneficiarioApePaterno" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Ape. materno</span>
+                                        <input type="text" id="txtCEBeneficiarioApeMaterno" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Nombre (s)</span>
+                                        <input type="text" id="txtCEBeneficiarioNombre" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Estado</span>
+                                        <select class="form-control" id="cboCEBeneficiarioEstado"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Ciudad</span>
+                                        <select class="form-control" id="cboCEBeneficiarioCiudad"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Colonia</span>
+                                        <input type="text" id="txtCEBeneficiarioColonia" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Domicilio</span>
+                                        <input type="text" id="txtCEBeneficiarioDomicilio" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Núm. ext</span>
+                                        <input type="text" id="txtCEBeneficiarioNumExt" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Núm. int</span>
+                                        <input type="text" id="txtCEBeneficiarioNumInt" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>En caso de accidente llamar a</legend>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Nombre</span>
+                                        <input type="text" id="txtCECasoAccidenteNombre" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Télefono</span>
+                                        <input type="text" id="txtCECasoAccidenteTelefono" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Domicilio</span>
+                                        <input type="text" id="txtCECasoAccidenteDomicilio" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <!-- END: BENEFICIARIO -->
+
+                    <!-- COMPAÑIA -->
+                    <div class="tab-pane fade" id="tabCompania" role="tabCompania" aria-labelledby="contact-tab">
+                        <fieldset class='fieldset-custm'>
+                            <legend class='legend-custm'>Compañía</legend>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Requisición</span>
+                                        <input type="text" id="txtCECompaniaRequisicion" class="form-control" style="width: 77%;">
+                                        <!-- <button id="botonVerRequisiciones" class="btn btn-primary"><i class="fa fa-align-justify"></i></button> -->
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Plantilla</span>
+                                        <input type="text" id="txtCECompaniaPlantilla" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Centro Costo</span>
+                                        <input type="text" id="txtCECompaniaCCDescripcion" disabled="disabled" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Puesto</span>
+                                        <input type="text" id="txtCECompaniaPuestoDescripcion" disabled="disabled" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Reg. patronal</span>
+                                        <select id="selectRegistroPatronal" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Ultima modificación</span>
+                                        <input type="text" id="txtCEUltimaModificacionIDEK" disabled="disabled" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" id="txtCEUltimaModificacionNombreUsuario" disabled="disabled" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <fieldset class='fieldset-custm marginBottom'>
+                                        <legend class='legend-custm'>Actividades</legend>
+                                        <textarea id="txtCECompaniaActividades" class="inputTextArea" cols="30" rows="6"></textarea>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Jefe inmediato</span>
+                                        <input type="text" id="txtCECompaniaJefeInmediatoDescripcion" disabled="disabled" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="checkbox" id="chkCECompaniaSindicato" class="classChkCrearEditarPuesto" data-toggle="toggle" data-on="Sindicato" data-off="Sindicato" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="150">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">Tipo Contrato</span>
+                                        <select id="selectTipoContrato" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Autoriza</span>
+                                        <input type="text" id="txtCECompaniaAutoriza" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" id="txtCECompaniaAutorizaDescripcion" disabled="disabled" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Usuario resg</span>
+                                        <input type="text" id="txtCECompaniaUsuarioResg" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" id="txtCECompaniaUsuarioResgDescripcion" disabled="disabled" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="input-group marginBottom">
+                                        <span class="input-group-addon">*Depto</span>
+                                        @* <input type="text" id="txtCECompaniaDepto" class="form-control"> <!-- SE CAMBIA DE INPUT A SELECT --> *@
+                                        <select id="txtCECompaniaDepto" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" id="txtCECompaniaDeptoDescripcion" disabled="disabled" class="form-control">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'>I.M.S.S.</legend>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="input-group marginBottom">
+                                                <span class="input-group-addon">*N.S.S.</span>
+                                                <input type="text" id="txtCECompaniaNSS" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="input-group marginBottom">
+                                                <span class="input-group-addon">*Tipo fórmula</span>
+                                                <select id="cboCECompaniaTipoFormula" class="form-control"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <!-- <div class="col-lg-6">
+                                <fieldset class='fieldset-custm'>
+                                    <legend class='legend-custm'>Fechas</legend>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="input-group marginBottom">
+                                                <span class="input-group-addon">Contrato</span>
+                                                <input type="date" id="txtCECompaniaContrato" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label for="">Alta en el sistema:&nbsp;<span id="lblCECompaniaAltaEnElSistema"></span></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label for="">Antigüedad:&nbsp;<span id="lblCECompaniaAntiguedad"></span>&nbsp;días</label>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div> -->
+                        </div>
+
+                    </div>
+                    <!-- END: COMPAÑIA -->
+
+                    <!-- NÓMINA -->
+                    <div class="tab-pane fade" id="tabNomina" role="tabNomina" aria-labelledby="contact-tab">
+                        <table id="tblRH_REC_Tabuladores" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- END: NÓMINA -->
+
+                    <!-- UNIFORME -->
+                    <div class="tab-pane fade" id="tabUniforme" role="tabUniforme" aria-labelledby="contact-tab">
+                        <table id="tblRH_REC_Uniformes" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- END: UNIFORME -->
+
+                    <!-- EXAMEN MEDICO -->
+                    <div class="tab-pane fade" id="tabExamenMedico" role="tabExamenMedico" aria-labelledby="contact-tab">
+                        <table id="tblRH_REC_ArchivosExamenMedico" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- END: EXAMEN MEDICO -->
+
+                    <!-- MAQUINARIA -->
+                    <div class="tab-pane fade" id="tabMaquinaria" role="tabMaquinaria" aria-labelledby="contact-tab">
+                        <table id="tblRH_REC_ArchivosMaquinaria" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- END: MAQUINARIA -->
+
+                    <!-- CONTRATOS -->
+                    <div class="tab-pane fade" id="tabContratos" role="tabContratos" aria-labelledby="contact-tab">
+                        <table id="tblContratos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                    <!-- END: CONTRATOS -->
+                    <!-- DOCUMENTOS -->
+                    <div class="tab-pane fade" id="tabDocumentos" role="tabDocumentos" aria-labelledby="contact-tab">
+                        <div class="row">
+                            <table id="tblDocumentos" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                        </div>
+                    </div>
+                    <!-- END: DOCUMENTOS -->
+                </div>
+                <!-- END: CONTENIDO TABS -->
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL CREAR/EDITAR EMPLEADO EK -->
+
+<div id='modalRequisiciones' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span>REQUISICIONES</span></h1>
+            </div>
+            <div class='modal-body'>
+                <table id="tablaRequisiciones" class="table table-hover table-sm table-bordered compact" style="width: 100%;"></table>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CREAR/EDITAR FAMILIARES -->
+<div id='mdlCrearEditarFamiliar' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCEFamiliares"></span></h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Parentesco</span>
+                            <select class="form-control" id="cboCEFamiliarParentesco"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Genero</span>
+                            <select class="form-control" id="cboCEFamiliarGenero">
+                                <option value="">--Seleccione--</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha nacimiento</span>
+                            <input type="date" id="txtCEFamiliarFechaNacimiento" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEFamiliarVive" data-toggle="toggle" data-on="Vive" data-off="Vive" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="100">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Nombre</span>
+                            <input type="text" id="txtCEFamiliarNombre" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Apellido paterno</span>
+                            <input type="text" id="txtCEFamiliarApePaterno" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Apellido materno</span>
+                            <input type="text" id="txtCEFamiliarApeMaterno" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Estado civil</span>
+                            <select class="form-control" id="cboCEFamiliarEstadoCivil">
+                                <option value="">--Seleccione--</option>
+                                <option value="Casado">Casado</option>
+                                <option value="Soltero">Soltero</option>
+                                <option value="Divorsiado">Divorsiado</option>
+                                <option value="Union Libre">Unión libre</option>
+                                <option value="Viudo">Viudo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Grado de estudios</span>
+                            <input type="text" id="txtCEFamiliarGradoEstudios" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCEFamiliarBeneficiario" data-toggle="toggle" data-on="Beneficiario" data-off="Beneficiario" data-onstyle="success" data-offstyle="danger" data-width="100">
+                    </div>
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCEFamiliarTrabaja" data-toggle="toggle" data-on="Trabaja" data-off="Trabaja" data-onstyle="success" data-offstyle="danger" data-width="100">
+                    </div>
+                    <div class="col-lg-1">
+                        <input type="checkbox" id="chkCEFamiliarEstudia" data-toggle="toggle" data-on="Estudia" data-off="Estudia" data-onstyle="success" data-offstyle="danger" data-width="100">
+                    </div>
+                </div>
+                <fieldset class='fieldset-custm'>
+                    <legend class='legend-custm'>Comentarios</legend>
+                    <textarea id="txtCEFamiliarComentarios" class="inputTextArea" cols="30" rows="10"></textarea>
+                </fieldset>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR FAMILIARES -->
+
+<!-- MODAL IMPRIMIR TIPO DE DOCUMENTOS (CONTRATOS) -->
+<div id='mdlImprimirContratos' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lgDocumentos'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Documentos</h1>
+            </div>
+            <div class='modal-body'>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Credencial:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <!-- <input type="checkbox" id="chkTipoDocumento3" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120"> -->
+                        <button id="btnImprimirCredencial" type="button" class="btn btn-primary"><i class="fas fa-print"></i> Descargar</button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Contrato colectivo de trabajo:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento1" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Designa beneficiarios:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento2" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Solicitud de recibo de nomina por correo:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento4" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Contrato y cartas de renuncia:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento5" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Autorización de ingreso:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento6" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Convenio de termino de contrato:</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento7" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Declaración de ética y conflicto de intereses :</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento8" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Convenio de confidencialidad :</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento9" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+
+                <div class='row marginBottom'>
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <label class="marginTopDocumentos">Aviso de privacidad :</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="checkbox" id="chkTipoDocumento10" data-toggle="toggle" data-on="Si" data-off="No" data-onstyle="success" data-offstyle="danger" checked="checked" data-width="120">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class='modal-footer'>
+                <button type="button" class="btn btn-success" id="btnImprimirContratos">Imprimir</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL IMPRIMIR TIPO DE DOCUMENTOS (CONTRATOS) -->
+
+<!-- CREAR/EDITAR NOMINA -->
+<div id='mdlCrearEditarTabuladores' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lgUniformes'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>NÓMINA</h1>
+            </div>
+            <div class='modal-body'>
+
+                <fieldset class='fieldset-custm'><br>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Tipo nómina</span>
+                                <select id="cboCETabuladorTipoNomina" class="form-control">
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">SEMANAL</option>
+                                    <option value="4">QUINCENAL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="divTabulador" class="col-sm-4">
+                            <input type="checkbox" id="chkCETabuladorLibre" data-toggle="toggle" data-on="Tabulador libre" data-off="Tabulador libre" data-onstyle="success" data-offstyle="danger" data-width="200">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Tabulador</span>
+                                <input type="text" id="txtCETabuladorNumTabulador" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset><br>
+
+                <fieldset class='fieldset-custm'><br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Banco</span>
+                                <select id="cboCETabuladorBanco" class="form-control"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Tarjeta</span>
+                                <input type="text" id="txtCETabuladorTarjeta" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="input-group marginBottom">
+                                <span class="input-group-addon">Cta. de ahorro</span>
+                                <input type="text" id="txtCETabuladorCtaAhorro" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input type="checkbox" id="chkCETabuladorTarjetaNomina" data-toggle="toggle" data-on="Tarjeta de nómina" data-off="Tarjeta de nómina" data-onstyle="success" data-offstyle="danger" data-width="200">
+                        </div>
+                    </div>
+                </fieldset>
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR NOMINA -->
+
+<!-- CREAR/EDITAR NOMINA SALARIO -->
+<div id='mdlCrearEditarNominaSalario' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lgUniformes'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>NÓMINA</h1>
+            </div>
+            <div class='modal-body'>
+
+                <div class="row">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Salario base</span>
+                            <input type="text" id="txtCENominaSalarioSalarioBase" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Complemento</span>
+                            <input type="text" id="txtCENominaSalarioComplemento" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Bono de zona</span>
+                            <input type="text" id="txtCENominaSalarioBonoZona" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-6">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Total</span>
+                            <input type="text" id="txtCENominaSalarioTotal" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR NOMINA SALARIO -->
+
+<!-- CREAR/EDITAR UNIFORME -->
+<div id='mdlCrearEditarUniforme' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lgUniformes'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i><span id="lblTitleCEUniforme"></span></h1>
+            </div>
+            <div class='modal-body'>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Fecha de entrega</span>
+                            <input type="date" id="txtCEUniformeFechaEntrega" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">No. Calzado</span>
+                            <input type="text" id="txtCEUniformeNoCalzado" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEUniformeCalzado" data-toggle="toggle" data-on="Se entregó calzado" data-off="Se entregó calzado" data-onstyle="success" data-offstyle="danger" data-width="200">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Camisa</span>
+                            <input type="text" id="txtCEUniformeCamisa" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEUniformeCamisa" data-toggle="toggle" data-on="Se entregó camisa" data-off="Se entregó camisa" data-onstyle="success" data-offstyle="danger" data-width="200">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Pantalón</span>
+                            <input type="text" id="txtCEUniformePantalon" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEUniformePantalon" data-toggle="toggle" data-on="Se entregó pantalón" data-off="Se entregó pantalón" data-onstyle="success" data-offstyle="danger" data-width="200">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Overol</span>
+                            <input type="text" id="txtCEUniformeOverol" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEUniformeOverol" data-toggle="toggle" data-on="Se entregó overol" data-off="Se entregó overol" data-onstyle="success" data-offstyle="danger" data-width="200">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Uniforme dama</span>
+                            <input type="text" id="txtCEUniformeUniformeDama" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="chkCEUniformeUniformeDama" data-toggle="toggle" data-on="Se entregó uniforme dama" data-off="Se entregó uniforme dama" data-onstyle="success" data-offstyle="danger" data-width="200">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group marginBottom">
+                            <span class="input-group-addon">Otros</span>
+                            <input type="text" id="txtCEUniformeOtros" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Comentarios</legend>
+                            <textarea class="inputTextArea" id="txtCEUniformeComentarios" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR UNIFORME -->
+
+<!-- CREAR/EDITAR EXAMEN MEDICO -->
+<div id='mdlCrearEditarArchivoExamenMedico' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivo medico</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <input id='txtCEExamenMedicoArchivo' type="file" />
+                    </div>
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Observación</legend>
+                            <textarea id="txtCEExamenMedicoObservacion" class="inputTextArea" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR EXAMEN MEDICO -->
+
+<!-- CREAR/EDITAR MAQUINARIA -->
+<div id='mdlCrearEditarArchivoMaquinaria' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Archivo maquinaria</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <input id='txtCEMaquinariaArchivo' type="file" />
+                    </div>
+                    <div class="col-sm-12">
+                        <fieldset class='fieldset-custm marginBottom'>
+                            <legend class='legend-custm'>Observación</legend>
+                            <textarea id="txtCEMaquinariaObservacion" class="inputTextArea" cols="30" rows="6"></textarea>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i> Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: CREAR/EDITAR MAQUINARIA -->
+
+<!-- LISTADO CONTRATOS FIRMADOS -->
+<div id='mdlContratosFirmados' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Contratos firmados</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="pull-right">
+                    <button class="btn btn-primary" id="btnCrearContratoFirmado"><i class="fas fa-plus"></i>&nbsp;Contrato</button>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table id="tblContratosFirmados" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: LISTADO CONTRATOS FIRMADOS -->
+
+<!-- CARGAR CONTRATO FIRMADO -->
+<div id='mdlGuardarContratoFirmado' class='modal fade' role='dialog'>
+    <div class='modal-dialog modal-lg'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Cargar contrato</h1>
+            </div>
+            <div class='modal-body'>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <input type="file" id="inputArchivoExcel" class="form-control" />
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class="col-lg-12">
+                        <input type="textarea" id="txtCEContratoFirmadoDescripcion" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL COMENTARIO -->
+<div id='mdlComentario' class='modal fade' role='dialog' data-backdrop="static">
+    <div class='modal-dialog modal-md'>
+        <div class='modal-content'>
+            <div class='modal-header text-center'>
+                <h1 class='modal-title'><i class='fa fa-dollar'></i>Comentario.</h1>
+            </div>
+            <div class='modal-body'>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p id="txtMdlComentario">
+                        </p>
+                    </div>
+				</div>
+            </div>
+            <div class='modal-footer'>
+				<!-- <button type='button' class='btn btn-primary' data-dismiss='modal' id="btnCalendarioGuardar"><i class='fa fa-save'></i>&nbsp;<span id="btnTxtCalendario">Guardar</span></button> -->
+                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Cerrar Ventana"><button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button></span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: MODAL -->
+
+<!-- MODAL PERIODOS -->
+<div id="mdlDiasBajas" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mdlDiasBajasLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h3 class="modal-title">Actualizar días capturables de bajas</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="txtDiasAnterioresPermitidos" class="col-sm-2 control-label">Anteriores:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="txtDiasAnterioresPermitidos">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtDiasPosterioresPermitidos" class="col-sm-2 control-label">Posteriores:</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="txtDiasPosterioresPermitidos">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' class='btn btn-success' data-dismiss='modal' id="btnActualizarDiasBajas"><i class='fa fa-save'></i> Actualizar</button>
+                <button type='button' class='btn btn-default' data-dismiss='modal'><i class='fa fa-arrow-left'></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("reportViewerView", false)
+@Html.Action("_visorGrid")
+
+<!-- JS -->
+<script src="~/Scripts/sweetalert.min.js"></script>
+<script src='~/Scripts/select2.js'></script>
+<script src="~/Scripts/moment-with-locales.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/jquery-ui.js"></script>
+<link href="~/Content/style/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/style/jquery-ui.theme.min.css" rel="stylesheet" />
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="~/Scripts/js/Administrativo/RecursosHumanos/BajasPersonal/BajasPersonal.js"></script>
+<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>

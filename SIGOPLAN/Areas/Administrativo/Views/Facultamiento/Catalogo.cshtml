@@ -1,0 +1,134 @@
+﻿@{
+ViewBag.Title = "Catálogo de Facultamientos";
+Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/css/Facultamientos/Catalogo.css" rel="stylesheet" />
+
+
+<h1 class="text-center">Catálogo de Facultamientos</h1>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Lista de Facultamientos</legend>
+    <div class="row">
+        <div class="col-md-1 col-lg-1">
+            <button type="button" id="btnNuevoFacultamiento" class="btn btn-primary extraMargen">
+                <i class="fa fa-plus"></i> Añadir
+            </button>
+        </div>
+        <div class="col-md-3 col-lg-3">
+            <div class="input-group extraMargen">
+                <span class="input-group-addon">Agrupador</span>
+                <select id="cboDepartamentoFiltro" class="form-control"></select>
+            </div>
+        </div>
+    </div>
+    <table id="tablaFacultamientos" class="table table-fixed table-hover table-responsive table-striped">
+        <thead class="bg-table-header">
+            <tr>
+                <th>Numero</th>
+                <th>Facultamiento</th>
+                <th>Agrupador</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</fieldset>
+<div class="container">
+    <div id="modalFacultamiento" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">
+                        <i class="fa fa-plus"></i> Añadir Plantilla de Facultamiento
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row container-fluid">
+                        <div class="col-md-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Título del Facultamiento</span>
+                                <input type="text" id="inputFacultamiento" class="form-control letras" />
+                            </div>
+                        </div>
+                        <div class=" col-md-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Agrupador</span>
+                                <select id="cboDepartamento" class="form-control" multiple="multiple"></select>
+                            </div>
+                        </div>
+                        <fieldset class="fieldset-custm col-md-12 col-lg-12">
+                            <legend id="lblLegend" class="legend-custm">Autorización necesaria:</legend>
+                            <div class="row">
+                                <div class="col-md-2 col-lg-2">
+                                    <button type="button" id="btnNuevaPersona" class="btn btn-primary extraMargen">
+                                        <i class="fa fa-plus"></i> Agregar Persona
+                                    </button>
+                                </div>
+                            </div>
+                            <table id="tablaAutorizacion" class="table table-fixed table-hover table-responsive table-striped tblMonto">
+                                <thead class="bg-table-header">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @*<tr class="first">
+                                        <td>
+                                            <input type="text" class="form-control letras" />
+                                        </td>
+                                        <td>
+                                             Autoriza 
+                                            <input checked type="radio" name="1"><label class="labelRadio">Autoriza</label>&nbsp
+                                            <input type="radio" name="1"><label class="labelRadio">VoBo</label>
+                                        </td>
+                                    </tr>*@
+                                </tbody>
+                            </table>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                        <i class="fa fa-arrow-left"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" id="btnGuardar" class="btn btn-success"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div id="modalEliminarPuesto" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">
+                        <i class="fa fa-plus"></i> Eliminar puesto
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                           <h4>Al eliminar este puesto la acción sera aplicada inmediatamente en todas las asignacíones que esten en proceso de edición o sean versión final autorizada<br />
+                            Desea continuar?</h4> 
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                        <i class="fa fa-arrow-left"></i>
+                        Cancelar
+                    </button>
+                    <button type="button" id="btnEliminarPuesto" class="btn btn-success"><i class="fa fa-save"></i> Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/js/Administrativo/Facultamiento/Catalogo.js"></script>

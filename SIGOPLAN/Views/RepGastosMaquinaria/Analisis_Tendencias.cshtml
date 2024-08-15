@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "Tendencias";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="~/Content/MonthPicker.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/datatables.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedColumns.bootstrap.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/fixedHeader.bootstrap.css" rel="stylesheet" />
+
+<h2 class="text-center">ANALISIS DE TENDENCIAS</h2>
+<style type="text/css">
+    table {
+        white-space: nowrap !important;
+    }
+
+    .bg-table-header {
+        background-color: #D7DBDD !important;
+        color: black !important;
+    }
+
+    th {
+        font-size: 12px;
+    }
+
+    td {
+        font-size: 11px;
+    }
+
+    table.dataTable tbody > tr.selected,
+    table.dataTable tbody > tr > .selected {
+        background-color: #D5DBDB !important;
+    }
+</style>
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Filtros</legend>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class='input-group'>
+                <span class='input-group-addon'>Empresa</span>
+                <select class="form-control input-sm" id="cboEmpresa">
+                    <option value="0">CONSOLIDADO</option>
+                    <option value="1">CONSTRUPLAN</option>
+                    <option value="2">ARRENDADORA</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class='input-group'>
+                <span class='input-group-addon'>Area Cuenta</span>
+                <select class="form-control input-sm" id="cboCC" multiple></select>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class='input-group'>
+                <span class='input-group-addon'>Año</span>
+                <select class="form-control input-sm" id="cboAnio">
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2019">2018</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class='input-group'>
+                <span class='input-group-addon'>Grupo</span>
+                <select class="form-control input-sm" id="cboGrupoEquipo"></select>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class='input-group'>
+                <span class='input-group-addon'>Modelo</span>
+                <select class="form-control input-sm" id="cboModeloEquipo"></select>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <button type="button" class="btn btn-sm btn-primary" id="btnBuscar">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+        <div class="col-lg-4" style="display:none;">
+            <button type="button" class="btn btn-sm btn-primary" id="btnEnviarTendenciaCorreo">
+                <i class="fas fa-search"></i> EnviarTendenciaCorreo
+            </button>
+        </div>
+    </div>
+</fieldset>
+<fieldset class='fieldset-custm col-lg-12'>
+    <legend class="legend-custm">
+        <i class="fas fa-hand-holding-usd"></i> Datos Cuenta Principal
+    </legend>
+    <div class='table-responsive'>
+        <table id='tblDataEmpresa' class='table compact' width="100%">
+            <thead class='bg-table-header'>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</fieldset>
+<fieldset style="display:none;" id="fieldPrincipal" class='fieldset-custm col-lg-12'>
+    <legend class="legend-custm">
+        <i class="fas fa-hand-holding-usd"></i> Detalle por Empresa / Cuenta con 90-10
+    </legend>
+    <div class='table-responsive'>
+        <button id="btnGraficar" type="button" class="btn btn-sm btn-primary" style="position:relative; float:right;">
+            <i class="fas fa-search"></i> Graficar
+        </button>
+        <table id='tblData' class='table compact' width="100%">
+            <thead class='bg-table-header'>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                    <th style="text-align: right;"></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</fieldset>
+<div style="margin-top: 20px;">
+    <fieldset class='fieldset-custm'>
+        <legend class='legend-custm'>Tendencia por Empresa</legend>
+        <div class="col-md-12">
+            <div id="grafica_tendencia" style="margin-top: 10px; padding-bottom: 100px;"></div>
+        </div>
+    </fieldset>
+</div>
+<div class="modal fade" id="modalDetalle" role="dialog">
+    <div class="modal-dialog modal-md" style="width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Desglose</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row reegresar" style="display:none;">
+                    <div class="col-md-3"><button id="btnRegresar" class="btn btn-primary btn-block">Regresar</button></div>
+                </div>
+                <div class="row rowDetalle">
+                    <div class="col-md-12">
+                        <table id='tblDetalle' class='display compact' style="width:100%;display:block;">
+                            <tfoot>
+                                <tr>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row rowDetalle2" style="display:none;">
+                    <div class="col-md-12">
+                        <table id='tblDetalle2' class='display compact' style="width:100%;display:block;">
+                            <tfoot>
+                                <tr>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                    <th style="text-align: right;"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGrafica" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-center modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Grafica de Tendencia</h4>
+            </div>
+            <div class="modal-body ajustar-texto">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="grafica_modal_tendencia" style="margin-top: 10px; padding-bottom: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.bootstrap4.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.colVis.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.flash.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.foundation.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.html5.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.jqueryui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.print.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/buttons.semanticui.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/jszip.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/pdfmake.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
+<script src="~/Scripts/MonthPicker.min.js"></script>
+<script src="~/Scripts/Utilities/Highcharts/highcharts.js"></script>
+<script src="~/Scripts/js/Maquinaria/Reporte/Analisis_Tendencias.js"></script>

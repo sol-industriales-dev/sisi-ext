@@ -32,5 +32,7 @@ namespace Core.Entity.Enkontrol.Compras.Requisicion
         public string PERU_tipoRequisicion { get; set; }
         public string noEconomico { get; set; }
         public virtual List<tblCom_ReqDet_Comentarios> comentarios { get; set; }
+        public int numero { get; set; }
+        public string cc { get; set; }
     }
 }

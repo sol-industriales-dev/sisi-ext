@@ -15,6 +15,10 @@ namespace Data.EntityFramework.Mapping.Enkontrol.Compras.Requisicion
         {
             HasKey(x => x.id);
             Property(x => x.id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity).HasColumnName("id");
+            Property(x => x.tipo_req_oc).HasColumnName("tipo_req_oc");
+            Property(x => x.descripcion).HasColumnName("descripcion");
+            Property(x => x.dias_requisicion).HasColumnName("dias_requisicion");
+            Property(x => x.registroActivo).HasColumnName("registroActivo");
             ToTable("tblCom_ReqTipo");
         }
     }

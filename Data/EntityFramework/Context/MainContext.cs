@@ -1219,6 +1219,8 @@ namespace Data.EntityFramework.Context
 
         #region enkontrol
         public DbSet<tblP_Usuario_Enkontrol> tblP_Usuario_Enkontrol { get; set; }
+        public DbSet<tblCom_Insumos> tblCom_Insumos { get; set; }
+        public DbSet<tblCom_PeriodoContable> tblCom_PeriodoContable { get; set; }
         public DbSet<tblCom_InsumosConsigna> tblCom_InsumosConsigna { get; set; }
         public DbSet<tblCom_InsumosLicitacion> tblCom_InsumosLicitacion { get; set; }
         public DbSet<tblCom_InsumosConvenio> tblCom_InsumosConvenio { get; set; }
@@ -1300,6 +1302,7 @@ namespace Data.EntityFramework.Context
         public DbSet<tblAlm_PermisoCierreInventario> tblAlm_PermisoCierreInventario { get; set; }
         public DbSet<tblAlm_Remanente> tblAlm_Remanente { get; set; }
         public DbSet<tblAlm_Almacenistas> tblAlm_Almacenistas { get; set; }
+        public DbSet<tblAlm_Almacen> tblAlm_Almacen { get; set; }
         public DbSet<tblAlm_EmpleadoResguardo> tblAlm_EmpleadoResguardo { get; set; }
         public DbSet<tblAlm_Fisico> tblAlm_Fisico { get; set; }
         public DbSet<tblAlm_FisicoDet> tblAlm_FisicoDet { get; set; }

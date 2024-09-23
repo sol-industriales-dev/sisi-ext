@@ -50,6 +50,27 @@ using System.Web;
 
 namespace Data.DAO.Enkontrol.Compras
 {
+    public class Requisicion2DTO
+    {
+        public string cc { get; set; }
+        public int numero { get; set; }
+        public DateTime fecha { get; set; }
+        public string autorizo { get; set; }
+        public string solicito { get; set; }
+        public bool isAuth { get; set; }
+        public bool flagCheckBox { get; set; }
+        public decimal montoTotal { get; set; }
+        public string monedaDesc { get; set; }
+        public bool consigna { get; set; }
+        public bool licitacion { get; set; }
+        public bool crc { get; set; }
+        public bool convenio { get; set; }
+        public string ccNom { get; set; }
+        public string solNom { get; set; }
+        public decimal cantidadTotal { get; set; }
+        public int contieneCancelado { get; set; }
+    }
+
     public class RequisicionDAO : GenericDAO<tblCom_Req>, IRequisicionDAO
     {
         private const int _SISTEMA = (int)SistemasEnum.COMPRAS;
@@ -101,2062 +122,236 @@ namespace Data.DAO.Enkontrol.Compras
         {
             var result = new Dictionary<string, object>();
 
-            if (req.PERU_codigoAuditoria == null)
-            {
-                req.PERU_codigoAuditoria = "";
-            }
-
-            if (req.PERU_tipoRequisicion == null)
-            {
-                req.PERU_tipoRequisicion = "";
-            }
-
-            foreach (var item in det)
-            {
-                if (item.PERU_ordenFabricacion == null)
-                {
-                    item.PERU_ordenFabricacion = "";
-                }
-
-                if (item.PERU_tipoRequisicion == null)
-                {
-                    item.PERU_tipoRequisicion = "";
-                }
-            }
-
-            if (vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Peru && vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Colombia)
-            {
-                #region DEMAS EMPRESAS
+            #region PERU
                 using (var dbSigoplanTransaction = _context.Database.BeginTransaction())
                 {
-                    using (var con = checkConexionProductivo())
+                    try
                     {
-                        using (var trans = con.BeginTransaction())
+                        var usuario = vSesiones.sesionUsuarioDTO;
+                        var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+
+                        req.solicito = relUser.empleado;
+
+                        var esUpdate = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == req.cc && x.numero == req.numero);
+                        // Obtener el último número de requisición y sumarle 1
+                        var ultimoNumeroRequisicion = _context.tblCom_Req
+                            .Where(x => x.estatusRegistro && x.cc == req.cc)
+                            .OrderByDescending(x => x.numero)  // Ordenar de forma descendente por el número
+                            .Select(x => x.numero)
+                            .FirstOrDefault();
+
+                        // Si no hay requisiciones previas, el número empieza en 1
+                        var nuevoNumeroRequisicion = ultimoNumeroRequisicion + 1;
+
+                        #region Guardar Requisición
+                        req.stEstatus = req.stEstatus ?? string.Empty;
+
+                        var num = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
+                        var save = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc.Equals(req.cc) && r.numero == num && r.PERU_tipoRequisicion == req.PERU_tipoRequisicion);
+                        var isSigoplanSave = save == null;
+
+                        if (isSigoplanSave)
+                            save = new tblCom_Req();
+                        else
                         {
-                            try
+                            var detallesGuardados = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == save.id).ToList();
+
+                            foreach (var detGua in detallesGuardados)
                             {
-                                var count = 0;
+                                detGua.estatus = "false";
+                                detGua.estatusRegistro = false;
 
-                                #region Validación para Mayra Tapia, Danya Ayala y Marisa Contreras, Anaitis Lorenzo, Rigoberto Coronado en el 032
-                                if (req.cc == "032" && vSesiones.sesionUsuarioDTO.id != 6586 && vSesiones.sesionUsuarioDTO.id != 79435 && vSesiones.sesionUsuarioDTO.id != 8003 && vSesiones.sesionUsuarioDTO.id != 1096 && vSesiones.sesionUsuarioDTO.id != 2266 && vSesiones.sesionUsuarioDTO.id != 79807)
-                                {
-                                    throw new Exception("Su usuario no puede capturar requisiciones en el centro de costo 032.");
-                                }
-                                #endregion
-
-                                #region Validación Área-Cuenta
-                                if (vSesiones.sesionEmpresaActual != (int)EmpresaEnum.GCPLAN)
-                                {
-                                    if (det.Any(x => x.area == 0 || x.cuenta == 0 || x.area == null || x.cuenta == null) && vSesiones.sesionEmpresaActual != 3)
-                                    {
-                                        if (vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual == 4 || vSesiones.sesionEmpresaActual == 5)
-                                        {
-                                            var gruposValidaAreaCuentaEK = consultaCheckProductivo(string.Format(@"SELECT * FROM grupos_insumo WHERE valida_area_cta = 'S'"));
-
-                                            if (gruposValidaAreaCuentaEK != null)
-                                            {
-                                                var gruposValidaAreaCuenta = (List<dynamic>)gruposValidaAreaCuentaEK.ToObject<List<dynamic>>();
-
-                                                foreach (var p in det.Where(x => x.area == 0 || x.cuenta == 0 || x.area == null || x.cuenta == null).ToList())
-                                                {
-                                                    var tipo = Int32.Parse(p.insumo.ToString().Substring(0, 1));
-                                                    var grupo = Int32.Parse(p.insumo.ToString().Substring(1, 2));
-
-                                                    var checkInsumoValidaAreaCuenta = gruposValidaAreaCuenta.FirstOrDefault(x => (int)x.tipo_insumo == tipo && (int)x.grupo_insumo == grupo);
-
-                                                    if (checkInsumoValidaAreaCuenta != null)
-                                                    {
-                                                        throw new Exception("Debe capturar el Área-Cuenta para el insumo " + p.insumo + " en la partida #" + p.partida + ".");
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("Debe capturar el Área-Cuenta de todas las partidas.");
-                                        }
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Bloqueo para existencias en almacén 03 (Obsoletos)
-                                foreach (var d in det)
-                                {
-                                    var existencia = getExistenciaValidacionObsoleto(d.insumo);
-
-                                    if (existencia > 0)
-                                    {
-                                        throw new Exception("Favor de solicitar un traspaso, hay existencia en almacén de Obsoletos para el insumo \"" + d.insumo + "\".");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Stand-By
-                                //var flagMaquinaStandBy = false;
-                                //if (vSesiones.sesionEmpresaActual == 2)
-                                //{
-                                //    flagMaquinaStandBy = checkMaquinaStandBy(req.cc);
-                                //}
-                                #endregion
-
-                                #region Validación para no editar requisiciones autorizadas, con compras o con cuadros comparativos
-                                var requisicionExistenteEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT * FROM so_requisicion WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero)
-                                );
-
-                                if (requisicionExistenteEK != null)
-                                {
-                                    var requisicionExistente = ((List<dynamic>)requisicionExistenteEK.ToObject<List<dynamic>>())[0];
-
-                                    if ((string)requisicionExistente.st_autoriza == "S")
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque está autorizada.");
-                                    }
-
-                                    var comprasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_orden_compra_det WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0", req.cc, req.numero));
-
-                                    if (comprasEK != null)
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque tiene compras existentes.");
-                                    }
-
-                                    var cuadrosEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_cuadro_comparativo WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero));
-
-                                    if (cuadrosEK != null)
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque tiene cuadros comparativos.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación campos "Usuario Solicita" y "Uso" para requisiciones inventariables
-                                if (req.usuarioSolicita == 0 || req.usuarioSolicitaUso == "" || req.usuarioSolicitaUso == null)
-                                {
-                                    #region Determinar si la requisición es "No Inventariable".
-                                    if (det.Count() > 0)
-                                    {
-                                        var flagInventariable = false;
-                                        var listaTipoGrupo = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM grupos_insumo")).ToObject<List<dynamic>>();
-                                        var insumosExcepciones = _context.tblCom_InsumosExcepcionUsuarioUso.Where(x => x.estatus).Select(x => x.insumo).ToList();
-                                        var flagNoExcepcion = false;
-
-                                        foreach (var reqDet in det)
-                                        {
-                                            var tipo = Int32.Parse(reqDet.insumo.ToString().Substring(0, 1));
-                                            var grupo = Int32.Parse(reqDet.insumo.ToString().Substring(1, 2));
-
-                                            var tipoGrupo = listaTipoGrupo.FirstOrDefault(x => (int)x.tipo_insumo == tipo && (int)x.grupo_insumo == grupo);
-
-                                            if (tipoGrupo != null)
-                                            {
-                                                if ((string)tipoGrupo.inventariado == "I")
-                                                {
-                                                    flagInventariable = true;
-                                                }
-                                            }
-
-                                            var insumoExcepcion = insumosExcepciones.FirstOrDefault(x => x == reqDet.insumo);
-
-                                            if (!insumosExcepciones.Any(x => x == reqDet.insumo))
-                                            {
-                                                flagNoExcepcion = true;
-                                            }
-                                        }
-
-                                        if (flagInventariable && flagNoExcepcion)
-                                        {
-                                            throw new Exception("Debe capturar el usuario y el uso para las requisiciones con insumos inventariables.");
-                                        }
-                                    }
-                                    #endregion
-                                }
-                                #endregion
-
-                                #region Validación comprador sugerido
-                                if (req.comprador == null || req.comprador == 0)
-                                {
-                                    throw new Exception("Debe seleccionar el comprador.");
-                                }
-                                #endregion
-
-                                #region Validación Insumos Consigna y Asignación de Precios
-                                if (req.consigna == true)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosConsignaProveedor = _context.tblCom_InsumosConsigna.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoConsigna = listaInsumosConsignaProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoConsigna == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como consigna para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoConsigna.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de consigna.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos Licitación y Asignación de Precios
-                                if (req.licitacion)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosLicitacionProveedor = _context.tblCom_InsumosLicitacion.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoLicitacion = listaInsumosLicitacionProveedor.FirstOrDefault(x => x.insumo == partida.insumo && partida.descripcion.ToUpper().Contains(x.articulo.ToUpper()));
-
-                                            if (registroInsumoLicitacion == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" de la partida \"" + partida.partida + "\" no se encuentra como licitación para el proveedor \"" + req.proveedor + "\". Asegúrate que la descripción de la partida contenga la descripción del artículo como se encuentra en el tabulador.");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoLicitacion.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de licitación.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos CRC y Asignación de Precios
-                                if (req.crc)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosCRCProveedor = _context.tblCom_InsumosConsigna.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoCRC = listaInsumosCRCProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoCRC == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como CRC para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoCRC.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de CRC.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos Convenio y Asignación de Precios
-                                if (req.convenio)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosConvenioProveedor = _context.tblCom_InsumosConvenio.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoConvenio = listaInsumosConvenioProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoConvenio == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como convenio para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoConvenio.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de convenio.");
-                                    }
-                                }
-                                #endregion
-
-                                var usuario = vSesiones.sesionUsuarioDTO;
-                                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                                req.solicito = relUser.empleado;
-
-                                var esUpdate = consultaCheckProductivo(
-                                    string.Format("SELECT * FROM so_requisicion WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero)
-                                );
-
-                                var ultimaRequisicionEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT TOP 1 numero FROM so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", req.cc)
-                                );
-
-                                int nuevoNumeroRequisicion = 1;
-
-                                if (ultimaRequisicionEK != null)
-                                {
-                                    var ultimaRequisicion = (List<RequisicionDTO>)ultimaRequisicionEK.ToObject<List<RequisicionDTO>>();
-
-                                    nuevoNumeroRequisicion = ultimaRequisicion[0].numero + 1;
-                                }
-
-                                #region Guardar Requisición
-                                var consulta = string.Empty;
-                                var id = 0;
-
-                                req.stEstatus = req.stEstatus ?? string.Empty;
-
-                                if (esUpdate != null)
-                                {
-                                    consulta = @"
-                                            UPDATE so_requisicion 
-                                            SET cc = ? 
-                                                ,numero = ?
-                                                ,fecha = ?
-                                                ,libre_abordo = ?
-                                                ,tipo_req_oc = ?
-                                                ,solicito = ?
-                                                ,vobo = ?
-                                                ,autorizo = ?
-                                                ,comentarios = ?
-                                                ,st_estatus = ?
-                                                ,st_impresa = ?
-                                                ,st_autoriza = ?
-                                                -- ,emp_autoriza = ?
-                                                ,empleado_modifica = ?
-                                                ,fecha_modifica = ?
-                                                ,hora_modifica = ?
-                                                -- ,fecha_autoriza = ?
-                                                ,tmc = ?
-                                                ,autoriza_activos = ?
-                                                ,num_vobo = ?
-                                            WHERE cc = ? AND numero = ?";
-                                }
-                                else
-                                {
-                                    consulta = @"
-                                            INSERT INTO so_requisicion
-                                            (cc
-                                            ,numero
-                                            ,fecha
-                                            ,libre_abordo
-                                            ,tipo_req_oc
-                                            ,solicito
-                                            ,vobo
-                                            ,autorizo
-                                            ,comentarios
-                                            ,st_estatus
-                                            ,st_impresa
-                                            ,st_autoriza
-                                            ,emp_autoriza
-                                            ,empleado_modifica
-                                            ,fecha_modifica
-                                            ,hora_modifica
-                                            ,fecha_autoriza
-                                            ,tmc
-                                            ,autoriza_activos
-                                            ,num_vobo)
-                                            VALUES
-                                                  (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                                }
-
-                                OdbcCommand command = new OdbcCommand(consulta);
-                                OdbcParameterCollection parameters = command.Parameters;
-
-                                parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                parameters.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                parameters.Add("@fecha", OdbcType.Date).Value = req.fecha;
-
-                                //Se guardar siempre con 1 porque en EnKontrol la tabla de libre abordo no contiene todos los almacenes. En SIGOPLAN se guarda con el número de almacén.
-                                parameters.Add("@libre_abordo", OdbcType.Numeric).Value = 1;
-
-                                parameters.Add("@tipo_req_oc", OdbcType.Char).Value = req.idTipoReqOc != null ? req.idTipoReqOc : 1;
-                                parameters.Add("@solicito", OdbcType.Numeric).Value = req.solicito;
-                                parameters.Add("@vobo", OdbcType.Numeric).Value = req.vobo;
-                                parameters.Add("@autorizo", OdbcType.Numeric).Value = req.autorizo;
-                                parameters.Add("@comentarios", OdbcType.Char).Value = req.comentarios ?? "";
-                                parameters.Add("@st_estatus", OdbcType.Char).Value = req.stEstatus;
-                                parameters.Add("@st_impresa", OdbcType.Char).Value = req.stImpresa ? "T" : string.Empty;
-                                parameters.Add("@st_autoriza", OdbcType.Char).Value = req.stAutoriza ? "S" : "N";
-
-                                if (esUpdate == null)
-                                {
-                                    parameters.Add("@emp_autoriza", OdbcType.Numeric).Value = req.empAutoriza;
-                                }
-
-                                parameters.Add("@empleado_modifica", OdbcType.Numeric).Value = req.empModifica;
-                                parameters.Add("@fecha_modifica", OdbcType.Date).Value = DateTime.Now;
-                                parameters.Add("@hora_modifica", OdbcType.DateTime).Value = DateTime.Now;
-
-                                if (esUpdate == null)
-                                {
-                                    parameters.Add("@fecha_autoriza", OdbcType.DateTime).Value = DBNull.Value;
-                                }
-
-                                parameters.Add("@tmc", OdbcType.Numeric).Value = req.isTmc ? 1 : 0;
-                                parameters.Add("@autoriza_activos", OdbcType.Numeric).Value = req.isActivos ? 0 : 1;
-                                parameters.Add("@num_vobo", OdbcType.Numeric).Value = req.numVobo;
-
-                                if (esUpdate != null)
-                                {
-                                    parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                    parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-                                }
-
-                                command.Connection = trans.Connection;
-                                command.Transaction = trans;
-                                id = command.ExecuteNonQuery();
-
-                                if (esUpdate != null)
-                                {
-                                    #region Actualizar Explosión
-                                    var detalleRequisicionEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_requisicion_det WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero));
-
-                                    if (detalleRequisicionEK != null)
-                                    {
-                                        var detalleRequisicion = (List<dynamic>)detalleRequisicionEK.ToObject<List<dynamic>>();
-
-                                        foreach (var detReq in detalleRequisicion)
-                                        {
-                                            var registroExplosionEK = consultaCheckProductivo(
-                                                string.Format(@"SELECT * FROM so_explos_mat WHERE cc = '{0}' AND insumo = {1} AND year_explos = {2}", req.cc, (int)detReq.insumo, DateTime.Now.Year)
-                                            );
-
-                                            if (registroExplosionEK != null)
-                                            {
-                                                var registroExplosion = ((List<dynamic>)registroExplosionEK.ToObject<List<dynamic>>())[0];
-
-                                                var nuevaCantidadRequerida =
-                                                    Convert.ToDecimal(registroExplosion.cant_requerida, CultureInfo.InvariantCulture) -
-                                                    Convert.ToDecimal(detReq.cantidad, CultureInfo.InvariantCulture);
-
-                                                var consultaExplosionUpdate = @"
-                                            UPDATE so_explos_mat 
-                                            SET cant_requerida = ? 
-                                            WHERE cc = ? AND insumo = ? AND year_explos = ?";
-
-                                                using (var cmd = new OdbcCommand(consultaExplosionUpdate))
-                                                {
-                                                    OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                    parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = nuevaCantidadRequerida;
-
-                                                    parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                    parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = detReq.insumo;
-                                                    parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-
-                                                    cmd.Connection = trans.Connection;
-                                                    cmd.Transaction = trans;
-
-                                                    count += cmd.ExecuteNonQuery();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    #endregion
-
-                                    consulta = @"DELETE from so_requisicion_det WHERE cc = ? AND numero = ?";
-
-                                    command = new OdbcCommand(consulta);
-                                    parameters = command.Parameters;
-
-                                    parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                    parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-
-                                    command.Connection = trans.Connection;
-                                    command.Transaction = trans;
-                                    command.ExecuteNonQuery();
-                                }
-
-                                var isSave = id > 0;
-                                if (isSave)
-                                {
-                                    var num = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                    var save = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc.Equals(req.cc) && r.numero == num);
-                                    var isSigoplanSave = save == null;
-
-                                    if (isSigoplanSave)
-                                        save = new tblCom_Req();
-                                    else
-                                    {
-                                        var detallesGuardados = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == save.id).ToList();
-
-                                        foreach (var detGua in detallesGuardados)
-                                        {
-                                            detGua.estatus = "false";
-                                            detGua.estatusRegistro = false;
-
-                                            _context.SaveChanges();
-                                        }
-                                    }
-
-                                    save.numero = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                    save.cc = req.cc;
-                                    save.fecha = req.fecha;
-                                    save.idLibreAbordo = req.idLibreAbordo;
-                                    save.idTipoReqOc = req.idTipoReqOc;
-                                    save.solicito = req.solicito;
-                                    save.vobo = req.vobo;
-                                    save.autorizo = req.autorizo;
-                                    save.comentarios = req.comentarios;
-                                    save.stEstatus = req.stEstatus;
-                                    save.stImpresa = req.stImpresa;
-                                    save.stAutoriza = req.stAutoriza;
-                                    save.empAutoriza = req.empAutoriza;
-                                    save.empModifica = req.empModifica;
-                                    save.modifica = esUpdate != null ? req.modifica : DateTime.MinValue;
-                                    save.autoriza = esUpdate != null ? req.modifica : DateTime.MinValue;
-                                    save.isTmc = req.isTmc;
-                                    save.isActivos = req.isActivos;
-                                    save.folioAsignado = req.folioAsignado != null ? req.folioAsignado : "";
-                                    save.consigna = req.consigna;
-                                    save.licitacion = req.licitacion;
-                                    save.crc = req.crc;
-                                    save.convenio = req.convenio;
-                                    save.proveedor = req.proveedor;
-                                    save.validadoAlmacen = false;
-                                    save.validadoCompras = false;
-                                    save.validadoRequisitor = true; //Se salta el paso de validación del requisitor.
-                                    save.fechaValidacionAlmacen = null;
-                                    save.comprador = req.comprador ?? 0;
-                                    save.usuarioSolicita = req.usuarioSolicita;
-                                    save.usuarioSolicitaUso = req.usuarioSolicitaUso ?? "";
-                                    save.usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa;
-                                    save.estatusRegistro = true;
-                                    save.PERU_codigoAuditoria = req.PERU_codigoAuditoria;
-                                    save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
-
-                                    _context.tblCom_Req.AddOrUpdate(save);
-                                    SaveChanges();
-
-                                    if (mfs.getMenuService().isLiberado(vSesiones.sesionCurrentView))
-                                    {
-                                        SaveBitacora((int)BitacoraEnum.Requisicion, isSigoplanSave ? (int)AccionEnum.AGREGAR : (int)AccionEnum.ACTUALIZAR, save.id, JsonUtils.convertNetObjectToJson(save));
-                                        SaveChanges();
-                                    }
-
-                                    id = save.id;
-
-                                    #region SE ACTUALIZA EL ESTATUS DEL BL A ESTATUS DE REQUISICIÓN
-                                    if (req.idBL.HasValue && req.idBL.Value != 0)
-                                    {
-                                        tblBL_Requisiciones requiBL = null;
-                                        requiBL = _context.tblBL_Requisiciones.FirstOrDefault(f => f.idBackLog == req.idBL.Value && f.esActivo);
-
-                                        if (requiBL == null)
-                                        {
-                                            requiBL = new tblBL_Requisiciones();
-                                            requiBL.idBackLog = req.idBL.Value;
-                                            requiBL.FK_UsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                            requiBL.FK_UsuarioModificacion = 0;
-                                            requiBL.fechaCreacionRequisicion = DateTime.Now;
-                                            requiBL.fechaModificacionRequisicion = requiBL.fechaCreacionRequisicion;
-                                            requiBL.esActivo = true;
-                                            requiBL.numRequisicion = save.numero.ToString();
-
-                                            var backlog = _context.tblBL_CatBackLogs.FirstOrDefault(f => f.id == req.idBL && f.esActivo);
-
-                                            if (backlog == null)
-                                                throw new Exception("No se encontró el backlog");
-                                            else
-                                            {
-                                                backlog.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                                _context.tblBL_Requisiciones.Add(requiBL);
-
-                                                #region SE REGISTRA BITACORA DE CUANTOS DÍAS DURO EL ESTATUS A ACTUALIZAR
-                                                tblBL_BitacoraEstatusBL objBitacoraBL = _context.tblBL_BitacoraEstatusBL.Where(w => w.idBL == req.idBL && w.esActivo).OrderByDescending(o => o.id).FirstOrDefault();
-                                                if (objBitacoraBL != null)
-                                                {
-                                                    //TimeSpan difFechas = DateTime.Now.Date - backlog.fechaCreacionBL.Date;
-                                                    //int diasTranscurridos = difFechas.Days;
-
-                                                    int diasTranscurridos = (DateTime.Now - backlog.fechaCreacionBL).Days;
-                                                    tblBL_BitacoraEstatusBL objGuardarBitacoraEstatusBL = new tblBL_BitacoraEstatusBL();
-                                                    objGuardarBitacoraEstatusBL.idBL = backlog.id;
-                                                    objGuardarBitacoraEstatusBL.areaCuenta = backlog.areaCuenta;
-                                                    objGuardarBitacoraEstatusBL.diasTranscurridos = diasTranscurridos;
-                                                    objGuardarBitacoraEstatusBL.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                                    objGuardarBitacoraEstatusBL.idUsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                                    objGuardarBitacoraEstatusBL.idUsuarioModificacion = 0;
-                                                    objGuardarBitacoraEstatusBL.fechaCreacion = DateTime.Now;
-                                                    objGuardarBitacoraEstatusBL.fechaModificacion = new DateTime(2000, 01, 01);
-                                                    objGuardarBitacoraEstatusBL.esActivo = true;
-                                                    _context.tblBL_BitacoraEstatusBL.Add(objGuardarBitacoraEstatusBL);
-                                                }
-                                                #endregion
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            if (save.numero.ToString() != requiBL.numRequisicion)
-                                            {
-                                                throw new Exception("No se guardó la requisición debido a que esta haciendo referencia a la requisición de un backlog con un número de requisición diferente");
-                                            }
-                                            requiBL.fechaModificacionRequisicion = DateTime.Now;
-                                        }
-                                        _context.SaveChanges();
-                                    }
-                                    #endregion
-                                }
-                                #endregion
-
-                                req.id = id;
-
-                                if (id > 0)
-                                {
-                                    det.ForEach(d =>
-                                    {
-                                        d.idReq = id;
-
-                                        d.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar ?? "";
-
-                                        #region Guardar Requisición Partida
-                                        var tipoRequisicion = req.idTipoReqOc;
-                                        DateTime fechaRequerida = DateTime.Now;
-
-                                        if (tipoRequisicion > 0)
-                                        {
-                                            var diasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_tipo_requisicion WHERE tipo_req_oc = {0}", tipoRequisicion));
-
-                                            if (diasEK != null)
-                                            {
-                                                var dias = (int)(((List<dynamic>)diasEK.ToObject<List<dynamic>>())[0].dias_requisicion);
-
-                                                fechaRequerida = DateTime.Now.AddDays(dias);
-                                            }
-                                        }
-
-                                        var consultaInsertReqDet = string.Empty;
-                                        var idDet = 0;
-                                        var idCom = 0;
-                                        int idDetalle = 0;
-
-                                        #region Detalles
-                                        //var detalleRequisicionEK = consultaCheckProductivo(
-                                        //    string.Format("SELECT numero FROM so_requisicion_det WHERE cc = '{0}' AND numero = {1} AND partida = {2}", req.cc, req.numero, d.partida
-                                        //));
-
-                                        //var detalleRequisicion = new List<dynamic>();
-                                        //bool existe = false;
-
-                                        //if (detalleRequisicionEK != null)
-                                        //{
-                                        //    detalleRequisicion = (List<dynamic>)detalleRequisicionEK.ToObject<List<dynamic>>();
-                                        //    existe = true;
-                                        //}
-
-                                        d.estatus = d.estatus ?? string.Empty;
-
-                                        consultaInsertReqDet = @"
-                                                            INSERT INTO so_requisicion_det
-                                                                (cc, numero, partida, insumo, fecha_requerido, cantidad, cant_ordenada, 
-                                                                fecha_ordenada, estatus, cant_cancelada, referencia_1, cantidad_excedida_ppto, area, cuenta)
-                                                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                                        OdbcCommand commandInsertDet = new OdbcCommand(consultaInsertReqDet);
-                                        OdbcParameterCollection parametersInsertDet = commandInsertDet.Parameters;
-
-                                        parametersInsertDet.Add("@cc", OdbcType.Char).Value = req.cc;
-                                        parametersInsertDet.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                        parametersInsertDet.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        parametersInsertDet.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                        parametersInsertDet.Add("@fecha_requerido", OdbcType.Date).Value = fechaRequerida.Date;
-                                        parametersInsertDet.Add("@cantidad", OdbcType.Numeric).Value = d.cantidad;
-                                        parametersInsertDet.Add("@cant_ordenada", OdbcType.Numeric).Value = d.cantOrdenada;
-                                        parametersInsertDet.Add("@fecha_ordenada", OdbcType.Date).Value = d.ordenada;
-                                        parametersInsertDet.Add("@estatus", OdbcType.Char).Value = d.estatus ?? " ";
-                                        parametersInsertDet.Add("@cant_cancelada", OdbcType.Numeric).Value = d.cantCancelada;
-                                        parametersInsertDet.Add("@referencia_1", OdbcType.Char).Value = DBNull.Value;
-                                        parametersInsertDet.Add("@cantidad_excedida_ppto", OdbcType.Numeric).Value = 0;
-                                        parametersInsertDet.Add("@area", OdbcType.Numeric).Value = d.area;
-                                        parametersInsertDet.Add("@cuenta", OdbcType.Numeric).Value = d.cuenta;
-
-                                        //if (existe)
-                                        //{
-                                        //    parametersInsertDet.Add("@cc", OdbcType.Char).Value = req.cc;
-                                        //    parametersInsertDet.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                        //    parametersInsertDet.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        //}
-
-                                        commandInsertDet.Connection = trans.Connection;
-                                        commandInsertDet.Transaction = trans;
-                                        idDet = commandInsertDet.ExecuteNonQuery();
-                                        #endregion
-                                        #region Descripcion
-                                        var existCom = consultaCheckProductivo(
-                                            string.Format(@"SELECT 
-                                                            numero 
-                                                        FROM so_req_det_linea 
-                                                        WHERE cc = '{0}' AND numero = {1} AND partida = {2}", req.cc, esUpdate != null ? req.numero : nuevoNumeroRequisicion, d.partida)
-                                        );
-
-                                        bool existe = existCom != null;
-
-                                        if (existe)
-                                            consulta = @"
-                                                    UPDATE so_req_det_linea
-                                                    SET cc = ?, numero = ?, partida = ?, descripcion = ?
-                                                    WHERE cc = ? AND numero = ? AND partida = ?";
-                                        else
-                                            consulta = @"
-                                                    INSERT INTO so_req_det_linea (cc, numero, partida, descripcion)
-                                                    VALUES (?,?,?,?)";
-
-                                        command = new OdbcCommand(consulta);
-
-                                        parameters = command.Parameters;
-                                        parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                        parameters.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                        parameters.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        parameters.Add("@descripcion", OdbcType.VarChar).Value = d.descripcion != null ? d.descripcion : "";
-
-                                        if (existe)
-                                        {
-                                            parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                            parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-                                            parameters.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        }
-
-                                        command.Connection = trans.Connection;
-                                        command.Transaction = trans;
-                                        idCom = command.ExecuteNonQuery();
-                                        #endregion
-                                        #region Actualizar Explosión para Requisición
-                                        var registroExplosionEK = consultaCheckProductivo(
-                                            string.Format(@"SELECT * FROM so_explos_mat WHERE cc = '{0}' AND insumo = {1} AND year_explos = {2}", req.cc, d.insumo, DateTime.Now.Year)
-                                        );
-
-                                        if (registroExplosionEK == null)
-                                        {
-                                            #region Insert Registro Explosión
-                                            var consultaExplosionInsert = @"INSERT INTO so_explos_mat 
-                                            (cc, insumo, cantidad, precio, aditiva_cant, aditiva_imp, deduc_cant, deduc_imp, cant_requerida, 
-                                            comp_cant, comp_imp, ajuste_cant, ajuste_imp, traspaso_cant, traspaso_imp, cant_recibida, imp_recibido, 
-                                            aditiva_cant_fecha, deduc_cant_fecha, aditiva_precio_fecha, deduc_precio_fecha, aditiva_precio, deductiva_precio, 
-                                            traspaso_cant_entrada, traspaso_imp_entrada, importe, year_explos, periodo, bit_auto_presu, cantidad_aditiva_sun, 
-                                            cantidad_deductiva_sun, cantidad_extra_sun) 
-                                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                                            using (var cmd = new OdbcCommand(consultaExplosionInsert))
-                                            {
-                                                OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                                parametersExplosion.Add("@cantidad", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deduc_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deduc_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = d.cantidad;
-                                                parametersExplosion.Add("@comp_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@comp_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@ajuste_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@ajuste_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@cant_recibida", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@imp_recibido", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_cant_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@deduc_cant_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@aditiva_precio_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@deduc_precio_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@aditiva_precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deductiva_precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_cant_entrada", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_imp_entrada", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@importe", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-                                                parametersExplosion.Add("@periodo", OdbcType.Char).Value = DBNull.Value;
-                                                parametersExplosion.Add("@bit_auto_presu", OdbcType.Char).Value = "N";
-                                                parametersExplosion.Add("@cantidad_aditiva_sun", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@cantidad_deductiva_sun", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@cantidad_extra_sun", OdbcType.Numeric).Value = DBNull.Value;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-
-                                                count += cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-                                        }
-                                        else
-                                        {
-                                            #region Update Registro Explosión
-                                            var registroExplosion = ((List<dynamic>)registroExplosionEK.ToObject<List<dynamic>>())[0];
-
-                                            var nuevaCantidadRequerida = Convert.ToDecimal(registroExplosion.cant_requerida, CultureInfo.InvariantCulture) + d.cantidad;
-
-                                            var consultaExplosionUpdate = @"
-                                            UPDATE so_explos_mat 
-                                            SET cant_requerida = ? 
-                                            WHERE cc = ? AND insumo = ? AND year_explos = ?";
-
-                                            using (var cmd = new OdbcCommand(consultaExplosionUpdate))
-                                            {
-                                                OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = nuevaCantidadRequerida;
-
-                                                parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                                parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-
-                                                count += cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-                                        }
-                                        #endregion
-
-                                        if (idDet > 0 && idCom > 0)
-                                        {
-                                            var save = _context.tblCom_ReqDet.FirstOrDefault(x => x.estatusRegistro && x.id.Equals(req.id) && x.partida.Equals(d.partida));
-
-                                            save = new tblCom_ReqDet();
-
-                                            save.idReq = req.id;
-                                            save.partida = d.partida;
-                                            save.insumo = d.insumo;
-                                            save.referencia = "";
-                                            save.descripcion = d.descripcion;
-                                            save.requerido = fechaRequerida;
-                                            save.cantidad = d.cantidad;
-                                            save.precio = d.precio;
-                                            save.cantOrdenada = d.cantOrdenada;
-                                            save.ordenada = d.ordenada;
-                                            save.estatus = d.estatus;
-                                            save.cantCancelada = d.cantCancelada;
-                                            save.cantExcedida = 0;
-                                            save.area = d.area;
-                                            save.cuenta = d.cuenta;
-                                            save.observaciones = d.observaciones;
-                                            save.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar;
-                                            save.estatusRegistro = true;
-                                            save.PERU_ordenFabricacion = d.PERU_ordenFabricacion;
-                                            save.PERU_saldo = d.PERU_saldo;
-                                            save.PERU_tipoRequisicion = d.PERU_tipoRequisicion;
-
-                                            _context.tblCom_ReqDet.AddOrUpdate(save);
-                                            SaveChanges();
-
-                                            idDetalle = save.id;
-                                        }
-                                        #endregion
-
-                                        if (comentarios != null)
-                                        {
-                                            var lstComentarios = comentarios.Where(x => x.partida == d.partida && Int32.Parse(x.insumo) == d.insumo);
-
-                                            if (lstComentarios.ToList().Count > 0)
-                                            {
-                                                lstComentarios.ToList().ForEach(z =>
-                                                {
-                                                    #region Guardar Comentarios Detalle
-                                                    var comentario = new tblCom_ReqDet_Comentarios();
-
-                                                    comentario.ReqDet_id = idDetalle;
-                                                    comentario.comentario = z.comentario;
-                                                    comentario.fecha = z.fecha;
-
-                                                    _context.tblCom_ReqDet_Comentarios.Add(comentario);
-                                                    _context.SaveChanges();
-                                                    #endregion
-                                                });
-                                            }
-                                        }
-                                    });
-                                }
-
-                                #region ACTIVACION DE EQUIPO DE STANDBY
-                                var flagMaquinaStandBy = false;
-                                flagMaquinaStandBy = ActivarEconomicoPorAccionRealizada
-                                    (
-                                        req.cc,
-                                        null,
-                                        AccionActivacionEconomicoEnum.ELABORACION_REQUISICION,
-                                        new { cc = req.cc, numero = req.numero != 0 ? req.numero : nuevoNumeroRequisicion, esActualizacion = esUpdate != null }, true);
-                                #endregion
-
-                                trans.Commit();
-                                dbSigoplanTransaction.Commit();
-
-                                var numeroRequisicionNueva = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-
-                                result.Add(SUCCESS, numeroRequisicionNueva > 0 ? true : false);
-                                result.Add("numeroRequisicionNueva", numeroRequisicionNueva);
-                                result.Add("flagMaquinaStandBy", flagMaquinaStandBy);
-                            }
-                            catch (Exception e)
-                            {
-                                trans.Rollback();
-                                dbSigoplanTransaction.Rollback();
-
-                                result.Add(MESSAGE, e.Message);
-                                result.Add(SUCCESS, false);
-
-                                LogError(0, 0, "RequisicionController", "guardarRequisicion", e, AccionEnum.AGREGAR, 0, new { req = req, det = det, comentarios = comentarios });
-                            }
-                        }
-                    }
-                }
-                #endregion
-            }
-            else if ((int)vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Peru)
-            {
-                #region PERU
-                using (var dbSigoplanTransaction = _context.Database.BeginTransaction())
-                {
-                    using (var _starsoft = new MainContextPeruStarSoft003BDCOMUN())
-                    {
-                        try
-                        {
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                            req.solicito = relUser.empleado;
-
-                            //var esUpdate = _starsoft.REQUISC.ToList().FirstOrDefault(x => x.NROREQUI == req.numero.ToString() && x.TIPOREQUI == req.PERU_tipoRequisicion);
-                            var esUpdate = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.PERU_tipoRequisicion == req.PERU_tipoRequisicion && x.cc == req.cc && x.numero == req.numero);
-                            var nuevoNumeroRequisicion = _starsoft.NUM_DOCCOMPRAS.ToList().FirstOrDefault(x => x.CTNCODIGO.ToString() == req.PERU_tipoRequisicion).CTNNUMERO + 1;
-
-                            #region Guardar Requisición
-                            req.stEstatus = req.stEstatus ?? string.Empty;
-
-                            var num = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                            var save = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc.Equals(req.cc) && r.numero == num && r.PERU_tipoRequisicion == req.PERU_tipoRequisicion);
-                            var isSigoplanSave = save == null;
-
-                            if (isSigoplanSave)
-                                save = new tblCom_Req();
-                            else
-                            {
-                                var detallesGuardados = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == save.id).ToList();
-
-                                foreach (var detGua in detallesGuardados)
-                                {
-                                    detGua.estatus = "false";
-                                    detGua.estatusRegistro = false;
-
-                                    _context.SaveChanges();
-                                }
-                            }
-
-                            //var registroRelacionUsuarioStarsoft = _context.tblP_Usuario_Starsoft.FirstOrDefault(x => x.sigoplan_usuario_id == vSesiones.sesionUsuarioDTO.id);
-
-                            //if (registroRelacionUsuarioStarsoft == null)
-                            //{
-                            //    throw new Exception("No se encuentra la información del usuario de Starsoft.");
-                            //}
-
-                            save.numero = esUpdate != null ? req.numero : Convert.ToInt32(nuevoNumeroRequisicion);
-                            save.cc = req.cc;
-                            save.fecha = req.fecha;
-                            save.idLibreAbordo = req.idLibreAbordo;
-                            save.idTipoReqOc = req.idTipoReqOc;
-                            //save.solicito = Int32.Parse(registroRelacionUsuarioStarsoft.starsoft_usuario_id);
-                            save.solicito = req.solicito;
-                            save.vobo = req.vobo;
-                            save.autorizo = req.autorizo;
-                            save.comentarios = req.comentarios;
-                            save.stEstatus = req.stEstatus;
-                            save.stImpresa = req.stImpresa;
-                            save.stAutoriza = req.stAutoriza;
-                            save.empAutoriza = req.empAutoriza;
-                            save.empModifica = req.empModifica;
-                            save.modifica = esUpdate != null ? req.modifica : new DateTime(2011, 1, 1);
-                            save.autoriza = esUpdate != null ? req.modifica : new DateTime(2011, 1, 1);
-                            save.isTmc = req.isTmc;
-                            save.isActivos = req.isActivos;
-                            save.folioAsignado = req.folioAsignado != null ? req.folioAsignado : "";
-                            save.consigna = req.consigna;
-                            save.licitacion = req.licitacion;
-                            save.crc = req.crc;
-                            save.convenio = req.convenio;
-                            save.proveedor = req.proveedor;
-                            save.validadoAlmacen = false;
-                            save.validadoCompras = false;
-                            save.validadoRequisitor = true; //Se salta el paso de validación del requisitor.
-                            save.fechaValidacionAlmacen = null;
-                            save.comprador = req.comprador ?? 0;
-                            save.usuarioSolicita = req.usuarioSolicita;
-                            save.usuarioSolicitaUso = req.usuarioSolicitaUso ?? "";
-                            save.usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa;
-                            save.estatusRegistro = true;
-                            save.PERU_codigoAuditoria = req.PERU_codigoAuditoria;
-                            save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
-
-                            _context.tblCom_Req.AddOrUpdate(save);
-                            SaveChanges();
-                            #endregion
-
-                            req.id = save.id;
-
-                            if (req.id > 0)
-                            {
-                                det.ForEach(d =>
-                                {
-                                    d.idReq = req.id;
-
-                                    d.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar ?? "";
-
-                                    #region Guardar Requisición Partida
-                                    //var tipoRequisicion = req.idTipoReqOc;
-                                    DateTime fechaRequerida = DateTime.Now;
-
-                                    //if (tipoRequisicion > 0)
-                                    //{
-                                    //    var diasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_tipo_requisicion WHERE tipo_req_oc = {0}", tipoRequisicion));
-
-                                    //    if (diasEK != null)
-                                    //    {
-                                    //        var dias = (int)(((List<dynamic>)diasEK.ToObject<List<dynamic>>())[0].dias_requisicion);
-
-                                    fechaRequerida = DateTime.Now.AddDays(1);
-                                    //    }
-                                    //}
-
-                                    var registroDetalle = new tblCom_ReqDet();
-
-                                    registroDetalle.idReq = req.id;
-                                    registroDetalle.partida = d.partida;
-                                    registroDetalle.insumo = d.insumo;
-                                    registroDetalle.referencia = "";
-                                    registroDetalle.descripcion = d.descripcion;
-                                    registroDetalle.requerido = fechaRequerida;
-                                    registroDetalle.cantidad = d.cantidad;
-                                    registroDetalle.precio = d.precio;
-                                    registroDetalle.cantOrdenada = d.cantOrdenada;
-                                    registroDetalle.ordenada = d.ordenada;
-                                    registroDetalle.estatus = d.estatus;
-                                    registroDetalle.cantCancelada = d.cantCancelada;
-                                    registroDetalle.cantExcedida = 0;
-                                    registroDetalle.area = d.area;
-                                    registroDetalle.cuenta = d.cuenta;
-                                    registroDetalle.observaciones = d.observaciones;
-                                    registroDetalle.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar;
-                                    registroDetalle.estatusRegistro = true;
-                                    registroDetalle.PERU_ordenFabricacion = d.PERU_ordenFabricacion;
-                                    registroDetalle.PERU_saldo = d.PERU_saldo;
-                                    registroDetalle.PERU_tipoRequisicion = d.PERU_tipoRequisicion;
-                                    registroDetalle.noEconomico = d.noEconomico;
-
-                                    _context.tblCom_ReqDet.AddOrUpdate(registroDetalle);
-                                    SaveChanges();
-                                    #endregion
-                                });
-                            }
-
-                            if (esUpdate == null)
-                            {
-                                var numRequiEntity = _starsoft.NUM_DOCCOMPRAS.FirstOrDefault(x => x.CTNCODIGO == req.PERU_tipoRequisicion);
-                                numRequiEntity.CTNNUMERO = nuevoNumeroRequisicion;
-                                _starsoft.SaveChanges();
-                            }
-
-                            #region SE ACTUALIZA EL ESTATUS DEL BL A ESTATUS DE REQUISICIÓN
-                            if (req.idBL.HasValue && req.idBL.Value != 0)
-                            {
-                                tblBL_Requisiciones requiBL = null;
-                                requiBL = _context.tblBL_Requisiciones.FirstOrDefault(f => f.idBackLog == req.idBL.Value && f.esActivo);
-
-                                if (requiBL == null)
-                                {
-                                    requiBL = new tblBL_Requisiciones();
-                                    requiBL.idBackLog = req.idBL.Value;
-                                    requiBL.numRequisicion = save.numero.ToString();
-                                    requiBL.FK_UsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                    requiBL.fechaCreacionRequisicion = DateTime.Now;
-                                    requiBL.esActivo = true;
-
-                                    var backlog = _context.tblBL_CatBackLogs.FirstOrDefault(f => f.id == req.idBL && f.esActivo);
-
-                                    if (backlog == null)
-                                        throw new Exception("No se encontró el BL");
-                                    else
-                                    {
-                                        backlog.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                        _context.tblBL_Requisiciones.Add(requiBL);
-
-                                        #region SE REGISTRA BITACORA DE CUANTOS DÍAS DURO EL ESTATUS A ACTUALIZAR
-                                        tblBL_BitacoraEstatusBL objBitacoraBL = _context.tblBL_BitacoraEstatusBL.Where(w => w.idBL == req.idBL && w.esActivo).OrderByDescending(o => o.id).FirstOrDefault();
-                                        if (objBitacoraBL != null)
-                                        {
-                                            int diasTranscurridos = (DateTime.Now - backlog.fechaCreacionBL).Days;
-                                            tblBL_BitacoraEstatusBL objGuardarBitacoraEstatusBL = new tblBL_BitacoraEstatusBL();
-                                            objGuardarBitacoraEstatusBL.idBL = backlog.id;
-                                            objGuardarBitacoraEstatusBL.areaCuenta = backlog.areaCuenta;
-                                            objGuardarBitacoraEstatusBL.diasTranscurridos = diasTranscurridos;
-                                            objGuardarBitacoraEstatusBL.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                            objGuardarBitacoraEstatusBL.idUsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                            objGuardarBitacoraEstatusBL.idUsuarioModificacion = 0;
-                                            objGuardarBitacoraEstatusBL.fechaCreacion = DateTime.Now;
-                                            objGuardarBitacoraEstatusBL.fechaModificacion = new DateTime(2000, 01, 01);
-                                            objGuardarBitacoraEstatusBL.esActivo = true;
-                                            _context.tblBL_BitacoraEstatusBL.Add(objGuardarBitacoraEstatusBL);
-                                        }
-                                        #endregion
-                                    }
-                                }
-                                else
-                                {
-                                    if (save.numero.ToString() != requiBL.numRequisicion)
-                                    {
-                                        throw new Exception("No se guardó la requisición debido a que esta haciendo referencia a la requisición de un backlog con un número de requisición diferente");
-                                    }
-                                    requiBL.fechaModificacionRequisicion = DateTime.Now;
-                                }
                                 _context.SaveChanges();
                             }
-                            #endregion
-
-                            dbSigoplanTransaction.Commit();
-
-                            var numeroRequisicionNueva = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-
-                            result.Add(SUCCESS, numeroRequisicionNueva > 0 ? true : false);
-                            result.Add("numeroRequisicionNueva", numeroRequisicionNueva);
                         }
-                        catch (Exception e)
-                        {
-                            dbSigoplanTransaction.Rollback();
 
-                            result.Add(MESSAGE, e.Message);
-                            result.Add(SUCCESS, false);
+                        //var registroRelacionUsuarioStarsoft = _context.tblP_Usuario_Starsoft.FirstOrDefault(x => x.sigoplan_usuario_id == vSesiones.sesionUsuarioDTO.id);
 
-                            LogError(0, 0, "RequisicionController", "guardarRequisicionPeru", e, AccionEnum.AGREGAR, 0, new { req = req, det = det, comentarios = comentarios });
-                        }
-                    }
-                }
-                #endregion
-            }
-            else if ((int)vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
-            {
-                #region COLOMBIA
-                using (var dbSigoplanTransaction = _context.Database.BeginTransaction())
-                {
-                    using (var con = checkConexionProductivo())
-                    {
-                        using (var trans = con.BeginTransaction())
+                        //if (registroRelacionUsuarioStarsoft == null)
+                        //{
+                        //    throw new Exception("No se encuentra la información del usuario de Starsoft.");
+                        //}
+
+                        save.numero = esUpdate != null ? req.numero : Convert.ToInt32(nuevoNumeroRequisicion);
+                        save.cc = req.cc;
+                        save.fecha = req.fecha;
+                        save.idLibreAbordo = req.idLibreAbordo;
+                        save.idTipoReqOc = req.idTipoReqOc;
+                        //save.solicito = Int32.Parse(registroRelacionUsuarioStarsoft.starsoft_usuario_id);
+                        save.solicito = req.solicito;
+                        save.vobo = req.vobo;
+                        save.autorizo = req.autorizo;
+                        save.comentarios = req.comentarios;
+                        save.stEstatus = req.stEstatus;
+                        save.stImpresa = req.stImpresa;
+                        save.stAutoriza = req.stAutoriza;
+                        save.empAutoriza = req.empAutoriza;
+                        save.empModifica = req.empModifica;
+                        save.modifica = esUpdate != null ? req.modifica : new DateTime(2011, 1, 1);
+                        save.autoriza = esUpdate != null ? req.modifica : new DateTime(2011, 1, 1);
+                        save.isTmc = req.isTmc;
+                        save.isActivos = req.isActivos;
+                        save.folioAsignado = req.folioAsignado != null ? req.folioAsignado : "";
+                        save.consigna = req.consigna;
+                        save.licitacion = req.licitacion;
+                        save.crc = req.crc;
+                        save.convenio = req.convenio;
+                        save.proveedor = req.proveedor;
+                        save.validadoAlmacen = false;
+                        save.validadoCompras = false;
+                        save.validadoRequisitor = true; //Se salta el paso de validación del requisitor.
+                        save.fechaValidacionAlmacen = null;
+                        save.comprador = req.comprador ?? 0;
+                        save.usuarioSolicita = req.usuarioSolicita;
+                        save.usuarioSolicitaUso = req.usuarioSolicitaUso ?? "";
+                        save.usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa;
+                        save.estatusRegistro = true;
+                        save.PERU_codigoAuditoria = req.PERU_codigoAuditoria;
+                        save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
+
+                        _context.tblCom_Req.AddOrUpdate(save);
+                        SaveChanges();
+                        #endregion
+
+                        req.id = save.id;
+
+                        if (req.id > 0)
                         {
-                            try
+                            det.ForEach(d =>
                             {
-                                var count = 0;
+                                d.idReq = req.id;
+                                d.cc = req.cc;
+                                d.numero = req.numero;
+                                d.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar ?? "";
 
-                                #region Validación para Mayra Tapia, Danya Ayala y Marisa Contreras, Anaitis Lorenzo, Rigoberto Coronado en el 032
-                                if (req.cc == "032" && vSesiones.sesionUsuarioDTO.id != 6586 && vSesiones.sesionUsuarioDTO.id != 79435 && vSesiones.sesionUsuarioDTO.id != 8003 && vSesiones.sesionUsuarioDTO.id != 1096 && vSesiones.sesionUsuarioDTO.id != 2266 && vSesiones.sesionUsuarioDTO.id != 79807)
-                                {
-                                    throw new Exception("Su usuario no puede capturar requisiciones en el centro de costo 032.");
-                                }
+                                #region Guardar Requisición Partida
+                                //var tipoRequisicion = req.idTipoReqOc;
+                                DateTime fechaRequerida = DateTime.Now;
+
+                                //if (tipoRequisicion > 0)
+                                //{
+                                //    var diasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_tipo_requisicion WHERE tipo_req_oc = {0}", tipoRequisicion));
+
+                                //    if (diasEK != null)
+                                //    {
+                                //        var dias = (int)(((List<dynamic>)diasEK.ToObject<List<dynamic>>())[0].dias_requisicion);
+
+                                fechaRequerida = DateTime.Now.AddDays(1);
+                                //    }
+                                //}
+
+                                var registroDetalle = new tblCom_ReqDet();
+
+                                registroDetalle.idReq = req.id;
+                                registroDetalle.partida = d.partida;
+                                registroDetalle.insumo = d.insumo;
+                                registroDetalle.referencia = "";
+                                registroDetalle.descripcion = d.descripcion;
+                                registroDetalle.requerido = fechaRequerida;
+                                registroDetalle.cantidad = d.cantidad;
+                                registroDetalle.precio = d.precio;
+                                registroDetalle.cantOrdenada = d.cantOrdenada;
+                                registroDetalle.ordenada = d.ordenada;
+                                registroDetalle.estatus = d.estatus;
+                                registroDetalle.cantCancelada = d.cantCancelada;
+                                registroDetalle.cantExcedida = 0;
+                                registroDetalle.area = d.area;
+                                registroDetalle.cuenta = d.cuenta;
+                                registroDetalle.observaciones = d.observaciones;
+                                registroDetalle.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar;
+                                registroDetalle.estatusRegistro = true;
+                                registroDetalle.PERU_ordenFabricacion = d.PERU_ordenFabricacion;
+                                registroDetalle.PERU_saldo = d.PERU_saldo;
+                                registroDetalle.PERU_tipoRequisicion = d.PERU_tipoRequisicion;
+                                registroDetalle.noEconomico = d.noEconomico;
+
+                                _context.tblCom_ReqDet.AddOrUpdate(registroDetalle);
+                                SaveChanges();
                                 #endregion
+                            });
+                        }
 
-                                #region Validación Área-Cuenta
-                                if (det.Any(x => x.area == 0 || x.cuenta == 0 || x.area == null || x.cuenta == null) && vSesiones.sesionEmpresaActual != 3)
-                                {
-                                    if (vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual == 4 || vSesiones.sesionEmpresaActual == 5)
-                                    {
-                                        var gruposValidaAreaCuentaEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.grupos_insumo WHERE valida_area_cta = 'S'"));
+                        // if (esUpdate == null)
+                        // {
+                        //     var numRequiEntity = _starsoft.NUM_DOCCOMPRAS.FirstOrDefault(x => x.CTNCODIGO == req.PERU_tipoRequisicion);
+                        //     numRequiEntity.CTNNUMERO = nuevoNumeroRequisicion;
+                        //     _starsoft.SaveChanges();
+                        // }
 
-                                        if (gruposValidaAreaCuentaEK != null)
-                                        {
-                                            var gruposValidaAreaCuenta = (List<dynamic>)gruposValidaAreaCuentaEK.ToObject<List<dynamic>>();
+                        #region SE ACTUALIZA EL ESTATUS DEL BL A ESTATUS DE REQUISICIÓN
+                        if (req.idBL.HasValue && req.idBL.Value != 0)
+                        {
+                            tblBL_Requisiciones requiBL = null;
+                            requiBL = _context.tblBL_Requisiciones.FirstOrDefault(f => f.idBackLog == req.idBL.Value && f.esActivo);
 
-                                            foreach (var p in det.Where(x => x.area == 0 || x.cuenta == 0 || x.area == null || x.cuenta == null).ToList())
-                                            {
-                                                var tipo = Int32.Parse(p.insumo.ToString().Substring(0, 1));
-                                                var grupo = Int32.Parse(p.insumo.ToString().Substring(1, 2));
+                            if (requiBL == null)
+                            {
+                                requiBL = new tblBL_Requisiciones();
+                                requiBL.idBackLog = req.idBL.Value;
+                                requiBL.numRequisicion = save.numero.ToString();
+                                requiBL.FK_UsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
+                                requiBL.fechaCreacionRequisicion = DateTime.Now;
+                                requiBL.esActivo = true;
 
-                                                var checkInsumoValidaAreaCuenta = gruposValidaAreaCuenta.FirstOrDefault(x => (int)x.tipo_insumo == tipo && (int)x.grupo_insumo == grupo);
+                                var backlog = _context.tblBL_CatBackLogs.FirstOrDefault(f => f.id == req.idBL && f.esActivo);
 
-                                                if (checkInsumoValidaAreaCuenta != null)
-                                                {
-                                                    throw new Exception("Debe capturar el Área-Cuenta para el insumo " + p.insumo + " en la partida #" + p.partida + ".");
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el Área-Cuenta de todas las partidas.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Bloqueo para existencias en almacén 03 (Obsoletos)
-                                foreach (var d in det)
-                                {
-                                    var existencia = getExistenciaValidacionObsoleto(d.insumo);
-
-                                    if (existencia > 0)
-                                    {
-                                        throw new Exception("Favor de solicitar un traspaso, hay existencia en almacén de Obsoletos para el insumo \"" + d.insumo + "\".");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Stand-By
-                                var flagMaquinaStandBy = false;
-                                if (vSesiones.sesionEmpresaActual == 2)
-                                {
-                                    flagMaquinaStandBy = checkMaquinaStandBy(req.cc);
-                                }
-                                #endregion
-
-                                #region Validación para no editar requisiciones autorizadas, con compras o con cuadros comparativos
-                                var requisicionExistenteEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT * FROM DBA.so_requisicion WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero)
-                                );
-
-                                if (requisicionExistenteEK != null)
-                                {
-                                    var requisicionExistente = ((List<dynamic>)requisicionExistenteEK.ToObject<List<dynamic>>())[0];
-
-                                    if ((string)requisicionExistente.st_autoriza == "S")
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque está autorizada.");
-                                    }
-
-                                    var comprasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.so_orden_compra_det WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0", req.cc, req.numero));
-
-                                    if (comprasEK != null)
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque tiene compras existentes.");
-                                    }
-
-                                    var cuadrosEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.so_cuadro_comparativo WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero));
-
-                                    if (cuadrosEK != null)
-                                    {
-                                        throw new Exception("No se puede editar la requisición porque tiene cuadros comparativos.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación campos "Usuario Solicita" y "Uso" para requisiciones inventariables
-                                if (req.usuarioSolicita == 0 || req.usuarioSolicitaUso == "" || req.usuarioSolicitaUso == null)
-                                {
-                                    #region Determinar si la requisición es "No Inventariable".
-                                    if (det.Count() > 0)
-                                    {
-                                        var flagInventariable = false;
-                                        var listaTipoGrupo = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.grupos_insumo")).ToObject<List<dynamic>>();
-                                        var insumosExcepciones = _context.tblCom_InsumosExcepcionUsuarioUso.Where(x => x.estatus).Select(x => x.insumo).ToList();
-                                        var flagNoExcepcion = false;
-
-                                        foreach (var reqDet in det)
-                                        {
-                                            var tipo = Int32.Parse(reqDet.insumo.ToString().Substring(0, 1));
-                                            var grupo = Int32.Parse(reqDet.insumo.ToString().Substring(1, 2));
-
-                                            var tipoGrupo = listaTipoGrupo.FirstOrDefault(x => (int)x.tipo_insumo == tipo && (int)x.grupo_insumo == grupo);
-
-                                            if (tipoGrupo != null)
-                                            {
-                                                if ((string)tipoGrupo.inventariado == "I")
-                                                {
-                                                    flagInventariable = true;
-                                                }
-                                            }
-
-                                            var insumoExcepcion = insumosExcepciones.FirstOrDefault(x => x == reqDet.insumo);
-
-                                            if (!insumosExcepciones.Any(x => x == reqDet.insumo))
-                                            {
-                                                flagNoExcepcion = true;
-                                            }
-                                        }
-
-                                        if (flagInventariable && flagNoExcepcion)
-                                        {
-                                            throw new Exception("Debe capturar el usuario y el uso para las requisiciones con insumos inventariables.");
-                                        }
-                                    }
-                                    #endregion
-                                }
-                                #endregion
-
-                                #region Validación comprador sugerido
-                                if (req.comprador == null || req.comprador == 0)
-                                {
-                                    throw new Exception("Debe seleccionar el comprador.");
-                                }
-                                #endregion
-
-                                #region Validación Insumos Consigna y Asignación de Precios
-                                if (req.consigna == true)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosConsignaProveedor = _context.tblCom_InsumosConsigna.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoConsigna = listaInsumosConsignaProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoConsigna == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como consigna para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoConsigna.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de consigna.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos Licitación y Asignación de Precios
-                                if (req.licitacion)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosLicitacionProveedor = _context.tblCom_InsumosLicitacion.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoLicitacion = listaInsumosLicitacionProveedor.FirstOrDefault(x => x.insumo == partida.insumo && partida.descripcion.ToUpper().Contains(x.articulo.ToUpper()));
-
-                                            if (registroInsumoLicitacion == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" de la partida \"" + partida.partida + "\" no se encuentra como licitación para el proveedor \"" + req.proveedor + "\". Asegúrate que la descripción de la partida contenga la descripción del artículo como se encuentra en el tabulador.");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoLicitacion.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de licitación.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos CRC y Asignación de Precios
-                                if (req.crc)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosCRCProveedor = _context.tblCom_InsumosConsigna.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoCRC = listaInsumosCRCProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoCRC == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como CRC para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoCRC.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de CRC.");
-                                    }
-                                }
-                                #endregion
-
-                                #region Validación Insumos Convenio y Asignación de Precios
-                                if (req.convenio)
-                                {
-                                    if (req.proveedor > 0)
-                                    {
-                                        var listaInsumosConvenioProveedor = _context.tblCom_InsumosConvenio.Where(x => x.registroActivo && x.proveedor == req.proveedor).ToList();
-
-                                        foreach (var partida in det)
-                                        {
-                                            var registroInsumoConvenio = listaInsumosConvenioProveedor.FirstOrDefault(x => x.insumo == partida.insumo);
-
-                                            if (registroInsumoConvenio == null)
-                                            {
-                                                throw new Exception("El insumo \"" + partida.insumo + "\" no se encuentra como convenio para el proveedor \"" + req.proveedor + "\".");
-                                            }
-                                            else
-                                            {
-                                                partida.precio = registroInsumoConvenio.precio;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Debe capturar el proveedor para las requisiciones de convenio.");
-                                    }
-                                }
-                                #endregion
-
-                                var usuario = vSesiones.sesionUsuarioDTO;
-                                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                                req.solicito = relUser.empleado;
-
-                                var esUpdate = consultaCheckProductivo(
-                                    string.Format("SELECT * FROM DBA.so_requisicion WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero)
-                                );
-
-                                var ultimaRequisicionEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT TOP 1 numero FROM DBA.so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", req.cc)
-                                );
-
-                                int nuevoNumeroRequisicion = 1;
-
-                                if (ultimaRequisicionEK != null)
-                                {
-                                    var ultimaRequisicion = (List<RequisicionDTO>)ultimaRequisicionEK.ToObject<List<RequisicionDTO>>();
-
-                                    nuevoNumeroRequisicion = ultimaRequisicion[0].numero + 1;
-                                }
-
-                                #region Guardar Requisición
-                                var consulta = string.Empty;
-                                var cantRegistrosAfectados = 0;
-
-                                req.stEstatus = req.stEstatus ?? string.Empty;
-
-                                if (esUpdate != null)
-                                {
-                                    //                                    consulta = @"
-                                    //                                            UPDATE DBA.so_requisicion 
-                                    //                                                SET 
-                                    //                                                cc = ?,
-                                    //                                                numero = ?,
-                                    //                                                fecha = ?,
-                                    //                                                libre_abordo = ?,
-                                    //                                                tipo_req_oc = ?,
-                                    //                                                solicito = ?,
-                                    //                                                vobo = ?,
-                                    //                                                autorizo = ?,
-                                    //                                                comentarios = ?,
-                                    //                                                st_estatus = ?,
-                                    //                                                st_impresa = ?,
-                                    //                                                st_autoriza = ?,
-                                    //                                                empleado_modifica = ?,
-                                    //                                                fecha_modifica = ?,
-                                    //                                                hora_modifica = ?,
-                                    //                                                id_lugar = ?
-                                    //                                                    WHERE cc = ? AND numero = ?";
-
-                                    consulta = @"
-                                            UPDATE DBA.so_requisicion 
-                                            SET cc = ? 
-                                                ,numero = ?
-                                                ,fecha = ?
-                                                ,libre_abordo = ?
-                                                ,tipo_req_oc = ?
-                                                ,solicito = ?
-                                                ,vobo = ?
-                                                ,autorizo = ?
-                                                ,comentarios = ?
-                                                ,st_estatus = ?
-                                                ,st_impresa = ?
-                                                ,st_autoriza = ?
-                                                -- ,emp_autoriza = ?
-                                                ,empleado_modifica = ?
-                                                ,fecha_modifica = ?
-                                                ,hora_modifica = ?
-                                                -- ,fecha_autoriza = ?
-                                                --,tmc = ?
-                                                --,autoriza_activos = ?
-                                                --,num_vobo = ?
-                                            WHERE cc = ? AND numero = ?";
-                                }
+                                if (backlog == null)
+                                    throw new Exception("No se encontró el BL");
                                 else
                                 {
-                                    consulta = @"
-                                            INSERT INTO DBA.so_requisicion
-                                            (cc,
-                                            numero,
-                                            fecha,
-                                            libre_abordo,
-                                            tipo_req_oc,
-                                            solicito,
-                                            vobo,
-                                            autorizo,
-                                            comentarios,
-                                            st_estatus,
-                                            st_impresa,
-                                            st_autoriza,
-                                            emp_autoriza,
-                                            empleado_modifica,
-                                            fecha_modifica,
-                                            hora_modifica,
-                                            fecha_autoriza,
-                                            id_lugar)
-                                            VALUES
-                                                  (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                                }
+                                    backlog.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
+                                    _context.tblBL_Requisiciones.Add(requiBL);
 
-                                string query = string.Format(@"UPDATE DBA.so_requisicion 
-                                                SET 
-                                                cc = '{0}',
-                                                numero = {1},
-                                                fecha = '{2}',
-                                                libre_abordo = {3},
-                                                tipo_req_oc = {4},
-                                                solicito = {5},
-                                                vobo = {6},
-                                                autorizo = {7},
-                                                comentarios = '{8}',
-                                                st_estatus = '{9}',
-                                                st_impresa = '{10}',
-                                                st_autoriza = '{11}',
-                                                empleado_modifica = {12},
-                                                fecha_modifica = '{13}',
-                                                hora_modifica = '{14}',
-                                                id_lugar = {15}
-                                                    WHERE cc = {0} AND numero = {1}",
-                                                req.cc,
-                                                esUpdate != null ? req.numero : nuevoNumeroRequisicion,
-                                                req.fecha,
-                                                1,
-                                                req.idTipoReqOc != null ? req.idTipoReqOc : 1,
-                                                req.solicito,
-                                                req.vobo,
-                                                req.autorizo,
-                                                req.comentarios ?? "",
-                                                req.stEstatus,
-                                                req.stImpresa ? "T" : string.Empty,
-                                                req.stAutoriza ? "S" : "N",
-                                                req.empModifica,
-                                                DateTime.Now,
-                                                DateTime.Now,
-                                                0);
-
-                                OdbcCommand command = new OdbcCommand(consulta);
-                                OdbcParameterCollection parameters = command.Parameters;
-
-                                parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                parameters.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                parameters.Add("@fecha", OdbcType.Date).Value = req.fecha;
-
-                                //Se guardar siempre con 1 porque en EnKontrol la tabla de libre abordo no contiene todos los almacenes. En SIGOPLAN se guarda con el número de almacén.
-                                parameters.Add("@libre_abordo", OdbcType.Numeric).Value = 1;
-
-                                parameters.Add("@tipo_req_oc", OdbcType.Char).Value = req.idTipoReqOc != null ? req.idTipoReqOc : 1;
-                                parameters.Add("@solicito", OdbcType.Numeric).Value = req.solicito;
-                                parameters.Add("@vobo", OdbcType.Numeric).Value = req.vobo;
-                                parameters.Add("@autorizo", OdbcType.Numeric).Value = req.autorizo;
-                                parameters.Add("@comentarios", OdbcType.Char).Value = req.comentarios ?? "";
-                                parameters.Add("@st_estatus", OdbcType.Char).Value = req.stEstatus;
-                                parameters.Add("@st_impresa", OdbcType.Char).Value = req.stImpresa ? "T" : string.Empty;
-                                parameters.Add("@st_autoriza", OdbcType.Char).Value = req.stAutoriza ? "S" : "N";
-
-                                if (esUpdate == null)
-                                    parameters.Add("@emp_autoriza", OdbcType.Numeric).Value = req.empAutoriza;
-
-                                parameters.Add("@empleado_modifica", OdbcType.Numeric).Value = req.empModifica;
-                                parameters.Add("@fecha_modifica", OdbcType.Date).Value = DateTime.Now;
-                                parameters.Add("@hora_modifica", OdbcType.DateTime).Value = DateTime.Now;
-
-                                if (esUpdate == null)
-                                    parameters.Add("@fecha_autoriza", OdbcType.DateTime).Value = DBNull.Value;
-
-                                if (esUpdate != null)
-                                {
-                                    parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                    parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-                                }
-                                parameters.Add("@id_lugar", OdbcType.Numeric).Value = 0;
-
-                                command.Connection = trans.Connection;
-                                command.Transaction = trans;
-                                cantRegistrosAfectados = command.ExecuteNonQuery();
-
-                                if (esUpdate != null)
-                                {
-                                    #region Actualizar Explosión
-                                    var detalleRequisicionEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.so_requisicion_det WHERE cc = '{0}' AND numero = {1}", req.cc, req.numero));
-
-                                    if (detalleRequisicionEK != null)
+                                    #region SE REGISTRA BITACORA DE CUANTOS DÍAS DURO EL ESTATUS A ACTUALIZAR
+                                    tblBL_BitacoraEstatusBL objBitacoraBL = _context.tblBL_BitacoraEstatusBL.Where(w => w.idBL == req.idBL && w.esActivo).OrderByDescending(o => o.id).FirstOrDefault();
+                                    if (objBitacoraBL != null)
                                     {
-                                        var detalleRequisicion = (List<dynamic>)detalleRequisicionEK.ToObject<List<dynamic>>();
-
-                                        foreach (var detReq in detalleRequisicion)
-                                        {
-                                            var registroExplosionEK = consultaCheckProductivo(
-                                                string.Format(@"SELECT * FROM DBA.so_explos_mat WHERE cc = '{0}' AND insumo = {1} AND year_explos = {2}", req.cc, (int)detReq.insumo, DateTime.Now.Year)
-                                            );
-
-                                            if (registroExplosionEK != null)
-                                            {
-                                                var registroExplosion = ((List<dynamic>)registroExplosionEK.ToObject<List<dynamic>>())[0];
-
-                                                var nuevaCantidadRequerida =
-                                                    Convert.ToDecimal(registroExplosion.cant_requerida, CultureInfo.InvariantCulture) -
-                                                    Convert.ToDecimal(detReq.cantidad, CultureInfo.InvariantCulture);
-
-                                                var consultaExplosionUpdate = @"UPDATE DBA.so_explos_mat SET cant_requerida = ? WHERE cc = ? AND insumo = ? AND year_explos = ?";
-
-                                                using (var cmd = new OdbcCommand(consultaExplosionUpdate))
-                                                {
-                                                    OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                    parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = nuevaCantidadRequerida;
-
-                                                    parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                    parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = detReq.insumo;
-                                                    parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-
-                                                    cmd.Connection = trans.Connection;
-                                                    cmd.Transaction = trans;
-
-                                                    count += cmd.ExecuteNonQuery();
-                                                }
-                                            }
-                                        }
-                                    }
-                                    #endregion
-
-                                    consulta = @"DELETE from DBA.so_requisicion_det WHERE cc = ? AND numero = ?";
-
-                                    command = new OdbcCommand(consulta);
-                                    parameters = command.Parameters;
-
-                                    parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                    parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-
-                                    command.Connection = trans.Connection;
-                                    command.Transaction = trans;
-                                    command.ExecuteNonQuery();
-                                }
-
-                                var isSave = cantRegistrosAfectados > 0;
-                                if (isSave)
-                                {
-                                    var num = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                    var save = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc.Equals(req.cc) && r.numero == num);
-                                    var isSigoplanSave = save == null;
-
-                                    if (isSigoplanSave)
-                                        save = new tblCom_Req();
-                                    else
-                                    {
-                                        var detallesGuardados = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == save.id).ToList();
-
-                                        foreach (var detGua in detallesGuardados)
-                                        {
-                                            detGua.estatus = "false";
-                                            detGua.estatusRegistro = false;
-
-                                            _context.SaveChanges();
-                                        }
-                                    }
-
-                                    save.numero = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                    save.cc = req.cc;
-                                    save.fecha = req.fecha;
-                                    save.idLibreAbordo = req.idLibreAbordo;
-                                    save.idTipoReqOc = req.idTipoReqOc;
-                                    save.solicito = req.solicito;
-                                    save.vobo = req.vobo;
-                                    save.autorizo = req.autorizo;
-                                    save.comentarios = req.comentarios;
-                                    save.stEstatus = req.stEstatus;
-                                    save.stImpresa = req.stImpresa;
-                                    save.stAutoriza = req.stAutoriza;
-                                    save.empAutoriza = req.empAutoriza;
-                                    save.empModifica = req.empModifica;
-                                    save.modifica = esUpdate != null ? req.modifica : DateTime.MinValue;
-                                    save.autoriza = esUpdate != null ? req.modifica : DateTime.MinValue;
-                                    save.isTmc = req.isTmc;
-                                    save.isActivos = req.isActivos;
-                                    save.folioAsignado = req.folioAsignado != null ? req.folioAsignado : "";
-                                    save.consigna = req.consigna;
-                                    save.licitacion = req.licitacion;
-                                    save.crc = req.crc;
-                                    save.convenio = req.convenio;
-                                    save.proveedor = req.proveedor;
-                                    save.validadoAlmacen = false;
-                                    save.validadoCompras = false;
-                                    save.validadoRequisitor = true; //Se salta el paso de validación del requisitor.
-                                    save.fechaValidacionAlmacen = null;
-                                    save.comprador = req.comprador ?? 0;
-                                    save.usuarioSolicita = req.usuarioSolicita;
-                                    save.usuarioSolicitaUso = req.usuarioSolicitaUso ?? "";
-                                    save.usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa;
-                                    save.estatusRegistro = true;
-                                    save.PERU_codigoAuditoria = req.PERU_codigoAuditoria;
-                                    save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
-                                    _context.tblCom_Req.AddOrUpdate(save);
-                                    SaveChanges();
-
-                                    if (mfs.getMenuService().isLiberado(vSesiones.sesionCurrentView))
-                                    {
-                                        SaveBitacora((int)BitacoraEnum.Requisicion, isSigoplanSave ? (int)AccionEnum.AGREGAR : (int)AccionEnum.ACTUALIZAR, save.id, JsonUtils.convertNetObjectToJson(save));
-                                        SaveChanges();
-                                    }
-
-                                    cantRegistrosAfectados = save.id;
-
-                                    #region SE ACTUALIZA EL ESTATUS DEL BL A ESTATUS DE REQUISICIÓN
-                                    if (req.idBL.HasValue && req.idBL.Value != 0)
-                                    {
-                                        tblBL_Requisiciones requiBL = null;
-                                        requiBL = _context.tblBL_Requisiciones.FirstOrDefault(f => f.idBackLog == req.idBL.Value && f.esActivo);
-
-                                        if (requiBL == null)
-                                        {
-                                            requiBL = new tblBL_Requisiciones();
-                                            requiBL.idBackLog = req.idBL.Value;
-                                            requiBL.FK_UsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                            requiBL.FK_UsuarioModificacion = 0;
-                                            requiBL.fechaCreacionRequisicion = DateTime.Now;
-                                            requiBL.fechaModificacionRequisicion = requiBL.fechaCreacionRequisicion;
-                                            requiBL.esActivo = true;
-                                            requiBL.numRequisicion = save.numero.ToString();
-
-                                            var backlog = _context.tblBL_CatBackLogs.FirstOrDefault(f => f.id == req.idBL && f.esActivo);
-
-                                            if (backlog == null)
-                                                throw new Exception("No se encontró el BackLog");
-                                            else
-                                            {
-                                                backlog.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                                _context.tblBL_Requisiciones.Add(requiBL);
-
-                                                #region SE REGISTRA BITACORA DE CUANTOS DÍAS DURO EL ESTATUS A ACTUALIZAR
-                                                tblBL_BitacoraEstatusBL objBitacoraBL = _context.tblBL_BitacoraEstatusBL.Where(w => w.idBL == req.idBL && w.esActivo).OrderByDescending(o => o.id).FirstOrDefault();
-                                                if (objBitacoraBL != null)
-                                                {
-                                                    int diasTranscurridos = (DateTime.Now - backlog.fechaCreacionBL).Days;
-                                                    tblBL_BitacoraEstatusBL objGuardarBitacoraEstatusBL = new tblBL_BitacoraEstatusBL();
-                                                    objGuardarBitacoraEstatusBL.idBL = backlog.id;
-                                                    objGuardarBitacoraEstatusBL.areaCuenta = backlog.areaCuenta;
-                                                    objGuardarBitacoraEstatusBL.diasTranscurridos = diasTranscurridos;
-                                                    objGuardarBitacoraEstatusBL.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
-                                                    objGuardarBitacoraEstatusBL.idUsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
-                                                    objGuardarBitacoraEstatusBL.idUsuarioModificacion = 0;
-                                                    objGuardarBitacoraEstatusBL.fechaCreacion = DateTime.Now;
-                                                    objGuardarBitacoraEstatusBL.fechaModificacion = new DateTime(2000, 01, 01);
-                                                    objGuardarBitacoraEstatusBL.esActivo = true;
-                                                    _context.tblBL_BitacoraEstatusBL.Add(objGuardarBitacoraEstatusBL);
-                                                }
-                                                #endregion
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            if (save.numero.ToString() != requiBL.numRequisicion)
-                                            {
-                                                throw new Exception("No se guardó la requisición debido a que esta haciendo referencia a la requisición de un backlog con un número de requisición diferente");
-                                            }
-                                            requiBL.fechaModificacionRequisicion = DateTime.Now;
-                                        }
-                                        _context.SaveChanges();
+                                        int diasTranscurridos = (DateTime.Now - backlog.fechaCreacionBL).Days;
+                                        tblBL_BitacoraEstatusBL objGuardarBitacoraEstatusBL = new tblBL_BitacoraEstatusBL();
+                                        objGuardarBitacoraEstatusBL.idBL = backlog.id;
+                                        objGuardarBitacoraEstatusBL.areaCuenta = backlog.areaCuenta;
+                                        objGuardarBitacoraEstatusBL.diasTranscurridos = diasTranscurridos;
+                                        objGuardarBitacoraEstatusBL.idEstatus = (int)EstatusBackLogEnum.ElaboracionRequisicion;
+                                        objGuardarBitacoraEstatusBL.idUsuarioCreacion = (int)vSesiones.sesionUsuarioDTO.id;
+                                        objGuardarBitacoraEstatusBL.idUsuarioModificacion = 0;
+                                        objGuardarBitacoraEstatusBL.fechaCreacion = DateTime.Now;
+                                        objGuardarBitacoraEstatusBL.fechaModificacion = new DateTime(2000, 01, 01);
+                                        objGuardarBitacoraEstatusBL.esActivo = true;
+                                        _context.tblBL_BitacoraEstatusBL.Add(objGuardarBitacoraEstatusBL);
                                     }
                                     #endregion
                                 }
-                                #endregion
-
-                                req.id = cantRegistrosAfectados;
-
-                                if (cantRegistrosAfectados > 0)
-                                {
-                                    det.ForEach(d =>
-                                    {
-                                        d.idReq = cantRegistrosAfectados;
-
-                                        d.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar ?? "";
-
-                                        #region Guardar Requisición Partida
-                                        var tipoRequisicion = req.idTipoReqOc;
-                                        DateTime fechaRequerida = DateTime.Now;
-
-                                        if (tipoRequisicion > 0)
-                                        {
-                                            //var diasEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.so_tipo_requisicion WHERE tipo_req_oc = {0}", tipoRequisicion));
-
-                                            //if (diasEK != null)
-                                            //{
-                                            //    var dias = (int)(((List<dynamic>)diasEK.ToObject<List<dynamic>>())[0].dias_requisicion);
-
-                                            //    fechaRequerida = DateTime.Now.AddDays(dias);
-                                            //}
-
-                                            tblCom_ReqTipo diasEK = _context.tblCom_ReqTipo.Where(x => x.tipo_req_oc == tipoRequisicion && x.registroActivo).FirstOrDefault();
-                                            if (diasEK != null)
-                                            {
-                                                var dias = diasEK.dias_requisicion;
-                                                fechaRequerida = DateTime.Now.AddDays(dias);
-                                            }
-                                        }
-
-                                        var consultaInsertReqDet = string.Empty;
-                                        var idDet = 0;
-                                        var idCom = 0;
-                                        int idDetalle = 0;
-
-                                        #region Detalles
-                                        d.estatus = d.estatus ?? string.Empty;
-
-                                        consultaInsertReqDet = @"
-                                                            INSERT INTO DBA.so_requisicion_det
-                                                            (cc, numero, partida, insumo, fecha_requerido, cantidad, cant_ordenada, fecha_ordenada, estatus, cant_cancelada, referencia_1, cantidad_excedida_ppto, area, cuenta)
-                                                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                                        OdbcCommand commandInsertDet = new OdbcCommand(consultaInsertReqDet);
-                                        OdbcParameterCollection parametersInsertDet = commandInsertDet.Parameters;
-
-                                        parametersInsertDet.Add("@cc", OdbcType.Char).Value = req.cc;
-                                        parametersInsertDet.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                        parametersInsertDet.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        parametersInsertDet.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                        parametersInsertDet.Add("@fecha_requerido", OdbcType.Date).Value = fechaRequerida.Date;
-                                        parametersInsertDet.Add("@cantidad", OdbcType.Numeric).Value = d.cantidad;
-                                        parametersInsertDet.Add("@cant_ordenada", OdbcType.Numeric).Value = d.cantOrdenada;
-                                        parametersInsertDet.Add("@fecha_ordenada", OdbcType.Date).Value = d.ordenada;
-                                        parametersInsertDet.Add("@estatus", OdbcType.Char).Value = d.estatus ?? " ";
-                                        parametersInsertDet.Add("@cant_cancelada", OdbcType.Numeric).Value = d.cantCancelada;
-                                        parametersInsertDet.Add("@referencia_1", OdbcType.Char).Value = DBNull.Value;
-                                        parametersInsertDet.Add("@cantidad_excedida_ppto", OdbcType.Numeric).Value = 0;
-                                        parametersInsertDet.Add("@area", OdbcType.Numeric).Value = d.area;
-                                        parametersInsertDet.Add("@cuenta", OdbcType.Numeric).Value = d.cuenta;
-
-                                        commandInsertDet.Connection = trans.Connection;
-                                        commandInsertDet.Transaction = trans;
-                                        idDet = commandInsertDet.ExecuteNonQuery();
-                                        #endregion
-                                        #region Descripcion
-                                        var existCom = consultaCheckProductivo(
-                                            string.Format(@"SELECT 
-                                                            numero 
-                                                        FROM DBA.so_req_det_linea 
-                                                        WHERE cc = '{0}' AND numero = {1} AND partida = {2}", req.cc, esUpdate != null ? req.numero : nuevoNumeroRequisicion, d.partida)
-                                        );
-
-                                        bool existe = existCom != null;
-
-                                        if (existe)
-                                            consulta = @"
-                                                    UPDATE DBA.so_req_det_linea
-                                                    SET cc = ?, numero = ?, partida = ?, descripcion = ?
-                                                    WHERE cc = ? AND numero = ? AND partida = ?";
-                                        else
-                                            consulta = @"
-                                                    INSERT INTO DBA.so_req_det_linea (cc, numero, partida, descripcion)
-                                                    VALUES (?,?,?,?)";
-
-                                        command = new OdbcCommand(consulta);
-
-                                        parameters = command.Parameters;
-                                        parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                        parameters.Add("@numero", OdbcType.Numeric).Value = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-                                        parameters.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        parameters.Add("@descripcion", OdbcType.VarChar).Value = d.descripcion != null ? d.descripcion : "";
-
-                                        if (existe)
-                                        {
-                                            parameters.Add("@cc", OdbcType.Char).Value = req.cc;
-                                            parameters.Add("@numero", OdbcType.Numeric).Value = req.numero;
-                                            parameters.Add("@partida", OdbcType.Numeric).Value = d.partida;
-                                        }
-
-                                        command.Connection = trans.Connection;
-                                        command.Transaction = trans;
-                                        idCom = command.ExecuteNonQuery();
-                                        #endregion
-                                        #region Actualizar Explosión para Requisición
-                                        var registroExplosionEK = consultaCheckProductivo(
-                                            string.Format(@"SELECT * FROM DBA.so_explos_mat WHERE cc = '{0}' AND insumo = {1} AND year_explos = {2}", req.cc, d.insumo, DateTime.Now.Year)
-                                        );
-
-                                        if (registroExplosionEK == null)
-                                        {
-                                            #region Insert Registro Explosión
-                                            var consultaExplosionInsert = @"INSERT INTO DBA.so_explos_mat 
-                                            (cc, insumo, cantidad, precio, aditiva_cant, aditiva_imp, deduc_cant, deduc_imp, cant_requerida, 
-                                            comp_cant, comp_imp, ajuste_cant, ajuste_imp, traspaso_cant, traspaso_imp, cant_recibida, imp_recibido, 
-                                            aditiva_cant_fecha, deduc_cant_fecha, aditiva_precio_fecha, deduc_precio_fecha, aditiva_precio, deductiva_precio, 
-                                            traspaso_cant_entrada, traspaso_imp_entrada, importe, year_explos, periodo, bit_auto_presu, cantidad_aditiva_sun, 
-                                            cantidad_deductiva_sun, cantidad_extra_sun) 
-                                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-                                            using (var cmd = new OdbcCommand(consultaExplosionInsert))
-                                            {
-                                                OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                                parametersExplosion.Add("@cantidad", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deduc_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deduc_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = d.cantidad;
-                                                parametersExplosion.Add("@comp_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@comp_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@ajuste_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@ajuste_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_cant", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_imp", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@cant_recibida", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@imp_recibido", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@aditiva_cant_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@deduc_cant_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@aditiva_precio_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@deduc_precio_fecha", OdbcType.Date).Value = DBNull.Value;
-                                                parametersExplosion.Add("@aditiva_precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@deductiva_precio", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_cant_entrada", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@traspaso_imp_entrada", OdbcType.Numeric).Value = 0;
-                                                parametersExplosion.Add("@importe", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-                                                parametersExplosion.Add("@periodo", OdbcType.Char).Value = DBNull.Value;
-                                                parametersExplosion.Add("@bit_auto_presu", OdbcType.Char).Value = "N";
-                                                parametersExplosion.Add("@cantidad_aditiva_sun", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@cantidad_deductiva_sun", OdbcType.Numeric).Value = DBNull.Value;
-                                                parametersExplosion.Add("@cantidad_extra_sun", OdbcType.Numeric).Value = DBNull.Value;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-
-                                                count += cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-                                        }
-                                        else
-                                        {
-                                            #region Update Registro Explosión
-                                            var registroExplosion = ((List<dynamic>)registroExplosionEK.ToObject<List<dynamic>>())[0];
-
-                                            var nuevaCantidadRequerida = Convert.ToDecimal(registroExplosion.cant_requerida, CultureInfo.InvariantCulture) + d.cantidad;
-
-                                            var consultaExplosionUpdate = @"
-                                            UPDATE DBA.so_explos_mat 
-                                            SET cant_requerida = ? 
-                                            WHERE cc = ? AND insumo = ? AND year_explos = ?";
-
-                                            using (var cmd = new OdbcCommand(consultaExplosionUpdate))
-                                            {
-                                                OdbcParameterCollection parametersExplosion = cmd.Parameters;
-
-                                                parametersExplosion.Add("@cant_requerida", OdbcType.Numeric).Value = nuevaCantidadRequerida;
-
-                                                parametersExplosion.Add("@cc", OdbcType.Char).Value = req.cc;
-                                                parametersExplosion.Add("@insumo", OdbcType.Numeric).Value = d.insumo;
-                                                parametersExplosion.Add("@year_explos", OdbcType.Numeric).Value = DateTime.Now.Year;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-
-                                                count += cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-                                        }
-                                        #endregion
-
-                                        if (idDet > 0 && idCom > 0)
-                                        {
-                                            var save = _context.tblCom_ReqDet.FirstOrDefault(x => x.estatusRegistro && x.id.Equals(req.id) && x.partida.Equals(d.partida));
-
-                                            save = new tblCom_ReqDet();
-
-                                            save.idReq = req.id;
-                                            save.partida = d.partida;
-                                            save.insumo = d.insumo;
-                                            save.referencia = "";
-                                            save.descripcion = d.descripcion;
-                                            save.requerido = fechaRequerida;
-                                            save.cantidad = d.cantidad;
-                                            save.precio = d.precio;
-                                            save.cantOrdenada = d.cantOrdenada;
-                                            save.ordenada = d.ordenada;
-                                            save.estatus = d.estatus;
-                                            save.cantCancelada = d.cantCancelada;
-                                            save.cantExcedida = 0;
-                                            save.area = d.area;
-                                            save.cuenta = d.cuenta;
-                                            save.observaciones = d.observaciones;
-                                            save.comentarioSurtidoQuitar = d.comentarioSurtidoQuitar;
-                                            save.estatusRegistro = true;
-                                            save.PERU_ordenFabricacion = d.PERU_ordenFabricacion;
-                                            save.PERU_saldo = d.PERU_saldo;
-                                            save.PERU_tipoRequisicion = d.PERU_tipoRequisicion;
-                                            save.noEconomico = d.noEconomico;
-
-                                            _context.tblCom_ReqDet.AddOrUpdate(save);
-                                            SaveChanges();
-
-                                            idDetalle = save.id;
-                                        }
-                                        #endregion
-
-                                        if (comentarios != null)
-                                        {
-                                            var lstComentarios = comentarios.Where(x => x.partida == d.partida && Int32.Parse(x.insumo) == d.insumo);
-
-                                            if (lstComentarios.ToList().Count > 0)
-                                            {
-                                                lstComentarios.ToList().ForEach(z =>
-                                                {
-                                                    #region Guardar Comentarios Detalle
-                                                    var comentario = new tblCom_ReqDet_Comentarios();
-
-                                                    comentario.ReqDet_id = idDetalle;
-                                                    comentario.comentario = z.comentario;
-                                                    comentario.fecha = z.fecha;
-
-                                                    _context.tblCom_ReqDet_Comentarios.Add(comentario);
-                                                    _context.SaveChanges();
-                                                    #endregion
-                                                });
-                                            }
-                                        }
-                                    });
-                                }
-
-                                trans.Commit();
-                                dbSigoplanTransaction.Commit();
-
-                                var numeroRequisicionNueva = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
-
-                                result.Add(SUCCESS, numeroRequisicionNueva > 0 ? true : false);
-                                result.Add("numeroRequisicionNueva", numeroRequisicionNueva);
-                                result.Add("flagMaquinaStandBy", flagMaquinaStandBy);
                             }
-                            catch (Exception e)
+                            else
                             {
-                                trans.Rollback();
-                                dbSigoplanTransaction.Rollback();
-
-                                result.Add(MESSAGE, e.Message);
-                                result.Add(SUCCESS, false);
-
-                                LogError(0, 0, "RequisicionController", "guardarRequisicion", e, AccionEnum.AGREGAR, 0, new { req = req, det = det, comentarios = comentarios });
+                                if (save.numero.ToString() != requiBL.numRequisicion)
+                                {
+                                    throw new Exception("No se guardó la requisición debido a que esta haciendo referencia a la requisición de un backlog con un número de requisición diferente");
+                                }
+                                requiBL.fechaModificacionRequisicion = DateTime.Now;
                             }
+                            _context.SaveChanges();
                         }
+                        #endregion
+
+                        dbSigoplanTransaction.Commit();
+
+                        var numeroRequisicionNueva = esUpdate != null ? req.numero : nuevoNumeroRequisicion;
+
+                        result.Add(SUCCESS, numeroRequisicionNueva > 0 ? true : false);
+                        result.Add("numeroRequisicionNueva", numeroRequisicionNueva);
+                    }
+                    catch (Exception e)
+                    {
+                        dbSigoplanTransaction.Rollback();
+
+                        result.Add(MESSAGE, e.Message);
+                        result.Add(SUCCESS, false);
+
+                        LogError(0, 0, "RequisicionController", "guardarRequisicionPeru", e, AccionEnum.AGREGAR, 0, new { req = req, det = det, comentarios = comentarios });
                     }
                 }
                 #endregion
-            }
 
             return result;
         }
@@ -2388,747 +583,89 @@ namespace Data.DAO.Enkontrol.Compras
         public Dictionary<string, object> setAuth(List<tblCom_Req> lst)
         {
             var result = new Dictionary<string, object>();
-
-            switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
+            try
             {
-                case EmpresaEnum.Peru:
+            #region PERÚ
+            var usuario = vSesiones.sesionUsuarioDTO;
+            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+
+            #region Validación para requisiciones con compras.
+            foreach (var req in lst)
+            {
+                //var compraExistenteEK = _context.tblCom_OrdenCompraDet.FirstOrDefault(e => e.estatusRegistro && e.cc == req.cc && e.num_requisicion == req.numero && e.);
+                var compraExistenteEK = _context.Select<tblCom_OrdenCompraDet>(new DapperDTO
+                {
+                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    consulta = "SELECT det.* FROM tblCom_OrdenCompraDet AS det INNER JOIN tblCom_OrdenCompra AS com ON com.id = det.idOrdenCompra WHERE det.estatusRegistro = 1 AND det.cc = @paramCC AND det.num_requisicion = @paramNumero",
+                    parametros = new { paramCC = req.cc, paramNumero = req.numero, paramTipoCompra = req.PERU_tipoRequisicion }
+                }).ToList().FirstOrDefault();
+
+                if (compraExistenteEK != null)
+                {
+
+                    if (_context.tblCom_OrdenCompra.Any(e => e.estatusRegistro && e.id == compraExistenteEK.idOrdenCompra))
                     {
-                        #region PERÚ
-                        var usuario = vSesiones.sesionUsuarioDTO;
-                        var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                        #region Validación para requisiciones con compras.
-                        using (var dbStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                        {
-                            foreach (var req in lst)
-                            {
-                                //var compraExistenteEK = _context.tblCom_OrdenCompraDet.FirstOrDefault(e => e.estatusRegistro && e.cc == req.cc && e.num_requisicion == req.numero && e.);
-                                var compraExistenteEK = _context.Select<tblCom_OrdenCompraDet>(new DapperDTO
-                                {
-                                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                                    consulta = "SELECT det.* FROM tblCom_OrdenCompraDet AS det INNER JOIN tblCom_OrdenCompra AS com ON com.id = det.idOrdenCompra WHERE det.estatusRegistro = 1 AND det.cc = @paramCC AND det.num_requisicion = @paramNumero AND com.PERU_tipoCompra = @paramTipoCompra",
-                                    parametros = new { paramCC = req.cc, paramNumero = req.numero, paramTipoCompra = req.PERU_tipoRequisicion }
-                                }).ToList().FirstOrDefault();
-
-                                if (compraExistenteEK != null)
-                                {
-
-                                    if (_context.tblCom_OrdenCompra.Any(e => e.estatusRegistro && e.id == compraExistenteEK.idOrdenCompra && e.PERU_tipoCompra == req.PERU_tipoRequisicion))
-                                    {
-                                        throw new Exception("No se puede autorizar/desautorizar la requisición \"" + req.cc + "-" + req.numero + "\". Ya tiene orden de compra.");
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-
-                        #region Validación para responsables de centros de costos.
-                        if (relUser.empleado != 1)
-                        {
-                            var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                            foreach (var requisicion in lst)
-                            {
-                                var registroCentroCosto = _context.tblP_CC.FirstOrDefault(x => x.cc == requisicion.cc);
-                                var autorizantesCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == registroCentroCosto.ccRH).ToList();
-                                var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-
-                                if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesCentroCosto.Count() > 0)
-                                {
-                                    if (!autorizantesCentroCosto.Any(x => x.empleado == relUser.empleado))
-                                    {
-                                        throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                    }
-                                }
-                                else
-                                {
-                                    var responsableEK = consultaCheckProductivo(
-                                        string.Format("SELECT empleado FROM so_cc_responsable WHERE cc = '{0}' AND empleado = {1}", registroCentroCosto.ccRH, relUser.empleado)
-                                    );
-
-                                    if (responsableEK == null)
-                                    {
-                                        throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-
-                        #region Autorizar Requisiciones
-                        using (var _starsoft = new MainContextPeruStarSoft003BDCOMUN())
-                        {
-                            using (var dbStarsoftTransaction = _starsoft.Database.BeginTransaction())
-                            {
-                                using (var _starsoftBDWENCO = new MainContextPeruStarSoftBDWENCO())
-                                {
-                                    using (var dbStarsoftBDWENCOTransaction = _starsoftBDWENCO.Database.BeginTransaction())
-                                    {
-                                        foreach (var requisicion in lst)
-                                        {
-                                            var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc == requisicion.cc && r.numero == requisicion.numero && r.PERU_tipoRequisicion == requisicion.PERU_tipoRequisicion);
-
-                                            if (requisicionSIGOPLAN != null)
-                                            {
-                                                if (!requisicion.stAutoriza)
-                                                {
-                                                    var requiSoft = requisicion.numero.ToString("D10");
-                                                    var requiStarSoft = _starsoft.REQUISD.Where(x => x.NROREQUI == requiSoft && x.TIPOREQUI == requisicion.PERU_tipoRequisicion).ToList();
-                                                    _starsoft.REQUISD.RemoveRange(requiStarSoft);
-                                                    _starsoft.SaveChanges();
-
-                                                    var requiStarSoftEnc = _starsoft.REQUISC.FirstOrDefault(x => x.NROREQUI == requiSoft && x.TIPOREQUI == requisicion.PERU_tipoRequisicion);
-                                                    _starsoft.REQUISC.Remove(requiStarSoftEnc);
-                                                    _starsoft.SaveChanges();
-                                                }
-                                                else
-                                                {
-                                                    //var siguienteConsecutivoAuditoria = _starsoftBDWENCO.AUDITORIA_SISTEMAS.ToList().Max(x => Int32.Parse(x.COD_AUDITORIA)) + 1;
-                                                    var usuario_starsoft = _context.tblP_Usuario_Starsoft.Where(x => x.sigoplan_usuario_id == vSesiones.sesionUsuarioDTO.id).Select(x => x.starsoft_usuario_id).FirstOrDefault();
-
-                                                    #region STARSOFT
-                                                    var nuevaRequisicionSTARSOFT = new REQUISC();
-
-                                                    nuevaRequisicionSTARSOFT.NROREQUI = requisicionSIGOPLAN.numero.ToString("D10");
-                                                    nuevaRequisicionSTARSOFT.CODSOLIC = usuario_starsoft;
-                                                    nuevaRequisicionSTARSOFT.FECREQUI = DateTime.Now;
-                                                    nuevaRequisicionSTARSOFT.GLOSA = requisicionSIGOPLAN.comentarios;
-                                                    nuevaRequisicionSTARSOFT.AREA = "01";
-                                                    nuevaRequisicionSTARSOFT.ESTREQUI = "P";
-                                                    nuevaRequisicionSTARSOFT.RQTDREF = null;
-                                                    nuevaRequisicionSTARSOFT.RQNOMREF = null;
-                                                    nuevaRequisicionSTARSOFT.TIPOREQUI = requisicionSIGOPLAN.PERU_tipoRequisicion;
-                                                    //nuevaRequisicionSTARSOFT.COD_AUDITORIA = siguienteConsecutivoAuditoria.ToString();
-                                                    nuevaRequisicionSTARSOFT.COD_AUDITORIA = null;
-                                                    nuevaRequisicionSTARSOFT.TIPO_USUARIO = null;
-                                                    nuevaRequisicionSTARSOFT.NOMBRE_USUARIO = null;
-                                                    nuevaRequisicionSTARSOFT.CARGO_USUARIO = null;
-                                                    nuevaRequisicionSTARSOFT.COD_USUARIO = null;
-                                                    nuevaRequisicionSTARSOFT.TIPODOCUMENTO = null;
-                                                    nuevaRequisicionSTARSOFT.NRO_REQUERIMIENTO_PORTAL = null;
-
-                                                    _starsoft.REQUISC.Add(nuevaRequisicionSTARSOFT);
-                                                    _starsoft.SaveChanges();
-
-                                                    var listaRegistrosDetalleSIGOPLAN = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                                    foreach (var det in listaRegistrosDetalleSIGOPLAN)
-                                                    {
-                                                        var insumoStarsoft = _starsoft.MAEART.ToList().FirstOrDefault(x => x.ACODIGO == det.insumo.ToString("D11"));
-
-                                                        var nuevoDetalleSTARSOFT = new REQUISD();
-
-                                                        nuevoDetalleSTARSOFT.NROREQUI = requisicionSIGOPLAN.numero.ToString("D10");
-                                                        nuevoDetalleSTARSOFT.CODPRO = insumoStarsoft.ACODIGO;
-                                                        nuevoDetalleSTARSOFT.DESCPRO = insumoStarsoft.ADESCRI;
-                                                        nuevoDetalleSTARSOFT.UNIPRO = insumoStarsoft.AUNIDAD;
-                                                        nuevoDetalleSTARSOFT.CANTID = det.cantidad;
-                                                        nuevoDetalleSTARSOFT.ESTREQUI = "P";
-                                                        nuevoDetalleSTARSOFT.FECREQUE = DateTime.Now;
-                                                        nuevoDetalleSTARSOFT.REQITEM = det.partida;
-                                                        nuevoDetalleSTARSOFT.SALDO = det.cantidad;
-                                                        nuevoDetalleSTARSOFT.CENCOST = requisicionSIGOPLAN.cc;
-                                                        nuevoDetalleSTARSOFT.GLOSA = requisicionSIGOPLAN.comentarios;
-                                                        nuevoDetalleSTARSOFT.REMAQ = det.descripcion;
-                                                        nuevoDetalleSTARSOFT.ORDFAB_REQUI = "";
-                                                        nuevoDetalleSTARSOFT.TIPOREQUI = requisicionSIGOPLAN.PERU_tipoRequisicion;
-
-                                                        _starsoft.REQUISD.Add(nuevoDetalleSTARSOFT);
-                                                        _starsoft.SaveChanges();
-                                                    }
-
-                                                    //var siguienteConsecutivoSecuencia = _starsoftBDWENCO.AUDITORIA_SISTEMAS.ToList().Max(x => Int32.Parse(x.SECUENCIA)) + 1;
-
-                                                    //var nuevoRegistroAuditoria = new AUDITORIA_SISTEMAS();
-
-                                                    //nuevoRegistroAuditoria.COD_AUDITORIA = siguienteConsecutivoAuditoria.ToString();
-                                                    //nuevoRegistroAuditoria.SECUENCIA = siguienteConsecutivoSecuencia.ToString();
-                                                    //nuevoRegistroAuditoria.COD_USUARIO = usuario_starsoft;
-                                                    //nuevoRegistroAuditoria.FECHA_SISTEMA = DateTime.Now;
-                                                    //nuevoRegistroAuditoria.FECHA_TRABAJO = DateTime.Now;
-                                                    //nuevoRegistroAuditoria.HORA = DateTime.Now.Hour.ToString();
-                                                    //nuevoRegistroAuditoria.OPERACION = "R";
-                                                    //nuevoRegistroAuditoria.COD_UNIVERSAL = "";
-                                                    //nuevoRegistroAuditoria.DES_CODUNIV = "";
-                                                    //nuevoRegistroAuditoria.TIPO_ANEXO = "";
-                                                    //nuevoRegistroAuditoria.COD_ANEXO = "";
-                                                    //nuevoRegistroAuditoria.CODPROCESO = "";
-                                                    //nuevoRegistroAuditoria.COD_EMPRESA = "003";
-                                                    //nuevoRegistroAuditoria.COD_MODULO = "02";
-                                                    //nuevoRegistroAuditoria.COD_MODULO_DESTINO = "02";
-                                                    //nuevoRegistroAuditoria.OBSERVACION = "";
-                                                    //nuevoRegistroAuditoria.NOMBRE_PC = "PERU";
-                                                    //nuevoRegistroAuditoria.TIPO_USUARIO = "A";
-                                                    //nuevoRegistroAuditoria.TIPO_DOC = requisicionSIGOPLAN.PERU_tipoRequisicion;
-                                                    //nuevoRegistroAuditoria.SERIE_DOC = "";
-                                                    //nuevoRegistroAuditoria.NUMERO_DOC = requisicionSIGOPLAN.numero.ToString("D10");
-                                                    //nuevoRegistroAuditoria.FECHA_REG_EJE = DateTime.Now;
-                                                    //nuevoRegistroAuditoria.COD_MENU = "";
-                                                    //nuevoRegistroAuditoria.COD_CLIENTE = "";
-                                                    //nuevoRegistroAuditoria.NOMBRE_CLIENTE = "";
-                                                    //nuevoRegistroAuditoria.COD_ARTICULO = "";
-                                                    //nuevoRegistroAuditoria.NOMBRE_ARTICULO = "";
-                                                    //nuevoRegistroAuditoria.CODIGO_USUARIO = "";
-                                                    //nuevoRegistroAuditoria.COD_PROVEEDOR = "";
-                                                    //nuevoRegistroAuditoria.NOMBRE_PROVEEDOR = "";
-                                                    //nuevoRegistroAuditoria.COD_LOTE = null;
-                                                    //nuevoRegistroAuditoria.CODIGO_RECETA = null;
-                                                    //nuevoRegistroAuditoria.VERSION_RECETA = null;
-                                                    //nuevoRegistroAuditoria.NOMBRE_RECETA = null;
-
-                                                    //_starsoftBDWENCO.AUDITORIA_SISTEMAS.Add(nuevoRegistroAuditoria);
-                                                    _starsoftBDWENCO.SaveChanges();
-                                                    #endregion
-                                                }
-
-                                                #region SIGOPLAN
-                                                requisicionSIGOPLAN.stAutoriza = requisicion.stAutoriza;
-                                                requisicionSIGOPLAN.empAutoriza = relUser.empleado;
-                                                requisicionSIGOPLAN.autoriza = DateTime.Now;
-                                                requisicionSIGOPLAN.empleadoUltimaAccion = relUser.empleado;
-                                                requisicionSIGOPLAN.fechaUltimaAccion = DateTime.Now;
-                                                requisicionSIGOPLAN.tipoUltimaAccion = requisicion.stAutoriza ? TipoUltimaAccionEnum.Autorizacion : TipoUltimaAccionEnum.Desautorizacion;
-
-                                                _context.SaveChanges();
-                                                #endregion
-                                            }
-                                            else
-                                            {
-                                                throw new Exception("No se encuentra la requisición en SIGOPLAN.");
-                                            }
-
-                                        }
-
-                                        dbStarsoftTransaction.Commit();
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-                        #endregion
-                        break;
+                        throw new Exception("No se puede autorizar/desautorizar la requisición \"" + req.cc + "-" + req.numero + "\". Ya tiene orden de compra.");
                     }
-                case EmpresaEnum.Colombia:
-                    {
-                        #region COLOMBIA
-                        var usuario = vSesiones.sesionUsuarioDTO;
-                        var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                        using (var dbSigoplanTransaction = _context.Database.BeginTransaction())
-                        {
-                            using (var con = checkConexionProductivo())
-                            {
-                                using (var trans = con.BeginTransaction())
-                                {
-                                    try
-                                    {
-                                        #region Validación para requisiciones con compras.
-                                        foreach (var req in lst)
-                                        {
-                                            var compraExistenteEK = consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.so_orden_compra_det WHERE cc = '{0}' AND num_requisicion = {1} AND ((cantidad - cant_canc) > 0)", req.cc, req.numero));
-
-                                            if (compraExistenteEK != null)
-                                            {
-                                                throw new Exception("No se puede autorizar/desautorizar la requisición \"" + req.cc + "-" + req.numero + "\". Ya tiene orden de compra.");
-                                            }
-                                        }
-
-                                        #endregion
-
-                                        #region Validación para responsables de centros de costos.
-                                        if (relUser.empleado != 1)
-                                        {
-                                            var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                            foreach (var requisicion in lst)
-                                            {
-                                                var autorizantesCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == requisicion.cc).ToList();
-                                                var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-
-                                                if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesCentroCosto.Count() > 0)
-                                                {
-                                                    if (!autorizantesCentroCosto.Any(x => x.empleado == relUser.empleado))
-                                                    {
-                                                        throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    var permisoResponsableCC = _context.tblCom_ResponsableCC.FirstOrDefault(x => x.registroActivo && x.cc == requisicion.cc && x.empleado == relUser.empleado);
-
-                                                    if (permisoResponsableCC == null)
-                                                    {
-                                                        throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        #endregion
-
-                                        #region Autorizar Requisiciones.
-                                        foreach (var requisicion in lst)
-                                        {
-                                            #region Enkontrol
-                                            var consulta = @"
-                                    UPDATE DBA.so_requisicion 
-                                    SET 
-                                        autorizo = ?, 
-                                        st_autoriza = ?, 
-                                        emp_autoriza = ?, 
-                                        fecha_autoriza = ? 
-                                    WHERE cc = ? AND numero = ?";
-
-                                            using (var cmd = new OdbcCommand(consulta))
-                                            {
-                                                OdbcParameterCollection parameters = cmd.Parameters;
-
-                                                parameters.Add("@autorizo", OdbcType.Numeric).Value = relUser.empleado;
-                                                parameters.Add("@st_autoriza", OdbcType.Char).Value = requisicion.stAutoriza ? "S" : "N";
-                                                parameters.Add("@emp_autoriza", OdbcType.Numeric).Value = requisicion.stAutoriza ? relUser.empleado : (object)DBNull.Value;
-                                                parameters.Add("@fecha_autoriza", OdbcType.DateTime).Value = requisicion.stAutoriza ? DateTime.Now : (object)DBNull.Value;
-
-                                                parameters.Add("@cc", OdbcType.Char).Value = requisicion.cc;
-                                                parameters.Add("@numero", OdbcType.Numeric).Value = requisicion.numero;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-                                                cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-
-                                            #region SIGOPLAN
-                                            var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc == requisicion.cc && r.numero == requisicion.numero);
-
-                                            if (requisicionSIGOPLAN != null)
-                                            {
-                                                #region Determinar si la requisición es "No Inventariable" para pasarla directo a Compras.
-                                                var requisicionDetalle = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                                if (requisicionDetalle.Count > 0)
-                                                {
-                                                    var flagNoInventariable = false;
-                                                    var flagInventariable = false;
-                                                    var flagFamiliaInventariableSinValidacion = false;
-
-                                                    var listaFamiliasInventariablesSinValidacion = _context.tblAlm_FamiliasInventariablesSinValidacion.Where(x => x.estatus).ToList();
-
-                                                    foreach (var reqDet in requisicionDetalle)
-                                                    {
-                                                        var tipo = Int32.Parse(reqDet.insumo.ToString().Substring(0, 1));
-                                                        var grupo = Int32.Parse(reqDet.insumo.ToString().Substring(1, 2));
-
-                                                        #region Verificar si la familia entra en la excepción de las familias inventariables que no llevan validación por almacén.
-                                                        var familiaInventariableSinValidacion = listaFamiliasInventariablesSinValidacion.FirstOrDefault(x => x.estatus && x.tipo == tipo && x.grupo == grupo);
-
-                                                        if (familiaInventariableSinValidacion != null)
-                                                        {
-                                                            flagFamiliaInventariableSinValidacion = true;
-                                                        }
-                                                        #endregion
-
-                                                        var tipoGrupoEK = consultaCheckProductivo(
-                                                            string.Format(@"SELECT 
-                                                                    * 
-                                                                FROM DBA.grupos_insumo 
-                                                                WHERE tipo_insumo = {0} AND grupo_insumo = {1}", tipo, grupo)
-                                                        );
-
-                                                        if (tipoGrupoEK != null)
-                                                        {
-                                                            var tipoGrupo = (List<dynamic>)tipoGrupoEK.ToObject<List<dynamic>>();
-
-                                                            if ((string)tipoGrupo[0].inventariado.Value == "N")
-                                                            {
-                                                                flagNoInventariable = true;
-                                                            }
-                                                            else if ((string)tipoGrupo[0].inventariado.Value == "I")
-                                                            {
-                                                                flagInventariable = true;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (flagFamiliaInventariableSinValidacion) //Si la requisición tiene por lo menos una familia que entra en la excepción, se pasa directo a compras.
-                                                    {
-                                                        requisicionSIGOPLAN.validadoAlmacen = true;
-                                                        requisicionSIGOPLAN.validadoCompras = true;
-                                                        requisicionSIGOPLAN.validadoRequisitor = true;
-                                                        requisicionSIGOPLAN.fechaValidacionAlmacen = DateTime.Now;
-                                                    }
-                                                    else
-                                                    {
-                                                        if (flagNoInventariable && !flagInventariable)
-                                                        {
-                                                            requisicionSIGOPLAN.validadoAlmacen = true;
-                                                            requisicionSIGOPLAN.validadoCompras = true;
-                                                            requisicionSIGOPLAN.validadoRequisitor = true;
-                                                            requisicionSIGOPLAN.fechaValidacionAlmacen = DateTime.Now;
-                                                        }
-                                                    }
-                                                }
-                                                #endregion
-
-                                                requisicionSIGOPLAN.stAutoriza = requisicion.stAutoriza;
-                                                requisicionSIGOPLAN.empAutoriza = relUser.empleado;
-                                                requisicionSIGOPLAN.autoriza = DateTime.Now;
-                                                requisicionSIGOPLAN.empleadoUltimaAccion = relUser.empleado;
-                                                requisicionSIGOPLAN.fechaUltimaAccion = DateTime.Now;
-                                                requisicionSIGOPLAN.validadoAlmacen = true;             //Se coloca true para saltar el paso del surtido en colombia. Puede cambiar
-                                                requisicionSIGOPLAN.validadoCompras = true;                 //Se coloca true para saltar el paso del surtido en colombia. Puede cambiar
-                                                requisicionSIGOPLAN.fechaValidacionAlmacen = DateTime.Now;          //Se coloca true para saltar el paso del surtido en colombia. Puede cambiar
-                                                requisicionSIGOPLAN.tipoUltimaAccion = requisicion.stAutoriza ? TipoUltimaAccionEnum.Autorizacion : TipoUltimaAccionEnum.Desautorizacion;
-
-                                                _context.SaveChanges();
-                                            }
-                                            else
-                                            {
-                                                throw new Exception("No se encuentra la requisición en SIGOPLAN COLOMBIA.");
-                                            }
-                                            #endregion
-
-                                            #region Enviar correo a almacenistas.
-                                            try
-                                            {
-                                                List<string> listaCorreos = new List<string>();
-
-                                                var listaAlmacenistas = _context.tblAlm_RelacionCorreoAlmacenCC.Where(x => x.estatus && x.almacen == requisicionSIGOPLAN.idLibreAbordo).ToList();
-
-                                                if (listaAlmacenistas.Count() > 0)
-                                                {
-                                                    var listaCorreosAlmacenistas = _context.tblP_Usuario.Where(x => x.estatus).ToList().Where(x =>
-                                                        listaAlmacenistas.Select(y => y.almacenistaID).Contains(x.id) && x.correo.Contains("@construplan.com.mx")
-                                                    ).Select(x => x.correo).ToList();
-
-                                                    if (listaCorreosAlmacenistas.Count() > 0)
-                                                    {
-#if DEBUG
-                                                        listaCorreos = new List<string> { "oscar.valencia@construplan.com.mx" };
-                                                        //listaCorreos = new List<string> { "omar.nunez@construplan.com.mx" };
-#else
-                                            listaCorreos.AddRange(listaCorreosAlmacenistas);
-#endif
-
-                                                        var asunto = string.Format(@"Requisición Autorizada: {0}", requisicion.cc + "-" + requisicion.numero);
-                                                        var mensaje = string.Format(
-                                                            @"Se ha autorizado la requisición {0}.<br/>Fecha y hora: {1}", requisicion.cc + "-" + requisicion.numero, DateTime.Now
-                                                        );
-
-                                                        //var correoEnviado = GlobalUtils.sendEmail(asunto, mensaje, listaCorreos.Distinct().ToList());
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                LogError(0, 0, "RequisicionController", "enviarCorreoAutorizarRequisiciones", e, AccionEnum.CORREO, 0, lst);
-                                            }
-                                            #endregion
-                                        }
-                                        #endregion
-
-                                        trans.Commit();
-                                        dbSigoplanTransaction.Commit();
-                                        result.Add(SUCCESS, true);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        trans.Rollback();
-                                        dbSigoplanTransaction.Rollback();
-
-                                        result.Add(MESSAGE, e.Message);
-                                        result.Add(SUCCESS, false);
-
-                                        LogError(0, 0, "RequisicionController", "autorizarRequisiciones", e, AccionEnum.ACTUALIZAR, 0, lst);
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-                        break;
-                    }
-                default:
-                    {
-                        #region DEMÁS EMPRESAS
-                        var usuario = vSesiones.sesionUsuarioDTO;
-                        var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                        using (var dbSigoplanTransaction = _context.Database.BeginTransaction())
-                        {
-                            using (var con = checkConexionProductivo())
-                            {
-                                using (var trans = con.BeginTransaction())
-                                {
-                                    try
-                                    {
-                                        #region Validación para requisiciones con compras.
-                                        foreach (var req in lst)
-                                        {
-                                            var compraExistenteEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_orden_compra_det WHERE cc = '{0}' AND num_requisicion = {1} AND ((cantidad - cant_canc) > 0)", req.cc, req.numero));
-
-                                            if (compraExistenteEK != null)
-                                            {
-                                                throw new Exception("No se puede autorizar/desautorizar la requisición \"" + req.cc + "-" + req.numero + "\". Ya tiene orden de compra.");
-                                            }
-                                        }
-                                        #endregion
-
-                                        #region Validación para responsables de centros de costos.
-                                        if (relUser.empleado != 1)
-                                        {
-                                            switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
-                                            {
-                                                case EmpresaEnum.Arrendadora:
-                                                    {
-                                                        #region ARRENDADORA
-                                                        var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                                        foreach (var requisicion in lst)
-                                                        {
-                                                            var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-                                                            var primerPartidaRequisicion = ((List<dynamic>)consultaCheckProductivo(
-                                                                string.Format(@"SELECT TOP 1 * FROM so_requisicion_det WHERE cc = '{0}' AND numero = {1}", requisicion.cc, requisicion.numero)
-                                                            ).ToObject<List<dynamic>>())[0];
-                                                            var areaCuenta = ((int)primerPartidaRequisicion.area).ToString() + "-" + ((int)primerPartidaRequisicion.cuenta).ToString();
-
-                                                            var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.areaCuenta == areaCuenta).ToList();
-
-                                                            if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesPorCentroCosto.Count() > 0)
-                                                            {
-                                                                if (!autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado))
-                                                                {
-                                                                    throw new Exception("No es responsable del área-cuenta \"" + areaCuenta + "\".");
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                var responsableEK = consultaCheckProductivo(
-                                                                    string.Format("SELECT empleado FROM so_cc_responsable WHERE cc = '{0}' AND empleado = {1}", requisicion.cc, relUser.empleado)
-                                                                );
-
-                                                                if (responsableEK == null)
-                                                                {
-                                                                    throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                                                }
-                                                            }
-                                                        }
-                                                        #endregion
-                                                        break;
-                                                    }
-                                                default:
-                                                    {
-                                                        #region DEMÁS EMPRESAS
-                                                        var listaCentrosCostoRequisiciones = lst.GroupBy(x => x.cc).Select(x => x.Key).ToList();
-                                                        var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                                        foreach (var requisicion in lst)
-                                                        {
-                                                            var autorizantesCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == requisicion.cc).ToList();
-                                                            var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-
-                                                            if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesCentroCosto.Count() > 0)
-                                                            {
-                                                                if (!autorizantesCentroCosto.Any(x => x.empleado == relUser.empleado))
-                                                                {
-                                                                    throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                var responsableEK = consultaCheckProductivo(
-                                                                    string.Format("SELECT empleado FROM so_cc_responsable WHERE cc = '{0}' AND empleado = {1}", requisicion.cc, relUser.empleado)
-                                                                );
-
-                                                                if (responsableEK == null)
-                                                                {
-                                                                    throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
-                                                                }
-                                                            }
-                                                        }
-                                                        #endregion
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                        #endregion
-
-                                        #region Autorizar Requisiciones.
-                                        foreach (var requisicion in lst)
-                                        {
-                                            #region Enkontrol
-                                            var consulta = @"
-                                    UPDATE so_requisicion 
-                                    SET 
-                                        autorizo = ?, 
-                                        st_autoriza = ?, 
-                                        emp_autoriza = ?, 
-                                        fecha_autoriza = ? 
-                                    WHERE cc = ? AND numero = ?";
-
-                                            using (var cmd = new OdbcCommand(consulta))
-                                            {
-                                                OdbcParameterCollection parameters = cmd.Parameters;
-
-                                                parameters.Add("@autorizo", OdbcType.Numeric).Value = relUser.empleado;
-                                                parameters.Add("@st_autoriza", OdbcType.Char).Value = requisicion.stAutoriza ? "S" : "N";
-                                                parameters.Add("@emp_autoriza", OdbcType.Numeric).Value = requisicion.stAutoriza ? relUser.empleado : (object)DBNull.Value;
-                                                parameters.Add("@fecha_autoriza", OdbcType.DateTime).Value = requisicion.stAutoriza ? DateTime.Now : (object)DBNull.Value;
-
-                                                parameters.Add("@cc", OdbcType.Char).Value = requisicion.cc;
-                                                parameters.Add("@numero", OdbcType.Numeric).Value = requisicion.numero;
-
-                                                cmd.Connection = trans.Connection;
-                                                cmd.Transaction = trans;
-                                                cmd.ExecuteNonQuery();
-                                            }
-                                            #endregion
-
-                                            #region SIGOPLAN
-                                            var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc == requisicion.cc && r.numero == requisicion.numero);
-
-                                            if (requisicionSIGOPLAN != null)
-                                            {
-                                                #region Determinar si la requisición es "No Inventariable" para pasarla directo a Compras.
-                                                var requisicionDetalle = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                                if (requisicionDetalle.Count > 0)
-                                                {
-                                                    var flagNoInventariable = false;
-                                                    var flagInventariable = false;
-                                                    var flagFamiliaInventariableSinValidacion = false;
-
-                                                    var listaFamiliasInventariablesSinValidacion = _context.tblAlm_FamiliasInventariablesSinValidacion.Where(x => x.estatus).ToList();
-
-                                                    foreach (var reqDet in requisicionDetalle)
-                                                    {
-                                                        var tipo = Int32.Parse(reqDet.insumo.ToString().Substring(0, 1));
-                                                        var grupo = Int32.Parse(reqDet.insumo.ToString().Substring(1, 2));
-
-                                                        #region Verificar si la familia entra en la excepción de las familias inventariables que no llevan validación por almacén.
-                                                        var familiaInventariableSinValidacion = listaFamiliasInventariablesSinValidacion.FirstOrDefault(x => x.estatus && x.tipo == tipo && x.grupo == grupo);
-
-                                                        if (familiaInventariableSinValidacion != null)
-                                                        {
-                                                            flagFamiliaInventariableSinValidacion = true;
-                                                        }
-                                                        #endregion
-
-                                                        var tipoGrupoEK = consultaCheckProductivo(
-                                                            string.Format(@"SELECT 
-                                                                    * 
-                                                                FROM grupos_insumo 
-                                                                WHERE tipo_insumo = {0} AND grupo_insumo = {1}", tipo, grupo)
-                                                        );
-
-                                                        if (tipoGrupoEK != null)
-                                                        {
-                                                            var tipoGrupo = (List<dynamic>)tipoGrupoEK.ToObject<List<dynamic>>();
-
-                                                            if ((string)tipoGrupo[0].inventariado.Value == "N")
-                                                            {
-                                                                flagNoInventariable = true;
-                                                            }
-                                                            else if ((string)tipoGrupo[0].inventariado.Value == "I")
-                                                            {
-                                                                flagInventariable = true;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (flagFamiliaInventariableSinValidacion) //Si la requisición tiene por lo menos una familia que entra en la excepción, se pasa directo a compras.
-                                                    {
-                                                        requisicionSIGOPLAN.validadoAlmacen = true;
-                                                        requisicionSIGOPLAN.validadoCompras = true;
-                                                        requisicionSIGOPLAN.validadoRequisitor = true;
-                                                        requisicionSIGOPLAN.fechaValidacionAlmacen = DateTime.Now;
-                                                    }
-                                                    else
-                                                    {
-                                                        if (flagNoInventariable && !flagInventariable)
-                                                        {
-                                                            requisicionSIGOPLAN.validadoAlmacen = true;
-                                                            requisicionSIGOPLAN.validadoCompras = true;
-                                                            requisicionSIGOPLAN.validadoRequisitor = true;
-                                                            requisicionSIGOPLAN.fechaValidacionAlmacen = DateTime.Now;
-                                                        }
-                                                    }
-                                                }
-                                                #endregion
-
-                                                requisicionSIGOPLAN.stAutoriza = requisicion.stAutoriza;
-                                                requisicionSIGOPLAN.empAutoriza = relUser.empleado;
-                                                requisicionSIGOPLAN.autoriza = DateTime.Now;
-                                                requisicionSIGOPLAN.empleadoUltimaAccion = relUser.empleado;
-                                                requisicionSIGOPLAN.fechaUltimaAccion = DateTime.Now;
-                                                requisicionSIGOPLAN.tipoUltimaAccion = requisicion.stAutoriza ? TipoUltimaAccionEnum.Autorizacion : TipoUltimaAccionEnum.Desautorizacion;
-
-                                                _context.SaveChanges();
-                                            }
-                                            else
-                                            {
-                                                throw new Exception("No se encuentra la requisición en SIGOPLAN.");
-                                            }
-                                            #endregion
-
-                                            #region Enviar correo a almacenistas.
-                                            try
-                                            {
-                                                List<string> listaCorreos = new List<string>();
-
-                                                var listaAlmacenistas = _context.tblAlm_RelacionCorreoAlmacenCC.Where(x => x.estatus && x.almacen == requisicionSIGOPLAN.idLibreAbordo).ToList();
-
-                                                if (listaAlmacenistas.Count() > 0)
-                                                {
-                                                    var listaCorreosAlmacenistas = _context.tblP_Usuario.Where(x => x.estatus).ToList().Where(x =>
-                                                        listaAlmacenistas.Select(y => y.almacenistaID).Contains(x.id) && x.correo.Contains("@construplan.com.mx")
-                                                    ).Select(x => x.correo).ToList();
-
-                                                    if (listaCorreosAlmacenistas.Count() > 0)
-                                                    {
-#if DEBUG
-                                                        listaCorreos = new List<string> { "oscar.valencia@construplan.com.mx" };
-#else
-                                                                                    listaCorreos.AddRange(listaCorreosAlmacenistas);
-#endif
-
-                                                        var asunto = string.Format(@"Requisición Autorizada: {0}", requisicion.cc + "-" + requisicion.numero);
-                                                        var mensaje = string.Format(
-                                                            @"Se ha autorizado la requisición {0}.<br/>Fecha y hora: {1}", requisicion.cc + "-" + requisicion.numero, DateTime.Now
-                                                        );
-
-                                                        var correoEnviado = GlobalUtils.sendEmail(string.Format("{0}: {1}", PersonalUtilities.GetNombreEmpresa(), asunto), mensaje, listaCorreos.Distinct().ToList());
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                LogError(0, 0, "RequisicionController", "enviarCorreoAutorizarRequisiciones", e, AccionEnum.CORREO, 0, lst);
-                                            }
-                                            #endregion
-                                        }
-                                        #endregion
-
-                                        trans.Commit();
-                                        dbSigoplanTransaction.Commit();
-                                        result.Add(SUCCESS, true);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        trans.Rollback();
-                                        dbSigoplanTransaction.Rollback();
-
-                                        result.Add(MESSAGE, e.Message);
-                                        result.Add(SUCCESS, false);
-
-                                        LogError(0, 0, "RequisicionController", "autorizarRequisiciones", e, AccionEnum.ACTUALIZAR, 0, lst);
-                                    }
-                                }
-                            }
-                        }
-                        #endregion
-                        break;
-                    }
+                }
             }
+            #endregion
 
+            #region Validación para responsables de centros de costos.
+            if (relUser.empleado != 1)
+            {
+                var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
+
+                foreach (var requisicion in lst)
+                {
+                    var registroCentroCosto = _context.tblP_CC.FirstOrDefault(x => x.cc == requisicion.cc);
+                    var autorizantesCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == registroCentroCosto.ccRH).ToList();
+                    var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
+
+                    if (!autorizantesCentroCosto.Any(x => x.empleado == relUser.empleado))
+                    {
+                        throw new Exception("No es responsable del centro de costo \"" + requisicion.cc + "\".");
+                    }
+                }
+            }
+            #endregion
+
+            #region Autorizar Requisiciones
+            foreach (var requisicion in lst)
+            {
+                var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(r => r.estatusRegistro && r.cc == requisicion.cc && r.numero == requisicion.numero);
+
+                if (requisicionSIGOPLAN != null)
+                {
+                    #region SIGOPLAN
+                    requisicionSIGOPLAN.stAutoriza = requisicion.stAutoriza;
+                    requisicionSIGOPLAN.empAutoriza = relUser.empleado;
+                    requisicionSIGOPLAN.autoriza = DateTime.Now;
+                    requisicionSIGOPLAN.empleadoUltimaAccion = relUser.empleado;
+                    requisicionSIGOPLAN.fechaUltimaAccion = DateTime.Now;
+                    requisicionSIGOPLAN.tipoUltimaAccion = requisicion.stAutoriza ? TipoUltimaAccionEnum.Autorizacion : TipoUltimaAccionEnum.Desautorizacion;
+
+                    _context.SaveChanges();
+                    #endregion
+                }
+                else
+                {
+                    throw new Exception("No se encuentra la requisición en SIGOPLAN.");
+                }
+
+            }
+            #endregion
+            #endregion
+
+            result.Add(SUCCESS, true);
             return result;
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+                return result;
+            }
         }
         #endregion
         #endregion
@@ -3138,73 +675,18 @@ namespace Data.DAO.Enkontrol.Compras
 
             try
             {
-                switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
-                {
-                    case EmpresaEnum.Peru:
-                        {
-                            using (var ctxPeruStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                            {
-                                ctxPeruStarsoft.Database.Connection.Open();
-
-                                using (var ctxPeru = new MainContext())
-                                {
-                                    var numeroUltimaRequisicion = 1;
-                                    var consecutivos = ctxPeruStarsoft.NUM_DOCCOMPRAS.FirstOrDefault(x => x.CTNCODIGO == tpRequi);
-                                    if (consecutivos != null)
-                                    {
-                                        numeroUltimaRequisicion = (int)consecutivos.CTNNUMERO + 1;
-                                    }
-
-                                    var usuarioStarsoft = ctxPeru.tblP_Usuario_Enkontrol.FirstOrDefault(x => x.idUsuario == vSesiones.sesionUsuarioDTO.id);
-                                    if (usuarioStarsoft != null)
-                                    {
-                                        var usuarioSigoplan = ctxPeru.tblP_Usuario.FirstOrDefault(x => x.id == usuarioStarsoft.idUsuario);
-                                        result.Add("solicito", usuarioStarsoft.empleado);
-                                        result.Add("solicitoNom", PersonalUtilities.NombreCompletoMayusculas(usuarioSigoplan.nombre, usuarioSigoplan.apellidoPaterno, usuarioSigoplan.apellidoMaterno));
-                                    }
-                                    else
-                                    {
-                                        result.Add("solicito", 0);
-                                        result.Add("solicitoNom", "Default");
-                                    }
-
-                                    result.Add("numero", Convert.ToInt32(numeroUltimaRequisicion));
-                                    result.Add(SUCCESS, true);
-                                }
-                            }
-                        }
-                        break;
-                    case EmpresaEnum.Colombia:
-                        {
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            var ultimaRequisicion = consultaCheckProductivo(string.Format(@"SELECT TOP 1 numero FROM DBA.so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", cc));
-                            var numeroUltimaRequisicion = ultimaRequisicion != null ? (int)((List<dynamic>)ultimaRequisicion.ToObject<List<dynamic>>())[0].numero : 0;
-                            var empleado = ((List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM DBA.empleados where empleado = {0}", relUser.empleado)).ToObject<List<dynamic>>())[0];
-
-                            result.Add("solicito", empleado.empleado);
-                            result.Add("solicitoNom", empleado.descripcion);
-                            result.Add("numero", numeroUltimaRequisicion + 1);
-                            result.Add(SUCCESS, true);
-                        }
-                        break;
-                    default:
-                        {
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            var ultimaRequisicion = consultaCheckProductivo(string.Format(@"SELECT TOP 1 numero FROM so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", cc));
-                            var numeroUltimaRequisicion = ultimaRequisicion != null ?
-                                (int)((List<dynamic>)ultimaRequisicion.ToObject<List<dynamic>>())[0].numero
-                                : 0;
-                            var empleado = ((List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM empleados where empleado = {0}", relUser.empleado)).ToObject<List<dynamic>>())[0];
-
-                            result.Add("solicito", empleado.empleado);
-                            result.Add("solicitoNom", empleado.descripcion);
-                            result.Add("numero", numeroUltimaRequisicion + 1);
-                            result.Add(SUCCESS, true);
-                        }
-                        break;
-                }
+                var usuario = vSesiones.sesionUsuarioDTO;
+                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+                // var ultimaRequisicion = consultaCheckProductivo(string.Format(@"SELECT TOP 1 numero FROM so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", cc));
+                //linq
+                var ultimaRequisicion = _context.tblCom_Req.Where(x => x.estatusRegistro && x.cc == cc).OrderByDescending(x => x.numero).FirstOrDefault();
+                var numeroUltimaRequisicion = ultimaRequisicion != null ?ultimaRequisicion.numero : 0;
+                // var empleado = ((List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM empleados where empleado = {0}", relUser.empleado)).ToObject<List<dynamic>>())[0];
+                var empleado = _context.tblRH_EK_Empleados.Where(x => x.id == relUser.empleado).FirstOrDefault();
+                result.Add("solicito", empleado.clave_empleado);
+                result.Add("solicitoNom", empleado.nombre);
+                result.Add("numero", numeroUltimaRequisicion + 1);
+                result.Add(SUCCESS, true);
             }
             catch (Exception e)
             {
@@ -3227,9 +709,7 @@ namespace Data.DAO.Enkontrol.Compras
                 var requisicion = _context.tblCom_Req.Where(x => x.estatusRegistro && x.cc == cc && x.stAutoriza && (x.validadoAlmacen == false || x.validadoAlmacen == null)).OrderByDescending(x => x.numero).FirstOrDefault();
 
                 //Consulta a EnKontrol para comprobar que exista y coincida la información de la requisición.
-                return (List<dynamic>)consultaCheckProductivo(
-                    string.Format(@"SELECT numero FROM so_requisicion WHERE cc = '{0}' AND numero = {1}", requisicion.cc, requisicion.numero)
-                ).ToObject<List<dynamic>>();
+                return requisicion.numero;
             }
             catch (Exception) { return 0; }
         }
@@ -3238,791 +718,264 @@ namespace Data.DAO.Enkontrol.Compras
             var result = new Dictionary<string, object>();
             try
             {
-                if (vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Peru && vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Colombia)
+
+                #region TODAS LAS EMPRESAS MENOS PERU Y COLOMBIA
+                var requisicionSIGOPLAN = getRequisicionSIGOPLAN(cc, num);
+                // var requisicionEK = consultaCheckProductivo(
+                //     string.Format(@"SELECT 
+                //                 r.*, 
+                //                 s.descripcion as solicitoNom, 
+                //                 e.descripcion as empModificaNom, 
+                //                 v.descripcion as voboNom, 
+                //                 a.descripcion as empAutNom 
+                //             FROM so_requisicion r 
+                //                 LEFT JOIN empleados s ON s.empleado = r.solicito 
+                //                 LEFT JOIN empleados v ON v.empleado = r.vobo 
+                //                 LEFT JOIN empleados e ON e.empleado = r.empleado_modifica 
+                //                 LEFT JOIN empleados a ON a.empleado = r.emp_autoriza 
+                //             WHERE r.cc = '{0}' AND r.numero = {1}", cc, num));
+
+                var requisicionEK = (
+                    from r in _context.tblCom_Req
+
+                    // LEFT JOIN tblCom_ReqTipo (si no existe relación en ReqTipo, r aún será seleccionado)
+                    join tr in _context.tblCom_ReqTipo
+                        on r.idTipoReqOc equals tr.tipo_req_oc into trGroup
+                    from tr in trGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "solicito"
+                    join s in _context.tblRH_EK_Empleados
+                        on r.solicito equals s.clave_empleado into sGroup
+                    from s in sGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "vobo"
+                    join v in _context.tblRH_EK_Empleados
+                        on r.vobo equals v.clave_empleado into vGroup
+                    from v in vGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "empModifica"
+                    join e in _context.tblRH_EK_Empleados
+                        on r.empModifica equals e.clave_empleado into eGroup
+                    from e in eGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "empAutoriza"
+                    join a in _context.tblRH_EK_Empleados
+                        on r.empAutoriza equals a.clave_empleado into aGroup
+                    from a in aGroup.DefaultIfEmpty()
+
+                    where r.cc == cc && r.numero == num
+
+                    select new
+                    {
+                        r, // Todos los campos de tblCom_Req
+                        tr, // Todos los campos de tblCom_ReqTipo, o null si no hay coincidencia
+                        solicitoNom = s != null ? s.nombre : null, // si no existe coincidencia, asigna null
+                        empModificaNom = e != null ? e.nombre : null,
+                        voboNom = v != null ? v.nombre : null,
+                        empAutorizaNom = a != null ? a.nombre : null
+                    }
+                ).ToList();
+
+
+                if (requisicionEK.Count > 0)
                 {
-                    #region TODAS LAS EMPRESAS MENOS PERU Y COLOMBIA
-                    if (vSesiones.sesionEmpresaActual == 2 || vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual == 4 || vSesiones.sesionEmpresaActual == (int)EmpresaEnum.GCPLAN)
-                    {
-                        var requisicionSIGOPLAN = getRequisicionSIGOPLAN(cc, num);
-                        var requisicionEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                        r.*, 
-                                        s.descripcion as solicitoNom, 
-                                        e.descripcion as empModificaNom, 
-                                        v.descripcion as voboNom, 
-                                        a.descripcion as empAutNom 
-                                    FROM so_requisicion r 
-                                        LEFT JOIN empleados s ON s.empleado = r.solicito 
-                                        LEFT JOIN empleados v ON v.empleado = r.vobo 
-                                        LEFT JOIN empleados e ON e.empleado = r.empleado_modifica 
-                                        LEFT JOIN empleados a ON a.empleado = r.emp_autoriza 
-                                    WHERE r.cc = '{0}' AND r.numero = {1}", cc, num));
+                    var requisicion = requisicionEK[0];
 
-                        if (requisicionEK != null)
+                    // var partidasRequisicionEK = consultaCheckProductivo(
+                    // string.Format(@"SELECT 
+                    //             d.*, 
+                    //             i.descripcion as insumoDesc, 
+                    //             i.unidad, 
+                    //             i.cancelado, 
+                    //             i.compras_req, 
+                    //             d.descripcion as partidaDesc 
+                    //         FROM so_requisicion_det d 
+                    //             INNER JOIN insumos i ON d.insumo = i.insumo 
+                    //         WHERE d.cc = '{0}' AND d.numero = {1} 
+                    //         ORDER BY d.partida", cc, num));
+
+                    var partidasRequisicionEK = (
+                        from d in _context.tblCom_ReqDet
+                        join c in _context.tblCom_Req
+                            on d.idReq equals c.id
+                        join i in _context.tblCom_Insumos
+                            on d.insumo equals i.insumo
+                        where c.cc == cc && c.numero == num
+                        orderby d.partida
+                        select new
                         {
-                            var requisicion = ((List<dynamic>)requisicionEK.ToObject<List<dynamic>>())[0];
-
-                            var partidasRequisicionEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                        d.*, 
-                                        i.descripcion as insumoDesc, 
-                                        i.unidad, 
-                                        i.cancelado, 
-                                        i.compras_req, 
-                                        (
-                                            SELECT 
-                                                l.descripcion 
-                                            FROM so_req_det_linea l 
-                                            WHERE l.cc = d.cc AND l.numero = d.numero AND l.partida = d.partida 
-                                        ) as partidaDesc 
-                                    FROM so_requisicion_det d 
-                                        INNER JOIN insumos i ON d.insumo = i.insumo 
-                                    WHERE d.cc = '{0}' AND d.numero = {1} 
-                                    ORDER BY d.partida", cc, num));
-
-                            if (partidasRequisicionEK != null)
-                            {
-                                var partidasRequisicion = (List<dynamic>)partidasRequisicionEK.ToObject<List<dynamic>>();
-                                List<string> compras = new List<string>();
-                                var comprasEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT 
-                                                cc, numero, (cc + '-' + CONVERT(varchar(10), numero)) AS compra 
-                                            FROM so_orden_compra_det 
-                                            WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0 
-                                            GROUP BY cc, numero", (string)requisicion.cc, (int)requisicion.numero)
-                                );
-
-                                if (comprasEK != null)
-                                {
-                                    compras = ((List<dynamic>)comprasEK.ToObject<List<dynamic>>()).Select(x => (string)x.compra).ToList();
-                                }
-
-                                var requisicionInfo = new
-                                {
-                                    id = 0,
-                                    cc = (string)requisicion.cc,
-                                    numero = (int?)requisicion.numero,
-                                    fecha = (DateTime?)requisicion.fecha,
-                                    fechaString = ((DateTime)requisicion.fecha).ToShortDateString(),
-                                    libre_abordo = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : (int?)requisicion.libre_abordo,
-                                    tipo_req_oc = (string)requisicion.tipo_req_oc,
-                                    solicito = (int?)requisicion.solicito,
-                                    vobo = (int?)requisicion.vobo,
-                                    autorizo = (int?)requisicion.autorizo,
-                                    comentarios = (string)requisicion.comentarios,
-                                    st_estatus = (string)requisicion.st_estatus,
-                                    st_autoriza = (string)requisicion.st_autoriza,
-                                    empleado_modifica = (int?)requisicion.empleado_modifica,
-                                    fecha_modifica = (DateTime?)requisicion.fecha_modifica,
-                                    fecha_modificaString = ((DateTime?)requisicion.fecha_modifica).Value.Date.ToShortDateString(),
-                                    hora_modifica = (DateTime?)requisicion.hora_modifica,
-                                    hora_modificaString = ((DateTime?)requisicion.hora_modifica).Value.TimeOfDay.ToString(),
-                                    fecha_autoriza = (DateTime?)requisicion.fecha_autoriza,
-                                    tmc = (int?)requisicion.tmc,
-                                    autoriza_activos = (int?)requisicion.autoriza_activos,
-                                    num_vobo = (int?)requisicion.num_vobo,
-                                    solicitoNom = (string)requisicion.solicitoNom,
-                                    empModificaNom = (string)requisicion.empModificaNom,
-                                    voboNom = (string)requisicion.voboNom,
-                                    empAutNom = (string)requisicion.empAutNom,
-                                    st_impresa = (string)requisicion.st_impresa,
-
-                                    folioOrigen = getFolioOrigen(cc, num),
-                                    consigna = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.consigna : false,
-                                    licitacion = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.licitacion : false,
-                                    crc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.crc : false,
-                                    convenio = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.convenio : false,
-                                    proveedor = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.proveedor : 0,
-                                    validadoAlmacen = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.validadoAlmacen != null ? requisicionSIGOPLAN.validadoAlmacen : false : false,
-                                    comprador = requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.comprador ?? 0) : 0,
-                                    compras = compras,
-                                    comprasString = string.Join(", ", compras),
-                                    usuarioSolicita = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicita : 0,
-                                    usuarioSolicitaDesc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaDesc : "",
-                                    usuarioSolicitaUso = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaUso : "",
-                                    usuarioSolicitaEmpresa = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaEmpresa : 0,
-                                    otroCC = requisicionSIGOPLAN != null && requisicionSIGOPLAN.cc != cc
-                                };
-
-                                var requisicionPartidas = new List<object>();
-
-                                var surtidos = getSurtidoPorReq(cc, num);
-
-                                foreach (var p in partidasRequisicion)
-                                {
-                                    var observaciones = "";
-                                    var comentarioSurtidoQuitar = "";
-                                    var cantidadCapturada = default(decimal);
-                                    var precio = 0m;
-
-                                    if (requisicionSIGOPLAN != null)
-                                    {
-                                        var partidaSIGOPLAN = requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.partida == (int)p.partida && x.insumo == (int)p.insumo);
-
-                                        if (partidaSIGOPLAN != null)
-                                        {
-                                            precio = partidaSIGOPLAN.precio;
-                                            observaciones = partidaSIGOPLAN.observaciones;
-                                        }
-                                    }
-
-                                    if (surtidos.Count > 0)
-                                    {
-                                        var surtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)p.partida && x.insumo == (int)p.insumo).ToList();
-
-                                        if (surtidoPartida.Count() > 0)
-                                        {
-                                            cantidadCapturada = surtidoPartida.Select(y => y.cantidad).Sum();
-                                        }
-                                    }
-
-                                    requisicionPartidas.Add(new
-                                    {
-                                        id = 0,
-                                        idReq = 0,
-                                        cc = (string)p.cc,
-                                        numero = (int?)p.numero,
-                                        partida = (int?)p.partida,
-                                        insumo = (int?)p.insumo,
-                                        insumoDesc = (string)p.insumoDesc,
-                                        unidad = (string)p.unidad,
-                                        cancelado = (string)p.cancelado,
-                                        fecha_requerido = (DateTime?)p.fecha_requerido,
-                                        cantidad = (decimal?)p.cantidad - (decimal?)p.cant_cancelada,
-                                        precio = precio,
-                                        cant_ordenada = (decimal?)p.cant_ordenada,
-                                        fecha_ordenada = (DateTime?)p.fecha_ordenada,
-                                        estatus = (string)p.estatus,
-                                        cant_cancelada = (decimal?)p.cant_cancelada,
-                                        referencia_1 = (string)p.referencia_1,
-                                        cantidad_excedida_ppto = (decimal?)p.cantidad_excedida_ppto,
-                                        area = (int?)p.area,
-                                        cuenta = (int?)p.cuenta,
-                                        compras_req = (int?)p.compras_req,
-                                        partidaDesc = (string)p.partidaDesc + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
-                                        observaciones = observaciones,
-                                        comentarioSurtidoQuitar = comentarioSurtidoQuitar,
-                                        cantidadCapturada = cantidadCapturada
-                                    });
-                                }
-
-                                result.Add("req", requisicionInfo);
-                                result.Add("partidas", requisicionPartidas);
-                                result.Add("requisicionNueva", false);
-                            }
-                            else
-                            {
-                                throw new Exception("No se encontraron partidas para esta requisición.");
-                            }
+                            d, // Todos los campos de tblCom_ReqDet
+                            c,
+                            insumoDesc = i.descripcion,
+                            i.unidad,
+                            i.cancelado,
+                            i.compras_req,
+                            partidaDesc = d.descripcion // Puedes proyectar d.descripcion como partidaDesc si es necesario
                         }
-                        else
-                        {
-                            var ultimaRequisicion = getUltimaRequisicionNumero(cc);
+                    ).ToList();
 
-                            result.Add("requisicionNueva", true);
-                            result.Add("ultimaRequisicionNumero", ultimaRequisicion);
+
+                    if (partidasRequisicionEK != null)
+                    {
+                        // var partidasRequisicion = (List<dynamic>)partidasRequisicionEK.ToObject<List<dynamic>>();
+                        List<string> compras = new List<string>();
+                        // var comprasEK = consultaCheckProductivo(
+                        //     string.Format(@"SELECT 
+                        //                 cc, numero, (cc + '-' + CONVERT(varchar(10), numero)) AS compra 
+                        //             FROM so_orden_compra_det 
+                        //             WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0 
+                        //             GROUP BY cc, numero", (string)requisicion.r.cc, (int)requisicion.r.numero)
+                        // );
+
+                        var comprasEK = (
+                            from det in _context.tblCom_OrdenCompraDet
+                            join oc in _context.tblCom_OrdenCompra
+                                on det.idOrdenCompra equals oc.id
+                            where oc.cc == requisicion.r.cc 
+                                && det.num_requisicion == requisicion.r.numero
+                                && det.cantidad > 0
+                            group det by new { det.cc, det.numero } into g
+                            select new
+                            {
+                                cc = g.Key.cc,
+                                numero = g.Key.numero,
+                                compra = g.Key.cc + "-" + g.Key.numero.ToString() // Concatenación similar a SQL
+                            }
+                        ).ToList();
+
+
+                        if (comprasEK != null)
+                        {
+                            compras = comprasEK.Select(x => (string)x.compra).ToList();
                         }
 
-
-                    }
-                    else if (vSesiones.sesionEmpresaActual == 3)
-                    {
-                        var requisicionSIGOPLANColombia = getRequisicionSIGOPLAN(cc, num);
-                        var requisicionEKColombia = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                        r.*, 
-                                        s.descripcion as solicitoNom, 
-                                        e.descripcion as empModificaNom, 
-                                        v.descripcion as voboNom, 
-                                        a.descripcion as empAutNom 
-                                    FROM so_requisicion r 
-                                        LEFT JOIN empleados s ON s.empleado = r.solicito 
-                                        LEFT JOIN empleados v ON v.empleado = r.vobo 
-                                        LEFT JOIN empleados e ON e.empleado = r.empleado_modifica 
-                                        LEFT JOIN empleados a ON a.empleado = r.emp_autoriza 
-                                    WHERE r.cc = '{0}' AND r.numero = {1}", cc, num));
-
-                        if (requisicionEKColombia != null)
+                        var requisicionInfo = new
                         {
-                            var requisicion = ((List<dynamic>)requisicionEKColombia.ToObject<List<dynamic>>())[0];
+                            id = 0,
+                            cc = (string)requisicion.r.cc,
+                            numero = (int?)requisicion.r.numero,
+                            fecha = (DateTime?)requisicion.r.fecha,
+                            fechaString = ((DateTime)requisicion.r.fecha).ToShortDateString(),
+                            libre_abordo = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : 0,
+                            tipo_req_oc = (string)requisicion.tr.tipo_req_oc.ToString(),
+                            solicito = (int?)requisicion.r.solicito,
+                            vobo = (int?)requisicion.r.vobo,
+                            autorizo = (int?)requisicion.r.autorizo,
+                            comentarios = (string)requisicion.r.comentarios,
+                            st_estatus = (string)requisicion.r.stEstatus,
+                            st_autoriza = requisicion.r.stAutoriza ? "S": "N",
+                            empleado_modifica = (int?)requisicion.r.empModifica,
+                            fecha_modifica = (DateTime?)requisicion.r.fecha,
+                            fecha_modificaString = ((DateTime?)requisicion.r.fecha).Value.Date.ToShortDateString(),
+                            hora_modifica = (DateTime?)requisicion.r.fecha,
+                            hora_modificaString = ((DateTime?)requisicion.r.fecha).Value.TimeOfDay.ToString(),
+                            fecha_autoriza = (DateTime?)requisicion.r.autoriza,
+                            tmc = 0,
+                            autoriza_activos = requisicion.r.isActivos?1:0,
+                            num_vobo = (int?)requisicion.r.numVobo,
+                            solicitoNom = (string)requisicion.solicitoNom,
+                            empModificaNom = (string)requisicion.empModificaNom,
+                            voboNom = (string)requisicion.voboNom,
+                            empAutNom = (string)requisicion.empAutorizaNom,
+                            st_impresa = requisicion.r.stImpresa ? "S": "",
+                            folioOrigen = getFolioOrigen(cc, num),
+                            consigna = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.consigna : false,
+                            licitacion = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.licitacion : false,
+                            crc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.crc : false,
+                            convenio = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.convenio : false,
+                            proveedor = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.proveedor : 0,
+                            validadoAlmacen = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.validadoAlmacen != null ? requisicionSIGOPLAN.validadoAlmacen : false : false,
+                            comprador = requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.comprador ?? 0) : 0,
+                            compras = compras,
+                            comprasString = string.Join(", ", compras),
+                            usuarioSolicita = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicita : 0,
+                            usuarioSolicitaDesc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaDesc : "",
+                            usuarioSolicitaUso = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaUso : "",
+                            usuarioSolicitaEmpresa = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaEmpresa : 0,
+                            otroCC = requisicionSIGOPLAN != null && requisicionSIGOPLAN.cc != cc
+                        };
 
-                            var partidasRequisicionEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                        d.*, 
-                                        i.descripcion as insumoDesc, 
-                                        i.unidad, 
-                                        i.cancelado, 
-                                        (
-                                            SELECT 
-                                                l.descripcion 
-                                            FROM DBA.so_req_det_linea l 
-                                            WHERE l.cc = d.cc AND l.numero = d.numero AND l.partida = d.partida 
-                                        ) as partidaDesc 
-                                    FROM DBA.so_requisicion_det d 
-                                        INNER JOIN DBA.insumos i ON d.insumo = i.insumo 
-                                    WHERE d.cc = '{0}' AND d.numero = {1} 
-                                    ORDER BY d.partida", cc, num));
+                        var requisicionPartidas = new List<object>();
 
-                            if (partidasRequisicionEK != null)
+                        var surtidos = getSurtidoPorReq(cc, num);
+
+                        foreach (var p in partidasRequisicionEK)
+                        {
+                            var observaciones = "";
+                            var comentarioSurtidoQuitar = "";
+                            var cantidadCapturada = default(decimal);
+                            var precio = 0m;
+
+                            if (requisicionSIGOPLAN != null)
                             {
-                                var partidasRequisicion = (List<dynamic>)partidasRequisicionEK.ToObject<List<dynamic>>();
-                                List<string> compras = new List<string>();
-                                var comprasEK = consultaCheckProductivo(
-                                    string.Format(@"SELECT 
-                                                cc, numero, (cc + '-' + CONVERT(varchar(10), numero)) AS compra 
-                                            FROM DBA.so_orden_compra_det 
-                                            WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0 
-                                            GROUP BY cc, numero", (string)requisicion.cc, (int)requisicion.numero)
-                                );
+                                var partidaSIGOPLAN = requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.partida == (int)p.d.partida && x.insumo == (int)p.d.insumo);
 
-                                if (comprasEK != null)
+                                if (partidaSIGOPLAN != null)
                                 {
-                                    compras = ((List<dynamic>)comprasEK.ToObject<List<dynamic>>()).Select(x => (string)x.compra).ToList();
+                                    precio = partidaSIGOPLAN.precio;
+                                    observaciones = partidaSIGOPLAN.observaciones;
                                 }
+                            }
 
-                                var requisicionInfo = new
+                            if (surtidos.Count > 0)
+                            {
+                                var surtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)p.d.partida && x.insumo == (int)p.d.insumo).ToList();
+
+                                if (surtidoPartida.Count() > 0)
                                 {
-                                    id = 0,
-                                    cc = (string)requisicion.cc,
-                                    numero = (int?)requisicion.numero,
-                                    fecha = (DateTime?)requisicion.fecha,
-                                    fechaString = ((DateTime)requisicion.fecha).ToShortDateString(),
-                                    libre_abordo = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.libre_abordo : (int?)requisicion.libre_abordo,
-                                    tipo_req_oc = (string)requisicion.tipo_req_oc,
-                                    solicito = (int?)requisicion.solicito,
-                                    vobo = (int?)requisicion.vobo,
-                                    autorizo = (int?)requisicion.autorizo,
-                                    comentarios = (string)requisicion.comentarios,
-                                    st_estatus = (string)requisicion.st_estatus,
-                                    st_autoriza = (string)requisicion.st_autoriza,
-                                    empleado_modifica = (int?)requisicion.empleado_modifica,
-                                    fecha_modifica = (DateTime?)requisicion.fecha_modifica,
-                                    fecha_modificaString = ((DateTime?)requisicion.fecha_modifica).Value.Date.ToShortDateString(),
-                                    hora_modifica = (DateTime?)requisicion.hora_modifica,
-                                    hora_modificaString = ((DateTime?)requisicion.hora_modifica).Value.TimeOfDay.ToString(),
-                                    fecha_autoriza = (DateTime?)requisicion.fecha_autoriza,
-                                    tmc = (int?)requisicion.tmc,
-                                    autoriza_activos = (int?)requisicion.autoriza_activos,
-                                    num_vobo = (int?)requisicion.num_vobo,
-                                    solicitoNom = (string)requisicion.solicitoNom,
-                                    empModificaNom = (string)requisicion.empModificaNom,
-                                    voboNom = (string)requisicion.voboNom,
-                                    empAutNom = (string)requisicion.empAutNom,
-                                    st_impresa = (string)requisicion.st_impresa,
-
-                                    folioOrigen = getFolioOrigen(cc, num),
-                                    consigna = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.consigna : false,
-                                    licitacion = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.licitacion : false,
-                                    crc = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.crc : false,
-                                    convenio = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.convenio : false,
-                                    proveedor = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.proveedor : 0,
-                                    validadoAlmacen = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.validadoAlmacen != null ? requisicionSIGOPLANColombia.validadoAlmacen : false : false,
-                                    comprador = requisicionSIGOPLANColombia != null ? (requisicionSIGOPLANColombia.comprador ?? 0) : 0,
-                                    compras = compras,
-                                    comprasString = string.Join(", ", compras),
-                                    usuarioSolicita = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.usuarioSolicita : 0,
-                                    usuarioSolicitaDesc = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.usuarioSolicitaDesc : "",
-                                    usuarioSolicitaUso = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.usuarioSolicitaUso : "",
-                                    usuarioSolicitaEmpresa = requisicionSIGOPLANColombia != null ? requisicionSIGOPLANColombia.usuarioSolicitaEmpresa : 0
-                                };
-
-                                var requisicionPartidas = new List<object>();
-
-                                var surtidos = getSurtidoPorReq(cc, num);
-
-                                foreach (var p in partidasRequisicion)
-                                {
-                                    var observaciones = "";
-                                    var comentarioSurtidoQuitar = "";
-                                    var cantidadCapturada = default(decimal);
-                                    var precio = 0m;
-
-                                    if (requisicionSIGOPLANColombia != null)
-                                    {
-                                        var partidaSIGOPLAN = requisicionSIGOPLANColombia.partidas.FirstOrDefault(x => x.partida == (int)p.partida && x.insumo == (int)p.insumo);
-
-                                        if (partidaSIGOPLAN != null)
-                                        {
-                                            precio = partidaSIGOPLAN.precio;
-                                            observaciones = partidaSIGOPLAN.observaciones;
-                                        }
-                                    }
-
-                                    if (surtidos.Count > 0)
-                                    {
-                                        var surtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)p.partida && x.insumo == (int)p.insumo).ToList();
-
-                                        if (surtidoPartida.Count() > 0)
-                                        {
-                                            cantidadCapturada = surtidoPartida.Select(y => y.cantidad).Sum();
-                                        }
-                                    }
-
-                                    requisicionPartidas.Add(new
-                                    {
-                                        id = 0,
-                                        idReq = 0,
-                                        cc = (string)p.cc,
-                                        numero = (int?)p.numero,
-                                        partida = (int?)p.partida,
-                                        insumo = (int?)p.insumo,
-                                        insumoDesc = (string)p.insumoDesc,
-                                        unidad = (string)p.unidad,
-                                        cancelado = (string)p.cancelado,
-                                        fecha_requerido = (DateTime?)p.fecha_requerido,
-                                        cantidad = (decimal?)p.cantidad - (decimal?)p.cant_cancelada,
-                                        precio = precio,
-                                        cant_ordenada = (decimal?)p.cant_ordenada,
-                                        fecha_ordenada = (DateTime?)p.fecha_ordenada,
-                                        estatus = (string)p.estatus,
-                                        cant_cancelada = (decimal?)p.cant_cancelada,
-                                        referencia_1 = (string)p.referencia_1,
-                                        cantidad_excedida_ppto = (decimal?)p.cantidad_excedida_ppto,
-                                        area = (int?)p.area,
-                                        cuenta = (int?)p.cuenta,
-                                        compras_req = (int?)p.compras_req,
-                                        partidaDesc = (string)p.partidaDesc + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
-                                        observaciones = observaciones,
-                                        comentarioSurtidoQuitar = comentarioSurtidoQuitar,
-                                        cantidadCapturada = cantidadCapturada
-                                    });
+                                    cantidadCapturada = surtidoPartida.Select(y => y.cantidad).Sum();
                                 }
-
-                                result.Add("req", requisicionInfo);
-                                result.Add("partidas", requisicionPartidas);
-                                result.Add("requisicionNueva", false);
-                            }
-                            else
-                            {
-                                throw new Exception("No se encontraron partidas para esta requisición.");
-                            }
-                        }
-                        else
-                        {
-                            var ultimaRequisicion = getUltimaRequisicionNumero(cc);
-
-                            result.Add("requisicionNueva", true);
-                            result.Add("ultimaRequisicionNumero", ultimaRequisicion);
-                        }
-                    }
-                    #endregion
-                }
-                else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Peru)
-                {
-                    #region PERU
-                    var PERU_tipoRequisicion = "";
-
-                    if (HttpContext.Current.Session["servicioRequi"] != null) esServicio = (bool)HttpContext.Current.Session["servicioRequi"];
-
-                    if (!esServicio) //Vista Generar Compra
-                    {
-                        PERU_tipoRequisicion = "RQ";
-                    }
-                    else //Vista Generar Compra Servicio
-                    {
-                        PERU_tipoRequisicion = "RS";
-                    }
-
-                    var requisicionSIGOPLAN = getRequisicionSIGOPLAN(cc, num, PERU_tipoRequisicion);
-                    var requisicionEK = _context.Select<Core.DTO.Enkontrol.OrdenCompra.Requisicion.RequisicionDTO>(new DapperDTO
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = string.Format(@"
-                        SELECT 
-                            r.*, 
-                            (SELECT apellidoPaterno + ' ' + nombre FROM tblP_Usuario WHERE id = s.idUsuario) as solicitoNom,
-                            (SELECT apellidoPaterno + ' ' + nombre FROM tblP_Usuario WHERE id = v.idUsuario) as empModificaNom,
-                            (SELECT apellidoPaterno + ' ' + nombre FROM tblP_Usuario WHERE id = a.idUsuario) as voboNom,
-                            (SELECT apellidoPaterno + ' ' + nombre FROM tblP_Usuario WHERE id = a.idUsuario) as empAutNom
-                        FROM tblCom_Req r 
-                            LEFT JOIN tblP_Usuario_Enkontrol s ON s.empleado = r.solicito AND r.solicito > 0
-                            LEFT JOIN tblP_Usuario_Enkontrol v ON v.empleado = r.vobo  AND r.vobo > 0
-                            LEFT JOIN tblP_Usuario_Enkontrol e ON e.empleado = r.empModifica  AND r.empModifica > 0
-                            LEFT JOIN tblP_Usuario_Enkontrol a ON a.empleado = r.empAutoriza AND r.empAutoriza > 0
-                        WHERE r.cc = '{0}' AND r.numero = {1} AND r.estatusRegistro = 1 AND PERU_tipoRequisicion = '{2}'", (requisicionSIGOPLAN != null ? requisicionSIGOPLAN.cc : cc), num, PERU_tipoRequisicion)
-                    }).FirstOrDefault();
-
-                    if (requisicionEK != null)
-                    {
-                        var requisicion = requisicionEK;
-
-                        var partidasRequisicionEK = _context.Select<dynamic>(new DapperDTO
-                        {
-                            baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                            consulta = string.Format(@"
-                                    SELECT 
-                                        d.*,
-                                        d.descripcion partidaDesc
-                                    FROM tblCom_ReqDet d 
-                                    WHERE d.estatusRegistro = 1 AND d.idReq = {0}
-                                    ORDER BY d.partida", requisicion.id)
-                        });
-
-                        if (partidasRequisicionEK != null)
-                        {
-                            var partidasRequisicion = partidasRequisicionEK.ToList();
-                            List<string> compras = new List<string>();
-                            var otroCC = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.cc : cc;
-                            var comprasEK = _context.Select<tblCom_OrdenCompraDet>(new DapperDTO
-                            {
-                                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                                consulta = "SELECT det.* FROM tblCom_OrdenCompraDet AS det INNER JOIN tblCom_OrdenCompra AS com ON com.id = det.idOrdenCompra WHERE com.cc = @paramCC AND det.num_requisicion = @paramNumero AND com.PERU_tipoCompra = @paramTipoCompra AND com.estatusRegistro = 1 AND det.estatusRegistro = 1",
-                                parametros = new { paramCC = otroCC, paramNumero = num, paramTipoCompra = PERU_tipoRequisicion }
-                            }).ToList();
-                            //var comprasEK = _context.tblCom_OrdenCompraDet.Where(e => e.cc == otroCC && e.numero == num).ToList();
-
-
-                            //(cc + '-' + CONVERT(varchar(10), numero)
-
-                            if (comprasEK != null)
-                            {
-                                compras = comprasEK.Select(x => (x.cc + "-" + x.numero)).Distinct().ToList();
                             }
 
-                            var requisicionInfo = new
+                            requisicionPartidas.Add(new
                             {
                                 id = 0,
-                                cc = (string)requisicion.cc,
-                                numero = (int?)requisicion.numero,
-                                fecha = (DateTime?)requisicion.fecha,
-                                fechaString = ((DateTime)requisicion.fecha).ToShortDateString(),
-                                libre_abordo = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : requisicion.idLibreAbordo,
-                                tipo_req_oc = requisicion.idTipoReqOc.ToString(),
-                                solicito = (int?)requisicion.solicito,
-                                vobo = (int?)requisicion.empAutoriza,
-                                autorizo = (int?)requisicion.autorizo,
-                                comentarios = (string)requisicion.comentarios,
-                                st_estatus = (string)requisicion.stEstatus,
-                                st_autoriza = requisicion.stAutoriza ? "S" : "N",
-                                empleado_modifica = (int?)requisicion.empModifica,
-                                fecha_modifica = (DateTime?)requisicion.modifica,
-                                fecha_modificaString = ((DateTime?)requisicion.modifica).Value.Date.ToShortDateString(),
-                                hora_modifica = (DateTime?)requisicion.modifica,
-                                hora_modificaString = ((DateTime?)requisicion.modifica).Value.TimeOfDay.ToString(),
-                                fecha_autoriza = (DateTime?)requisicion.autoriza,
-                                tmc = requisicion.isTmc ? 1 : 0,
-                                autoriza_activos = requisicion.isActivos ? 1 : 0,
-                                num_vobo = requisicion.numVobo,
-                                solicitoNom = (string)(requisicion.solicitoNom ?? ""),
-                                empModificaNom = (string)(requisicion.empModificaNom ?? ""),
-                                voboNom = (string)(requisicion.voboNom ?? ""),
-                                empAutNom = (string)(requisicion.empAutNom ?? ""),
-                                st_impresa = requisicion.stImpresa ? "I" : "N",
-
-                                folioOrigen = getFolioOrigen(requisicionSIGOPLAN != null ? requisicionSIGOPLAN.cc : cc, num),
-                                consigna = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.consigna : false,
-                                licitacion = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.licitacion : false,
-                                crc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.crc : false,
-                                convenio = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.convenio : false,
-                                proveedor = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.proveedor : 0,
-                                validadoAlmacen = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.validadoAlmacen != null ? requisicionSIGOPLAN.validadoAlmacen : false : false,
-                                comprador = requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.comprador ?? 0) : 0,
-                                compras = compras,
-                                comprasString = string.Join(", ", compras),
-                                usuarioSolicita = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicita : 0,
-                                usuarioSolicitaDesc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaDesc : "",
-                                usuarioSolicitaUso = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaUso : "",
-                                usuarioSolicitaEmpresa = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaEmpresa : 0,
-                                otroCC = requisicionSIGOPLAN != null && requisicionSIGOPLAN.cc != cc
-                            };
-
-                            var requisicionPartidas = new List<object>();
-
-                            var surtidos = getSurtidoPorReq((requisicionSIGOPLAN != null ? requisicionSIGOPLAN.cc : cc), num);
-
-                            foreach (var p in partidasRequisicion)
-                            {
-
-                                //i.descripcion as insumoDesc, 
-                                //i.unidad, 
-                                //i.cancelado, 
-                                //i.compras_req,
-
-                                var insumoStarsoft = "";
-
-                                string insumoStr = ((int)p.insumo).ToString();
-                                int lengthId = 11 - insumoStr.Count();
-
-                                for (int i = 0; i < lengthId; i++)
-                                {
-                                    insumoStarsoft += "0";
-                                }
-
-                                insumoStarsoft += insumoStr;
-
-                                using (var dbStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                                {
-                                    var objInsumoStarsoft = dbStarsoft.MAEART.FirstOrDefault(e => e.ACODIGO == insumoStarsoft);
-
-                                    p.insumoDesc = objInsumoStarsoft.ADESCRI;
-                                    p.unidad = objInsumoStarsoft.AUNIDAD;
-                                    p.cancelado = "A";
-                                    //p.compras_req = 1;
-                                }
-
-                                var observaciones = "";
-                                var comentarioSurtidoQuitar = "";
-                                var cantidadCapturada = default(decimal);
-                                var precio = 0m;
-                                var noEconomico = "";
-
-                                if (requisicionSIGOPLAN != null)
-                                {
-                                    var partidaSIGOPLAN = requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.partida == (int)p.partida && x.insumo == (int)p.insumo);
-
-                                    if (partidaSIGOPLAN != null)
-                                    {
-                                        precio = partidaSIGOPLAN.precio;
-                                        observaciones = partidaSIGOPLAN.observaciones;
-                                        noEconomico = partidaSIGOPLAN.noEconomico;
-                                    }
-                                }
-
-                                if (surtidos.Count > 0)
-                                {
-                                    var surtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)p.partida && x.insumo == (int)p.insumo).ToList();
-
-                                    if (surtidoPartida.Count() > 0)
-                                    {
-                                        cantidadCapturada = surtidoPartida.Select(y => y.cantidad).Sum();
-                                    }
-                                }
-
-                                requisicionPartidas.Add(new
-                                {
-                                    id = 0,
-                                    idReq = 0,
-                                    cc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.cc : (string)cc,
-                                    numero = requisicion.numero,
-                                    partida = (int?)p.partida,
-                                    insumo = insumoStarsoft,
-                                    insumoDesc = (string)p.insumoDesc,
-                                    unidad = (string)p.unidad,
-                                    cancelado = (string)p.cancelado,
-                                    fecha_requerido = (DateTime?)p.requerido,
-                                    cantidad = (decimal?)p.cantidad - (decimal?)p.cantCancelada,
-                                    precio = precio,
-                                    cant_ordenada = (decimal?)p.cantCancelada,
-                                    fecha_ordenada = (DateTime?)p.ordenada,
-                                    estatus = (string)p.estatus,
-                                    cant_cancelada = (decimal?)p.cantCancelada,
-                                    referencia_1 = (string)p.referencia,
-                                    cantidad_excedida_ppto = (decimal?)p.cantExcedida,
-                                    area = (int?)p.area,
-                                    cuenta = (int?)p.cuenta,
-                                    compras_req = 1,
-                                    partidaDesc = (string)p.descripcion + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
-                                    observaciones = observaciones,
-                                    comentarioSurtidoQuitar = comentarioSurtidoQuitar,
-                                    cantidadCapturada = cantidadCapturada,
-                                    noEconomico = noEconomico
-                                });
-                            }
-
-                            result.Add("req", requisicionInfo);
-                            result.Add("partidas", requisicionPartidas);
-                            result.Add("requisicionNueva", false);
+                                idReq = 0,
+                                cc = (string)p.c.cc,
+                                numero = (int?)p.c.numero,
+                                partida = (int?)p.d.partida,
+                                insumo = (int?)p.d.insumo,
+                                insumoDesc = (string)p.d.descripcion,
+                                unidad = (string)p.unidad,
+                                cancelado = (string)p.cancelado,
+                                fecha_requerido = (DateTime?)p.c.fecha,
+                                cantidad = (decimal?)p.d.cantidad - (decimal?)p.d.cantCancelada,
+                                precio = precio,
+                                cant_ordenada = (decimal?)p.d.cantOrdenada,
+                                fecha_ordenada = (DateTime?)p.c.fecha,
+                                estatus = (string)p.d.estatus,
+                                cant_cancelada = (decimal?)p.d.cantCancelada,
+                                referencia_1 = "",
+                                cantidad_excedida_ppto = 0,
+                                area = (int?)p.d.area,
+                                cuenta = (int?)p.d.cuenta,
+                                compras_req = 1,
+                                partidaDesc = (string)p.d.descripcion + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
+                                observaciones = observaciones,
+                                comentarioSurtidoQuitar = comentarioSurtidoQuitar,
+                                cantidadCapturada = cantidadCapturada
+                            });
                         }
-                        else
-                        {
-                            throw new Exception("No se encontraron partidas para esta requisición.");
-                        }
+
+                        result.Add("req", requisicionInfo);
+                        result.Add("partidas", requisicionPartidas);
+                        result.Add("requisicionNueva", false);
                     }
                     else
                     {
-                        var ultimaRequisicion = getUltimaRequisicionNumero(cc);
-
-                        result.Add("requisicionNueva", true);
-                        result.Add("ultimaRequisicionNumero", ultimaRequisicion);
+                        throw new Exception("No se encontraron partidas para esta requisición.");
                     }
-                    #endregion
                 }
-                else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
+                else
                 {
-                    #region COLOMBIA
-                    var requisicionSIGOPLAN = getRequisicionSIGOPLAN(cc, num);
-                    var requisicionEK = consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                        r.*, 
-                                        s.descripcion as solicitoNom, 
-                                        e.descripcion as empModificaNom, 
-                                        v.descripcion as voboNom, 
-                                        a.descripcion as empAutNom 
-                                    FROM DBA.so_requisicion r 
-                                        LEFT JOIN DBA.empleados s ON s.empleado = r.solicito 
-                                        LEFT JOIN DBA.empleados v ON v.empleado = r.vobo 
-                                        LEFT JOIN DBA.empleados e ON e.empleado = r.empleado_modifica 
-                                        LEFT JOIN DBA.empleados a ON a.empleado = r.emp_autoriza 
-                                    WHERE r.cc = '{0}' AND r.numero = {1}", cc, num));
+                    var ultimaRequisicion = getUltimaRequisicionNumero(cc);
 
-                    if (requisicionEK != null)
-                    {
-                        var requisicion = ((List<dynamic>)requisicionEK.ToObject<List<dynamic>>())[0];
-
-                        var partidasRequisicionEK = consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                        d.*, 
-                                        i.descripcion as insumoDesc, 
-                                        i.unidad, 
-                                        i.cancelado, 
-                                        (
-                                            SELECT 
-                                                l.descripcion 
-                                            FROM DBA.so_req_det_linea l 
-                                            WHERE l.cc = d.cc AND l.numero = d.numero AND l.partida = d.partida 
-                                        ) as partidaDesc 
-                                    FROM DBA.so_requisicion_det d 
-                                        INNER JOIN DBA.insumos i ON d.insumo = i.insumo 
-                                    WHERE d.cc = '{0}' AND d.numero = {1} 
-                                    ORDER BY d.partida", cc, num));
-
-                        if (partidasRequisicionEK != null)
-                        {
-                            var partidasRequisicion = (List<dynamic>)partidasRequisicionEK.ToObject<List<dynamic>>();
-                            List<string> compras = new List<string>();
-                            var comprasEK = consultaCheckProductivo(
-                                string.Format(@"SELECT 
-                                                cc, numero, (cc + '-' + CONVERT(varchar(10), numero)) AS compra 
-                                            FROM DBA.so_orden_compra_det 
-                                            WHERE cc = '{0}' AND num_requisicion = {1} AND cantidad > 0 
-                                            GROUP BY cc, numero", (string)requisicion.cc, (int)requisicion.numero)
-                            );
-
-                            if (comprasEK != null)
-                            {
-                                compras = ((List<dynamic>)comprasEK.ToObject<List<dynamic>>()).Select(x => (string)x.compra).ToList();
-                            }
-
-                            var requisicionInfo = new
-                            {
-                                id = 0, // TO DO
-                                cc = (string)requisicion.cc,
-                                numero = (int?)requisicion.numero,
-                                fecha = (DateTime?)requisicion.fecha,
-                                fechaString = ((DateTime)requisicion.fecha).ToShortDateString(),
-                                libre_abordo = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : (int?)requisicion.libre_abordo,
-                                tipo_req_oc = (string)requisicion.tipo_req_oc,
-                                solicito = (int?)requisicion.solicito,
-                                vobo = (int?)requisicion.vobo,
-                                autorizo = (int?)requisicion.autorizo,
-                                comentarios = (string)requisicion.comentarios,
-                                st_estatus = (string)requisicion.st_estatus,
-                                st_autoriza = (string)requisicion.st_autoriza,
-                                empleado_modifica = (int?)requisicion.empleado_modifica,
-                                fecha_modifica = (DateTime?)requisicion.fecha_modifica,
-                                fecha_modificaString = ((DateTime?)requisicion.fecha_modifica).Value.Date.ToShortDateString(),
-                                hora_modifica = (DateTime?)requisicion.hora_modifica,
-                                hora_modificaString = ((DateTime?)requisicion.hora_modifica).Value.TimeOfDay.ToString(),
-                                fecha_autoriza = (DateTime?)requisicion.fecha_autoriza,
-                                tmc = (int?)requisicion.tmc,
-                                autoriza_activos = (int?)requisicion.autoriza_activos,
-                                num_vobo = (int?)requisicion.num_vobo,
-                                solicitoNom = (string)requisicion.solicitoNom,
-                                empModificaNom = (string)requisicion.empModificaNom,
-                                voboNom = (string)requisicion.voboNom,
-                                empAutNom = (string)requisicion.empAutNom,
-                                st_impresa = (string)requisicion.st_impresa,
-
-                                folioOrigen = getFolioOrigen(cc, num),
-                                consigna = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.consigna : false,
-                                licitacion = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.licitacion : false,
-                                crc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.crc : false,
-                                convenio = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.convenio : false,
-                                proveedor = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.proveedor : 0,
-                                validadoAlmacen = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.validadoAlmacen != null ? requisicionSIGOPLAN.validadoAlmacen : false : false,
-                                comprador = requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.comprador ?? 0) : 0,
-                                compras = compras,
-                                comprasString = string.Join(", ", compras),
-                                usuarioSolicita = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicita : 0,
-                                usuarioSolicitaDesc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaDesc : "",
-                                usuarioSolicitaUso = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaUso : "",
-                                usuarioSolicitaEmpresa = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaEmpresa : 0
-                            };
-
-                            var requisicionPartidas = new List<object>();
-
-                            var surtidos = getSurtidoPorReq(cc, num);
-
-                            foreach (var p in partidasRequisicion)
-                            {
-                                var observaciones = "";
-                                var comentarioSurtidoQuitar = "";
-                                var cantidadCapturada = default(decimal);
-                                var precio = 0m;
-                                var noEconomico = "";
-
-                                if (requisicionSIGOPLAN != null)
-                                {
-                                    var partidaSIGOPLAN = requisicionSIGOPLAN.partidas.FirstOrDefault(x => x.partida == (int)p.partida && x.insumo == (int)p.insumo);
-
-                                    if (partidaSIGOPLAN != null)
-                                    {
-                                        precio = partidaSIGOPLAN.precio;
-                                        observaciones = partidaSIGOPLAN.observaciones;
-                                        noEconomico = partidaSIGOPLAN.noEconomico;
-                                    }
-                                }
-
-                                if (surtidos.Count > 0)
-                                {
-                                    var surtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)p.partida && x.insumo == (int)p.insumo).ToList();
-
-                                    if (surtidoPartida.Count() > 0)
-                                    {
-                                        cantidadCapturada = surtidoPartida.Select(y => y.cantidad).Sum();
-                                    }
-                                }
-
-                                requisicionPartidas.Add(new
-                                {
-                                    id = 0,
-                                    idReq = 0,
-                                    cc = (string)p.cc,
-                                    numero = (int?)p.numero,
-                                    partida = (int?)p.partida,
-                                    insumo = (int?)p.insumo,
-                                    insumoDesc = (string)p.insumoDesc,
-                                    unidad = (string)p.unidad,
-                                    cancelado = (string)p.cancelado,
-                                    fecha_requerido = (DateTime?)p.fecha_requerido,
-                                    cantidad = (decimal?)p.cantidad - (decimal?)p.cant_cancelada,
-                                    precio = precio,
-                                    cant_ordenada = (decimal?)p.cant_ordenada,
-                                    fecha_ordenada = (DateTime?)p.fecha_ordenada,
-                                    estatus = (string)p.estatus,
-                                    cant_cancelada = (decimal?)p.cant_cancelada,
-                                    referencia_1 = (string)p.referencia_1,
-                                    cantidad_excedida_ppto = (decimal?)p.cantidad_excedida_ppto,
-                                    area = (int?)p.area,
-                                    cuenta = (int?)p.cuenta,
-                                    compras_req = (int?)p.compras_req,
-                                    partidaDesc = (string)p.partidaDesc + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
-                                    observaciones = observaciones,
-                                    comentarioSurtidoQuitar = comentarioSurtidoQuitar,
-                                    cantidadCapturada = cantidadCapturada,
-                                    noEconomico = noEconomico
-                                });
-                            }
-
-                            result.Add("req", requisicionInfo);
-                            result.Add("partidas", requisicionPartidas);
-                            result.Add("requisicionNueva", false);
-                        }
-                        else
-                        {
-                            throw new Exception("No se encontraron partidas para esta requisición.");
-                        }
-                    }
-                    else
-                    {
-                        var ultimaRequisicion = getUltimaRequisicionNumero(cc);
-
-                        result.Add("requisicionNueva", true);
-                        result.Add("ultimaRequisicionNumero", ultimaRequisicion);
-                    }
-                    #endregion
+                    result.Add("requisicionNueva", true);
+                    result.Add("ultimaRequisicionNumero", ultimaRequisicion);
                 }
-
+                
+                #endregion
+            
                 result.Add(SUCCESS, true);
             }
             catch (Exception e)
@@ -4039,71 +992,130 @@ namespace Data.DAO.Enkontrol.Compras
 
             try
             {
-                var requisicionEK = consultaCheckProductivo(
-                    string.Format(@"SELECT 
-                                    r.*, 
-                                    s.descripcion as solicitoNom, 
-                                    e.descripcion as empModificaNom, 
-                                    v.descripcion as voboNom, 
-                                    a.descripcion as empAutNom 
-                                FROM so_requisicion r 
-                                    LEFT JOIN empleados s ON s.empleado = r.solicito 
-                                    LEFT JOIN empleados v ON v.empleado = r.vobo 
-                                    LEFT JOIN empleados e ON e.empleado = r.empleado_modifica 
-                                    LEFT JOIN empleados a ON a.empleado = r.emp_autoriza 
-                                WHERE r.cc = '{0}' AND r.numero = {1}", cc, num)
-                );
+//                var requisicionEK = consultaCheckProductivo(
+//                    string.Format(@"SELECT 
+//                                    r.*, 
+//                                    s.descripcion as solicitoNom, 
+//                                    e.descripcion as empModificaNom, 
+//                                    v.descripcion as voboNom, 
+//                                    a.descripcion as empAutNom 
+//                                FROM so_requisicion r 
+//                                    LEFT JOIN empleados s ON s.empleado = r.solicito 
+//                                    LEFT JOIN empleados v ON v.empleado = r.vobo 
+//                                    LEFT JOIN empleados e ON e.empleado = r.empleado_modifica 
+//                                    LEFT JOIN empleados a ON a.empleado = r.emp_autoriza 
+//                                WHERE r.cc = '{0}' AND r.numero = {1}", cc, num)
+//                );
+                var requisicionEK = (
+                    from r in _context.tblCom_Req
 
-                if (requisicionEK != null)
+                    // LEFT JOIN tblCom_ReqTipo (si no existe relación en ReqTipo, r aún será seleccionado)
+                    join tr in _context.tblCom_ReqTipo
+                        on r.idTipoReqOc equals tr.tipo_req_oc into trGroup
+                    from tr in trGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "solicito"
+                    join s in _context.tblRH_EK_Empleados
+                        on r.solicito equals s.clave_empleado into sGroup
+                    from s in sGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "vobo"
+                    join v in _context.tblRH_EK_Empleados
+                        on r.vobo equals v.clave_empleado into vGroup
+                    from v in vGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "empModifica"
+                    join e in _context.tblRH_EK_Empleados
+                        on r.empModifica equals e.clave_empleado into eGroup
+                    from e in eGroup.DefaultIfEmpty()
+
+                    // LEFT JOIN tblRH_EK_Empleados para "empAutoriza"
+                    join a in _context.tblRH_EK_Empleados
+                        on r.empAutoriza equals a.clave_empleado into aGroup
+                    from a in aGroup.DefaultIfEmpty()
+
+                    where r.cc == cc && r.numero == num
+
+                    select new
+                    {
+                        r, // Todos los campos de tblCom_Req
+                        tr, // Todos los campos de tblCom_ReqTipo, o null si no hay coincidencia
+                        solicitoNom = s != null ? s.nombre : null, // si no existe coincidencia, asigna null
+                        empModificaNom = e != null ? e.nombre : null,
+                        voboNom = v != null ? v.nombre : null,
+                        empAutorizaNom = a != null ? a.nombre : null
+                    }
+                ).ToList();
+
+                if (requisicionEK.Count > 0)
                 {
-                    var requisicion = ((List<dynamic>)requisicionEK.ToObject<List<dynamic>>())[0];
-                    var partidas = (List<dynamic>)consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                        d.*, 
-                                        i.descripcion as insumoDesc, 
-                                        i.unidad, 
-                                        i.cancelado, 
-                                        i.compras_req, 
-                                        (
-                                            SELECT 
-                                                l.descripcion 
-                                            FROM so_req_det_linea l 
-                                            WHERE l.cc = d.cc AND l.numero = d.numero AND l.partida = d.partida 
-                                        ) as partidaDesc 
-                                    FROM so_requisicion_det d 
-                                        INNER JOIN insumos i ON d.insumo = i.insumo 
-                                    WHERE d.cc = '{0}' AND d.numero = {1} 
-                                    ORDER BY d.partida", cc, num)
-                    ).ToObject<List<dynamic>>();
+                    var requisicion = requisicionEK[0];
+//                    var partidas = (List<dynamic>)consultaCheckProductivo(
+//                        string.Format(@"SELECT 
+//                                        d.*, 
+//                                        i.descripcion as insumoDesc, 
+//                                        i.unidad, 
+//                                        i.cancelado, 
+//                                        i.compras_req, 
+//                                        (
+//                                            SELECT 
+//                                                l.descripcion 
+//                                            FROM so_req_det_linea l 
+//                                            WHERE l.cc = d.cc AND l.numero = d.numero AND l.partida = d.partida 
+//                                        ) as partidaDesc 
+//                                    FROM so_requisicion_det d 
+//                                        INNER JOIN insumos i ON d.insumo = i.insumo 
+//                                    WHERE d.cc = '{0}' AND d.numero = {1} 
+//                                    ORDER BY d.partida", cc, num)
+//                    ).ToObject<List<dynamic>>();
+                    var partidas = (
+                        from d in _context.tblCom_ReqDet
+                        join c in _context.tblCom_Req
+                            on d.idReq equals c.id
+                        join i in _context.tblCom_Insumos
+                            on d.insumo equals i.insumo
+                        where c.cc == cc && c.numero == num
+                        orderby d.partida
+                        select new
+                        {
+                            d, // Todos los campos de tblCom_ReqDet
+                            c,
+                            insumoDesc = i.descripcion,
+                            i.unidad,
+                            i.cancelado,
+                            i.compras_req,
+                            partidaDesc = d.descripcion // Puedes proyectar d.descripcion como partidaDesc si es necesario
+                        }
+                    ).ToList();
 
                     var requisicionInfo = new RequisicionDTO
                     {
                         id = 0,
-                        cc = (string)requisicion.cc,
-                        numero = (int)requisicion.numero,
-                        fecha = (DateTime)requisicion.fecha,
-                        libre_abordo = (int)requisicion.libre_abordo,
-                        tipo_req_oc = (string)requisicion.tipo_req_oc,
-                        solicito = (int)requisicion.solicito,
-                        vobo = (int)requisicion.vobo,
-                        autorizo = (int)requisicion.autorizo,
-                        comentarios = (string)requisicion.comentarios,
-                        st_estatus = (string)requisicion.st_estatus,
-                        st_autoriza = (string)requisicion.st_autoriza,
-                        empleado_modifica = (int?)requisicion.empleado_modifica,
-                        fecha_modifica = (DateTime?)requisicion.fecha_modifica,
-                        fecha_modificaString = ((DateTime?)requisicion.fecha_modifica).Value.Date.ToShortDateString(),
-                        hora_modifica = (DateTime?)requisicion.hora_modifica,
-                        hora_modificaString = ((DateTime?)requisicion.hora_modifica).Value.TimeOfDay.ToString(),
-                        fecha_autoriza = (DateTime?)requisicion.fecha_autoriza,
-                        tmc = (int?)requisicion.tmc,
-                        autoriza_activos = (int?)requisicion.autoriza_activos,
-                        num_vobo = (int?)requisicion.num_vobo,
+                        cc = (string)requisicion.r.cc,
+                        numero = requisicion.r.numero,
+                        fecha = requisicion.r.fecha,
+                        libre_abordo = 0,
+                        tipo_req_oc = (string)requisicion.tr.tipo_req_oc.ToString(),
+                        solicito = requisicion.r.solicito,
+                        vobo = requisicion.r.vobo,
+                        autorizo = requisicion.r.autorizo,
+                        comentarios = (string)requisicion.r.comentarios,
+                        st_estatus = (string)requisicion.r.stEstatus,
+                        st_autoriza = requisicion.r.stAutoriza ? "S" : "N",
+                        empleado_modifica = (int?)requisicion.r.empModifica,
+                        fecha_modifica = (DateTime?)requisicion.r.fecha,
+                        fecha_modificaString = ((DateTime?)requisicion.r.fecha).Value.Date.ToShortDateString(),
+                        hora_modifica = (DateTime?)requisicion.r.fecha,
+                        hora_modificaString = ((DateTime?)requisicion.r.fecha).Value.TimeOfDay.ToString(),
+                        fecha_autoriza = (DateTime?)requisicion.r.autoriza,
+                        tmc = 0,
+                        autoriza_activos = requisicion.r.isActivos ? 1 : 0,
+                        num_vobo = (int?)requisicion.r.numVobo,
                         solicitoNom = (string)requisicion.solicitoNom,
                         empModificaNom = (string)requisicion.empModificaNom,
                         voboNom = (string)requisicion.voboNom,
-                        empAutNom = (string)requisicion.empAutNom,
-                        st_impresa = (string)requisicion.st_impresa,
+                        empAutNom = (string)requisicion.empAutorizaNom,
+                        st_impresa = requisicion.r.stImpresa ? "S" : "",
 
                         folioOrigen = getFolioOrigen(cc, num),
                         consigna = false,
@@ -4143,7 +1155,7 @@ namespace Data.DAO.Enkontrol.Compras
 
                     foreach (var part in partidas)
                     {
-                        var listaSurtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)part.partida).ToList();
+                        var listaSurtidoPartida = surtidos.Where(x => x.partidaRequisicion == (int)part.d.partida).ToList();
                         List<SurtidoDetDTO> listaSurtido = new List<SurtidoDetDTO>();
 
                         foreach (var sur in listaSurtidoPartida)
@@ -4162,73 +1174,94 @@ namespace Data.DAO.Enkontrol.Compras
                         decimal existenciaTotal = default(decimal);
                         decimal existenciaLAB = default(decimal);
 
-                        //                        var listaExistenciaEK = consultaCheckProductivo(
-                        //                            string.Format(@"SELECT 
-                        //                                                mov.almacen, 
-                        //                                                SUM(det.cantidad * IF mov.tipo_mov IN (1,2,3,4,5) THEN 1 ELSE -1 ENDIF) AS existencia 
-                        //                                            FROM si_movimientos mov 
-                        //                                                INNER JOIN si_movimientos_det det ON det.almacen = mov.almacen AND det.tipo_mov = mov.tipo_mov AND det.numero = mov.numero 
-                        //                                            WHERE det.insumo = {0} 
-                        //                                            GROUP BY mov.almacen", part.insumo)
-                        //                        );
-                        var listaExistenciaEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                            mov.almacen, 
-                                            det.insumo, 
-                                            det.area_alm, 
-                                            det.lado_alm, 
-                                            det.estante_alm, 
-                                            det.nivel_alm, 
-                                            SUM(IF mov.tipo_mov IN (1,2,3,4,5) THEN det.Cantidad ELSE 0 ENDIF) AS Entradas, 
-                                            SUM(IF mov.tipo_mov IN (51,52,53,54,55) THEN det.Cantidad ELSE 0 ENDIF) AS Salidas, 
-                                            SUM(det.Cantidad * IF mov.tipo_mov IN (1,2,3,4,5) THEN 1 ELSE -1 ENDIF) AS Existencia 
-                                        FROM si_movimientos mov 
-                                            INNER JOIN si_almacen alm ON alm.almacen = mov.almacen 
-                                            INNER JOIN si_movimientos_det det ON det.almacen = mov.almacen AND det.tipo_mov = mov.tipo_mov AND det.numero = mov.numero 
-                                        WHERE 
-                                            det.insumo = {0} 
-                                        GROUP BY mov.almacen, det.insumo, det.area_alm, det.lado_alm, det.estante_alm, det.nivel_alm", part.insumo)
-                        );
+                        // var listaExistenciaEK = consultaCheckProductivo(
+                        //     string.Format(@"SELECT 
+                        //                     mov.almacen, 
+                        //                     det.insumo, 
+                        //                     det.area_alm, 
+                        //                     det.lado_alm, 
+                        //                     det.estante_alm, 
+                        //                     det.nivel_alm, 
+                        //                     SUM(IF mov.tipo_mov IN (1,2,3,4,5) THEN det.Cantidad ELSE 0 ENDIF) AS Entradas, 
+                        //                     SUM(IF mov.tipo_mov IN (51,52,53,54,55) THEN det.Cantidad ELSE 0 ENDIF) AS Salidas, 
+                        //                     SUM(det.Cantidad * IF mov.tipo_mov IN (1,2,3,4,5) THEN 1 ELSE -1 ENDIF) AS Existencia 
+                        //                 FROM si_movimientos mov 
+                        //                     INNER JOIN si_almacen alm ON alm.almacen = mov.almacen 
+                        //                     INNER JOIN si_movimientos_det det ON det.almacen = mov.almacen AND det.tipo_mov = mov.tipo_mov AND det.numero = mov.numero 
+                        //                 WHERE 
+                        //                     det.insumo = {0} 
+                        //                 GROUP BY mov.almacen, det.insumo, det.area_alm, det.lado_alm, det.estante_alm, det.nivel_alm", part.insumo)
+                        // );
 
-                        if (listaExistenciaEK != null)
+                        var listaExistenciaEK = (
+                            from mov in _context.tblAlm_Movimientos
+                            join det in _context.tblAlm_MovimientosDet
+                                on new { mov.almacen, mov.tipo_mov, mov.numero } equals new { det.almacen, det.tipo_mov, det.numero }
+                            join alm in _context.tblAlm_Almacen
+                                on mov.almacen equals alm.almacen
+                            where det.insumo == part.d.insumo // El filtro por insumo
+                            group new { mov, det } by new 
+                            {
+                                mov.almacen,
+                                det.insumo,
+                                det.area_alm,
+                                det.lado_alm,
+                                det.estante_alm,
+                                det.nivel_alm
+                            } into g
+                            select new
+                            {
+                                Almacen = g.Key.almacen,
+                                Insumo = g.Key.insumo,
+                                AreaAlmacen = g.Key.area_alm,
+                                LadoAlmacen = g.Key.lado_alm,
+                                EstanteAlmacen = g.Key.estante_alm,
+                                NivelAlmacen = g.Key.nivel_alm,
+                                Entradas = g.Sum(x => (new[] { 1, 2, 3, 4, 5 }.Contains(x.mov.tipo_mov) ? x.det.cantidad : 0)),
+                                Salidas = g.Sum(x => (new[] { 51, 52, 53, 54, 55 }.Contains(x.mov.tipo_mov) ? x.det.cantidad : 0)),
+                                Existencia = g.Sum(x => x.det.cantidad * (new[] { 1, 2, 3, 4, 5 }.Contains(x.mov.tipo_mov) ? 1 : -1))
+                            }
+                        ).ToList();
+
+                        if (listaExistenciaEK.Count > 0)
                         {
-                            var listaExistencia = (List<dynamic>)listaExistenciaEK.ToObject<List<dynamic>>();
+                            var listaExistencia = listaExistenciaEK;
 
                             listaExistencia = listaExistencia.Where(x => (decimal)x.Existencia > 0).ToList();
 
-                            existenciaTotal = listaExistencia.Where(x => (int)x.almacen < 900).Sum(x => x.Existencia.Value != null ? (decimal)x.Existencia : default(decimal));
+                            existenciaTotal = listaExistencia.Where(x => (int)x.Almacen < 900).Sum(x => x.Existencia > 0 ? (decimal)x.Existencia : default(decimal));
                             existenciaLAB = listaExistencia.Where(x =>
-                                (int)x.almacen == (requisicionSIGOPLAN != null ? requisicionSIGOPLAN.libre_abordo : (int)requisicion.libre_abordo)
-                                ).Sum(x => x.Existencia.Value != null ? (decimal)x.Existencia : default(decimal));
+                                (int)x.Almacen == requisicionSIGOPLAN.libre_abordo
+                                ).Sum(x => x.Existencia > 0 ? (decimal)x.Existencia : default(decimal));
                         }
 
                         listaPartidas.Add(new RequisicionDetDTO
                         {
                             id = 0,
                             idReq = 0,
-                            cc = (string)part.cc,
-                            numero = (int)part.numero,
-                            partida = (int)part.partida,
-                            insumo = (int)part.insumo,
+                            cc = (string)part.c.cc,
+                            numero = (int)part.c.numero,
+                            partida = (int)part.d.partida,
+                            insumo = (int)part.d.insumo,
                             insumoDesc = (string)part.insumoDesc,
                             unidad = (string)part.unidad,
                             cancelado = (string)part.cancelado,
-                            fecha_requerido = (DateTime)part.fecha_requerido,
-                            cantidad = (decimal)part.cantidad - (decimal)part.cant_cancelada,
-                            cant_ordenada = (decimal)part.cant_ordenada,
-                            fecha_ordenada = (DateTime?)part.fecha_ordenada,
-                            estatus = (string)part.estatus,
-                            cant_cancelada = (decimal)part.cant_cancelada,
-                            referencia_1 = (string)part.referencia_1,
-                            cantidad_excedida_ppto = (decimal)part.cantidad_excedida_ppto,
-                            area = (int)part.area,
-                            cuenta = (int)part.cuenta,
+                            fecha_requerido = (DateTime)part.c.fechaSurtidoCompromiso,
+                            cantidad = (decimal)part.d.cantidad - (decimal)part.d.cantCancelada,
+                            cant_ordenada = (decimal)part.d.cantOrdenada,
+                            fecha_ordenada = (DateTime?)part.c.fecha,
+                            estatus = (string)part.c.stEstatus,
+                            cant_cancelada = (decimal)part.d.cantCancelada,
+                            referencia_1 = "",
+                            cantidad_excedida_ppto = 0,
+                            area = (int)part.d.area,
+                            cuenta = (int)part.d.cuenta,
                             compras_req = (int?)part.compras_req,
                             partidaDesc = (string)part.partidaDesc,
                             observaciones = "",
                             cantidadCapturada =
-                                (surtidos.Count > 0 && surtidos.Where(x => x.insumo == (int)part.insumo).ToList().Count > 0) ?
-                                (surtidos.Where(x => x.insumo == (int)part.insumo).Select(y => y.cantidad).Sum()) : 0,
+                                (surtidos.Count > 0 && surtidos.Where(x => x.insumo == (int)part.d.insumo).ToList().Count > 0) ?
+                                (surtidos.Where(x => x.insumo == (int)part.d.insumo).Select(y => y.cantidad).Sum()) : 0,
                             listaSurtido = listaSurtido,
                             totalASurtir = listaSurtido.Select(x => x.aSurtir).Sum(),
                             existenciaTotal = existenciaTotal,
@@ -4258,7 +1291,7 @@ namespace Data.DAO.Enkontrol.Compras
 
             return result;
         }
-        public dynamic getInsumos(string term, string cc, bool esServicio = false)
+        public dynamic getInsumos_old(string term, string cc, bool esServicio = false)
         {
             try
             {
@@ -4412,6 +1445,125 @@ namespace Data.DAO.Enkontrol.Compras
                             }).ToList();
 
                             return lstResultado;
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        public dynamic getInsumos(string term, string cc, bool esServicio = false)
+        {
+            try
+            {
+                switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
+                {
+                    default:
+                        {
+                            var listaInsumos = new List<InsumoRequisicionDTO>();
+
+                            using (var ctx = new MainContext())
+                            {
+                                listaInsumos = ctx.tblCom_Insumos
+                                    .Where(x => x.insumo.ToString().Contains(term))
+                                    .Take(12)
+                                    .Select(x => new InsumoRequisicionDTO
+                                    {
+                                        id = x.descripcion,
+                                        value = x.insumo.ToString(),
+                                        descripcion = x.descripcion,
+                                        unidad = x.unidad,
+                                        exceso = 0,
+                                        isAreaCueta = false,
+                                        cancelado = x.cancelado,
+                                        costoPromedio = "0",
+                                        color_resguardo = x.color_resguardo,
+                                        compras_req = x.color_resguardo != null ? (int)x.color_resguardo : 0,
+                                        ultimaCompra = 0
+                                    })
+                                    .Where(x => x.value != "0")  // Este filtro ahora se aplica sobre la lista en memoria
+                                    .ToList();
+                            }
+                            foreach (var item in listaInsumos)
+                            {
+                                using (var ctx = new MainContext())
+                                {
+
+                                    var resUltimaCompra = ctx.tblCom_OrdenCompraDet
+                                        .Where(x => x.cc == cc && x.insumo.ToString().Equals(item.value))
+                                        .OrderByDescending(x => x.fecha_entrega)
+                                        .Take(1)
+                                        .Select(x => x.precio)
+                                        .FirstOrDefault();
+
+                                        item.ultimaCompra = resUltimaCompra;
+
+
+                                }
+                            }
+
+                            return listaInsumos;
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+        public dynamic getInsumosDesc(string term, string cc, bool esServicio = false)
+        {
+            try
+            {
+                switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
+                {
+                    default:
+                        {
+                            var listaInsumos = new List<InsumoRequisicionDTO>();
+
+                            using (var ctx = new MainContext())
+                            {
+                                listaInsumos = ctx.tblCom_Insumos
+                                    .Where(x => x.descripcion.Contains(term))
+                                    .Take(12)
+                                    .Select(x => new InsumoRequisicionDTO
+                                    {
+                                        id = x.descripcion,
+                                        value = x.insumo.ToString() + " - " + (string)x.descripcion + ((string)x.cancelado == "C" ? " (INSUMO CANCELADO)" : ""),
+                                        descripcion = (string)x.descripcion + ((string)x.cancelado == "C" ? " (INSUMO CANCELADO)" : ""),
+                                        unidad = x.unidad,
+                                        exceso = 0,
+                                        isAreaCueta = false,
+                                        cancelado = x.cancelado,
+                                        costoPromedio = "0",
+                                        color_resguardo = x.color_resguardo,
+                                        compras_req = x.color_resguardo != null ? (int)x.color_resguardo : 0,
+                                        ultimaCompra = 0
+                                    })
+                                    .Where(x => x.value != "0")  // Este filtro ahora se aplica sobre la lista en memoria
+                                    .ToList();
+                            }
+                            foreach (var item in listaInsumos)
+                            {
+                                using (var ctx = new MainContext())
+                                {
+
+                                    var resUltimaCompra = ctx.tblCom_OrdenCompraDet
+                                        .Where(x => x.cc == cc && x.insumo.ToString().Equals(item.value))
+                                        .OrderByDescending(x => x.fecha_entrega)
+                                        .Take(1)
+                                        .Select(x => x.precio)
+                                        .FirstOrDefault();
+
+                                        item.ultimaCompra = resUltimaCompra;
+
+
+                                }
+                            }
+
+                            return listaInsumos;
                         }
                 }
             }
@@ -5081,17 +2233,31 @@ namespace Data.DAO.Enkontrol.Compras
 
             try
             {
-                var res = (List<dynamic>)consultaCheckProductivo(
-                    string.Format(@"SELECT 
-                                        SUM(det.cantidad * IF mov.tipo_mov IN (1,2,3,4,5) THEN 1 ELSE -1 ENDIF) AS existencia 
-                                    FROM si_movimientos mov
-                                        INNER JOIN si_movimientos_det det ON det.almacen = mov.almacen AND det.tipo_mov = mov.tipo_mov AND det.numero = mov.numero 
-                                        INNER JOIN si_almacen alm ON alm.almacen = mov.almacen 
-                                    WHERE det.insumo = {0} 
-                                        --AND alm.almacen < 900", insumo)
-                ).ToObject<List<dynamic>>();
-
-                decimal existencia = res.FirstOrDefault() != null ? res.FirstOrDefault().existencia : 0;
+//                var res = (List<dynamic>)consultaCheckProductivo(
+//                    string.Format(@"SELECT 
+//                                        SUM(det.cantidad * IF mov.tipo_mov IN (1,2,3,4,5) THEN 1 ELSE -1 ENDIF) AS existencia 
+//                                    FROM si_movimientos mov
+//                                        INNER JOIN si_movimientos_det det ON det.almacen = mov.almacen AND det.tipo_mov = mov.tipo_mov AND det.numero = mov.numero 
+//                                        INNER JOIN si_almacen alm ON alm.almacen = mov.almacen 
+//                                    WHERE det.insumo = {0} 
+//                                        --AND alm.almacen < 900", insumo)
+//                ).ToObject<List<dynamic>>();
+                decimal existencia = 0;
+                int[] tiposMovValidos = { 1, 2, 3, 4, 5 };
+                using(var ctx = new MainContext())
+                {
+                    existencia = (
+                        from mov in ctx.tblAlm_Movimientos
+                        join det in ctx.tblAlm_MovimientosDet
+                            on new { mov.almacen, mov.tipo_mov, mov.numero } equals new { det.almacen, det.tipo_mov, det.numero }
+                        join alm in ctx.tblAlm_Almacen
+                            on mov.almacen equals alm.almacen
+                        where det.insumo == insumo // Filtra por el insumo que se pasa como parámetro
+                        // Si aplicas el filtro por almacén, descoméntalo
+                        // && alm.almacen < 900
+                        select det.cantidad * (tiposMovValidos.Contains(mov.tipo_mov) ? 1 : -1)
+                    ).Sum();
+                }
 
                 resultado.Add("success", true);
                 resultado.Add("existencia", existencia);
@@ -5106,6 +2272,98 @@ namespace Data.DAO.Enkontrol.Compras
         }
 
         public Dictionary<string, object> getExistenciaInsumoDetalle(int insumo)
+        {
+            var resultado = new Dictionary<string, object>();
+
+            try
+            {
+                using (var ctx = new MainContext())
+                {
+                    var tiposEntradas = new int[] { 1, 2, 3, 4, 5 };
+                    var tiposSalidas = new int[] { 51, 52, 53, 54, 55 };
+
+                    // Consulta principal en LINQ, reemplazando la consulta SQL original
+                    var resEK = (
+                        from mov in ctx.tblAlm_Movimientos
+                        join alm in ctx.tblAlm_Almacen
+                            on mov.almacen equals alm.almacen
+                        join det in ctx.tblAlm_MovimientosDet
+                            on new { mov.almacen, mov.tipo_mov, mov.numero } equals new { det.almacen, det.tipo_mov, det.numero }
+                        where det.insumo == insumo
+                        // && alm.almacen < 900 // Descomentar si es necesario
+                        group new { mov, det, alm } by new
+                        {
+                            mov.almacen,
+                            alm.descripcion,
+                            det.area_alm,
+                            det.lado_alm,
+                            det.estante_alm,
+                            det.nivel_alm
+                        } into g
+                        select new
+                        {
+                            Almacen = g.Key.almacen,
+                            Descripcion = g.Key.descripcion,
+                            AreaAlmacen = g.Key.area_alm,
+                            LadoAlmacen = g.Key.lado_alm,
+                            EstanteAlmacen = g.Key.estante_alm,
+                            NivelAlmacen = g.Key.nivel_alm,
+                            Entradas = g.Sum(x => tiposEntradas.Contains(x.mov.tipo_mov) ? x.det.cantidad : 0),
+                            Salidas = g.Sum(x => tiposSalidas.Contains(x.mov.tipo_mov) ? x.det.cantidad : 0),
+                            Existencia = g.Sum(x => x.det.cantidad * (tiposEntradas.Contains(x.mov.tipo_mov) ? 1 : -1))
+                        }
+                    ).OrderByDescending(x => x.Existencia)
+                    .ThenBy(x => x.Descripcion)
+                    .ToList();
+
+                    if (resEK.Any())
+                    {
+                        var reservados = getReservados(insumo);
+                        var stockMinimo = ctx.tblAlm_StockMinimo.Where(x => x.estatus && x.insumo == insumo).ToList();
+
+                        var list = resEK.Select(x => new
+                        {
+                            almacenID = x.Almacen,
+                            almacen = x.Almacen + "-" + x.Descripcion,
+                            entradas = x.Entradas,
+                            salidas = x.Salidas,
+                            existencia = x.Existencia,
+                            minimo = stockMinimo.Where(y => y.almacenID == (int)x.Almacen).Select(z => z.stockMinimo).FirstOrDefault() ?? "",
+                            ultimoConsumoString = getUltimoConsumo(insumo, x.Almacen),
+                            ultimaCompraString = getUltimaCompra(insumo, x.Almacen),
+                            reservados = reservados.Where(y =>
+                                y.almacenOrigenID == x.Almacen &&
+                                y.area_alm == x.AreaAlmacen &&
+                                y.lado_alm == x.LadoAlmacen &&
+                                y.estante_alm == x.EstanteAlmacen &&
+                                y.nivel_alm == x.NivelAlmacen
+                            ).Sum(w => w.cantidad),
+                            area_alm = x.AreaAlmacen ?? "",
+                            lado_alm = x.LadoAlmacen ?? "",
+                            estante_alm = x.EstanteAlmacen ?? "",
+                            nivel_alm = x.NivelAlmacen ?? ""
+                        }).ToList();
+
+                        resultado.Add("existencia", list.Where(x => x.existencia > 0).ToList());
+                    }
+                    else
+                    {
+                        resultado.Add("existencia", new List<dynamic>());
+                    }
+
+                    resultado.Add("success", true);
+                }
+            }
+            catch (Exception e)
+            {
+                resultado.Add("success", false);
+                resultado.Add("EMPTY", true);
+            }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> getExistenciaInsumoDetalle_old(int insumo)
         {
             var resultado = new Dictionary<string, object>();
 
@@ -5444,7 +2702,7 @@ namespace Data.DAO.Enkontrol.Compras
             return res != null ? ((DateTime)ultimaCompra[0].fecha).Date.ToShortDateString() : "";
         }
 
-        public dynamic getInsumosDesc(string term, string cc, bool esServicio = false)
+        public dynamic getInsumosDesc_old(string term, string cc, bool esServicio = false)
         {
             try
             {
@@ -5627,332 +2885,120 @@ namespace Data.DAO.Enkontrol.Compras
                     cc = new List<string>();
                 }
 
-                switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
+                #region CONSTRUPLAN/ARRENDADORA
+                var usuario = vSesiones.sesionUsuarioDTO;
+                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+//                var requisicionesEK = consultaCheckProductivo(string.Format(@"
+//                                SELECT 
+//                                    r.cc, 
+//                                    r.numero, 
+//                                    r.fecha, 
+//                                    r.autorizo, 
+//                                    r.solicito, 
+//                                    (ccc.cc + '-' + ccc.descripcion) AS ccNom, 
+//                                    (SELECT e.descripcion FROM empleados e WHERE r.solicito = e.empleado ) AS solNom, 
+//                                    (SELECT SUM(det.cantidad) FROM so_requisicion_det det WHERE det.cc = r.cc AND det.numero = r.numero) as cantidadTotal, 
+//                                    CASE 
+//                                        WHEN EXISTS(
+//                                            SELECT 
+//                                                det2.insumo 
+//                                            FROM insumos i 
+//                                                INNER JOIN so_requisicion_det det2 ON det2.cc = r.cc AND det2.numero = r.numero AND i.insumo = det2.insumo 
+//                                            WHERE i.cancelado = 'C'
+//                                        ) THEN 1 ELSE 0 
+//                                    END AS contieneCancelado 
+//                                FROM so_requisicion r 
+//                                    INNER JOIN cc AS ccc ON ccc.cc = r.cc
+//                                WHERE ccc.st_ppto != 'T' AND r.fecha >= '2019-11-01' AND r.st_autoriza = '{0}'" + (cc.Count > 0 ? @" AND r.cc IN ({1})" : @""), isAuth ? "S" : "N", string.Join(", ", cc.Select(x => "'" + x + "'")))
+//                );
+
+                var requisicionesEK = (
+                    from r in _context.tblCom_Req
+                    join ccc in _context.tblP_CC
+                        on r.cc equals ccc.cc
+                    where ccc.estatus
+                          && r.fecha >= new DateTime(2019, 11, 1)
+                          //&& r.stAutoriza
+                          //&& (cc.Count == 0 || cc.Contains(r.cc)) 
+                    select new Requisicion2DTO
+                    {
+                        cc = r.cc,
+                        numero = r.numero,
+                        fecha = r.fecha,
+                        autorizo = r.autorizo.ToString(),
+                        solicito = r.solicito.ToString(),
+                        isAuth = false,
+                        flagCheckBox = false,
+                        montoTotal = 0,
+                        monedaDesc = "",
+                        consigna = false,
+                        licitacion = false,
+                        crc = false,
+                        convenio = false,
+                        ccNom = r.cc + "-" + ccc.descripcion,
+                        solNom = _context.tblRH_EK_Empleados
+                                          .Where(e => e.clave_empleado == r.solicito)
+                                          .Select(e => e.nombre)
+                                          .FirstOrDefault(), // Subconsulta para obtener solNom
+                        cantidadTotal = _context.tblCom_ReqDet
+                                                .Where(det => det.cc == r.cc && det.numero == r.numero)
+                                                .Sum(det => (decimal?)det.cantidad) ?? 0, // Subconsulta para calcular la cantidad total
+                        contieneCancelado = _context.tblCom_ReqDet
+                                                  .Where(det2 => det2.cc == r.cc && det2.numero == r.numero)
+                                                  .Join(_context.tblCom_Insumos,
+                                                        det2 => det2.insumo,
+                                                        i => i.insumo,
+                                                        (det2, i) => i)
+                                                  .Any(i => i.cancelado == "C") ? 1 : 0 // Subconsulta para verificar si contiene insumos cancelados
+                    }
+                ).ToList();
+
+                if (requisicionesEK != null)
                 {
-                    case EmpresaEnum.Construplan:
-                    case EmpresaEnum.GCPLAN:
-                    case EmpresaEnum.Arrendadora:
+                    var requisiciones = requisicionesEK.Where(x => x.fecha.Year >= (DateTime.Now.Year - 1)).ToList();
+
+                    var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
+
+                    foreach (var requisicion in requisiciones)
+                    {
+                        var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
+
+                        var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == requisicion.cc).ToList();
+
+                        requisicion.isAuth = autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado);
+
+                        requisicion.flagCheckBox = false;
+
+                        if (requisicionSIGOPLAN != null)
                         {
-                            #region CONSTRUPLAN/ARRENDADORA
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            var requisicionesEK = consultaCheckProductivo(string.Format(@"
-                                SELECT 
-                                    r.cc, 
-                                    r.numero, 
-                                    r.fecha, 
-                                    r.autorizo, 
-                                    r.solicito, 
-                                    (ccc.cc + '-' + ccc.descripcion) AS ccNom, 
-                                    (SELECT e.descripcion FROM empleados e WHERE r.solicito = e.empleado ) AS solNom, 
-                                    (SELECT SUM(det.cantidad) FROM so_requisicion_det det WHERE det.cc = r.cc AND det.numero = r.numero) as cantidadTotal, 
-                                    CASE 
-                                        WHEN EXISTS(
-                                            SELECT 
-                                                det2.insumo 
-                                            FROM insumos i 
-                                                INNER JOIN so_requisicion_det det2 ON det2.cc = r.cc AND det2.numero = r.numero AND i.insumo = det2.insumo 
-                                            WHERE i.cancelado = 'C'
-                                        ) THEN 1 ELSE 0 
-                                    END AS contieneCancelado 
-                                FROM so_requisicion r 
-                                    INNER JOIN cc AS ccc ON ccc.cc = r.cc
-                                WHERE ccc.st_ppto != 'T' AND r.fecha >= '2019-11-01' AND r.st_autoriza = '{0}'" + (cc.Count > 0 ? @" AND r.cc IN ({1})" : @""), isAuth ? "S" : "N", string.Join(", ", cc.Select(x => "'" + x + "'")))
-                            );
+                            requisicion.consigna = requisicionSIGOPLAN.consigna != null ? (bool)requisicionSIGOPLAN.consigna : false;
+                            requisicion.licitacion = requisicionSIGOPLAN.licitacion;
+                            requisicion.crc = requisicionSIGOPLAN.crc;
+                            requisicion.convenio = requisicionSIGOPLAN.convenio;
 
-                            if (requisicionesEK != null)
+                            var partidasSIGOPLAN = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
+
+                            requisicion.montoTotal = partidasSIGOPLAN.Sum(x => x.cantidad * x.precio);
+
+                            if ((requisicionSIGOPLAN.proveedor > 0 && requisicionSIGOPLAN.proveedor < 9000) || requisicionSIGOPLAN.proveedor == 9999)
                             {
-                                var requisiciones = ((List<reqAuthDTO>)requisicionesEK.ToObject<List<reqAuthDTO>>()).Where(x => x.fecha.Year >= (DateTime.Now.Year - 1)).ToList();
-
-                                var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                foreach (var requisicion in requisiciones)
-                                {
-                                    var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-
-                                    switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
-                                    {
-                                        case EmpresaEnum.GCPLAN:
-                                        case EmpresaEnum.Construplan:
-                                            {
-                                                var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == requisicion.cc).ToList();
-
-                                                if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesPorCentroCosto.Count() > 0)
-                                                {
-                                                    requisicion.isAuth = autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado);
-                                                }
-                                                else
-                                                {
-                                                    var permisosEK = consultaCheckProductivo(
-                                                        string.Format(@"SELECT cc, empleado FROM so_cc_responsable WHERE empleado = {0}", relUser.empleado)
-                                                    );
-
-                                                    if (permisosEK != null)
-                                                    {
-                                                        var permisos = (List<reqAutorizandteDTO>)permisosEK.ToObject<List<reqAutorizandteDTO>>();
-
-                                                        requisicion.isAuth = permisos.FirstOrDefault(x => x.cc == requisicion.cc) != null;
-                                                    }
-                                                }
-                                            }
-                                            break;
-                                        case EmpresaEnum.Arrendadora:
-                                            {
-                                                var primerPartidaRequisicion = ((List<dynamic>)consultaCheckProductivo(
-                                                    string.Format(@"SELECT TOP 1 * FROM so_requisicion_det WHERE cc = '{0}' AND numero = {1}", requisicion.cc, requisicion.numero)
-                                                ).ToObject<List<dynamic>>())[0];
-                                                var areaCuenta = ((int)primerPartidaRequisicion.area).ToString() + "-" + ((int)primerPartidaRequisicion.cuenta).ToString();
-
-                                                var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.areaCuenta == areaCuenta).ToList();
-
-                                                if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesPorCentroCosto.Count() > 0)
-                                                {
-                                                    requisicion.isAuth = autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado);
-                                                }
-                                                else
-                                                {
-                                                    var permisosEK = consultaCheckProductivo(
-                                                        string.Format(@"SELECT cc, empleado FROM so_cc_responsable WHERE empleado = {0}", relUser.empleado)
-                                                    );
-
-                                                    if (permisosEK != null)
-                                                    {
-                                                        var permisos = (List<reqAutorizandteDTO>)permisosEK.ToObject<List<reqAutorizandteDTO>>();
-
-                                                        requisicion.isAuth = permisos.FirstOrDefault(x => x.cc == requisicion.cc) != null;
-                                                    }
-                                                }
-                                            }
-                                            break;
-                                    }
-
-                                    requisicion.flagCheckBox = false;
-
-                                    if (requisicionSIGOPLAN != null)
-                                    {
-                                        requisicion.consigna = requisicionSIGOPLAN.consigna != null ? (bool)requisicionSIGOPLAN.consigna : false;
-                                        requisicion.licitacion = requisicionSIGOPLAN.licitacion;
-                                        requisicion.crc = requisicionSIGOPLAN.crc;
-                                        requisicion.convenio = requisicionSIGOPLAN.convenio;
-
-                                        var partidasSIGOPLAN = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                        requisicion.montoTotal = partidasSIGOPLAN.Sum(x => x.cantidad * x.precio);
-
-                                        if ((requisicionSIGOPLAN.proveedor > 0 && requisicionSIGOPLAN.proveedor < 9000) || requisicionSIGOPLAN.proveedor == 9999)
-                                        {
-                                            requisicion.monedaDesc = "MN";
-                                        }
-                                        else if (requisicionSIGOPLAN.proveedor >= 9000 && requisicionSIGOPLAN.proveedor != 9999)
-                                        {
-                                            requisicion.monedaDesc = "USD";
-                                        }
-                                    }
-                                }
-
-                                //Regresar las requisiciones que el usuario sí pueda autorizar/desautorizar.
-                                return requisiciones.Where(x => (relUser.empleado != 1 ? x.isAuth : true)).ToList();
+                                requisicion.monedaDesc = "MN";
                             }
-                            else
+                            else if (requisicionSIGOPLAN.proveedor >= 9000 && requisicionSIGOPLAN.proveedor != 9999)
                             {
-                                return 0;
+                                requisicion.monedaDesc = "USD";
                             }
-                            #endregion
                         }
-                        break;
-                    case EmpresaEnum.Colombia:
-                        {
-                            #region COLOMBIA
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            var requisicionesEK = consultaCheckProductivo(string.Format(@"
-                                SELECT 
-                                    r.cc, 
-                                    r.numero, 
-                                    r.fecha, 
-                                    r.autorizo, 
-                                    r.solicito, 
-                                    (ccc.cc + '-' + ccc.descripcion) AS ccNom, 
-                                    (SELECT e.descripcion FROM DBA.empleados e WHERE r.solicito = e.empleado ) AS solNom, 
-                                    (SELECT SUM(det.cantidad) FROM DBA.so_requisicion_det det WHERE det.cc = r.cc AND det.numero = r.numero) as cantidadTotal, 
-                                    CASE 
-                                        WHEN EXISTS(
-                                            SELECT 
-                                                det2.insumo 
-                                            FROM DBA.insumos i 
-                                                INNER JOIN DBA.so_requisicion_det det2 ON det2.cc = r.cc AND det2.numero = r.numero AND i.insumo = det2.insumo 
-                                            WHERE i.cancelado = 'C'
-                                        ) THEN 1 ELSE 0 
-                                    END AS contieneCancelado 
-                                FROM DBA.so_requisicion r 
-                                    INNER JOIN DBA.cc AS ccc ON ccc.cc = r.cc
-                                WHERE ccc.st_ppto!='T' and r.fecha>='2019-11-01' and r.st_autoriza = '{0}'" + (cc.Count > 0 ? @" AND r.cc IN ({1})" : @""), isAuth ? "S" : "N", string.Join(", ", cc.Select(x => "'" + x + "'")))
-                            );
+                    }
 
-                            if (requisicionesEK != null)
-                            {
-                                var requisiciones = ((List<reqAuthDTO>)requisicionesEK.ToObject<List<reqAuthDTO>>()).Where(x => x.fecha.Year >= (DateTime.Now.Year - 1)).ToList();
-
-                                var permisos = _context.tblCom_ResponsableCC.Where(x => x.empleado == relUser.empleado).ToList();
-
-                                var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                foreach (var requisicion in requisiciones)
-                                {
-                                    var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == requisicion.cc).ToList();
-
-                                    var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero);
-
-                                    if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesPorCentroCosto.Count() > 0)
-                                    {
-                                        requisicion.isAuth = autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado);
-                                    }
-                                    else
-                                    {
-                                        requisicion.isAuth = permisos.FirstOrDefault(x => x.cc == requisicion.cc) != null;
-                                    }
-
-                                    requisicion.flagCheckBox = false;
-
-                                    if (requisicionSIGOPLAN != null)
-                                    {
-                                        requisicion.consigna = requisicionSIGOPLAN.consigna != null ? (bool)requisicionSIGOPLAN.consigna : false;
-                                        requisicion.licitacion = requisicionSIGOPLAN.licitacion;
-                                        requisicion.crc = requisicionSIGOPLAN.crc;
-                                        requisicion.convenio = requisicionSIGOPLAN.convenio;
-
-                                        var partidasSIGOPLAN = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                        requisicion.montoTotal = partidasSIGOPLAN.Sum(x => x.cantidad * x.precio);
-
-                                        if ((requisicionSIGOPLAN.proveedor > 0 && requisicionSIGOPLAN.proveedor < 9000) || requisicionSIGOPLAN.proveedor == 9999)
-                                        {
-                                            requisicion.monedaDesc = "MN";
-                                        }
-                                        else if (requisicionSIGOPLAN.proveedor >= 9000 && requisicionSIGOPLAN.proveedor != 9999)
-                                        {
-                                            requisicion.monedaDesc = "USD";
-                                        }
-                                    }
-                                }
-
-                                //Regresar las requisiciones que el usuario sí pueda autorizar/desautorizar.
-                                return requisiciones.Where(x => (relUser.empleado != 1 ? x.isAuth : true)).ToList();
-                            }
-                            else
-                            {
-                                return 0;
-                            }
-                            #endregion
-                        }
-                        break;
-                    default:
-                        {
-                            #region DEMÁS EMPRESAS
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            var requisicionesEK = _context.Select<reqAuthDTO>(new DapperDTO()
-                            {
-                                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                                consulta = string.Format(@"
-                                    SELECT 
-                                        r.cc, 
-                                        r.numero, 
-                                        r.fecha, 
-                                        r.autorizo, 
-                                        r.solicito, 
-                                        (ccc.cc + '-' + ccc.descripcion) AS ccNom, 
-                                        (SELECT TOP 1 (uu.apellidoPaterno + ' ' + uu.nombre)
-		                                    FROM tblP_Usuario_Enkontrol AS usrSoli
-                                            LEFT JOIN tblP_Usuario AS uu ON uu.id = usrSoli.idUsuario
-		                                    WHERE usrSoli.empleado = r.solicito ) AS solNom,
-                                        (SELECT SUM(det.cantidad) FROM tblCom_ReqDet det WHERE det.idReq = r.id AND det.estatusRegistro = 1) as cantidadTotal, 
-                                        CASE 
-                                            WHEN EXISTS(
-                                                SELECT 
-                                                    det2.insumo 
-                                                FROM tblAlm_Insumo i 
-                                                    INNER JOIN tblCom_ReqDet det2 ON  i.insumo = det2.insumo AND det2.idReq = r.id
-                                                WHERE i.cancelado = 'C'
-                                            ) THEN 1 ELSE 0 
-                                        END AS contieneCancelado,
-                                        r.PERU_tipoRequisicion
-                                    FROM tblCom_Req r 
-                                        INNER JOIN tblP_CC AS ccc ON ccc.cc = r.cc
-                                    WHERE r.estatusRegistro = 1 AND r.fecha >= '2019-11-01' and r.stAutoriza = '{0}'" + (cc.Count > 0 ? @" AND r.cc IN ({1})" : @""), isAuth ? "1" : "0", string.Join(", ", cc.Select(x => "'" + x + "'"))),
-                            });
-
-                            if (requisicionesEK != null)
-                            {
-                                var requisiciones = requisicionesEK.ToList();
-                                var anioAnteriorAlActual = DateTime.Now.Year - 1;
-
-                                requisiciones = requisiciones.Where(x => x.fecha.Year >= anioAnteriorAlActual).ToList();
-
-                                var listaAutorizantesCentroCosto = _context.tblCom_AutorizanteCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                foreach (var requisicion in requisiciones)
-                                {
-                                    var registroCentroCosto = _context.tblP_CC.FirstOrDefault(x => x.cc == requisicion.cc);
-
-                                    var autorizantesPorCentroCosto = listaAutorizantesCentroCosto.Where(x => x.cc == registroCentroCosto.ccRH).ToList();
-
-                                    var requisicionSIGOPLAN = _context.tblCom_Req.FirstOrDefault(x => x.estatusRegistro && x.cc == requisicion.cc && x.numero == requisicion.numero && x.PERU_tipoRequisicion == requisicion.PERU_tipoRequisicion);
-
-                                    if ((requisicionSIGOPLAN != null ? (requisicionSIGOPLAN.consigna == true || requisicionSIGOPLAN.licitacion || requisicionSIGOPLAN.crc || requisicionSIGOPLAN.convenio) : false) && autorizantesPorCentroCosto.Count() > 0)
-                                    {
-                                        requisicion.isAuth = autorizantesPorCentroCosto.Any(x => x.empleado == relUser.empleado);
-                                    }
-                                    else
-                                    {
-                                        var permisosEK = consultaCheckProductivo(
-                                            string.Format(@"SELECT cc, empleado FROM so_cc_responsable WHERE empleado = {0}", relUser.empleado)
-                                        );
-
-                                        if (permisosEK != null)
-                                        {
-                                            var permisos = (List<reqAutorizandteDTO>)permisosEK.ToObject<List<reqAutorizandteDTO>>();
-
-                                            requisicion.isAuth = permisos.FirstOrDefault(x => x.cc == registroCentroCosto.ccRH) != null;
-                                        }
-                                    }
-
-                                    requisicion.flagCheckBox = false;
-
-                                    if (requisicionSIGOPLAN != null)
-                                    {
-                                        requisicion.consigna = requisicionSIGOPLAN.consigna != null ? (bool)requisicionSIGOPLAN.consigna : false;
-                                        requisicion.licitacion = requisicionSIGOPLAN.licitacion;
-                                        requisicion.crc = requisicionSIGOPLAN.crc;
-                                        requisicion.convenio = requisicionSIGOPLAN.convenio;
-                                        requisicion.PERU_tipoRequisicion = requisicionSIGOPLAN.PERU_tipoRequisicion;
-
-                                        var partidasSIGOPLAN = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && x.idReq == requisicionSIGOPLAN.id).ToList();
-
-                                        requisicion.montoTotal = partidasSIGOPLAN.Sum(x => x.cantidad * x.precio);
-
-                                        if ((requisicionSIGOPLAN.proveedor > 0 && requisicionSIGOPLAN.proveedor < 9000) || requisicionSIGOPLAN.proveedor == 9999)
-                                        {
-                                            requisicion.monedaDesc = "MN";
-                                        }
-                                        else if (requisicionSIGOPLAN.proveedor >= 9000 && requisicionSIGOPLAN.proveedor != 9999)
-                                        {
-                                            requisicion.monedaDesc = "USD";
-                                        }
-                                    }
-                                }
-
-                                //Regresar las requisiciones que el usuario sí pueda autorizar/desautorizar.
-                                return requisiciones.Where(x => (relUser.empleado != 1 ? x.isAuth : true)).ToList();
-                            }
-                            else
-                            {
-                                return 0;
-                            }
-                            #endregion
-                        }
-                        break;
+                    //Regresar las requisiciones que el usuario sí pueda autorizar/desautorizar.
+                    return requisiciones.Where(x => (relUser.empleado != 1 ? x.isAuth : true)).ToList();
                 }
+                else
+                {
+                    return 0;
+                }
+                #endregion
             }
             catch (Exception)
             {
@@ -5999,21 +3045,21 @@ namespace Data.DAO.Enkontrol.Compras
             {
                 switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
                 {
-                    case EmpresaEnum.Colombia:
-                        return _context.tblCom_ReqTipo.Where(x => x.registroActivo).ToList().Select(x => new Core.DTO.Principal.Generales.ComboDTO
+                    default:
+                        var data = _context.tblCom_ReqTipo.Where(x => x.registroActivo).ToList().Select(x => new Core.DTO.Principal.Generales.ComboDTO
                         {
                             Value = x.tipo_req_oc.ToString(),
                             Text = x.descripcion,
                             Prefijo = x.dias_requisicion.ToString()
                         }).ToList();
-                    default:
-                        return (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(@"
-                            SELECT
-                                tipo_req_oc as Value,
-                                descripcion as Text,
-                                dias_requisicion as Prefijo
-                            FROM so_tipo_requisicion
-                        ").ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
+                        return data;
+                        // return (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(@"
+                        //     SELECT
+                        //         tipo_req_oc as Value,
+                        //         descripcion as Text,
+                        //         dias_requisicion as Prefijo
+                        //     FROM so_tipo_requisicion
+                        // ").ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
                 }
             }
             catch (Exception e)
@@ -6243,81 +3289,7 @@ namespace Data.DAO.Enkontrol.Compras
             }
             catch (Exception) { return new List<Core.DTO.Principal.Generales.ComboDTO>(); }
         }
-        // public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAsigReq()
-        // {
-        //     try
-        //     {
-        //         switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
-        //         {
-
-        //             case EmpresaEnum.Peru:
-        //                 {
-        //                     using (var ctxPeru = new MainContext())
-        //                     {
-        //                         var listaBloqueoCC = ctxPeru.tblCom_BloqueoCentroCosto.Where(x => x.registroActivo).Select(x => x.cc).ToList();
-
-        //                         var ccsPermitidos = ctxPeru.tblP_CC_Usuario.Where(x => x.usuarioID == vSesiones.sesionUsuarioDTO.id).Select(x => x.cc).ToList();
-        //                         var listaCentroCosto = ctxPeru.tblP_CC
-        //                             .Where(x =>
-        //                                 x.estatus &&
-        //                                 (((PerfilUsuarioEnum)vSesiones.sesionUsuarioDTO.idPerfil == PerfilUsuarioEnum.ADMINISTRADOR) ? true : ccsPermitidos.Contains(x.cc)) &&
-        //                                 x.cc.Length > 3 &&
-        //                                 !listaBloqueoCC.Contains(x.cc)
-        //                             ).Select(x => new Core.DTO.Principal.Generales.ComboDTO
-        //                             {
-        //                                 Value = x.cc,
-        //                                 Text = "[" + x.cc + "] " + x.descripcion.Trim()
-        //                             }).ToList();
-
-        //                         return listaCentroCosto;
-        //                     }
-        //                 }
-        //                 break;
-        //             default:
-        //                 {
-        //                     var usuario = vSesiones.sesionUsuarioDTO;
-        //                     var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-
-        //                     var res = (List<dynamic>)consultaCheckProductivo(string.Format("SELECT cc FROM so_asigna_req WHERE empleado = {0}", relUser.empleado)).ToObject<List<dynamic>>();
-        //                     var permisosCC = res.Select(c => (string)c.cc).ToList();
-
-        //                     var centrosCostoEK = consultaCheckProductivo(
-        //                         string.Format(@"SELECT 
-        //                                 c.cc AS Value, 
-        //                                 (c.cc + '-' + c.descripcion) AS Text 
-        //                             FROM cc c 
-        //                                 {0} 
-        //                             WHERE c.st_ppto != 'T' 
-        //                             ORDER BY Value", (permisosCC.Any(c => c.Equals("*"))) ? "" : "INNER JOIN so_asigna_req a ON a.cc = c.cc AND a.empleado = " + relUser.empleado + " ")
-        //                     );
-
-        //                     if (centrosCostoEK != null)
-        //                     {
-        //                         var listaCentroCosto = (List<Core.DTO.Principal.Generales.ComboDTO>)centrosCostoEK.ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
-        //                         var listaBloqueoCC = _context.tblCom_BloqueoCentroCosto.Where(x => x.registroActivo).ToList();
-
-        //                         if (listaBloqueoCC.Count() > 0)
-        //                         {
-        //                             listaCentroCosto = listaCentroCosto.Where(x => !listaBloqueoCC.Select(y => y.cc).Contains(x.Value)).ToList();
-        //                         }
-
-        //                         return listaCentroCosto;
-        //                     }
-        //                     else
-        //                     {
-        //                         return new List<Core.DTO.Principal.Generales.ComboDTO>();
-        //                     }
-        //                 }
-        //                 break;
-        //         }
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         var NOMBRE_FUNCION = System.Reflection.MethodBase.GetCurrentMethod().Name;
-        //         LogError(_SISTEMA, 0, _NOMBRE_CONTROLADOR, NOMBRE_FUNCION, e, AccionEnum.CONSULTA, 0, null);
-        //         return new List<Core.DTO.Principal.Generales.ComboDTO>();
-        //     }
-        // }
+        
         public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAsigReq()
         {
             try
@@ -6331,7 +3303,7 @@ namespace Data.DAO.Enkontrol.Compras
                         .Where(x =>
                             x.estatus &&
                             (((PerfilUsuarioEnum)vSesiones.sesionUsuarioDTO.idPerfil == PerfilUsuarioEnum.ADMINISTRADOR) ? true : ccsPermitidos.Contains(x.cc)) &&
-                            x.cc.Length > 3 &&
+                            // x.cc.Length > 3 &&
                             !listaBloqueoCC.Contains(x.cc)
                         ).Select(x => new Core.DTO.Principal.Generales.ComboDTO
                         {
@@ -6463,49 +3435,17 @@ namespace Data.DAO.Enkontrol.Compras
             {
                 switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
                 {
-                    case EmpresaEnum.Peru:
+                    default:
                         {
-                            using (var ctxPeru = new MainContextPeruStarSoft003BDCOMUN())
+                            using (var ctx = new MainContext())
                             {
-                                var almacenes = ctxPeru.TABALM.ToList().Select(x => new Core.DTO.Principal.Generales.ComboDTO
+                                var almacenes = ctx.tblAlm_Almacen.ToList().Select(x => new Core.DTO.Principal.Generales.ComboDTO
                                 {
-                                    Value = Convert.ToInt32(x.TAALMA).ToString(),
-                                    Text = "[" + x.TAALMA + "] " + x.TADESCRI
+                                    Value = Convert.ToInt32(x.almacen).ToString(),
+                                    Text = "[" + x.almacen + "] " + x.descripcion
                                 }).ToList();
 
                                 return almacenes;
-                            }
-                        }
-                    case EmpresaEnum.Colombia:
-                        {
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            return (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
-                                string.Format(@"SELECT alm.almacen AS Value, (CONVERT(varchar(12), alm.almacen) + ' - ' + alm.descripcion) AS Text FROM DBA.si_almacen alm ORDER BY Value"))
-                                                .ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
-                        }
-                    default:
-                        {
-                            var usuario = vSesiones.sesionUsuarioDTO;
-                            var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                            if (vSesiones.sesionEmpresaActual == 3)
-                            {
-                                return (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
-                              string.Format(@"SELECT 
-                                        alm.almacen AS Value, 
-                                        (CONVERT(varchar(12), alm.almacen) + ' - ' + alm.descripcion) AS Text 
-                                    FROM DBA.si_almacen alm                                    
-                                    ORDER BY Value")).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
-                            }
-                            else
-                            {
-                                return (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
-                                string.Format(@"SELECT 
-                                        alm.almacen AS Value, 
-                                        (CONVERT(varchar(12), alm.almacen) + ' - ' + alm.descripcion) AS Text 
-                                    FROM si_almacen alm 
-                                    WHERE (alm.almacen_virtual != 1 or alm.almacen_virtual IS null) AND (alm.bit_mp = 'S' OR alm.almacen = 997 OR alm.almacen = 998 OR alm.almacen = 999) 
-                                    ORDER BY Value")).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
                             }
                         }
                 }
@@ -6783,177 +3723,48 @@ namespace Data.DAO.Enkontrol.Compras
                     }));
                 }
 
-                //                var queryEmpleadoEnkontrol = @"SELECT 
-                //                            e.clave_empleado AS claveEmpleado, 
-                //                            (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                //                        FROM DBA.sn_empleados AS e 
-                //                        WHERE e.estatus_empleado = 'A' AND claveEmpleado = ?";
-
-                //                List<dynamic> empleadoEnkontrolCP = _contextEnkontrol.Select<dynamic>(EnkontrolEnum.CplanRh, new OdbcConsultaDTO()
-                //                {
-                //                    consulta = queryEmpleadoEnkontrol,
-                //                    parametros = new List<OdbcParameterDTO> { new OdbcParameterDTO() { nombre = "claveEmpleado", tipo = OdbcType.Numeric, valor = req.usuarioSolicita } }
-                //                });
-                //                List<dynamic> empleadoEnkontrolARR = _contextEnkontrol.Select<dynamic>(EnkontrolEnum.ArrenRh, new OdbcConsultaDTO()
-                //                {
-                //                    consulta = queryEmpleadoEnkontrol,
-                //                    parametros = new List<OdbcParameterDTO> { new OdbcParameterDTO() { nombre = "claveEmpleado", tipo = OdbcType.Numeric, valor = req.usuarioSolicita } }
-                //                });
-                if (vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual == 2 || vSesiones.sesionEmpresaActual == 4)
+                var empleadoEnkontrolCP = _context.Select<dynamic>(new DapperDTO
                 {
-                    var empleadoEnkontrolCP = _context.Select<dynamic>(new DapperDTO
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = @"SELECT 
+                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    consulta = @"SELECT 
                                     e.clave_empleado AS claveEmpleado, 
                                     (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
                                 FROM tblRH_EK_Empleados AS e 
                                 WHERE e.estatus_empleado = 'A' AND e.clave_empleado = @usr",
-                        parametros = new { usr = req.usuarioSolicita }
-                    });
+                    parametros = new { usr = req.usuarioSolicita }
+                });
 
-                    var empleadoEnkontrolARR = _context.Select<dynamic>(new DapperDTO
-                    {
-                        baseDatos = MainContextEnum.Arrendadora,
-                        consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                FROM tblRH_EK_Empleados AS e 
-                                WHERE e.estatus_empleado = 'A' AND e.claveEmpleado = @usr",
-                        parametros = new { req.usuarioSolicita }
-                    });
-
-                    var empleadoEnkontrolGCPLAN = _context.Select<dynamic>(new DapperDTO
-                    {
-                        baseDatos = MainContextEnum.GCPLAN,
-                        consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                FROM tblRH_EK_Empleados AS e 
-                                WHERE e.estatus_empleado = 'A' AND e.claveEmpleado = @usr",
-                        parametros = new { req.usuarioSolicita }
-                    });
-
-                    //                    var empleadoEnkontrolCol = _context.Select<dynamic>(new DapperDTO
-                    //                    {
-                    //                        baseDatos = MainContextEnum.Colombia,
-                    //                        consulta = @"SELECT 
-                    //                                    e.clave_empleado AS claveEmpleado, 
-                    //                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                    //                                FROM tblRH_EK_Empleados AS e 
-                    //                                WHERE e.estatus_empleado = 'A' AND e.claveEmpleado = @usr",
-                    //                        parametros = new { req.usuarioSolicita }
-                    //                    });
-                    var requisicion = new RequisicionDTO
-                    {
-                        cc = req.cc,
-                        numero = req.numero,
-                        fecha = req.fecha,
-                        libre_abordo = req.idLibreAbordo,
-                        tipo_req_oc = req.idTipoReqOc.ToString(),
-                        solicito = req.solicito,
-                        vobo = req.vobo,
-                        autorizo = req.autorizo,
-                        comentarios = req.comentarios,
-                        st_estatus = req.stEstatus,
-                        emp_autoriza = req.empAutoriza,
-                        empleado_modifica = req.empModifica,
-                        consigna = req.consigna,
-                        licitacion = req.licitacion,
-                        crc = req.crc,
-                        convenio = req.convenio,
-                        proveedor = req.proveedor,
-                        partidas = partidas,
-                        validadoAlmacen = req.validadoAlmacen,
-                        comprador = req.comprador,
-                        fechaSurtidoCompromiso = req.fechaSurtidoCompromiso,
-                        usuarioSolicita = req.usuarioSolicita,
-                        usuarioSolicitaDesc =
-                            empleadoEnkontrolCP.Count() > 0 ? empleadoEnkontrolCP[0].nombreEmpleado : empleadoEnkontrolARR.Count() > 0 ? empleadoEnkontrolARR[0].nombreEmpleado : empleadoEnkontrolGCPLAN.Count() > 0 ? empleadoEnkontrolGCPLAN[0].nombreEmpleado : "",
-                        usuarioSolicitaUso = req.usuarioSolicitaUso,
-                        usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa
-                    };
-
-                    return requisicion;
-                }
-                else
+                var requisicion = new RequisicionDTO
                 {
-                    var empleadosEmpresas = _context.Select<dynamic>(new DapperDTO
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = @"SELECT e.clave_empleado AS claveEmpleado, (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                            FROM tblRH_EK_Empleados AS e 
-                                                WHERE e.estatus_empleado = 'A' AND e.clave_empleado = @usr",
-                        parametros = new { usr = req.usuarioSolicita }
-                    });
+                    cc = req.cc,
+                    numero = req.numero,
+                    fecha = req.fecha,
+                    libre_abordo = req.idLibreAbordo,
+                    tipo_req_oc = req.idTipoReqOc.ToString(),
+                    solicito = req.solicito,
+                    vobo = req.vobo,
+                    autorizo = req.autorizo,
+                    comentarios = req.comentarios,
+                    st_estatus = req.stEstatus,
+                    emp_autoriza = req.empAutoriza,
+                    empleado_modifica = req.empModifica,
+                    consigna = req.consigna,
+                    licitacion = req.licitacion,
+                    crc = req.crc,
+                    convenio = req.convenio,
+                    proveedor = req.proveedor,
+                    partidas = partidas,
+                    validadoAlmacen = req.validadoAlmacen,
+                    comprador = req.comprador,
+                    fechaSurtidoCompromiso = req.fechaSurtidoCompromiso,
+                    usuarioSolicita = req.usuarioSolicita,
+                    usuarioSolicitaDesc =
+                        empleadoEnkontrolCP.Count() > 0 ? empleadoEnkontrolCP[0].nombreEmpleado : "",
+                    usuarioSolicitaUso = req.usuarioSolicitaUso,
+                    usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa
+                };
 
-                    if (empleadosEmpresas.Count() <= 0)
-                    {
-                        empleadosEmpresas = _context.Select<dynamic>(new DapperDTO
-                        {
-                            baseDatos = MainContextEnum.Construplan,
-                            consulta = @"SELECT e.clave_empleado AS claveEmpleado, (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                            FROM tblRH_EK_Empleados AS e 
-                                                WHERE e.estatus_empleado = 'A' AND e.clave_empleado = @usr",
-                            parametros = new { usr = req.usuarioSolicita }
-                        });
-                    }
-
-                    if (empleadosEmpresas.Count() <= 0)
-                    {
-                        empleadosEmpresas = _context.Select<dynamic>(new DapperDTO
-                        {
-                            baseDatos = MainContextEnum.GCPLAN,
-                            consulta = @"SELECT e.clave_empleado AS claveEmpleado, (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                            FROM tblRH_EK_Empleados AS e 
-                                                WHERE e.estatus_empleado = 'A' AND e.clave_empleado = @usr",
-                            parametros = new { usr = req.usuarioSolicita }
-                        });
-                    }
-
-                    if (empleadosEmpresas.Count() <= 0)
-                    {
-                        empleadosEmpresas = _context.Select<dynamic>(new DapperDTO
-                        {
-                            baseDatos = MainContextEnum.Arrendadora,
-                            consulta = @"SELECT e.clave_empleado AS claveEmpleado, (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado
-                                            FROM tblRH_EK_Empleados AS e 
-                                                WHERE e.estatus_empleado = 'A' AND e.clave_empleado = @usr",
-                            parametros = new { usr = req.usuarioSolicita }
-                        });
-                    }
-
-                    var requisicion = new RequisicionDTO
-                    {
-                        cc = req.cc,
-                        numero = req.numero,
-                        fecha = req.fecha,
-                        libre_abordo = req.idLibreAbordo,
-                        tipo_req_oc = req.idTipoReqOc.ToString(),
-                        solicito = req.solicito,
-                        vobo = req.vobo,
-                        autorizo = req.autorizo,
-                        comentarios = req.comentarios,
-                        st_estatus = req.stEstatus,
-                        emp_autoriza = req.empAutoriza,
-                        empleado_modifica = req.empModifica,
-                        consigna = req.consigna,
-                        licitacion = req.licitacion,
-                        crc = req.crc,
-                        convenio = req.convenio,
-                        proveedor = req.proveedor,
-                        partidas = partidas,
-                        validadoAlmacen = req.validadoAlmacen,
-                        comprador = req.comprador,
-                        fechaSurtidoCompromiso = req.fechaSurtidoCompromiso,
-                        usuarioSolicita = req.usuarioSolicita,
-                        usuarioSolicitaDesc = empleadosEmpresas.Count() > 0 ? empleadosEmpresas[0].nombreEmpleado : "",
-                        usuarioSolicitaUso = req.usuarioSolicitaUso,
-                        usuarioSolicitaEmpresa = req.usuarioSolicitaEmpresa
-                    };
-
-                    return requisicion;
-                }
+                return requisicion;
             }
             else
             {
@@ -9166,9 +5977,19 @@ namespace Data.DAO.Enkontrol.Compras
         }
         public int getUltimaRequisicionNumero(string cc)
         {
-            var ultimaRequisicion = (int)consultaCheckProductivo(string.Format(@"SELECT TOP 1 numero FROM so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", cc)).ToObject<int>();
+            // var ultimaRequisicion = (int)consultaCheckProductivo(string.Format(@"SELECT TOP 1 numero FROM so_requisicion WHERE cc = '{0}' ORDER BY numero DESC", cc)).ToObject<int>();
 
-            return ultimaRequisicion;
+            // return ultimaRequisicion;
+            //linq
+            var ultimaRequisicion = _context.tblCom_Req.Where(x => x.cc == cc).OrderByDescending(x => x.numero).FirstOrDefault();
+            if (ultimaRequisicion != null)
+            {
+                return ultimaRequisicion.numero;
+            }
+            else
+            {
+                return 1;
+            }
         }
         public dynamic getMovSalidaAlmacen(int almacen_id, string cc, int folioSalida)
         {
@@ -12895,8 +9716,57 @@ namespace Data.DAO.Enkontrol.Compras
 
             return true;
         }
-
         public dynamic getInsumoInformacion(int insumo, bool esServicio = false)
+        {
+            try
+            {
+                using (var ctx = new MainContext())
+                {
+                    var insumoEK = (
+                        from i in ctx.tblCom_Insumos
+                        where i.insumo == insumo // insumo es el parámetro que pasas
+                        select new
+                        {
+                            i.insumo,
+                            i.descripcion,
+                            i.unidad,
+                            i.bit_area_cuenta,
+                            costoPromedio = ctx.tblCom_OrdenCompraDet
+                                                .Where(det => det.insumo == i.insumo)
+                                                .Average(det => (decimal?)det.precio) ?? 0, // Manejo de valores nulos
+                            i.cancelado,
+                            i.color_resguardo,
+                            i.compras_req
+                        }
+                    ).FirstOrDefault(); // Obtener el primer resultado o nulo si no existe
+
+                    if (insumoEK != null)
+                    {
+                        return new
+                        {
+                            id = insumoEK.descripcion,
+                            value = insumoEK.insumo,
+                            unidad = insumoEK.unidad,
+                            // exceso = null, // No se encuentra equivalente directo para 'cant_requerida' en el código original
+                            isAreaCueta = insumoEK.bit_area_cuenta, // Manejo de posibles nulos
+                            cancelado = insumoEK.cancelado,
+                            costoPromedio = insumoEK.costoPromedio.ToString("F2"), // Convertir a string con formato si es necesario
+                            color_resguardo = insumoEK.color_resguardo != null ? (int)insumoEK.color_resguardo : 0,
+                            compras_req = (int?)insumoEK.compras_req
+                        };
+                    }
+
+                    return null; // En caso de que no se encuentre el insumo
+                }
+
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public dynamic getInsumoInformacion_old(int insumo, bool esServicio = false)
         {
             try
             {
@@ -15537,74 +12407,263 @@ namespace Data.DAO.Enkontrol.Compras
                             }
                         }
 
-                        var seguimientoEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                    req.cc AS cc, 
-                                    req.solicito AS requisitor, 
-                                    empReq.descripcion AS requisitorDesc, 
-                                    req.numero AS numeroRequisicion, 
-                                    req.fecha AS fechaElaboracion, 
-                                    --'' AS fechaEntregaCompras, 
-                                    tipoReq.descripcion AS tipoRequisicion, 
-                                    eco.descripcion AS economico, 
-                                    ins.descripcion AS descripcion, 
-                                    oc.comprador AS comprador, 
-                                    empComp.descripcion AS compradorDesc, 
-                                    oc.numero AS numeroOrdenCompra, 
-                                    oc.fecha AS fechaCompra, 
-                                    oc.fecha_autoriza AS fechaAutorizacionCompra, 
-                                    ISNULL(CONVERT(varchar, oc.fecha_autoriza, 103), '') AS fechaAutorizacionCompraDesc, 
-                                    (CASE WHEN oc.ST_OC = 'A' THEN 'SI' ELSE 'NO' END) AS ordenCompraAutorizada, 
-                                    oc.proveedor AS proveedor, 
-                                    oc.bienes_servicios AS bienes_servicios, 
-                                    prov.nombre AS proveedorDesc, 
-                                    (CASE WHEN mov.fecha IS NOT NULL THEN mov.fecha WHEN movNoInv.fecha IS NOT NULL THEN movNoInv.fecha ELSE NULL END) AS fechaEntrada,
-                                    mov.fecha as fechaAutoriza,
-                                    req.fecha_Autoriza as fechaAutorizaRe, 
-                                    req.libre_abordo AS almacen, 
-                                    oc.cant_recibida AS compraCantidadRecibida 
-                                FROM so_requisicion req 
-                                    INNER JOIN empleados empReq ON req.solicito = empReq.empleado 
-                                    INNER JOIN so_requisicion_det reqDet ON req.cc = reqDet.cc AND req.numero = reqDet.numero AND reqDet.cantidad > 0 
-                                    INNER JOIN insumos ins ON reqDet.insumo = ins.insumo 
-                                    INNER JOIN cc eco ON req.cc = eco.cc 
-                                    LEFT JOIN ( 
-                                        SELECT 
-                                            compra.cc, compra.numero, compra.comprador, compra.fecha, compra.fecha_autoriza, compra.proveedor, compra.bienes_servicios, compra.ST_OC, detalle.partida, detalle.num_requisicion, detalle.part_requisicion, detalle.cant_recibida 
-                                        FROM so_orden_compra compra 
-                                            INNER JOIN so_orden_compra_det detalle ON compra.cc = detalle.cc AND compra.numero = detalle.numero 
-                                        WHERE compra.estatus != 'C' 
-                                    ) AS oc ON req.cc = oc.cc AND req.numero = oc.num_requisicion AND reqDet.partida = oc.part_requisicion 
-                                    LEFT JOIN empleados empComp ON oc.comprador = empComp.empleado 
-                                    LEFT JOIN so_tipo_requisicion tipoReq ON req.tipo_req_oc = tipoReq.tipo_req_oc 
-                                    LEFT JOIN sp_proveedores prov ON oc.proveedor = prov.numpro 
-                                    LEFT JOIN ( 
-                                        SELECT 
-                                        	mov.cc, mov.orden_ct, mov.fecha, det.partida_oc 
-                                        FROM si_movimientos mov 
-                                        	INNER JOIN si_movimientos_det det ON mov.almacen = det.almacen AND mov.tipo_mov = det.tipo_mov AND mov.numero = det.numero 
-                                    ) AS mov ON oc.cc = mov.cc AND oc.numero = mov.orden_ct AND oc.partida = mov.partida_oc 
-                                    LEFT JOIN ( 
-                                        SELECT 
-                                        	mov.cc, mov.orden_ct, mov.fecha, det.partida_oc 
-                                        FROM so_movimientos_noinv mov 
-                                        	INNER JOIN so_movimientos_noinv_det det ON mov.almacen = det.almacen AND mov.tipo_mov = det.tipo_mov AND mov.remision = det.remision 
-                                    ) AS movNoInv ON oc.cc = movNoInv.cc AND oc.numero = movNoInv.orden_ct AND oc.partida = movNoInv.partida_oc 
-                                WHERE {0} {1} req.fecha >= '{2}' AND req.fecha <= '{3}' " +
-                                           (requisitor == 0 ? "" : " AND req.solicito = " + requisitor) + "{4}" + @" GROUP BY 
-                                    req.cc, req.solicito, empReq.descripcion, req.numero, req.fecha, eco.descripcion, ins.descripcion, oc.comprador, empComp.descripcion, 
-                                    oc.numero, oc.fecha, oc.fecha_autoriza, ordenCompraAutorizada, oc.bienes_servicios, oc.proveedor, prov.nombre, mov.fecha, movNoInv.fecha , req.fecha_Autoriza, req.libre_abordo, oc.cant_recibida, tipoReq.descripcion
-                                ORDER BY req.numero, oc.numero", filtroCC, filtroTipoInsumo, fechaInicial.ToString("yyyyMMdd"), fechaFinal.ToString("yyyyMMdd"),
-                                                               string.IsNullOrEmpty(whereRequisicionesPorComprador) ? "" : " AND (" + whereRequisicionesPorComprador + ")")
-                        );
+                        // var seguimientoEK = consultaCheckProductivo(
+                        //     string.Format(@"SELECT 
+                        //             req.cc AS cc, 
+                        //             req.solicito AS requisitor, 
+                        //             empReq.descripcion AS requisitorDesc, 
+                        //             req.numero AS numeroRequisicion, 
+                        //             req.fecha AS fechaElaboracion, 
+                        //             --'' AS fechaEntregaCompras, 
+                        //             tipoReq.descripcion AS tipoRequisicion, 
+                        //             eco.descripcion AS economico, 
+                        //             ins.descripcion AS descripcion, 
+                        //             oc.comprador AS comprador, 
+                        //             empComp.descripcion AS compradorDesc, 
+                        //             oc.numero AS numeroOrdenCompra, 
+                        //             oc.fecha AS fechaCompra, 
+                        //             oc.fecha_autoriza AS fechaAutorizacionCompra, 
+                        //             ISNULL(CONVERT(varchar, oc.fecha_autoriza, 103), '') AS fechaAutorizacionCompraDesc, 
+                        //             (CASE WHEN oc.ST_OC = 'A' THEN 'SI' ELSE 'NO' END) AS ordenCompraAutorizada, 
+                        //             oc.proveedor AS proveedor, 
+                        //             oc.bienes_servicios AS bienes_servicios, 
+                        //             prov.nombre AS proveedorDesc, 
+                        //             (CASE WHEN mov.fecha IS NOT NULL THEN mov.fecha WHEN movNoInv.fecha IS NOT NULL THEN movNoInv.fecha ELSE NULL END) AS fechaEntrada,
+                        //             mov.fecha as fechaAutoriza,
+                        //             req.fecha_Autoriza as fechaAutorizaRe, 
+                        //             req.libre_abordo AS almacen, 
+                        //             oc.cant_recibida AS compraCantidadRecibida 
+                        //         FROM so_requisicion req 
+                        //             INNER JOIN empleados empReq ON req.solicito = empReq.empleado 
+                        //             INNER JOIN so_requisicion_det reqDet ON req.cc = reqDet.cc AND req.numero = reqDet.numero AND reqDet.cantidad > 0 
+                        //             INNER JOIN insumos ins ON reqDet.insumo = ins.insumo 
+                        //             INNER JOIN cc eco ON req.cc = eco.cc 
+                        //             LEFT JOIN ( 
+                        //                 SELECT 
+                        //                     compra.cc, compra.numero, compra.comprador, compra.fecha, compra.fecha_autoriza, compra.proveedor, compra.bienes_servicios, compra.ST_OC, detalle.partida, detalle.num_requisicion, detalle.part_requisicion, detalle.cant_recibida 
+                        //                 FROM so_orden_compra compra 
+                        //                     INNER JOIN so_orden_compra_det detalle ON compra.cc = detalle.cc AND compra.numero = detalle.numero 
+                        //                 WHERE compra.estatus != 'C' 
+                        //             ) AS oc ON req.cc = oc.cc AND req.numero = oc.num_requisicion AND reqDet.partida = oc.part_requisicion 
+                        //             LEFT JOIN empleados empComp ON oc.comprador = empComp.empleado 
+                        //             LEFT JOIN so_tipo_requisicion tipoReq ON req.tipo_req_oc = tipoReq.tipo_req_oc 
+                        //             LEFT JOIN sp_proveedores prov ON oc.proveedor = prov.numpro 
+                        //             LEFT JOIN ( 
+                        //                 SELECT 
+                        //                 	mov.cc, mov.orden_ct, mov.fecha, det.partida_oc 
+                        //                 FROM si_movimientos mov 
+                        //                 	INNER JOIN si_movimientos_det det ON mov.almacen = det.almacen AND mov.tipo_mov = det.tipo_mov AND mov.numero = det.numero 
+                        //             ) AS mov ON oc.cc = mov.cc AND oc.numero = mov.orden_ct AND oc.partida = mov.partida_oc 
+                        //             LEFT JOIN ( 
+                        //                 SELECT 
+                        //                 	mov.cc, mov.orden_ct, mov.fecha, det.partida_oc 
+                        //                 FROM so_movimientos_noinv mov 
+                        //                 	INNER JOIN so_movimientos_noinv_det det ON mov.almacen = det.almacen AND mov.tipo_mov = det.tipo_mov AND mov.remision = det.remision 
+                        //             ) AS movNoInv ON oc.cc = movNoInv.cc AND oc.numero = movNoInv.orden_ct AND oc.partida = movNoInv.partida_oc 
+                        //         WHERE {0} {1} req.fecha >= '{2}' AND req.fecha <= '{3}' " +
+                        //                    (requisitor == 0 ? "" : " AND req.solicito = " + requisitor) + "{4}" + @" GROUP BY 
+                        //             req.cc, req.solicito, empReq.descripcion, req.numero, req.fecha, eco.descripcion, ins.descripcion, oc.comprador, empComp.descripcion, 
+                        //             oc.numero, oc.fecha, oc.fecha_autoriza, ordenCompraAutorizada, oc.bienes_servicios, oc.proveedor, prov.nombre, mov.fecha, movNoInv.fecha , req.fecha_Autoriza, req.libre_abordo, oc.cant_recibida, tipoReq.descripcion
+                        //         ORDER BY req.numero, oc.numero", filtroCC, filtroTipoInsumo, fechaInicial.ToString("yyyyMMdd"), fechaFinal.ToString("yyyyMMdd"),
+                        //                                        string.IsNullOrEmpty(whereRequisicionesPorComprador) ? "" : " AND (" + whereRequisicionesPorComprador + ")")
+                        // );
+                        var seguimientoEK = _context.Select<SeguimientoRequisicionDTO>(new DapperDTO
+                        {
+                            baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                            consulta = string.Format(@"
+                                SELECT
+                                    REQ.id AS reqId,
+                                    REQ.cc AS reqCc,
+                                    REQ.numero AS reqNumero,
+                                    REQ.cc + '-' + CAST(REQ.numero AS VARCHAR) AS requisicion,
+                                    REQ.PERU_tipoRequisicion AS reqPeruTipoRequisicion,
+                                    REQ.solicito AS reqSolicito,
+                                    REQ.comprador AS reqComprador,
+                                    REQ.fecha AS reqFecha,
+                                    REQ.autoriza AS reqAutoriza,
+                                    REQ.idLibreAbordo AS reqLibreAbordo,
+                                    REQDET.insumo AS reqInsumo,
+                                    REQDET.cantOrdenada AS reqCantidadOrdenada,
+                                    OC.id AS ocId,
+                                    OC.cc AS ocCc,
+                                    OC.numero AS ocNumero,
+                                    OC.PERU_proveedor AS ocPeruProveedor,
+                                    OC.fecha AS ocFecha,
+                                    OC.fecha_autoriza AS ocFechaAutoriza,
+                                    OC.bienes_servicios AS ocBienesServicios,
+                                    OCDET.fecha_entrega AS ocDetFechaEntrega,
+                                    U.nombre + ' ' + U.apellidoPaterno + ' ' + CASE WHEN U.apellidoMaterno IS NOT NULL THEN U.apellidoMaterno ELSE '' END AS solicitoNombreCompleto,
+                                    PROV.PRVCNOMBRE AS provedorNombre,
+                                    ART.ADESCRI AS insumoNombre,
+                                    UCOMPRADOR.nombreUsuario AS compradorUsuario,
+                                    USUGERIDO.nombre + ' ' + USUGERIDO.apellidoPaterno + ' ' + CASE WHEN USUGERIDO.apellidoMaterno IS NOT NULL THEN USUGERIDO.apellidoMaterno ELSE '' END AS compradorSugerido,
+                                    REQ.validadoAlmacen AS reqValidadoAlmacen,
+                                    REQ.validadoCompras AS reqValidadoCompras,
+                                    REQ.fechaValidacionAlmacen AS reqFechaValidacionAlmacen,
+                                    REQ.consigna AS reqConsigna,
+                                    REQ.licitacion AS reqLicitacion,
+                                    REQ.crc AS reqCrc,
+                                    REQ.convenio AS reqConvenio,
+                                    OC.tiempoEntregaDias AS ocTiempoEntrega,
+                                    OC.tiempoEntregaComentarios AS ocTiempoEntregaComentarios,
+                                    OC.colocada AS ocColocada,
+                                    OC.colocadaFecha AS ocColocadaFecha,
+                                    CASE
+                                        WHEN MOV.fecha IS NOT NULL THEN MOV.fecha
+                                        ELSE NULL
+                                    END AS fechaEntrada,
+                                    MOV.fecha AS fechaAutoriza
+                                FROM
+                                    tblCom_Req AS REQ
+                                INNER JOIN
+                                    tblCom_ReqDet AS REQDET
+                                    ON
+                                        REQDET.idReq = REQ.id
+                                LEFT JOIN
+                                    tblCom_OrdenCompraDet AS OCDET
+                                    ON
+                                        OCDET.cc = REQ.cc AND
+                                        OCDET.num_requisicion = REQ.numero AND
+                                        OCDET.part_requisicion = REQDET.partida AND
+                                        OCDET.estatusRegistro = 1
+                                LEFT JOIN
+                                    tblCom_OrdenCompra AS OC
+                                    ON
+                                        OC.id = OCDET.idOrdenCompra AND
+                                        OC.PERU_tipoCompra = REQ.PERU_tipoRequisicion AND
+                                        OC.estatusRegistro = 1
+                                LEFT JOIN
+                                    tblP_Usuario_Enkontrol AS UEK
+                                    ON
+                                        UEK.empleado = REQ.solicito
+                                LEFT JOIN
+                                    tblP_Usuario AS U
+                                    ON
+                                        U.id = UEK.idUsuario
+                                LEFT JOIN
+                                    tblCom_MAEPROV AS PROV
+                                    ON
+                                        PROV.PRVCCODIGO = OC.PERU_proveedor AND
+                                        PROV.PRVCESTADO = 'V'
+                                LEFT JOIN
+                                    [10.1.0.136].[003BDCOMUN].dbo.MAEART AS ART
+                                    ON
+                                        ART.ACODIGO = '0' + CAST(REQDET.insumo AS varchar)
+                                LEFT JOIN
+                                    tblP_Usuario_Enkontrol AS UEKCOMPRADOR
+                                    ON
+                                        UEKCOMPRADOR.empleado = REQ.comprador
+                                LEFT JOIN
+                                    tblP_Usuario AS UCOMPRADOR
+                                    ON
+                                        UCOMPRADOR.id = UEKCOMPRADOR.idUsuario
+                                LEFT JOIN
+                                    tblP_Usuario_Enkontrol AS UEKSUGERIDO
+                                    ON
+                                        UEKSUGERIDO.empleado = REQ.comprador
+                                LEFT JOIN
+                                    tblP_Usuario AS USUGERIDO
+                                    ON
+                                        USUGERIDO.id = UEKSUGERIDO.idUsuario
+                                LEFT JOIN
+                                    (
+                                        SELECT
+                                            MOV.cc, MOV.orden_ct, MOV.fecha, MOVDET.partida_oc
+                                        FROM
+                                            tblAlm_Movimientos AS MOV
+                                        INNER JOIN
+                                            tblAlm_MovimientosDet AS MOVDET
+                                            ON
+                                                MOVDET.almacen = MOV.almacen AND
+                                                MOVDET.tipo_mov = MOV.tipo_mov AND
+                                                MOVDET.numero = MOV.numero AND
+                                                MOVDET.estatusHabilitado = 1
+                                        WHERE
+                                            MOV.estatusHabilitado = 1
+                                    ) AS MOV ON MOV.cc = OC.cc AND MOV.orden_ct = OC.numero AND MOV.partida_oc = OCDET.partida
+                                WHERE
+                                    REQ.estatusRegistro = 1 AND
+                                    REQDET.estatusRegistro = 1 AND
+                                    REQ.cc IN @paramCCs AND
+                                    REQ.fecha BETWEEN @paramFechaInicial AND @paramFechaFinal
+                                    {0}
+                                ORDER BY
+                                    REQ.PERU_tipoRequisicion,
+                                    REQ.cc,
+                                    REQ.numero,
+                                    REQDET.partida
+                                    ", requisitor == 0 ? "" : " AND REQ.comprador = @paramRequisitor"),
+                            parametros = new
+                            {
+                                paramCCs = listaCC,
+                                paramFechaInicial = fechaInicial,
+                                paramFechaFinal = fechaFinal,
+                                paramRequisitor = requisitor
+                            }
+                        });
 
                         if (seguimientoEK != null)
                         {
-                            seguimiento = ((List<RequisicionSeguimientoDTO>)seguimientoEK.ToObject<List<RequisicionSeguimientoDTO>>())
-                                //.Where(x =>
-                                //    x.fechaEntrada == null || DateTime.Now.Subtract((DateTime)x.fechaEntrada).Days <= 5
-                                //)
-                            .ToList();
+                            if (seguimientoEK != null)
+                            {
+                                foreach (var segui in seguimientoEK)
+                                {
+
+                                    var seguimientoPeru = new RequisicionSeguimientoDTO();
+                                    seguimientoPeru.cc = segui.reqCc;
+                                    seguimientoPeru.requisitor = segui.reqSolicito;
+                                    seguimientoPeru.numeroRequisicion = segui.reqNumero;
+                                    seguimientoPeru.requisitorDesc = segui.solicitoNombreCompleto;
+                                    seguimientoPeru.fechaEntregaCompras = segui.ocDetFechaEntrega;
+                                    seguimientoPeru.fechaElaboracion = segui.reqFecha;
+                                    seguimientoPeru.tipoRequisicion = segui.reqPeruTipoRequisicion;
+                                    seguimientoPeru.economico = "";
+                                    seguimientoPeru.descripcion = segui.insumoNombre;
+                                    seguimientoPeru.comprador = segui.reqComprador;
+                                    seguimientoPeru.compradorDesc = segui.compradorUsuario;
+                                    seguimientoPeru.numeroOrdenCompra = segui.ocNumero;
+                                    seguimientoPeru.fechaCompra = segui.ocFecha;
+                                    seguimientoPeru.fechaAutorizacionCompra = !segui.ocFechaAutoriza.HasValue || segui.ocFechaAutoriza.Value < new DateTime(2022, 1, 1) ? (DateTime?)null : segui.ocFechaAutoriza.Value;
+                                    seguimientoPeru.fechaAutorizacionCompraDesc = segui.ocFechaAutoriza.HasValue ? segui.ocFechaAutoriza.Value.ToString("dd/MM/yyyy") : "";
+                                    seguimientoPeru.ordenCompraAutorizada = !segui.ocFecha.HasValue || segui.ocFecha.Value < new DateTime(2022, 1, 1) ? "NO" : "SI";
+                                    seguimientoPeru.proveedorPeru = segui.ocPeruProveedor ?? "";
+                                    seguimientoPeru.bienes_servicios = segui.ocBienesServicios ?? "";
+                                    seguimientoPeru.proveedorDesc = segui.provedorNombre ?? "";
+                                    seguimientoPeru.fechaAutorizaRe = segui.reqAutoriza < new DateTime(2022, 1, 1) ? (DateTime?)null : segui.reqAutoriza;
+                                    seguimientoPeru.almacen = segui.reqLibreAbordo;
+                                    seguimientoPeru.compraCantidadRecibida = segui.reqDetCantidadOrdenada;
+                                    seguimientoPeru.sugerido = segui.compradorSugerido;
+                                    seguimientoPeru.requisicion = segui.reqCc + "-" + segui.reqNumero;
+                                    seguimientoPeru.fechaElaboracionDesc = seguimientoPeru.fechaElaboracion.Value.ToShortDateString();
+                                    seguimientoPeru.fechaEntregaComprasDesc = "";
+                                    seguimientoPeru.sugeridoNum = segui.reqComprador;
+                                    seguimientoPeru.validadoAlmacen = segui.reqValidadoAlmacen ?? false;
+                                    seguimientoPeru.validadoCompras = segui.reqValidadoCompras;
+                                    seguimientoPeru.almacen = segui.reqLibreAbordo;
+                                    seguimientoPeru.fechaEntregaCompras = segui.reqFechaValidacionAlmacen;
+                                    seguimientoPeru.fechaEntregaComprasDesc = segui.reqFechaValidacionAlmacen.HasValue ? segui.reqFechaValidacionAlmacen.Value.ToShortDateString() : "";
+                                    seguimientoPeru.consigna = segui.reqConsigna.HasValue ? segui.reqConsigna.Value : false;
+                                    seguimientoPeru.licitacion = segui.reqLicitacion;
+                                    seguimientoPeru.crc = segui.reqCrc;
+                                    seguimientoPeru.convenio = segui.reqConvenio;
+                                    seguimientoPeru.fechaEntrada = segui.fechaEntrada;
+
+                                    if (seguimientoPeru.numeroOrdenCompra != null && seguimientoPeru.numeroOrdenCompra > 0)
+                                    {
+                                        seguimientoPeru.tiempoEntregaDias = segui.ocTiempoEntrega;
+                                        seguimientoPeru.tiempoEntregaComentarios = segui.ocTiempoEntregaComentarios;
+                                        seguimientoPeru.colocada = segui.ocColocada;
+                                        seguimientoPeru.colocadaFecha = segui.ocColocada ? segui.ocColocadaFecha : null;
+                                    }
+                                    else
+                                    {
+                                        seguimientoPeru.ordenCompraAutorizada = "";
+                                    }
+
+                                    seguimiento.Add(seguimientoPeru);
+
+                                }
+                            }
 
                             switch (estatus)
                             {
@@ -16848,33 +13907,7 @@ namespace Data.DAO.Enkontrol.Compras
         {
             try
             {
-                //                string query =
-                //                @"
-                //                SELECT 
-                //                    e.clave_empleado AS claveEmpleado, 
-                //                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado,
-                //                    p.descripcion AS puestoEmpleado,
-                //                    e.cc_contable AS ccID,
-                //                    c.descripcion as cc
-                //                FROM DBA.sn_empleados AS e
-                //                    INNER JOIN DBA.si_puestos as p on e.puesto=p.puesto
-                //                    INNER JOIN DBA.cc as c on e.cc_contable=c.cc
-                //                WHERE e.estatus_empleado ='A' AND nombreEmpleado LIKE ?  
-                //                ORDER BY e.ape_paterno DESC
-                //                ";
-
-                //                var odbc = new OdbcConsultaDTO()
-                //                {
-                //                    consulta = query,
-                //                    parametros = new List<OdbcParameterDTO>
-                //                    {
-                //                        new OdbcParameterDTO() { nombre = "term", tipo = OdbcType.VarChar, valor = String.Format("%{0}%", term) }
-                //                    }
-                //                };
-
                 List<EmpleadoAutocompleteDTO> listaEmpleados = new List<EmpleadoAutocompleteDTO>();
-
-                //                List<EmpleadoAutocompleteDTO> listaEmpleadosCP = _contextEnkontrol.Select<EmpleadoAutocompleteDTO>(EnkontrolEnum.CplanRh, odbc);
 
                 var listaEmpleadosCP = _context.Select<EmpleadoAutocompleteDTO>(new DapperDTO
                 {
@@ -16893,100 +13926,12 @@ namespace Data.DAO.Enkontrol.Compras
                     parametros = new { term = term }
                 });
 
-                listaEmpleadosCP.AddRange(_context.Select<EmpleadoAutocompleteDTO>(new DapperDTO
-                {
-                    baseDatos = MainContextEnum.GCPLAN,
-                    consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado,
-                                    p.descripcion AS puestoEmpleado,
-                                    e.cc_contable AS ccID,
-                                    c.descripcion as cc
-                                FROM tblRH_EK_Empleados AS e
-                                    INNER JOIN tblRH_EK_Puestos as p on e.puesto=p.puesto
-                                    INNER JOIN tblP_CC as c on e.cc_contable=c.cc
-                                WHERE e.estatus_empleado ='A' AND (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) LIKE CONCAT('%', @term, '%')
-                                ORDER BY e.ape_paterno DESC",
-                    parametros = new { term = term }
-                }));
-
                 foreach (var cp in listaEmpleadosCP)
                 {
                     cp.empresa = (int)EmpresaEnum.Construplan;
                 }
 
-                //List<EmpleadoAutocompleteDTO> listaEmpleadosARR = _contextEnkontrol.Select<EmpleadoAutocompleteDTO>(EnkontrolEnum.ArrenRh, odbc);
-
-                var listaEmpleadosARR = _context.Select<EmpleadoAutocompleteDTO>(new DapperDTO
-                {
-                    baseDatos = MainContextEnum.Arrendadora,
-                    consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado,
-                                    p.descripcion AS puestoEmpleado,
-                                    e.cc_contable AS ccID,
-                                    c.descripcion as cc
-                                FROM tblRH_EK_Empleados AS e
-                                    INNER JOIN tblRH_EK_Puestos as p on e.puesto=p.puesto
-                                    INNER JOIN tblP_CC as c on e.cc_contable=c.cc
-                                WHERE e.estatus_empleado ='A' AND (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) LIKE CONCAT('%', @term, '%')
-                                ORDER BY e.ape_paterno DESC",
-                    parametros = new { term }
-                });
-
-                foreach (var arr in listaEmpleadosARR)
-                {
-                    arr.empresa = (int)EmpresaEnum.Arrendadora;
-                }
-
-                var listaEmpleadosPeru = _context.Select<EmpleadoAutocompleteDTO>(new DapperDTO
-                {
-                    baseDatos = MainContextEnum.PERU,
-                    consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado,
-                                    p.descripcion AS puestoEmpleado,
-                                    e.cc_contable AS ccID,
-                                    c.descripcion as cc
-                                FROM tblRH_EK_Empleados AS e
-                                    INNER JOIN tblRH_EK_Puestos as p on e.puesto=p.puesto
-                                    INNER JOIN tblP_CC as c on e.cc_contable=c.cc
-                                WHERE e.estatus_empleado ='A' AND (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) LIKE CONCAT('%', @term, '%')
-                                ORDER BY e.ape_paterno DESC",
-                    parametros = new { term }
-                });
-
-                foreach (var item in listaEmpleadosPeru)
-                {
-                    item.empresa = (int)EmpresaEnum.Peru;
-                }
-
-                var listaEmpleadosColombia = _context.Select<EmpleadoAutocompleteDTO>(new DapperDTO
-                {
-                    baseDatos = MainContextEnum.Colombia,
-                    consulta = @"SELECT 
-                                    e.clave_empleado AS claveEmpleado, 
-                                    (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) AS nombreEmpleado,
-                                    p.descripcion AS puestoEmpleado,
-                                    e.cc_contable AS ccID,
-                                    c.descripcion as cc
-                                FROM tblRH_EK_Empleados AS e
-                                    INNER JOIN tblRH_EK_Puestos as p on e.puesto=p.puesto
-                                    INNER JOIN tblP_CC as c on e.cc_contable=c.cc
-                                WHERE e.estatus_empleado ='A' AND (TRIM(e.nombre) + ' ' + TRIM(e.ape_paterno) + ' ' + TRIM(e.ape_materno)) LIKE CONCAT('%', @term, '%')
-                                ORDER BY e.ape_paterno DESC",
-                    parametros = new { term }
-                });
-
-                foreach (var item in listaEmpleadosColombia)
-                {
-                    item.empresa = (int)EmpresaEnum.Colombia;
-                }
-
                 listaEmpleados.AddRange(listaEmpleadosCP);
-                listaEmpleados.AddRange(listaEmpleadosARR);
-                listaEmpleados.AddRange(listaEmpleadosPeru);
-                listaEmpleados.AddRange(listaEmpleadosColombia);
 
                 return listaEmpleados.Select(x => new
                 {

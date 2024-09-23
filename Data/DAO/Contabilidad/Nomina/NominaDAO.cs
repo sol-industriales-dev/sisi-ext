@@ -6434,10 +6434,13 @@ namespace Data.DAO.Contabilidad.Nomina
                             decimal primaDominical = 0;
 
                             decimal bonoZona = importes != null ? importes.bono_FC : 0;
+                            decimal bonoCuadrado = x.bonoCuadrado;
 
-                            decimal sueldoSemanal = importes != null ? importes.base_Emp + importes.complemento_Emp + bonoZona + x.bonoCuadrado : 0;
+                            // decimal sueldoSemanal = importes != null ? importes.base_Emp + importes.complemento_Emp + bonoZona + x.bonoCuadrado : 0;
+                            decimal sueldoSemanal = importes != null ? importes.base_Emp + importes.complemento_Emp + bonoZona : 0;
                             decimal sueldoDia = importes != null ? (importes.base_Emp + importes.complemento_Emp + bonoZona) / tipoNominaDias : 0;
                             decimal sueldoHora = importes != null ? ((importes.base_Emp + importes.complemento_Emp + bonoZona) / 55) * 2 : 0;
+                            decimal sueldoPeriodo = importes != null ? (importes.base_Emp + importes.complemento_Emp + bonoZona + x.bonoCuadrado): 0;
 
                             bonoZona = bonoZona * (((decimal)totalDiasFinal + (decimal)totalDiasVacacionesFinal) / (decimal)tipoNominaDias);
 
@@ -6468,16 +6471,22 @@ namespace Data.DAO.Contabilidad.Nomina
                             decimal totalNominaFinal = (baseNomina + baseNominaVacaciones) - sindicato - fondoAhorroNomina - descuentosFinal - apoyoColectivoFinal - prestamoFinal - axaFinal - famsaFinal - pensionFinal - fonacotFinal - infonavitFinal;
                             decimal totalComplementoFinal = complementoFinal - fondoAhorroComplemento + bonoProduccion + bonoZona + otrosFinal + primaVacacionalFinal + primaDominical + (hrExtraFinal * sueldoHora) + ((decimal)totalDiasExtraFinal * sueldoDia) + ((decimal)totalDiasFestivosFinal * sueldoDia * 2);
                             decimal totalPagar = totalNominaFinal + totalComplementoFinal;
+                            decimal septimoDia = Math.Floor(totalDiasFinal * (decimal)0.166666666666667);
 
                             return new tblC_Nom_PreNomina_Det
                             {
+                                puesto = x.puestoDesc,
+                                nominaBase = baseNomina,
+
                                 empleadoCve = x.clave_empleado,
                                 empleadoNombre = x.ape_paterno + ' ' + x.ape_materno + " " + x.nombre,
-                                puesto = x.puestoDesc,
                                 sueldoSemanal = sueldoSemanal,
                                 dias = totalDiasFinal,
-                                nominaBase = baseNomina,
                                 diasVacaciones = totalDiasVacacionesFinal,
+                                septimoDia = septimoDia,
+                                bonoCuadrado = bonoCuadrado,
+                                sueldoPeriodo = sueldoPeriodo,
+                                
                                 nominaBaseVacaciones = baseNominaVacaciones,
                                 sindicato = sindicato,
                                 fondoAhorroNomina = fondoAhorroNomina,

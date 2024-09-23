@@ -18,6 +18,8 @@ namespace Core.Entity.Administrativo.Contabilidad.Nomina
 	    public string puesto { get; set; }
 	    public decimal sueldoSemanal { get; set; }
 	    public decimal dias { get; set; }
+        public decimal septimoDia { get; set; }
+        public decimal sueldoPeriodo { get; set; }
 	    public decimal nominaBase { get; set; }
         public decimal diasVacaciones { get; set; }
         public decimal nominaBaseVacaciones { get; set; }

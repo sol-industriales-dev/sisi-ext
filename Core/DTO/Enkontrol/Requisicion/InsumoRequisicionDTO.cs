@@ -9,6 +9,7 @@ namespace Core.DTO.Enkontrol.Requisicion
     public class InsumoRequisicionDTO
     {
         public string id { get; set; }
+        public int insumo { get; set; }
         public string value { get; set; }
         public string descripcion { get; set; }
         public string unidad { get; set; }
@@ -20,6 +21,6 @@ namespace Core.DTO.Enkontrol.Requisicion
         public decimal costoPromedioEntrada { get; set; }
         public int color_resguardo { get; set; }
         public int? compras_req { get; set; }
-        public int ultimaCompra { get; set; }
+        public decimal ultimaCompra { get; set; }
     }
 }

@@ -34762,15 +34762,50 @@ FROM (
         {
             if (vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Peru)
             {
-                if (vSesiones.sesionUsuarioDTO.id == 3807 || vSesiones.sesionUsuarioDTO.id == 1175)
+                using (var ctx = new MainContext())
                 {
-                    return new
-                    {
-                        periodoContable = 0,
-                        flagPeriodoAbierto = true
-                    };
-                }
+                    // Obtenemos el periodo contable correspondiente al año y mes actuales
+                    var periodoContable = ctx.tblCom_PeriodoContable
+                        .Where(p => p.year == DateTime.Now.Year && p.mes == DateTime.Now.Month)
+                        .FirstOrDefault(); // Obtenemos el primer registro o null si no existe
 
+                    if (periodoContable != null)
+                    {
+                        // Comprobamos si el campo 'soc' tiene el valor "N"
+                        if (periodoContable.soc == "N")
+                        {
+                            return new
+                            {
+                                periodoContable = periodoContable,
+                                flagPeriodoAbierto = true
+                            };
+                        }
+                        else
+                        {
+                            return null; // Periodo no abierto
+                        }
+                    }
+                    else
+                    {
+                        return null; // No se encontró periodo contable
+                    }
+                }
+            }
+            else
+            {
+                // Para la empresa "Peru", devolvemos un valor predefinido
+                return new
+                {
+                    periodoContable = 0,
+                    flagPeriodoAbierto = true
+                };
+            }
+        }
+
+        public dynamic getPeriodoContable_old()
+        {
+            if (vSesiones.sesionEmpresaActual != (int)EmpresaEnum.Peru)
+            {
                 var periodoContableEK = consultaCheckProductivo(string.Format(@"SELECT * FROM sc_mesproc WHERE year = {0} AND mes = {1}", DateTime.Now.Year, DateTime.Now.Month));
 
                 if (periodoContableEK != null)
@@ -34806,6 +34841,54 @@ FROM (
         }
 
         public dynamic getPeriodoContableCompra(string cc, int numero)
+        {
+            using (var ctx = new MainContext())
+            {
+                // Obtener la compra basada en cc y numero
+                var compra = ctx.tblCom_OrdenCompra
+                    .Where(o => o.cc == cc && o.numero == numero)
+                    .FirstOrDefault(); // Obtener la primera coincidencia o null si no existe
+
+                if (compra != null)
+                {
+                    // Calcular el mes y el año de la compra
+                    var mesCompra = compra.fecha.Month;
+                    var anioCompra = compra.fecha.Year;
+
+                    // Obtener el periodo contable correspondiente al año y mes de la compra
+                    var periodoContable = ctx.tblCom_PeriodoContable
+                        .Where(p => p.year == anioCompra && p.mes == mesCompra)
+                        .FirstOrDefault(); // Obtener el primer registro o null si no existe
+
+                    if (periodoContable != null)
+                    {
+                        // Verificar si el periodo contable está abierto (soc == "N")
+                        if (periodoContable.soc == "N")
+                        {
+                            return new
+                            {
+                                periodoContable = periodoContable,
+                                flagPeriodoAbierto = true
+                            };
+                        }
+                        else
+                        {
+                            return null; // Periodo no abierto
+                        }
+                    }
+                    else
+                    {
+                        return null; // No se encontró el periodo contable
+                    }
+                }
+                else
+                {
+                    return null; // No se encontró la compra
+                }
+            }
+        }
+
+        public dynamic getPeriodoContableCompra_old(string cc, int numero)
         {
             var compraEK = ((List<dynamic>)consultaCheckProductivo(
                 string.Format(@"SELECT * FROM so_orden_compra WHERE cc = '{0}' AND numero = {1}", cc, numero)

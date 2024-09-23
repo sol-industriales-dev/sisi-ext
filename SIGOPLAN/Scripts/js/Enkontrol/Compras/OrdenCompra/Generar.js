@@ -892,9 +892,9 @@
         }
 
         function initCbo() {
-            selectCC.fillCombo('/Enkontrol/OrdenCompra/FillComboCcComCompradorModalEditar', null, false);
+            selectCC.fillCombo('/Enkontrol/Requisicion/FillComboCcAsigReq', null, false);
             // selectCCEditar.fillCombo('/Enkontrol/OrdenCompra/FillComboCcComCompradorModalEditar', null, false);
-            selectCCEditar.fillCombo('/Enkontrol/OrdenCompra/FillComboCc', null, false);
+            selectCCEditar.fillCombo('/Enkontrol/Requisicion/FillComboCcAsigReq', null, false);
             selectLab.fillCombo('/Enkontrol/Requisicion/FillComboAlmacenSurtir', null, false);
             selectTipoOC.fillCombo('/Enkontrol/Requisicion/FillComboTipoReq', null, false);
 

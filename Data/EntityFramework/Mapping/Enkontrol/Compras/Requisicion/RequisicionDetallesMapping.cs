@@ -33,6 +33,8 @@ namespace Data.EntityFramework.Mapping.Enkontrol.Compras.Requisicion
             Property(x => x.observaciones).HasColumnName("observaciones");
             Property(x => x.comentarioSurtidoQuitar).HasColumnName("comentarioSurtidoQuitar");
             Property(x => x.estatusRegistro).HasColumnName("estatusRegistro");
+            Property(x => x.numero).HasColumnName("numero");
+            Property(x => x.cc).HasColumnName("cc");
 
             ToTable("tblCom_ReqDet");
         }

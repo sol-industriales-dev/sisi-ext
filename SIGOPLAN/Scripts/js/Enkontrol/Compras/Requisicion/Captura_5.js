@@ -148,7 +148,7 @@
                 setReq();
             }
 
-            // checkPeriodoContable();
+            checkPeriodoContable();
         }
 
 

@@ -260,533 +260,438 @@
                 fixedHeader: true,
                 drawCallback: function (settings) {
                     let tabIndex = 1;
-                    tablaPrenomina.find('input.captura').blur(function (e) {
-                        var fila = ($(this).closest("tr")[0].rowIndex) - 1;
-                        var columna = $(this).closest("td")[0].cellIndex;
-
-                        if (tipoNomina == 10) {
-                            switch (columna) {
-                                case 5: dtTablaPrenomina.row(fila).data().dias = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                case 8: dtTablaPrenomina.row(fila).data().diaFestivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                case 10: dtTablaPrenomina.row(fila).data().pensionAlimenticia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                            }
+            
+                    const columnMap = {
+                        4: 'dias',
+                        5: 'diasVacaciones',
+                        6: 'descuento',
+                        7: 'apoyoColectivo',
+                        8: 'prestamo',
+                        9: 'axa',
+                        10: 'pensionAlimenticia',
+                        11: 'fonacot',
+                        12: 'infonavit',
+                        13: 'fondoAhorroNomina',
+                        14: 'fondoAhorroComplemento',
+                        15: 'bonoProduccion',
+                        16: 'otros',
+                        17: 'primaVacacional',
+                        18: 'hrExtra',
+                        19: 'diaHrExtra',
+                        20: 'diaFestivo',
+                    };
+            
+                    function handleInputBlur(event) {
+                        const $input = $(event.target);
+                        const fila = ($input.closest("tr")[0].rowIndex) - 1;
+                        const columna = $input.closest("td")[0].cellIndex;
+                        const property = columnMap[columna];
+            
+                        if (property) {
+                            dtTablaPrenomina.row(fila).data()[property] = Number($input.val().replace(/[^0-9.-]+/g, ""));
                         }
-                        else {
-
-                            if (empresa == 6) {
-                                //#region PERU
-                                switch (columna) {
-                                    case 3:
-                                        dtTablaPrenomina.row(fila).data().dias = Number($(this).val().replace(/[^0-9.-]+/g, ""));
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().nominaBase / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().complementoNomina / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        break;
-
-                                    case 4: dtTablaPrenomina.row(fila).data().onp = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 5: dtTablaPrenomina.row(fila).data().afp = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 6: dtTablaPrenomina.row(fila).data().afpSeguros = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 7: dtTablaPrenomina.row(fila).data().afpComision = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 8: dtTablaPrenomina.row(fila).data().sta = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 9: dtTablaPrenomina.row(fila).data().esSalud = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 10: dtTablaPrenomina.row(fila).data().bonoProduccion = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 11: dtTablaPrenomina.row(fila).data().otros = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 12: dtTablaPrenomina.row(fila).data().primaVacacional = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 13: dtTablaPrenomina.row(fila).data().hrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 14: dtTablaPrenomina.row(fila).data().diaHrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 15: dtTablaPrenomina.row(fila).data().asigFamiliar = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 16: dtTablaPrenomina.row(fila).data().descuento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 17: dtTablaPrenomina.row(fila).data().adelantoQuincena = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                }
-                                //#region PERU
-                            }
-                            else if (empresa == 3) {
-                                switch (columna) {
-                                    //#region COLOMBIA
-                                    case 3: dtTablaPrenomina.row(fila).data().dias = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 4: dtTablaPrenomina.row(fila).data().diasVacaciones = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 5: dtTablaPrenomina.row(fila).data().primaVacacional = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 6: dtTablaPrenomina.row(fila).data().diasIncapacidad = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 7: dtTablaPrenomina.row(fila).data().importeIncapacidad = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 8: dtTablaPrenomina.row(fila).data().licenciaLuto = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 9: dtTablaPrenomina.row(fila).data().prestamo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 10: dtTablaPrenomina.row(fila).data().pensionAlimenticia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 11: dtTablaPrenomina.row(fila).data().onp = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 12: dtTablaPrenomina.row(fila).data().bonoRecreacion = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 13: dtTablaPrenomina.row(fila).data().esSalud = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 14: dtTablaPrenomina.row(fila).data().otros = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 15: dtTablaPrenomina.row(fila).data().transporte = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 16: dtTablaPrenomina.row(fila).data().fsp = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 17: dtTablaPrenomina.row(fila).data().afp = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 18: dtTablaPrenomina.row(fila).data().retencion = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 19: dtTablaPrenomina.row(fila).data().descuento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 20: dtTablaPrenomina.row(fila).data().hrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 21: dtTablaPrenomina.row(fila).data().diaHrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 22: dtTablaPrenomina.row(fila).data().cesantia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 23: dtTablaPrenomina.row(fila).data().interesCesantia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 24: dtTablaPrenomina.row(fila).data().retroactivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 25: dtTablaPrenomina.row(fila).data().prima = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 26: dtTablaPrenomina.row(fila).data().hrExtraDiurnasDominicales = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 27: dtTablaPrenomina.row(fila).data().hrNocturnas = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    //#endregion
-                                }
-                            }
-                            else {
-                                switch (columna) {
-                                    case 4:
-                                        dtTablaPrenomina.row(fila).data().dias = Number($(this).val().replace(/[^0-9.-]+/g, ""));
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().nominaBase / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().complementoNomina / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        break;
-                                    case 5:
-                                        dtTablaPrenomina.row(fila).data().diasVacaciones = Number($(this).val().replace(/[^0-9.-]+/g, ""));
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().nominaBase / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        //dtTablaPrenomina.row(fila).data().fondoAhorroNomina = ((dtTablaPrenomina.row(fila).data().complementoNomina / (tipoPeriodo == "1" ? 7 : 15)) * Number($(this).val().replace(/[^0-9.-]+/g, ""))) * 0.025
-                                        break;
-                                    case 6: dtTablaPrenomina.row(fila).data().descuento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 7: dtTablaPrenomina.row(fila).data().apoyoColectivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 8: dtTablaPrenomina.row(fila).data().prestamo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 9: dtTablaPrenomina.row(fila).data().axa = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    //case 10: dtTablaPrenomina.row(fila).data().descuentoFamsa = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 10: dtTablaPrenomina.row(fila).data().pensionAlimenticia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 11: dtTablaPrenomina.row(fila).data().fonacot = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 12: dtTablaPrenomina.row(fila).data().infonavit = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 13: dtTablaPrenomina.row(fila).data().fondoAhorroNomina = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 14: dtTablaPrenomina.row(fila).data().fondoAhorroComplemento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 15: dtTablaPrenomina.row(fila).data().bonoProduccion = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 16: dtTablaPrenomina.row(fila).data().otros = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 17: dtTablaPrenomina.row(fila).data().primaVacacional = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-
-                                    case 18: dtTablaPrenomina.row(fila).data().hrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 19: dtTablaPrenomina.row(fila).data().diaHrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                    case 20: dtTablaPrenomina.row(fila).data().diaFestivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
-                                }
-                            }
+                    }
+            
+                    function formatCurrencyInput(event) {
+                        const $input = $(event.target);
+                        if ($input.val() === '') {
+                            $input.val("0.00");
+                        } else {
+                            $input.val(parseFloat($input.val()).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
                         }
-                    });
+                        $input.css("background-color", $input.val() !== "0.00" ? "#B4C6E7" : "-internal-light-dark(rgb(255, 255, 255), rgb(59, 59, 59));");
+                    }
+            
+                    tablaPrenomina.find('input.captura').blur(handleInputBlur);
                     tablaPrenomina.find('input.captura').focus(function (e) {
                         $(this).select();
                     });
-                    tablaPrenomina.find('input.moneda').blur(function (e) {
-                        if ($(this).val() == '') $(this).val("0.00");
-                        else $(this).val(parseFloat($(this).val()).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
-
-                        if ($(this).val() != "0.00") $(this).css("background-color", "#B4C6E7");
-                        else $(this).css("background-color", "-internal-light-dark(rgb(255, 255, 255), rgb(59, 59, 59));");
-                    });
+            
+                    tablaPrenomina.find('input.moneda').blur(formatCurrencyInput);
                     tablaPrenomina.find('input.moneda').focus(function (e) {
                         $(this).val(Number($(this).val().replace(/[^0-9.-]+/g, "")));
                     });
-
-                    if (tipoNomina == 10) {
-                        tablaPrenomina.find('input.dias').each(function () { $(this).attr("tabindex", tabIndex++); });
-                        tablaPrenomina.find('input.diaFestivo').each(function () { $(this).attr("tabindex", tabIndex++); });
-                        tablaPrenomina.find('input.pensionAlimenticia').each(function () { $(this).attr("tabindex", tabIndex++); });
-                    }
-                    else {
-                        if (empresa == 6) {
-                            //#region PERU
-                            tablaPrenomina.find('input.dias').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.onp').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.afp').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.afpSeguros').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.afpComision').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.sta').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.esSalud').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.bonoProduccion').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.otros').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.primaVacacional').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.hrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.diaHrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.asigFamiliar').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.descuento').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.adelantoQuincena').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            //#endregion
-                        }
-                        else {
-                            tablaPrenomina.find('input.dias').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.diasVacaciones').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.descuento').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.apoyoColectivo').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.licenciaLuto').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.prestamo').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.axa').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            //tablaPrenomina.find('input.descuentoFamsa').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.pensionAlimenticia').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.fonacot').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.infonavit').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.fondoAhorroNomina').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.fondoAhorroComplemento').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.bonoProduccion').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.otros').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.primaVacacional').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.hrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.diaHrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.diaFestivo').each(function () { $(this).attr("tabindex", tabIndex++); });
-
-                            tablaPrenomina.find('input.cesantia').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.interesCesantia').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.retroactivo').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.prima').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.hrExtraDiurnasDominicales').each(function () { $(this).attr("tabindex", tabIndex++); });
-                            tablaPrenomina.find('input.hrNocturnas').each(function () { $(this).attr("tabindex", tabIndex++); });
-                        }
-                    }
+            
+                    // Asignar tabindex a todos los inputs relevantes
+                    const inputs = ['dias', 'onp', 'afp', 'afpSeguros', 'afpComision', 'sta', 'esSalud', 'bonoProduccion', 'otros', 'primaVacacional', 'hrExtra', 'diaHrExtra', 'asigFamiliar', 'descuento', 'adelantoQuincena'];
+                    inputs.forEach(function (inputClass) {
+                        tablaPrenomina.find(`input.${inputClass}`).each(function () {
+                            $(this).attr("tabindex", tabIndex++);
+                        });
+                    });
                 },
-                columns:
-                    tipoNomina == 10 ? (
-                        [
-                            { data: 'id', title: 'id', visible: false },
-                            { data: 'prenominaID', title: 'nominaID', visible: false },
-                            { data: 'orden', title: 'Orden', visible: false },
-                            { data: 'empleadoCve', title: 'Clave<br>Empl.' },
-                            { data: 'empleadoNombre', title: 'Nombre Empleado' },
-                            { data: 'puesto', title: 'Puesto' },
-                            {
-                                data: 'observaciones',
-                                title: 'Fecha Alta',
-                            },
-                            {
-                                data: 'sueldoSemanal',
-                                title: 'Sueldo Periodo',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' sueldo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                // render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }
-                            },
-                            {
-                                data: 'dias',
-                                title: 'Días<br>Aguinaldo',
-                                //render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }, 
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                                //visible: false  
-                            },
-                            {
-                                data: 'nominaBase',
-                                title: 'Base Nomina',
-                                render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
-                                visible: false
-                            },
-                            {
-                                data: 'diasVacaciones',
-                                title: 'Días Aguinaldo Vacaciones',
-                                //render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }, 
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'nominaBaseVacaciones',
-                                title: 'Base Nomina Vacaciones',
-                                render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
-                                visible: false
-                            },
-                            {
-                                data: 'descuento',
-                                title: 'Descuentos',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'apoyoColectivo',
-                                title: 'Apoyo Colectivo',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' apoyoColectivo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'prestamo',
-                                title: 'Préstamo',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' prestamo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'axa',
-                                title: 'Axa',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' axa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'descuentoFamsa',
-                                title: 'Famsa',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuentoFamsa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-
-                            {
-                                data: 'fonacot',
-                                title: 'Fonacot',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fonacot captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'infonavit',
-                                title: 'Infonavit',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' infonavit captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            { data: 'sindicato', title: 'Sindicato', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            {
-                                data: 'fondoAhorroNomina',
-                                title: '2.5% Fondo Ahorro',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroNomina captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'diaExtraValor',
-                                title: 'Dias<br>Disfrutados',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' diaExtraValor captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : 'disabled') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'totalNomina',
-                                title: 'Total<br>Aguinaldo',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' totalNomina captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : 'disabled') + '>' },
-                            },
-                            { data: 'complementoNomina', title: 'Comple-mento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            {
-                                data: 'fondoAhorroComplemento',
-                                title: '2.5% Fondo Ahorro',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroComplemento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },//21
-                            { data: 'onp', title: 'ONP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'afp', title: 'AFP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'afpSeguros', title: 'AFP<brSeguros', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'afpComision', title: 'AFP<brComisión', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'sta', title: '5TA', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'esSalud', title: 'Aportación<br>esSalud', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            //{ data: 'fondoAhorroComplemento', title: '2% Fondo Ahorro', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false  },
-                            { data: 'bonoZona', title: 'Bono Zona', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            {
-                                data: 'bonoProduccion',
-                                title: 'Bono de Producción',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' bonoProduccion captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'otros',
-                                title: 'Otros',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' otros captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            {
-                                data: 'diaHrExtra',
-                                title: 'Años<br>Laborados',
-                                render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaHrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : 'disabled') + '>' },
-                                //visible: false
-                            },
-                            {
-                                data: 'diaFestivo',
-                                title: 'Días<br>Vacaciones',
-                                render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaFestivo captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                            },
-                            {
-                                data: 'primaVacacional',
-                                title: 'Prima<br>Vacacional',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' primaVacacional captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : 'disabled') + '>' }
-                            },//31
-                            {
-                                data: 'pensionAlimenticia',
-                                title: 'Pensión',
-                                render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' pensionAlimenticia captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                            },
-                            { data: 'primaDominical', title: 'Prima Dominical', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            {
-                                data: 'hrExtra',
-                                title: 'Hrs.<br>Extras<br>Diurnas',
-                                render: function (data, type, row) { return '<input type="number" class="hrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                                visible: false
-                            },
-                            { data: 'hrExtraValor', title: 'Valor Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'importeExtra', title: 'Importe de Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-
-
-                            { data: 'importeDiaExtra', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-
-                            { data: 'diaFestivoValor', title: 'Valor Día Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'importeDiaFestivo', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'totalComplemento', title: 'Total de Complemento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            //39
-                            { data: 'asigFamiliar', title: 'Asig.<br>Familiar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'totalPagar', title: 'Total a Pagar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'porcentajeTotalPagar', title: '%', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            {
-                                data: 'totalRealPagar',
-                                title: 'Total<br>A Pagar',
-                                render: function (data, type, row) { return '$' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }
-                            },
-                            { data: 'valesDespensa', title: 'Vales<br>Despensa', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'totalDeposito', title: 'Total<br>Depósito', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                            { data: 'cuenta', title: 'Cuenta', visible: false },
-                            { data: 'clabeInterbancaria', title: 'Clabe<br>Interbancaria', visible: false },
-                            { data: 'banco', title: 'Banco', visible: false }
-                        ]
-                    ) :
-                    [
-                        { data: 'id', title: 'id', visible: false },
-                        { data: 'fechaAntiguedad', title: 'Fecha<br>Alta' },
-                        { data: 'prenominaID', title: 'nominaID', visible: false },
-                        { data: 'orden', title: 'Orden', visible: false },
-                        { data: 'empleadoCve', title: 'Clave<br>Empl.' },
-                        { data: 'empleadoNombre', title: 'Nombre<br>Empleado' },
-                        { data: 'puesto', title: 'Puesto', visible: false },
-                        {
-                            data: 'sueldoSemanal',
-                            title: 'Sueldo Periodo',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' sueldo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                            // render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }
+                columns: [
+                    { data: 'id', title: 'id', visible: false },
+                    // { data: 'fechaAntiguedad', title: 'Fecha<br>Alta', visible: false},
+                    // { data: 'prenominaID', title: 'nominaID', visible: false },
+                    // { data: 'puesto', title: 'Puesto', visible: false },
+                    // {
+                    //     data: 'nominaBase',
+                    //     title: 'Base Nomina',
+                    //     render: function (data, type, row) {
+                    //         return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                    //     },
+                    //     visible: false
+                    // },
+                    { data: 'orden', title: 'Orden'},
+                    { data: 'empleadoCve', title: 'Clave<br>Empl.' },
+                    { data: 'empleadoNombre', title: 'Nombre<br>Empleado' },
+                    {
+                        data: 'sueldoSemanal',
+                        title: 'Sueldo Periodo',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} sueldo captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'dias',
+                        title: 'Días   ',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} dias captura text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'diasVacaciones',
+                        title: 'D.Vac / P.Gose',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} diasVacaciones captura text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'septimoDia',
+                        title: 'Septimo Día   ',
+                        render: function (data, type, row) {
+                            return `<input class="dias text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'bonoCuadrado',
+                        title: 'Bono Cuadrado',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'dias',
-                            title: 'Días   ',
-                            //render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }, 
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                            //visible: false  
+                        visible: false
+                    },
+                    {
+                        data: 'nominaBaseVacaciones',
+                        title: 'Base Nomina Vacaciones',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'nominaBase',
-                            title: 'Base Nomina',
-                            render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
-                            visible: false
+                        visible: false
+                    },
+                    {
+                        data: 'descuento',
+                        title: 'Descuentos',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} descuento captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'apoyoColectivo',
+                        title: 'Apoyo Colectivo',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} apoyoColectivo captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'prestamo',
+                        title: 'Préstamo',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} prestamo captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'axa',
+                        title: 'Otras percepciones',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} axa captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'descuentoFamsa',
+                        title: 'Famsa',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} descuentoFamsa captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
                         },
-                        {
-                            data: 'diasVacaciones',
-                            title: 'Días<br>Vac',
-                            //render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }, 
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' diasVacaciones captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                            //visible: false  
+                        visible: false
+                    },
+                    {
+                        data: 'pensionAlimenticia',
+                        title: 'Pensión',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} pensionAlimenticia captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'fonacot',
+                        title: 'Fonacot',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} fonacot captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'infonavit',
+                        title: 'Infonavit',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} infonavit captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'sindicato',
+                        title: 'Sindicato',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'nominaBaseVacaciones',
-                            title: 'Base Nomina Vacaciones',
-                            render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
-                            visible: false
+                        visible: false
+                    },
+                    {
+                        data: 'fondoAhorroNomina',
+                        title: '2.5% Fondo Ahorro',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} fondoAhorroNomina captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
                         },
-                        {
-                            data: 'descuento',
-                            title: 'Descuentos',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'totalNomina',
+                        title: 'Total Base Nómina',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'apoyoColectivo',
-                            title: 'Apoyo Colectivo',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' apoyoColectivo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'complementoNomina',
+                        title: 'Comple-mento',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'prestamo',
-                            title: 'Préstamo',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' prestamo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'fondoAhorroComplemento',
+                        title: '2.5% Fondo Ahorro',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} fondoAhorroComplemento captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
                         },
-                        {
-                            data: 'axa',
-                            title: 'Otras percepciones',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' axa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'onp',
+                        title: 'ONP',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'descuentoFamsa',
-                            title: 'Famsa',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuentoFamsa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-                            visible: false
+                        visible: false
+                    },
+                    {
+                        data: 'afp',
+                        title: 'AFP',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'pensionAlimenticia',
-                            title: 'Pensión',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' pensionAlimenticia captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'afpSeguros',
+                        title: 'AFP<brSeguros',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'fonacot',
-                            title: 'Fonacot',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fonacot captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
-
+                        visible: false
+                    },
+                    {
+                        data: 'afpComision',
+                        title: 'AFP<brComisión',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'infonavit',
-                            title: 'Infonavit',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' infonavit captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'sta',
+                        title: '5TA',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        { data: 'sindicato', title: 'Sindicato', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'fondoAhorroNomina',
-                            title: '2.5% Fondo Ahorro',
-                            visible: false,
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroNomina captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'esSalud',
+                        title: 'Aportación<br>esSalud',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        //{ data: 'fondoAhorroNomina', title: '2% Fondo Ahorro', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false  },
-                        { data: 'totalNomina', title: 'Total Base Nómina', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'complementoNomina', title: 'Comple-mento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'fondoAhorroComplemento',
-                            title: '2.5% Fondo Ahorro',
-                            visible: false,
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroComplemento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                        },//21
-                        { data: 'onp', title: 'ONP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'afp', title: 'AFP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'afpSeguros', title: 'AFP<brSeguros', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'afpComision', title: 'AFP<brComisión', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'sta', title: '5TA', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'esSalud', title: 'Aportación<br>esSalud', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        //{ data: 'fondoAhorroComplemento', title: '2% Fondo Ahorro', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false  },
-                        { data: 'bonoZona', title: 'Bono Zona', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'bonoProduccion',
-                            title: 'Bono de Producción',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' bonoProduccion captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'bonoZona',
+                        title: 'Bono Zona',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'otros',
-                            title: 'Otros',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' otros captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+                        visible: false
+                    },
+                    {
+                        data: 'bonoProduccion',
+                        title: 'Bono de Producción',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} bonoProduccion captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'otros',
+                        title: 'Otros',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} otros captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'primaVacacional',
+                        title: 'Prima<br>Vacacional',
+                        render: function (data, type, row) {
+                            return `<input class="${data == 0 ? '' : 'aplica'} primaVacacional captura moneda text-right" value=${parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'primaDominical',
+                        title: 'Prima Dominical',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        {
-                            data: 'primaVacacional',
-                            title: 'Prima<br>Vacacional',
-                            render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' primaVacacional captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
-                        },//31
-                        { data: 'primaDominical', title: 'Prima Dominical', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'hrExtra',
-                            title: 'Horas Extra',
-                            render: function (data, type, row) { return '<input type="number" class="hrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+                        visible: false
+                    },
+                    {
+                        data: 'hrExtra',
+                        title: 'Horas Extra',
+                        render: function (data, type, row) {
+                            return `<input type="number" class="hrExtra captura text-right" value=${parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'hrExtraValor',
+                        title: 'Valor Horas Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        { data: 'hrExtraValor', title: 'Valor Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'importeExtra', title: 'Importe de Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'diaHrExtra',
-                            title: 'Días<br>Extra',
-                            render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaHrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+                        visible: false
+                    },
+                    {
+                        data: 'importeExtra',
+                        title: 'Importe de Horas Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        { data: 'diaExtraValor', title: 'Valor Día Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'importeDiaExtra', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'diaFestivo',
-                            title: 'Día<br>Festivo',
-                            render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaFestivo captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+                        visible: false
+                    },
+                    {
+                        data: 'diaHrExtra',
+                        title: 'Días<br>Extra',
+                        render: function (data, type, row) {
+                            return `<input type="number" oninput="this.value = Math.floor(this.value);" class="diaHrExtra captura text-right" value=${parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'diaExtraValor',
+                        title: 'Valor Día Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        { data: 'diaFestivoValor', title: 'Valor Día Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'importeDiaFestivo', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'totalComplemento', title: 'Total de Complemento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        //39
-                        { data: 'asigFamiliar', title: 'Asig.<br>Familiar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'totalPagar', title: 'Total a Pagar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'porcentajeTotalPagar', title: '%', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        {
-                            data: 'totalRealPagar',
-                            title: 'Total<br>A Pagar',
-                            render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
-                            visible: false
+                        visible: false
+                    },
+                    {
+                        data: 'importeDiaExtra',
+                        title: 'Importe de Días Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                         },
-                        { data: 'valesDespensa', title: 'Vales<br>Despensa', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'totalDeposito', title: 'Total<br>Depósito', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
-                        { data: 'cuenta', title: 'Cuenta', visible: false },
-                        { data: 'clabeInterbancaria', title: 'Clabe<br>Interbancaria', visible: false },
-                        { data: 'banco', title: 'Banco', visible: false },
-                        { data: 'observaciones', title: 'Observaciones', visible: false },
-
-                    ],
+                        visible: false
+                    },
+                    {
+                        data: 'diaFestivo',
+                        title: 'Día<br>Festivo',
+                        render: function (data, type, row) {
+                            return `<input type="number" oninput="this.value = Math.floor(this.value);" class="diaFestivo captura text-right" value=${parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")} ${validada ? 'disabled' : ''}>`;
+                        }
+                    },
+                    {
+                        data: 'diaFestivoValor',
+                        title: 'Valor Día Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'importeDiaFestivo',
+                        title: 'Importe de Días Extra',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'totalComplemento',
+                        title: 'Total de Complemento',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'asigFamiliar',
+                        title: 'Asig.<br>Familiar',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'totalPagar',
+                        title: 'Total a Pagar',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'porcentajeTotalPagar',
+                        title: '%',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'totalRealPagar',
+                        title: 'Total<br>A Pagar',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'valesDespensa',
+                        title: 'Vales<br>Despensa',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    {
+                        data: 'totalDeposito',
+                        title: 'Total<br>Depósito',
+                        render: function (data, type, row) {
+                            return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                        },
+                        visible: false
+                    },
+                    { data: 'cuenta', title: 'Cuenta', visible: false },
+                    { data: 'clabeInterbancaria', title: 'Clabe<br>Interbancaria', visible: false },
+                    { data: 'banco', title: 'Banco', visible: false },
+                    { data: 'observaciones', title: 'Observaciones', visible: false },
+                ],
                 columnDefs: [
                     { className: "dt-center", targets: [0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42] },
                     { className: "dt-center", targets: [2, 3, 4, 5, 42, 43, 44, 45, 46, 47, 48] },
@@ -794,7 +699,238 @@
                     { width: '30px', targets: [3, 7, 9, 32, 35] },
                     { width: '100px', targets: [2] },
                 ]
-            });
+            });            
+          
+            // dtTablaPrenomina = tablaPrenomina.DataTable({
+            //     retrieve: true,
+            //     paging: false,
+            //     language: dtDicEsp,
+            //     dom: 't',
+            //     ordering: false,
+            //     fixedHeader: true,
+            //     drawCallback: function (settings) {
+            //         let tabIndex = 1;
+            //         tablaPrenomina.find('input.captura').blur(function (e) {
+            //             var fila = ($(this).closest("tr")[0].rowIndex) - 1;
+            //             var columna = $(this).closest("td")[0].cellIndex;
+
+            //             switch (columna) {
+            //                 case 4: dtTablaPrenomina.row(fila).data().dias = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 5: dtTablaPrenomina.row(fila).data().diasVacaciones = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 6: dtTablaPrenomina.row(fila).data().descuento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 7: dtTablaPrenomina.row(fila).data().apoyoColectivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 8: dtTablaPrenomina.row(fila).data().prestamo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 9: dtTablaPrenomina.row(fila).data().axa = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 10: dtTablaPrenomina.row(fila).data().pensionAlimenticia = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 11: dtTablaPrenomina.row(fila).data().fonacot = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 12: dtTablaPrenomina.row(fila).data().infonavit = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 13: dtTablaPrenomina.row(fila).data().fondoAhorroNomina = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+
+            //                 case 14: dtTablaPrenomina.row(fila).data().fondoAhorroComplemento = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 15: dtTablaPrenomina.row(fila).data().bonoProduccion = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 16: dtTablaPrenomina.row(fila).data().otros = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 17: dtTablaPrenomina.row(fila).data().primaVacacional = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+
+            //                 case 18: dtTablaPrenomina.row(fila).data().hrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 19: dtTablaPrenomina.row(fila).data().diaHrExtra = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //                 case 20: dtTablaPrenomina.row(fila).data().diaFestivo = Number($(this).val().replace(/[^0-9.-]+/g, "")); break;
+            //             }
+            //         });
+            //         tablaPrenomina.find('input.captura').focus(function (e) {
+            //             $(this).select();
+            //         });
+            //         tablaPrenomina.find('input.moneda').blur(function (e) {
+            //             if ($(this).val() == '') $(this).val("0.00");
+            //             else $(this).val(parseFloat($(this).val()).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+
+            //             if ($(this).val() != "0.00") $(this).css("background-color", "#B4C6E7");
+            //             else $(this).css("background-color", "-internal-light-dark(rgb(255, 255, 255), rgb(59, 59, 59));");
+            //         });
+            //         tablaPrenomina.find('input.moneda').focus(function (e) {
+            //             $(this).val(Number($(this).val().replace(/[^0-9.-]+/g, "")));
+            //         });
+
+            //         tablaPrenomina.find('input.dias').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.onp').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.afp').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.afpSeguros').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.afpComision').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.sta').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.esSalud').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.bonoProduccion').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.otros').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.primaVacacional').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.hrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.diaHrExtra').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.asigFamiliar').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.descuento').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //         tablaPrenomina.find('input.adelantoQuincena').each(function () { $(this).attr("tabindex", tabIndex++); });
+            //     },
+            //     columns: [
+            //         { data: 'id', title: 'id', visible: false },
+            //         { data: 'fechaAntiguedad', title: 'Fecha<br>Alta' },
+            //         { data: 'prenominaID', title: 'nominaID', visible: false },
+            //         { data: 'orden', title: 'Orden', visible: false },
+            //         { data: 'empleadoCve', title: 'Clave<br>Empl.' },
+            //         { data: 'empleadoNombre', title: 'Nombre<br>Empleado' },
+            //         { data: 'puesto', title: 'Puesto', visible: false },
+            //         {
+            //             data: 'sueldoSemanal',
+            //             title: 'Sueldo Periodo',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' sueldo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+            //         },
+            //         {
+            //             data: 'dias',
+            //             title: 'Días   ',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' dias captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //             //visible: false  
+            //         },
+            //         {
+            //             data: 'nominaBase',
+            //             title: 'Base Nomina',
+            //             render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
+            //             visible: false
+            //         },
+            //         {
+            //             data: 'diasVacaciones',
+            //             title: 'Días<br>Vac',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' diasVacaciones captura text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //             //visible: false  
+            //         },
+            //         {
+            //             data: 'nominaBaseVacaciones',
+            //             title: 'Base Nomina Vacaciones',
+            //             render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
+            //             visible: false
+            //         },
+            //         {
+            //             data: 'descuento',
+            //             title: 'Descuentos',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'apoyoColectivo',
+            //             title: 'Apoyo Colectivo',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' apoyoColectivo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'prestamo',
+            //             title: 'Préstamo',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' prestamo captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'axa',
+            //             title: 'Otras percepciones',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' axa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'descuentoFamsa',
+            //             title: 'Famsa',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' descuentoFamsa captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+            //             visible: false
+            //         },
+            //         {
+            //             data: 'pensionAlimenticia',
+            //             title: 'Pensión',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' pensionAlimenticia captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'fonacot',
+            //             title: 'Fonacot',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fonacot captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+
+            //         },
+            //         {
+            //             data: 'infonavit',
+            //             title: 'Infonavit',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' infonavit captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         { data: 'sindicato', title: 'Sindicato', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'fondoAhorroNomina',
+            //             title: '2.5% Fondo Ahorro',
+            //             visible: false,
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroNomina captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         { data: 'totalNomina', title: 'Total Base Nómina', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'complementoNomina', title: 'Comple-mento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'fondoAhorroComplemento',
+            //             title: '2.5% Fondo Ahorro',
+            //             visible: false,
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' fondoAhorroComplemento captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         { data: 'onp', title: 'ONP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'afp', title: 'AFP', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'afpSeguros', title: 'AFP<brSeguros', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'afpComision', title: 'AFP<brComisión', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'sta', title: '5TA', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'esSalud', title: 'Aportación<br>esSalud', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'bonoZona', title: 'Bono Zona', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'bonoProduccion',
+            //             title: 'Bono de Producción',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' bonoProduccion captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'otros',
+            //             title: 'Otros',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' otros captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         {
+            //             data: 'primaVacacional',
+            //             title: 'Prima<br>Vacacional',
+            //             render: function (data, type, row) { return '<input  class="' + (data == 0 ? '' : 'aplica') + ' primaVacacional captura moneda text-right" value=' + parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' }
+            //         },
+            //         { data: 'primaDominical', title: 'Prima Dominical', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'hrExtra',
+            //             title: 'Horas Extra',
+            //             render: function (data, type, row) { return '<input type="number" class="hrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+            //         },
+            //         { data: 'hrExtraValor', title: 'Valor Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'importeExtra', title: 'Importe de Horas Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'diaHrExtra',
+            //             title: 'Días<br>Extra',
+            //             render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaHrExtra captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+            //         },
+            //         { data: 'diaExtraValor', title: 'Valor Día Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'importeDiaExtra', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'diaFestivo',
+            //             title: 'Día<br>Festivo',
+            //             render: function (data, type, row) { return '<input type="number" oninput="this.value = Math.floor(this.value);" class="diaFestivo captura text-right" value=' + parseFloat(data).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + (validada ? 'disabled' : '') + '>' },
+            //         },
+            //         { data: 'diaFestivoValor', title: 'Valor Día Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'importeDiaFestivo', title: 'Importe de Días Extra', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'totalComplemento', title: 'Total de Complemento', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         //39
+            //         { data: 'asigFamiliar', title: 'Asig.<br>Familiar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'totalPagar', title: 'Total a Pagar', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'porcentajeTotalPagar', title: '%', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         {
+            //             data: 'totalRealPagar',
+            //             title: 'Total<br>A Pagar',
+            //             render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") },
+            //             visible: false
+            //         },
+            //         { data: 'valesDespensa', title: 'Vales<br>Despensa', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'totalDeposito', title: 'Total<br>Depósito', render: function (data, type, row) { return parseFloat(data).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") }, visible: false },
+            //         { data: 'cuenta', title: 'Cuenta', visible: false },
+            //         { data: 'clabeInterbancaria', title: 'Clabe<br>Interbancaria', visible: false },
+            //         { data: 'banco', title: 'Banco', visible: false },
+            //         { data: 'observaciones', title: 'Observaciones', visible: false },
+
+            //     ],
+            //     columnDefs: [
+            //         { className: "dt-center", targets: [0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42] },
+            //         { className: "dt-center", targets: [2, 3, 4, 5, 42, 43, 44, 45, 46, 47, 48] },
+            //         { width: '80px', targets: [0, 1, 6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 34, 36, 37, 38, 39] },
+            //         { width: '30px', targets: [3, 7, 9, 32, 35] },
+            //         { width: '100px', targets: [2] },
+            //     ]
+            // });
 
         }
 

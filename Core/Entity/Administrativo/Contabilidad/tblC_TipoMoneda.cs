@@ -12,5 +12,7 @@ namespace Core.Entity.Administrativo.Contabilidad
         public string nombreCorto { get; set; }
         public string nombreCortoSat { get; set; }
         public bool esMXN { get; set; }
+        public bool registroActivo { get; set; }
+        public string signo { get; set; }
     }
 }

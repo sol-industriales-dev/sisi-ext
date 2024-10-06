@@ -8142,27 +8142,10 @@ TotalGtoOperacion.Fecha12;
 
                             rd.SetParameterValue("cfdi", ordenCompra.CFDI != null ? ordenCompra.CFDI : string.Empty);
 
-                            if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Peru)
-                            {
-                                rd.SetParameterValue("direccion", "CAMINOS DEL INCA 244 OF. 803 SANTIAGO DE SURCO - LIMA");
-                                rd.SetParameterValue("formaPago1", ordenCompra.PERU_formaPago);
-                                rd.SetParameterValue("formaPago2", ordenCompra.PERU_formaPago);
-                                rd.SetParameterValue("PERU_tipoCompra", ordenCompra.PERU_tipoCompra);
-                            }
-                            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
-                            {
-                                rd.SetParameterValue("direccion", "CALLE 98 # 70-91 OFICINA 1012 EDIFICIO VARDI");
-                                rd.SetParameterValue("formaPago1", "PPD (Pago en parcialidades o diferido)");
-                                rd.SetParameterValue("formaPago2", "99 (Por definir)");
-                                rd.SetParameterValue("PERU_tipoCompra", "");
-                            }
-                            else
-                            {
-                                rd.SetParameterValue("direccion", "PERIFERICO PTE 770 COL. EMILIANO ZAPATA");
-                                rd.SetParameterValue("formaPago1", "PPD (Pago en parcialidades o diferido)");
-                                rd.SetParameterValue("formaPago2", "99 (Por definir)");
-                                rd.SetParameterValue("PERU_tipoCompra", "");
-                            }
+                            rd.SetParameterValue("direccion", "Calle Michoacan No. 377 Col. Olivares C.P. 83180");
+                            rd.SetParameterValue("formaPago1", "PPD (Pago en parcialidades o diferido)");
+                            rd.SetParameterValue("formaPago2", "99 (Por definir)");
+                            rd.SetParameterValue("PERU_tipoCompra", "");
 
                             if (vSesiones.sesionVersionCompraOriginal == null)
                             {
@@ -8175,49 +8158,11 @@ TotalGtoOperacion.Fecha12;
 
                             rd.SetParameterValue("tipoCompra", ordenCompra.tipoCompra ?? "");
 
-                            if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Construplan)
-                            {
-                                rd.SetParameterValue("rfc", "SGI160111MQ9");
-                                rd.SetParameterValue("facturar", "SOL- INDUSTRIALES SA DE CV");
-                                rd.SetParameterValue("leyendaDocumentacion", "");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL . LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
-                            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Arrendadora)
-                            {
-                                rd.SetParameterValue("rfc", "ACO171207CZ7");
-                                rd.SetParameterValue("facturar", "ARRENDADORA CONSTRUPLAN SA DE CV");
-                                rd.SetParameterValue("leyendaDocumentacion", "");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE ARRENDADORA CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA ARRENDADORA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
-                            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.EICI)
-                            {
-                                rd.SetParameterValue("rfc", "CIE1809208AC");
-                                rd.SetParameterValue("facturar", "CONSTRUPLAN E ICI ENERGIA S.A.P.I. DE C.V.");
-                                rd.SetParameterValue("leyendaDocumentacion", "");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
-                            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Peru)
-                            {
-                                rd.SetParameterValue("rfc", "RUC 20609408261");
-                                rd.SetParameterValue("facturar", ordenCompra.facturar);
-                                rd.SetParameterValue("leyendaDocumentacion", "FAVOR DE ENVIAR LA SIGUIENTE DOCUMENTACIÓN AL CORREO: <b style='font-size:8px'>proveedorescdp@construplan.com.pe</b> ORDEN DE COMPRA O SERVICIO, FACTURA FISCAL Y XML. VALIDACIÓN DE LA FACTURA POR SUNAT.");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
-                            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
-                            {
-                                rd.SetParameterValue("rfc", "GCP800324FJ1");
-                                rd.SetParameterValue("facturar", "GRUPO CONSTRUCCIONES PLANIFICADAS SA DE CV");
-                                rd.SetParameterValue("leyendaDocumentacion", "");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
-                            else
-                            {
-                                //Valores default para el resto de empresas hasta que se especifique.
-                                rd.SetParameterValue("rfc", "SGI160111MQ9");
-                                rd.SetParameterValue("facturar", "SOL- INDUSTRIALES SA DE CV");
-                                rd.SetParameterValue("leyendaDocumentacion", "");
-                                rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
-                            }
+                            rd.SetParameterValue("rfc", "SGI160111MQ9");
+                            rd.SetParameterValue("facturar", "SOL- INDUSTRIALES SA DE CV");
+                            rd.SetParameterValue("leyendaDocumentacion", "");
+                            rd.SetParameterValue("textoPieInforme", @"ESTA ORDEN DE COMPRA REPRESENTA LA INTENCION DE ADQUIRIR UN BIEN Y/O SERVICIO, EL PROVEEDOR ESTA OBLIGADO A CARGAR SU FACTURA AL PORTAL DE PROVEEDORES DE CONSTRUPLAN HASTA MAXIMO 15 DIAS SIGUIENTES A LA FECHA DE FACTURACIÓN. LA ORDEN DE COMPRA O FACTURA POR SI SOLA NO REPRESENTA PARA CONSTRUPLAN UN COMPROMISO DE PAGO.");
+
                             rd.SetParameterValue("fechaVencimiento", ordenCompra.fechaVencimientoString ?? "");
                             rd.SetParameterValue("totalRetencion", ordenCompra.totalRetencion);
                             rd.SetParameterValue("totalFinal", ordenCompra.totalFinal);

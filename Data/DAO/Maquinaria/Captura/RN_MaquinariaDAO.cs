@@ -753,17 +753,17 @@ namespace Data.DAO.Maquinaria.Captura
             {
                 switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
                 {
-                    case EmpresaEnum.Peru:
+                    case EmpresaEnum.Construplan:
                         {
-                            var pro = _context.tblCom_MAEPROV
+                            var pro = _context.tblCom_sp_proveedores
                                 .Where(x =>
                                     x.statusAutorizacion &&
                                     x.registroActivo &&
-                                    x.PRVCNOMBRE.Contains(nombreProveedor)).FirstOrDefault();
+                                    x.nombre.Contains(nombreProveedor)).FirstOrDefault();
 
                             var proveedor = new ProveedoresDTO();
-                            proveedor.noProveedor = Convert.ToInt64(pro.PRVCCODIGO);
-                            proveedor.nomProveedor = pro.PRVCNOMBRE;
+                            proveedor.noProveedor = pro.numpro;
+                            proveedor.nomProveedor = pro.nomcorto;
                             proveedor.tipoCambio = 2;
 
                             if (proveedor == null)

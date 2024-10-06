@@ -18,6 +18,8 @@ namespace Data.EntityFramework.Mapping.Administrativo.Contabilidad
             Property(x => x.nombreCorto).HasColumnName("nombreCorto");
             Property(x => x.nombreCortoSat).HasColumnName("nombreCortoSat");
             Property(x => x.esMXN).HasColumnName("esMXN");
+            Property(x => x.registroActivo).HasColumnName("registroActivo");
+
             ToTable("tblC_TipoMoneda");
         }
     }

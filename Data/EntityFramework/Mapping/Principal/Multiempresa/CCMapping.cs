@@ -32,6 +32,8 @@ namespace Data.EntityFramework.Mapping.Principal.Multiempresa
             HasRequired(x => x.departamento).WithMany(x => x.listaCC).HasForeignKey(d => d.departamentoID);
             Property(x => x.grupoID).HasColumnName("grupoID");
             HasRequired(x => x.grupo).WithMany(x => x.listaCC).HasForeignKey(d => d.grupoID);
+            Property(x => x.st_ppto).HasColumnName("st_ppto");
+            Property(x => x.valida_anio).HasColumnName("valida_anio");
             ToTable("tblP_CC");
         }
     }

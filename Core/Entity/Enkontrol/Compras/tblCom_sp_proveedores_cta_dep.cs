@@ -15,7 +15,7 @@ namespace Core.Entity.Enkontrol.Compras
         public decimal banco { get; set; }
         public string descBanco { get; set; }
         public string cuenta { get; set; }
-        public string moneda { get; set; }
+        public int moneda { get; set; }
         public string descMoneda { get; set; }
         public string sucursal { get; set; }
         public decimal plaza { get; set; }

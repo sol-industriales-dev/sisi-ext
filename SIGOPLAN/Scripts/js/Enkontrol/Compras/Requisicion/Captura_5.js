@@ -1211,7 +1211,7 @@
             let row = $(this).closest('tr');
             let valor = row.find(".cantidad").val();
 
-            row.find('.insumoDesc').val(ui.item.id);
+            row.find('.insumoDesc').val(ui.item.descripcion);
             row.find('.unidad').val(ui.item.unidad);
             row.find('.unidad').text(ui.item.unidad);
             row.find('.existencia').text(getExistencia(ui.item.value, 400, $("#selLab").val() != '' ? $("#selLab").val() : 0));

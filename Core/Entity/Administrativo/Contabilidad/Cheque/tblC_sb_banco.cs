@@ -10,7 +10,7 @@ namespace Core.Entity.Administrativo.Contabilidad.Cheques
     {
         public int id { get; set; }
         public int banco { get; set; }
-        public string decripcion { get; set; }
+        public string descripcion { get; set; }
         public string sucursal { get; set; }
         public string direccion { get; set; }
         public string ciudad { get; set; }

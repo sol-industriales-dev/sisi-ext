@@ -18,7 +18,7 @@ namespace Core.Entity.Enkontrol.Compras.OrdenCompra
         public int compradorSIGOPLAN { get; set; }
         public int compradorEnkontrol { get; set; }
         public int compradorStarsoft { get; set; }
-        public string moneda { get; set; }
+        public int moneda { get; set; }
         public decimal tipo_cambio { get; set; }
         public decimal porcent_iva { get; set; }
         public decimal sub_total { get; set; }
@@ -58,5 +58,16 @@ namespace Core.Entity.Enkontrol.Compras.OrdenCompra
         public virtual List<tblAlm_Movimientos> OC_Movimientos { get; set; }
         public int vobo { get; set; }
         public int vobo2 { get; set; }
+        public bool autoriza_activos { get; set; }
+        public int solicito { get; set; }
+        public string embarquese { get; set; }
+        public string concepto_factura { get; set; }
+        public string bit_autorecepcion { get; set; }
+        public int? almacen_autorecepcion { get; set; }
+        public string almacenRecepNom { get; set; }
+        public int? empleado_autorecepcion { get; set; }
+        public decimal rentencion_antes_iva { get; set; }
+        public decimal rentencion_despues_iva { get; set; }
+        public int num_requisicion { get; set; }
     }
 }

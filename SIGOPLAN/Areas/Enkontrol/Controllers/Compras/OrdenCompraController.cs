@@ -661,8 +661,8 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
         public ActionResult GetCompra(string cc, int num, bool esOC_INTERNA = false, string PERU_tipoCompra = "")
         {
             var result = new Dictionary<string, object>();
-            try
-            {
+            //try
+            //{
                 var data = ocfs.getOcService().getCompra(cc, num, esOC_INTERNA, PERU_tipoCompra);
 
                 result.Add("info", data);
@@ -672,12 +672,12 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
                 result.Add("ultimoMovimiento", data.ultimoMovimiento);
 
                 result.Add(SUCCESS, true);
-            }
-            catch (Exception e)
-            {
-                result.Add(MESSAGE, e.Message);
-                result.Add(SUCCESS, false);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    result.Add(MESSAGE, e.Message);
+            //    result.Add(SUCCESS, false);
+            //}
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
@@ -810,16 +810,16 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
         {
             var result = new Dictionary<string, object>();
 
-            try
-            {
+            //try
+            //{
                 result.Add("data", ocfs.getOcService().getListaComprasTodas(cc, pendientes, propias, area, cuenta));
                 result.Add(SUCCESS, true);
-            }
-            catch (Exception e)
-            {
-                result.Add(MESSAGE, e.Message);
-                result.Add(SUCCESS, false);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    result.Add(MESSAGE, e.Message);
+            //    result.Add(SUCCESS, false);
+            //}
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -970,7 +970,7 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
 
         public ActionResult AutorizarCompras(List<OrdenCompraDTO> listaVobos, List<OrdenCompraDTO> listaAutorizados, List<CheckProvNoOptimoDTO> listaNoOptimosVoBo, bool esOC_Interna = false)
         {
-            if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Peru)
+            if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Construplan)
             {
                 #region PERU
                 return Json(ocfs.getOcService().RegistrarVoBoAutorizarOrdenCompra(listaVobos, listaAutorizados), JsonRequestBehavior.AllowGet);
@@ -1043,8 +1043,6 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
 
                 try
                 {
-                    var accionNoOptimos = cuadroComparativoFS.darVoBoProvNoOptimo(listaNoOptimosVoBo);
-
                     foreach (var com in listaVobos ?? Enumerable.Empty<OrdenCompraDTO>())
                     {
                         var compra = ocfs.getOcService().getCompra(com.cc, com.numero, com.esOC_Interna);
@@ -1181,18 +1179,18 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
         {
             var result = new Dictionary<string, object>();
 
-            try
-            {
+            //try
+            //{
                 var data = ocfs.getOcService().buscarCuadros(filtros);
 
                 result.Add("data", data);
                 result.Add(SUCCESS, true);
-            }
-            catch (Exception e)
-            {
-                result.Add(MESSAGE, e.Message);
-                result.Add(SUCCESS, false);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    result.Add(MESSAGE, e.Message);
+            //    result.Add(SUCCESS, false);
+            //}
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }

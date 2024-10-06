@@ -17,12 +17,13 @@ namespace Core.DTO.Enkontrol.OrdenCompra
         public string detalle { get; set; }
         public decimal sub_total { get; set; }
         public decimal total { get; set; }
-        public string moneda { get; set; }
+        public int moneda { get; set; }
         public string subTotalPesos { get; set; }
         public string subTotalDolares { get; set; }
         public string totalPesos { get; set; }
         public string totalDolares { get; set; }
         public string compradorDesc { get; set; }
         public string tipoCompraDesc { get; set; }
+        public string tipo_req_oc { get; set; }
     }
 }

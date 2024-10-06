@@ -10,7 +10,7 @@ namespace Core.DTO.Enkontrol.OrdenCompra
     public class tblCom_sp_proveedoresDTO
     {
         public int id { get; set; }
-        public decimal numpro { get; set; }
+        public int numpro { get; set; }
         public string nomcorto { get; set; }
         public string nombre { get; set; }
         public string direccion { get; set; }
@@ -25,7 +25,7 @@ namespace Core.DTO.Enkontrol.OrdenCompra
         public decimal limcred { get; set; }
         public decimal tmbase { get; set; }
         public decimal condpago { get; set; }
-        public string moneda { get; set; }
+        public int moneda { get; set; }
         public string cta_bancaria { get; set; }
         public decimal tipo_prov { get; set; }
         public string cancelado { get; set; }

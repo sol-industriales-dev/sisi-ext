@@ -197,8 +197,8 @@ namespace Data.DAO.Enkontrol.Compras
                         save.crc = req.crc;
                         save.convenio = req.convenio;
                         save.proveedor = req.proveedor;
-                        save.validadoAlmacen = false;
-                        save.validadoCompras = false;
+                        save.validadoAlmacen = true;
+                        save.validadoCompras = true;
                         save.validadoRequisitor = true; //Se salta el paso de validación del requisitor.
                         save.fechaValidacionAlmacen = null;
                         save.comprador = req.comprador ?? 0;
@@ -264,6 +264,8 @@ namespace Data.DAO.Enkontrol.Compras
                                 registroDetalle.PERU_saldo = d.PERU_saldo;
                                 registroDetalle.PERU_tipoRequisicion = d.PERU_tipoRequisicion;
                                 registroDetalle.noEconomico = d.noEconomico;
+                                registroDetalle.numero = save.numero;
+                                registroDetalle.cc = save.cc;
 
                                 _context.tblCom_ReqDet.AddOrUpdate(registroDetalle);
                                 SaveChanges();
@@ -798,7 +800,7 @@ namespace Data.DAO.Enkontrol.Compras
                         from d in _context.tblCom_ReqDet
                         join c in _context.tblCom_Req
                             on d.idReq equals c.id
-                        join i in _context.tblCom_Insumos
+                        join i in _context.tblAlm_Insumo
                             on d.insumo equals i.insumo
                         where c.cc == cc && c.numero == num
                         orderby d.partida
@@ -1072,7 +1074,7 @@ namespace Data.DAO.Enkontrol.Compras
                         from d in _context.tblCom_ReqDet
                         join c in _context.tblCom_Req
                             on d.idReq equals c.id
-                        join i in _context.tblCom_Insumos
+                        join i in _context.tblAlm_Insumo
                             on d.insumo equals i.insumo
                         where c.cc == cc && c.numero == num
                         orderby d.partida
@@ -1466,12 +1468,12 @@ namespace Data.DAO.Enkontrol.Compras
 
                             using (var ctx = new MainContext())
                             {
-                                listaInsumos = ctx.tblCom_Insumos
+                                listaInsumos = ctx.tblAlm_Insumo
                                     .Where(x => x.insumo.ToString().Contains(term))
                                     .Take(12)
                                     .Select(x => new InsumoRequisicionDTO
                                     {
-                                        id = x.descripcion,
+                                        id = x.insumo.ToString(),
                                         value = x.insumo.ToString(),
                                         descripcion = x.descripcion,
                                         unidad = x.unidad,
@@ -1525,12 +1527,12 @@ namespace Data.DAO.Enkontrol.Compras
 
                             using (var ctx = new MainContext())
                             {
-                                listaInsumos = ctx.tblCom_Insumos
+                                listaInsumos = ctx.tblAlm_Insumo
                                     .Where(x => x.descripcion.Contains(term))
                                     .Take(12)
                                     .Select(x => new InsumoRequisicionDTO
                                     {
-                                        id = x.descripcion,
+                                        id = x.insumo.ToString(),
                                         value = x.insumo.ToString() + " - " + (string)x.descripcion + ((string)x.cancelado == "C" ? " (INSUMO CANCELADO)" : ""),
                                         descripcion = (string)x.descripcion + ((string)x.cancelado == "C" ? " (INSUMO CANCELADO)" : ""),
                                         unidad = x.unidad,
@@ -2918,8 +2920,9 @@ namespace Data.DAO.Enkontrol.Compras
                         on r.cc equals ccc.cc
                     where ccc.estatus
                           && r.fecha >= new DateTime(2019, 11, 1)
-                          //&& r.stAutoriza
-                          //&& (cc.Count == 0 || cc.Contains(r.cc)) 
+                          && ccc.st_ppto != "T"
+                          && r.stAutoriza == isAuth
+                          && (cc.Count == 0 || cc.Contains(r.cc)) 
                     select new Requisicion2DTO
                     {
                         cc = r.cc,
@@ -2945,7 +2948,7 @@ namespace Data.DAO.Enkontrol.Compras
                                                 .Sum(det => (decimal?)det.cantidad) ?? 0, // Subconsulta para calcular la cantidad total
                         contieneCancelado = _context.tblCom_ReqDet
                                                   .Where(det2 => det2.cc == r.cc && det2.numero == r.numero)
-                                                  .Join(_context.tblCom_Insumos,
+                                                  .Join(_context.tblAlm_Insumo,
                                                         det2 => det2.insumo,
                                                         i => i.insumo,
                                                         (det2, i) => i)
@@ -3192,100 +3195,24 @@ namespace Data.DAO.Enkontrol.Compras
         {
             try
             {
-                var usuario = vSesiones.sesionUsuarioDTO;
-                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
-                var anioAnteriorAlActual = DateTime.Now.Year - 1;
-
-                switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
+                using (var ctx = new MainContext())
                 {
+                    var listaBloqueoCC = ctx.tblCom_BloqueoCentroCosto.Where(x => x.registroActivo).Select(x => x.cc).ToList();
 
-                    case EmpresaEnum.Peru:
+                    var ccsPermitidos = ctx.tblP_CC_Usuario.Where(x => x.usuarioID == vSesiones.sesionUsuarioDTO.id).Select(x => x.cc).ToList();
+                    var listaCentroCosto = ctx.tblP_CC
+                        .Where(x =>
+                            x.estatus &&
+                            (((PerfilUsuarioEnum)vSesiones.sesionUsuarioDTO.idPerfil == PerfilUsuarioEnum.ADMINISTRADOR) ? true : ccsPermitidos.Contains(x.cc)) &&
+                            !listaBloqueoCC.Contains(x.cc)
+                        ).Select(x => new Core.DTO.Principal.Generales.ComboDTO
                         {
-                            using (var ctxPeru = new MainContext())
-                            {
-                                var listaBloqueoCC = ctxPeru.tblCom_BloqueoCentroCosto.Where(x => x.registroActivo).Select(x => x.cc).ToList();
+                            Value = x.cc,
+                            Text = "[" + x.cc + "] " + x.descripcion.Trim()
+                        }).ToList();
 
-                                var ccsPermitidos = ctxPeru.tblP_CC_Usuario.Where(x => x.usuarioID == vSesiones.sesionUsuarioDTO.id).Select(x => x.cc).ToList();
-                                var listaCentroCosto = ctxPeru.tblP_CC
-                                    .Where(x =>
-                                        x.estatus &&
-                                        (((PerfilUsuarioEnum)vSesiones.sesionUsuarioDTO.idPerfil == PerfilUsuarioEnum.ADMINISTRADOR) ? true : ccsPermitidos.Contains(x.cc)) &&
-                                        x.cc.Length > 3 &&
-                                        !listaBloqueoCC.Contains(x.cc)
-                                    ).Select(x => new Core.DTO.Principal.Generales.ComboDTO
-                                    {
-                                        Value = x.cc,
-                                        Text = "[" + x.cc + "] " + x.descripcion.Trim()
-                                    }).ToList();
-
-                                return listaCentroCosto;
-                            }
-                        }
-                        break;
-                    case EmpresaEnum.Colombia:
-                        {
-                            var usuarioCol = vSesiones.sesionUsuarioDTO;
-                            var relUserCol = ufs.getUsuarioService().getUserEk(usuario.id);
-
-                            var res = (List<dynamic>)consultaCheckProductivo(string.Format("SELECT cc FROM DBA.so_asigna_req WHERE empleado = {0}", relUserCol.empleado)).ToObject<List<dynamic>>();
-                            var permisosCC = res.Select(c => (string)c.cc).ToList();
-
-                            var centrosCostoEK = consultaCheckProductivo(
-                                string.Format(@"SELECT 
-                                        c.cc AS Value, 
-                                        (c.cc + '-' + c.descripcion) AS Text 
-                                    FROM DBA.cc c 
-                                        {0} 
-                                    WHERE c.st_ppto != 'T' 
-                                    ORDER BY Value", (permisosCC.Any(c => c.Equals("*"))) ? "" : "INNER JOIN DBA.so_asigna_req a ON a.cc = c.cc AND a.empleado = " + relUserCol.empleado + " ")
-                            );
-
-                            if (centrosCostoEK != null)
-                            {
-                                var listaCentroCosto = (List<Core.DTO.Principal.Generales.ComboDTO>)centrosCostoEK.ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
-                                var listaBloqueoCC = _context.tblCom_BloqueoCentroCosto.Where(x => x.registroActivo).ToList();
-
-                                if (listaBloqueoCC.Count() > 0)
-                                {
-                                    listaCentroCosto = listaCentroCosto.Where(x => !listaBloqueoCC.Select(y => y.cc).Contains(x.Value)).ToList();
-                                }
-
-                                return listaCentroCosto;
-                            }
-                            else
-                            {
-                                return new List<Core.DTO.Principal.Generales.ComboDTO>();
-                            }
-                        }
-                        break;
-                    default:
-                        {
-                            var centrosCostosEK = consultaCheckProductivo(
-                            string.Format(@"SELECT 
-                                                r.cc AS Value, 
-                                                (c.cc + '-' + c.descripcion) AS Text 
-                                            FROM so_requisicion r 
-                                                INNER JOIN so_cc_responsable a ON r.cc = a.cc AND a.empleado = {0} 
-                                                INNER JOIN cc c ON c.cc = r.cc 
-                                            WHERE r.st_autoriza = '{1}' AND c.st_ppto != 'T' AND YEAR(r.fecha) >= {2}
-                                            GROUP BY Value, Text 
-                                            ORDER BY r.cc", relUser.empleado, (isAuth ? "S" : "N"), anioAnteriorAlActual)
-                            );
-
-                            if (centrosCostosEK != null)
-                            {
-                                var centrosCostos = (List<Core.DTO.Principal.Generales.ComboDTO>)centrosCostosEK.ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
-
-                                return centrosCostos;
-                            }
-                            else
-                            {
-                                return new List<Core.DTO.Principal.Generales.ComboDTO>();
-                            }
-                        }
-                        break;
+                    return listaCentroCosto;
                 }
-
             }
             catch (Exception) { return new List<Core.DTO.Principal.Generales.ComboDTO>(); }
         }
@@ -7988,50 +7915,48 @@ namespace Data.DAO.Enkontrol.Compras
         public rptRequisicionInfoDTO getRequisicionRpt(string cc, int numero, string PERU_tipoRequisicion)
         {
 
-            try
-            {
+            // try
+            // {
                 var rptRequisicionInfo = new rptRequisicionInfoDTO();
                 switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
                 {
-                    case EmpresaEnum.Peru:
+                    case EmpresaEnum.Construplan:
                         {
                             #region EmpresaPeru
-                            using (var ctxPeru = new MainContext())
+                            using (var ctx = new MainContext())
                             {
-                                var listaCentrosCosto = ctxPeru.tblP_CC.ToList();
+                                var listaCentrosCosto = ctx.tblP_CC.ToList();
 
-                                var consultaUsuariosStarsoft = @"SELECT cast(TCLAVE as int) as TCLAVE,TDESCRI FROM [003BDCOMUN].[dbo].[TABAYU] WHERE TCOD = '12' ";
-                                List<InfoUsuariosStarsoftDTO> listaEmpleados = new List<InfoUsuariosStarsoftDTO>();
-                                DynamicParameters lstParametros = new DynamicParameters();
-                                using (var conexion = new SqlConnection(ConextSigoDapper.conexionStarsoftBancos()))
-                                {
-                                    conexion.Open();
-                                    listaEmpleados = conexion.Query<InfoUsuariosStarsoftDTO>(consultaUsuariosStarsoft, lstParametros, null, true, 300, commandType: CommandType.Text).ToList();
-                                    conexion.Close();
-                                }
+                                //var consultaUsuariosStarsoft = @"SELECT cast(TCLAVE as int) as TCLAVE,TDESCRI FROM [003BDCOMUN].[dbo].[TABAYU] WHERE TCOD = '12' ";
+                                //List<InfoUsuariosStarsoftDTO> listaEmpleados = new List<InfoUsuariosStarsoftDTO>();
+                                //DynamicParameters lstParametros = new DynamicParameters();
+                                //using (var conexion = new SqlConnection(ConextSigoDapper.conexionStarsoftBancos()))
+                                //{
+                                //    conexion.Open();
+                                //    listaEmpleados = conexion.Query<InfoUsuariosStarsoftDTO>(consultaUsuariosStarsoft, lstParametros, null, true, 300, commandType: CommandType.Text).ToList();
+                                //    conexion.Close();
+                                //}
 
-                                var requisicionPeru = ctxPeru.tblCom_Req.Where(x => x.cc == cc && x.numero == numero && x.PERU_tipoRequisicion == PERU_tipoRequisicion && x.estatusRegistro).ToList();
+                                var requisicionPeru = ctx.tblCom_Req.Where(x => x.cc == cc && x.numero == numero && x.estatusRegistro).ToList();
 
                                 if (requisicionPeru != null)
                                 {
                                     foreach (var req in requisicionPeru)
                                     {
-                                        var partidaReqPeru = ctxPeru.tblCom_ReqDet.Where(x => x.idReq == req.id && x.estatusRegistro).ToList();
-                                        //var empleadoSolicito = listaEmpleados.FirstOrDefault(x => x.TCLAVE == req.solicito);
-
+                                        var partidaReqPeru = ctx.tblCom_ReqDet.Where(x => x.idReq == req.id && x.estatusRegistro).ToList();
                                         string descLAB = "";
-                                        using (var _starsoft = new MainContextPeruStarSoft003BDCOMUN())
-                                        {
-                                            var objAlm = _starsoft.TABALM.ToList().FirstOrDefault(e => Convert.ToInt32(e.TAALMA) == req.idLibreAbordo);
+                                        //using (var _starsoft = new MainContextPeruStarSoft003BDCOMUN())
+                                        //{
+                                        //    var objAlm = _starsoft.TABALM.ToList().FirstOrDefault(e => Convert.ToInt32(e.TAALMA) == req.idLibreAbordo);
 
-                                            if (objAlm != null)
-                                            {
-                                                descLAB = objAlm.TADESCRI;
-                                            }
-                                        }
+                                        //    if (objAlm != null)
+                                        //    {
+                                        //        descLAB = objAlm.TADESCRI;
+                                        //    }
+                                        //}
 
-                                        var empleadoSolicito = (from emp in ctxPeru.tblP_Usuario_Enkontrol
-                                                                join usu in ctxPeru.tblP_Usuario
+                                        var empleadoSolicito = (from emp in ctx.tblP_Usuario_Enkontrol
+                                                                join usu in ctx.tblP_Usuario
                                                                 on emp.idUsuario equals usu.id
                                                                 where emp.empleado == req.solicito
                                                                 select usu.nombreUsuario).FirstOrDefault();
@@ -8124,15 +8049,15 @@ namespace Data.DAO.Enkontrol.Compras
                                         List<rptRequisicionPartidasDTO> rptRequisicionPartidas = new List<rptRequisicionPartidasDTO>();
                                         foreach (var p in partidaReqPeru)
                                         {
-                                            var partidaOrdenCompraPeru = ctxPeru.Select<tblCom_OrdenCompraDet>(new DapperDTO
+                                            var partidaOrdenCompraPeru = ctx.Select<tblCom_OrdenCompraDet>(new DapperDTO
                                             {
-                                                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                                                baseDatos = MainContextEnum.Construplan,
                                                 consulta = @"
                                                     SELECT
                                                         TOP 1 det.*
                                                     FROM tblCom_OrdenCompraDet AS det
                                                         INNER JOIN tblCom_OrdenCompra AS com ON com.id = det.idOrdenCompra
-                                                        INNER JOIN tblCom_Req AS r ON r.numero = @paramNumRequi AND r.numero = det.num_requisicion AND r.estatusRegistro = 1 AND r.PERU_tipoRequisicion = @paramTipoRequi AND r.PERU_tipoRequisicion = com.PERU_tipoCompra
+                                                        INNER JOIN tblCom_Req AS r ON r.numero = @paramNumRequi AND r.numero = det.num_requisicion AND r.estatusRegistro = 1 
                                                     WHERE det.estatusRegistro = 1 AND com.estatusRegistro = 1 AND com.cc = @paramCC AND det.insumo = @paramInsumo",
                                                 parametros = new { paramTipoRequi = PERU_tipoRequisicion, paramCC = req.cc, paramInsumo = p.insumo, paramNumRequi = req.numero }
                                             }).FirstOrDefault();
@@ -8145,49 +8070,27 @@ namespace Data.DAO.Enkontrol.Compras
                                             {
                                                 numeroOrdenCompra = fillNo(((int)partidaOrdenCompraPeru.numero).ToString(), 6);
                                                 partidaDescripcion = (string)partidaOrdenCompraPeru.partidaDescripcion != null ? ((string)partidaOrdenCompraPeru.partidaDescripcion).ToString() : "";
-                                                var ordenCompra = ctxPeru.tblCom_OrdenCompra.Where(x => x.id == partidaOrdenCompraPeru.idOrdenCompra && x.estatusRegistro).FirstOrDefault();
-                                                var proveedorPeru = (string)ordenCompra.PERU_proveedor != null ? ((string)ordenCompra.PERU_proveedor).ToString() : "";
-
-                                                var consultaProveedoresStarsoft = @"SELECT prvccodigo,prvcnombre,prvcruc FROM [003BDCOMUN].[dbo].[MAEPROV]";
-                                                List<infoProveedoresStarsoftDTO> listaProveedores = new List<infoProveedoresStarsoftDTO>();
-                                                DynamicParameters lstParametrosProv = new DynamicParameters();
-                                                using (var conexion = new SqlConnection(ConextSigoDapper.conexionStarsoftBancos()))
+                                                var ordenCompra = ctx.tblCom_OrdenCompra.FirstOrDefault(x => x.id == partidaOrdenCompraPeru.idOrdenCompra && x.estatusRegistro);
+                                                var proveedorNum = ordenCompra.proveedor;
+                                                var proveedor = ctx.tblCom_sp_proveedores.FirstOrDefault(x => x.numpro == proveedorNum && x.registroActivo);
+                                                if(proveedor != null)
                                                 {
-                                                    conexion.Open();
-                                                    listaProveedores = conexion.Query<infoProveedoresStarsoftDTO>(consultaProveedoresStarsoft, lstParametrosProv, null, true, 300, commandType: CommandType.Text).ToList();
-                                                    conexion.Close();
-                                                };
-
-                                                if (listaProveedores != null)
-                                                {
-                                                    var proveedor = listaProveedores.Where(x => x.prvccodigo == proveedorPeru).FirstOrDefault();
-
-                                                    proveedorOrdenCompra = (string)proveedor.prvcnombre != null ? ((string)proveedor.prvcnombre).ToString() : "";
+                                                    proveedorOrdenCompra = proveedor.nomcorto;
                                                 }
-
-
                                             }
-                                            var consultaInsumosStarsoft = @"SELECT ACODIGO,ADESCRI,AUNIDAD FROM [003BDCOMUN].[dbo].[MAEART]";
-                                            List<infoInsumosStarsoftDTO> listaInsumos = new List<infoInsumosStarsoftDTO>();
-                                            DynamicParameters lstParametrosInsumo = new DynamicParameters();
-                                            using (var conexion = new SqlConnection(ConextSigoDapper.conexionStarsoftBancos()))
-                                            {
-                                                conexion.Open();
-                                                listaInsumos = conexion.Query<infoInsumosStarsoftDTO>(consultaInsumosStarsoft, lstParametrosInsumo, null, true, 300, commandType: CommandType.Text).ToList();
-                                                conexion.Close();
-                                            };
-                                            var descInsumo = listaInsumos.Where(x => x.ACODIGO == "0" + p.insumo.ToString()).FirstOrDefault();
+
+                                            var insumoObj = ctx.tblAlm_Insumo.FirstOrDefault(x => x.insumo == p.insumo);
                                             rptRequisicionPartidas.Add(new rptRequisicionPartidasDTO
                                             {
                                                 partida = ((int)p.partida).ToString(),
-                                                insumo = (int)p.insumo + " " + (string)descInsumo.ADESCRI + " " + p.descripcion,
+                                                insumo = (int)p.insumo + " " + (string)insumoObj.descripcion + " " + p.descripcion,
                                                 areaCuenta = p.noEconomico,
                                                 fechaRequerido = ((DateTime)p.requerido).ToShortDateString(),
-                                                cantidadRequerida = (p.cantidad).ToString() + " " + (string)descInsumo.AUNIDAD,
+                                                cantidadRequerida = (p.cantidad).ToString() + " " + (string)insumoObj.unidad,
                                                 estatus = (string)p.estatus,
                                                 ordenCompra = numeroOrdenCompra != null ? (numeroOrdenCompra).ToString() : "",
                                                 fechaOrdenada = p.ordenada != null ? ((DateTime)p.ordenada).ToShortDateString() : "",
-                                                cantidadOrdenada = p.cantOrdenada != null ? (p.cantOrdenada).ToString() : "",
+                                                cantidadOrdenada = p.cantOrdenada.ToString(),
                                                 proveedor = ""
                                             });
                                         }
@@ -8196,30 +8099,24 @@ namespace Data.DAO.Enkontrol.Compras
                                         string nombreUsrAuth = "";
                                         string nombreUsrVobo = "";
 
-                                        var objUsuarioSoliEK = ctxPeru.tblP_Usuario_Enkontrol.FirstOrDefault(e => e.empleado == req.solicito && e.empleado != 0);
-                                        var objUsuarioAuthEK = ctxPeru.tblP_Usuario_Enkontrol.FirstOrDefault(e => e.empleado == req.empAutoriza && e.empleado != 0);
-                                        var objUsuarioVoboEK = ctxPeru.tblP_Usuario_Enkontrol.FirstOrDefault(e => e.empleado == req.vobo && e.empleado != 0);
+                                        var objUsuarioSoliEK = ctx.tblP_Usuario.FirstOrDefault(e => e.id == req.solicito);
+                                        var objUsuarioAuthEK = ctx.tblP_Usuario.FirstOrDefault(e => e.id == req.empAutoriza);
+                                        var objUsuarioVoboEK = ctx.tblP_Usuario.FirstOrDefault(e => e.id == req.vobo);
 
                                         if (objUsuarioSoliEK != null)
                                         {
-                                            var objUsuarioSoli = ctxPeru.tblP_Usuario.FirstOrDefault(e => e.id == objUsuarioSoliEK.idUsuario);
-
-                                            nombreUsrSoli = objUsuarioSoli.nombre + " " + objUsuarioSoli.apellidoPaterno + " " + objUsuarioSoli.apellidoMaterno;
+                                            nombreUsrSoli = objUsuarioSoliEK.nombre + " " + objUsuarioSoliEK.apellidoPaterno + " " + objUsuarioSoliEK.apellidoMaterno;
                                         }
 
                                         if (objUsuarioAuthEK != null)
                                         {
-                                            var objUsuarioAuth = ctxPeru.tblP_Usuario.FirstOrDefault(e => e.id == objUsuarioAuthEK.idUsuario);
-
-                                            nombreUsrAuth = objUsuarioAuth.nombre + " " + objUsuarioAuth.apellidoPaterno + " " + objUsuarioAuth.apellidoMaterno;
+                                            nombreUsrAuth = objUsuarioAuthEK.nombre + " " + objUsuarioAuthEK.apellidoPaterno + " " + objUsuarioAuthEK.apellidoMaterno;
 
                                         }
 
                                         if (objUsuarioVoboEK != null)
                                         {
-                                            var objUsuarioVobo = ctxPeru.tblP_Usuario.FirstOrDefault(e => e.id == objUsuarioVoboEK.idUsuario);
-
-                                            nombreUsrVobo = objUsuarioVobo.nombre + " " + objUsuarioVobo.apellidoPaterno + " " + objUsuarioVobo.apellidoMaterno;
+                                            nombreUsrVobo = objUsuarioVoboEK.nombre + " " + objUsuarioVoboEK.apellidoPaterno + " " + objUsuarioVoboEK.apellidoMaterno;
 
                                         }
 
@@ -8227,7 +8124,7 @@ namespace Data.DAO.Enkontrol.Compras
                                         if (req.usuarioSolicita > 0)
                                         {
                                             var cveEmpleado = req.usuarioSolicita.ToString();
-                                            var usuarioSpSolicita = ctxPeru.tblP_Usuario.FirstOrDefault(x => x.cveEmpleado == cveEmpleado && x.cveEmpleado != null && x.cveEmpleado != "0" && x.cveEmpleado != "");
+                                            var usuarioSpSolicita = ctx.tblP_Usuario.FirstOrDefault(x => x.cveEmpleado == cveEmpleado && x.cveEmpleado != null && x.cveEmpleado != "0" && x.cveEmpleado != "");
                                             if (usuarioSpSolicita != null)
                                             {
                                                 usuarioSolicitaDesc = PersonalUtilities.NombreCompletoMayusculas(usuarioSpSolicita.nombre, usuarioSpSolicita.apellidoPaterno, usuarioSpSolicita.apellidoMaterno);
@@ -8245,9 +8142,9 @@ namespace Data.DAO.Enkontrol.Compras
                                            fechaReq = ((DateTime)req.fecha).ToShortDateString(),
                                            estatus = estatus,
                                            comentarios = req.comentarios != null ? (string)req.comentarios : "",
-                                           solicito = req.solicito != null ? nombreUsrSoli : "",
-                                           vobo = req.vobo != null ? nombreUsrVobo : "",
-                                           autorizo = req.stAutoriza && req.autorizo != null ? nombreUsrAuth : "",
+                                           solicito = nombreUsrSoli,
+                                           vobo = nombreUsrVobo,
+                                           autorizo = nombreUsrAuth,
                                            usuarioSolicitaDesc = usuarioSolicitaDesc,
                                            usuarioSolicitaUso = "",
                                            partidas = rptRequisicionPartidas
@@ -8636,11 +8533,11 @@ namespace Data.DAO.Enkontrol.Compras
                 }
 
                 return rptRequisicionInfo;
-            }
-            catch (Exception ex)
-            {
-                return new rptRequisicionInfoDTO();
-            }
+            // }
+            // catch (Exception ex)
+            // {
+            //     return new rptRequisicionInfoDTO();
+            // }
         }
 
 
@@ -9723,14 +9620,14 @@ namespace Data.DAO.Enkontrol.Compras
                 using (var ctx = new MainContext())
                 {
                     var insumoEK = (
-                        from i in ctx.tblCom_Insumos
+                        from i in ctx.tblAlm_Insumo
                         where i.insumo == insumo // insumo es el parámetro que pasas
                         select new
                         {
                             i.insumo,
                             i.descripcion,
                             i.unidad,
-                            i.bit_area_cuenta,
+                            i.bit_area_cta,
                             costoPromedio = ctx.tblCom_OrdenCompraDet
                                                 .Where(det => det.insumo == i.insumo)
                                                 .Average(det => (decimal?)det.precio) ?? 0, // Manejo de valores nulos
@@ -9748,7 +9645,7 @@ namespace Data.DAO.Enkontrol.Compras
                             value = insumoEK.insumo,
                             unidad = insumoEK.unidad,
                             // exceso = null, // No se encuentra equivalente directo para 'cant_requerida' en el código original
-                            isAreaCueta = insumoEK.bit_area_cuenta, // Manejo de posibles nulos
+                            isAreaCueta = insumoEK.bit_area_cta, // Manejo de posibles nulos
                             cancelado = insumoEK.cancelado,
                             costoPromedio = insumoEK.costoPromedio.ToString("F2"), // Convertir a string con formato si es necesario
                             color_resguardo = insumoEK.color_resguardo != null ? (int)insumoEK.color_resguardo : 0,
@@ -12493,8 +12390,8 @@ namespace Data.DAO.Enkontrol.Compras
                                     OC.bienes_servicios AS ocBienesServicios,
                                     OCDET.fecha_entrega AS ocDetFechaEntrega,
                                     U.nombre + ' ' + U.apellidoPaterno + ' ' + CASE WHEN U.apellidoMaterno IS NOT NULL THEN U.apellidoMaterno ELSE '' END AS solicitoNombreCompleto,
-                                    PROV.PRVCNOMBRE AS provedorNombre,
-                                    ART.ADESCRI AS insumoNombre,
+                                    PROV.nomcorto AS provedorNombre,
+                                    ART.descripcion AS insumoNombre,
                                     UCOMPRADOR.nombreUsuario AS compradorUsuario,
                                     USUGERIDO.nombre + ' ' + USUGERIDO.apellidoPaterno + ' ' + CASE WHEN USUGERIDO.apellidoMaterno IS NOT NULL THEN USUGERIDO.apellidoMaterno ELSE '' END AS compradorSugerido,
                                     REQ.validadoAlmacen AS reqValidadoAlmacen,
@@ -12530,7 +12427,6 @@ namespace Data.DAO.Enkontrol.Compras
                                     tblCom_OrdenCompra AS OC
                                     ON
                                         OC.id = OCDET.idOrdenCompra AND
-                                        OC.PERU_tipoCompra = REQ.PERU_tipoRequisicion AND
                                         OC.estatusRegistro = 1
                                 LEFT JOIN
                                     tblP_Usuario_Enkontrol AS UEK
@@ -12541,14 +12437,13 @@ namespace Data.DAO.Enkontrol.Compras
                                     ON
                                         U.id = UEK.idUsuario
                                 LEFT JOIN
-                                    tblCom_MAEPROV AS PROV
+                                    tblCom_sp_proveedores AS PROV
                                     ON
-                                        PROV.PRVCCODIGO = OC.PERU_proveedor AND
-                                        PROV.PRVCESTADO = 'V'
+                                        PROV.numpro = OC.proveedor
                                 LEFT JOIN
-                                    [10.1.0.136].[003BDCOMUN].dbo.MAEART AS ART
+                                    tblAlm_Insumo AS ART
                                     ON
-                                        ART.ACODIGO = '0' + CAST(REQDET.insumo AS varchar)
+                                        ART.insumo = REQDET.insumo
                                 LEFT JOIN
                                     tblP_Usuario_Enkontrol AS UEKCOMPRADOR
                                     ON
@@ -12596,8 +12491,8 @@ namespace Data.DAO.Enkontrol.Compras
                             parametros = new
                             {
                                 paramCCs = listaCC,
-                                paramFechaInicial = fechaInicial,
-                                paramFechaFinal = fechaFinal,
+                                paramFechaInicial = fechaInicial.ToString("yyyy-MM-dd"),
+                                paramFechaFinal = fechaFinal.ToString("yyyy-MM-dd"),
                                 paramRequisitor = requisitor
                             }
                         });

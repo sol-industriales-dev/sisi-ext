@@ -37,5 +37,6 @@ namespace Core.Entity.Enkontrol.Compras.OrdenCompra
         public string partidaDescripcion { get; set; }
         public string noEconomico { get; set; }
         public bool estatusRegistro { get; set; }
+        public bool exento_iva { get; set; }
     }
 }

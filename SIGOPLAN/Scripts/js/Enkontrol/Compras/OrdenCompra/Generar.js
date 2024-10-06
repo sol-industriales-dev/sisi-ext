@@ -266,7 +266,7 @@
 
             //getContadorRequisicionesPendientes();
             cargarCatalogoRetenciones();
-            // checkPeriodoContable();
+            checkPeriodoContable();
             btnOpenEnviar.click(fnOpenEnviar);
             btnEnviar.click(fnEnviarOC);
         }
@@ -375,16 +375,16 @@
                                     if (!proveedorVacio) {
                                         let flagPresupuesto = true;
 
-                                        if (_validaGlobal) {
-                                            let presupuestoGlobal = unmaskNumero6DCompras(labelPresupuestoGlobal.attr('presupuesto'));
-                                            let presupuestoActual = unmaskNumero6DCompras(labelPresupuestoActual.attr('presupuesto'));
+                                        // if (_validaGlobal) {
+                                        //     let presupuestoGlobal = unmaskNumero6DCompras(labelPresupuestoGlobal.attr('presupuesto'));
+                                        //     let presupuestoActual = unmaskNumero6DCompras(labelPresupuestoActual.attr('presupuesto'));
 
-                                            if (presupuestoGlobal >= (presupuestoActual + compra.sub_total)) {
-                                                flagPresupuesto = true;
-                                            } else {
-                                                flagPresupuesto = false;
-                                            }
-                                        }
+                                        //     if (presupuestoGlobal >= (presupuestoActual + compra.sub_total)) {
+                                        //         flagPresupuesto = true;
+                                        //     } else {
+                                        //         flagPresupuesto = false;
+                                        //     }
+                                        // }
 
                                         if (flagPresupuesto) {
                                             if (compra.tiempoEntregaDias > 0) {
@@ -1931,6 +1931,8 @@
                 tblPartidasEditar.DataTable().columns.adjust();
 
                 checkRenglonInsumoBloqueado();
+
+                // btnGuardarNuevaCompra.attr('disabled', false);
 
                 if (_flagPeriodoContable) {
                     btnGuardarNuevaCompra.attr('disabled', deshabilitarGuardado);
@@ -3536,60 +3538,62 @@
 
         function cargarPresupuesto() {
             let cc = selectCC.val();
-
-            $.post('/Enkontrol/OrdenCompra/GetPresupuestoCC', { cc }).then(response => {
-                if (response.success) {
-                    if (response.data != null) {
-                        fieldsetPresupuesto.css('display', 'block');
-                        _validaGlobal = true;
-                        labelPresupuestoGlobal.text(`Presupuesto Global (${cc}): ${maskNumero6DCompras(response.data.presupuestoGlobal)}`);
-                        labelPresupuestoGlobal.attr('presupuesto', response.data.presupuestoGlobal);
-                        labelPresupuestoActual.text(`Presupuesto Actual (${cc}): ${maskNumero6DCompras(response.data.presupuestoActual)}`);
-                        labelPresupuestoActual.attr('presupuesto', response.data.presupuestoActual);
-                    } else {
-                        fieldsetPresupuesto.css('display', 'none');
-                        _validaGlobal = false;
-                    }
-                } else {
-                    AlertaGeneral(`Alerta`, `Error al consultar la información del presupuesto.`);
-                    fieldsetPresupuesto.css('display', 'none');
-                    _validaGlobal = false;
-                    labelPresupuestoGlobal.text('');
-                    labelPresupuestoGlobal.attr('presupuesto', '');
-                    labelPresupuestoActual.text('');
-                    labelPresupuestoActual.attr('presupuesto', '');
-                }
-            }, error => {
-                AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
-            }
-            );
+            fieldsetPresupuesto.css('display', 'none');
+            _validaGlobal = true;
+            // $.post('/Enkontrol/OrdenCompra/GetPresupuestoCC', { cc }).then(response => {
+            //     if (response.success) {
+            //         if (response.data != null) {
+            //             fieldsetPresupuesto.css('display', 'block');
+            //             _validaGlobal = true;
+            //             labelPresupuestoGlobal.text(`Presupuesto Global (${cc}): ${maskNumero6DCompras(response.data.presupuestoGlobal)}`);
+            //             labelPresupuestoGlobal.attr('presupuesto', response.data.presupuestoGlobal);
+            //             labelPresupuestoActual.text(`Presupuesto Actual (${cc}): ${maskNumero6DCompras(response.data.presupuestoActual)}`);
+            //             labelPresupuestoActual.attr('presupuesto', response.data.presupuestoActual);
+            //         } else {
+            //             fieldsetPresupuesto.css('display', 'none');
+            //             _validaGlobal = false;
+            //         }
+            //     } else {
+            //         AlertaGeneral(`Alerta`, `Error al consultar la información del presupuesto.`);
+            //         fieldsetPresupuesto.css('display', 'none');
+            //         _validaGlobal = false;
+            //         labelPresupuestoGlobal.text('');
+            //         labelPresupuestoGlobal.attr('presupuesto', '');
+            //         labelPresupuestoActual.text('');
+            //         labelPresupuestoActual.attr('presupuesto', '');
+            //     }
+            // }, error => {
+            //     AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+            // }
+            // );
         }
 
         function checkPeriodoContable() {
-            $.post('/Enkontrol/OrdenCompra/GetPeriodoContable').then(response => {
-                if (response.success) {
-                    if (response.data != null) {
-                        _flagPeriodoContable = true;
-                        btnGuardarNuevaCompra.attr('disabled', false);
-                        // btnBorrarCompra.css('display', 'inline-block');
-                    } else {
-                        _flagPeriodoContable = false;
-                        btnGuardarNuevaCompra.attr('disabled', true);
-                        // btnBorrarCompra.css('display', 'none');
-                    }
-                } else {
-                    AlertaGeneral(`Alerta`, `Error al consultar la información del periodo contable.`);
-                    _flagPeriodoContable = false;
-                    btnGuardarNuevaCompra.attr('disabled', true);
-                    // btnBorrarCompra.css('display', 'none');
-                }
-            }, error => {
-                AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
-                _flagPeriodoContable = false;
-                btnGuardarNuevaCompra.attr('disabled', true);
-                // btnBorrarCompra.css('display', 'none');
-            }
-            );
+            _flagPeriodoContable = true;
+            btnGuardarNuevaCompra.attr('disabled', false);
+            // $.post('/Enkontrol/OrdenCompra/GetPeriodoContable').then(response => {
+            //     if (response.success) {
+            //         if (response.data != null) {
+            //             _flagPeriodoContable = true;
+            //             btnGuardarNuevaCompra.attr('disabled', false);
+            //             // btnBorrarCompra.css('display', 'inline-block');
+            //         } else {
+            //             _flagPeriodoContable = false;
+            //             btnGuardarNuevaCompra.attr('disabled', true);
+            //             // btnBorrarCompra.css('display', 'none');
+            //         }
+            //     } else {
+            //         AlertaGeneral(`Alerta`, `Error al consultar la información del periodo contable.`);
+            //         _flagPeriodoContable = false;
+            //         btnGuardarNuevaCompra.attr('disabled', true);
+            //         // btnBorrarCompra.css('display', 'none');
+            //     }
+            // }, error => {
+            //     AlertaGeneral(`Operación fallida`, `Ocurrió un error al lanzar la petición al servidor: Error ${error.status} - ${error.statusText}.`);
+            //     _flagPeriodoContable = false;
+            //     btnGuardarNuevaCompra.attr('disabled', true);
+            //     // btnBorrarCompra.css('display', 'none');
+            // });
         }
 
         const getUrlParams = function (url) {

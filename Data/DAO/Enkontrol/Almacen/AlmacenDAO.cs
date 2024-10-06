@@ -5828,7 +5828,7 @@ namespace Data.DAO.Enkontrol.Almacen
                                     tipo_oc_req = "1",
                                     compradorSIGOPLAN = 1,
                                     compradorEnkontrol = 1,
-                                    moneda = tipoMoneda.ToString(),
+                                    moneda = tipoMoneda,
                                     tipo_cambio = tipoCambio,
                                     porcent_iva = porcentajeIVA,
                                     sub_total = precio,

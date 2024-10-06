@@ -35,5 +35,7 @@ namespace Core.Entity.Principal.Multiempresa
         public bool isBajio { get; set; }
         public DateTime? fechaArranque { get; set; }
         public int ordernFlujoEfectivo { get; set; }
+        public string st_ppto { get; set; }
+        public string valida_anio { get; set; }
     }
 }

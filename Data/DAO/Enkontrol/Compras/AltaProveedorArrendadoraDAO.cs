@@ -271,7 +271,7 @@ namespace Data.DAO.Enkontrol.Compras
                         objListaProveedores.limcred = item.limcred;
                         objListaProveedores.tmbase = item.tmbase;
                         objListaProveedores.condpago = item.condpago;
-                        objListaProveedores.moneda = item.moneda.Trim();
+                        objListaProveedores.moneda = item.moneda;
                         objListaProveedores.cta_bancaria = item.cta_bancaria;
                         objListaProveedores.tipo_prov = item.tipo_prov;
                         objListaProveedores.cancelado = item.cancelado.Trim();
@@ -359,7 +359,7 @@ namespace Data.DAO.Enkontrol.Compras
                     InformacionProvedores.limcred = infoProveedor.limcred;
                     InformacionProvedores.tmbase = infoProveedor.tmbase;
                     InformacionProvedores.condpago = infoProveedor.condpago;
-                    InformacionProvedores.moneda = infoProveedor.moneda.Trim();
+                    InformacionProvedores.moneda = infoProveedor.moneda;
                     InformacionProvedores.cta_bancaria = infoProveedor.cta_bancaria.Trim();
                     InformacionProvedores.tipo_prov = infoProveedor.tipo_prov;
                     InformacionProvedores.cancelado = infoProveedor.cancelado.Trim();
@@ -806,7 +806,7 @@ namespace Data.DAO.Enkontrol.Compras
                                     infoProveedor.limcred = objProveedor.limcred;
                                     infoProveedor.tmbase = objProveedor.tmbase;
                                     infoProveedor.condpago = objProveedor.condpago;
-                                    infoProveedor.moneda = objProveedor.moneda.Trim();
+                                    infoProveedor.moneda = objProveedor.moneda;
                                     infoProveedor.cta_bancaria = objProveedor.cta_bancaria;
                                     infoProveedor.tipo_prov = objProveedor.tipo_prov;
                                     infoProveedor.cancelado = objProveedor.cancelado;
@@ -1073,7 +1073,7 @@ namespace Data.DAO.Enkontrol.Compras
                                         cmd.Parameters.Add("@tmbase", OdbcType.Numeric).Value = objProveedor.tmbase;
                                         cmd.Parameters.Add("@descuento", OdbcType.Numeric).Value = 0; //falta agregar
                                         cmd.Parameters.Add("@condpago", OdbcType.Numeric).Value = objProveedor.condpago;
-                                        cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda ?? "").Trim();
+                                        cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda);
                                         cmd.Parameters.Add("@cta_bancaria", OdbcType.Char).Value = (objProveedor.cta_bancaria ?? "").Trim();
                                         cmd.Parameters.Add("@tipo_prov", OdbcType.Numeric).Value = objProveedor.tipo_prov;
                                         cmd.Parameters.Add("@cancelado", OdbcType.Char).Value = (objProveedor.cancelado ?? "").Trim();
@@ -1769,7 +1769,7 @@ namespace Data.DAO.Enkontrol.Compras
                                                 cmd.Parameters.Add("@tmbase", OdbcType.Numeric).Value = objProveedor.tmbase;
                                                 cmd.Parameters.Add("@descuento", OdbcType.Numeric).Value = 0; //falta agregar
                                                 cmd.Parameters.Add("@condpago", OdbcType.Numeric).Value = objProveedor.condpago;
-                                                cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda ?? "").Trim();
+                                                //cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda ?? "").Trim();
                                                 cmd.Parameters.Add("@cta_bancaria", OdbcType.Char).Value = (objProveedor.cta_bancaria ?? "").Trim();
                                                 cmd.Parameters.Add("@tipo_prov", OdbcType.Numeric).Value = objProveedor.tipo_prov;
                                                 cmd.Parameters.Add("@cancelado", OdbcType.Char).Value = (objProveedor.cancelado ?? "").Trim();
@@ -1903,7 +1903,7 @@ namespace Data.DAO.Enkontrol.Compras
                                                 cmd.Parameters.Add("@tmbase", OdbcType.Numeric).Value = objProveedor.tmbase;
                                                 cmd.Parameters.Add("@descuento", OdbcType.Numeric).Value = 0; //falta agregar
                                                 cmd.Parameters.Add("@condpago", OdbcType.Numeric).Value = objProveedor.condpago;
-                                                cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda ?? "").Trim();
+                                                //cmd.Parameters.Add("@moneda", OdbcType.Char).Value = (objProveedor.moneda ?? "").Trim();
                                                 cmd.Parameters.Add("@cta_bancaria", OdbcType.Char).Value = (objProveedor.cta_bancaria ?? "").Trim();
                                                 cmd.Parameters.Add("@tipo_prov", OdbcType.Numeric).Value = objProveedor.tipo_prov;
                                                 cmd.Parameters.Add("@cancelado", OdbcType.Char).Value = (objProveedor.cancelado ?? "").Trim();

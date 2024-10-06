@@ -484,6 +484,7 @@ namespace Data.EntityFramework.Context
         public DbSet<tblAlm_RelAreaCuentaXAlmacen> tblAlm_RelAreaCuentaXAlmacen { get; set; }
         public DbSet<tblAlm_RelAreaCuentaXAlmacenDet> tblAlm_RelAreaCuentaXAlmacenDet { get; set; }
         public DbSet<tblAlm_Ubicacion> tblAlm_Ubicacion { get; set; }
+        public DbSet<tblAlm_Grupos_Insumo> tblAlm_Grupos_Insumo { get; set; }
 
         public DbSet<tblM_CatMarcaEquipotblM_CatGrupoMaquinaria> tblM_CatMarcaEquipotblM_CatGrupoMaquinaria { get; set; }
         public DbSet<tblP_RolesGrupoTrabajo> tblP_RolesGrupoTrabajo { get; set; }
@@ -1235,11 +1236,19 @@ namespace Data.EntityFramework.Context
         public DbSet<tblCom_VoboAutorizacionEspecial> tblCom_VoboAutorizacionEspecial { get; set; }
         public DbSet<tblCom_sp_proveedoresColombia> tblCom_sp_proveedoresColombia { get; set; }
         public DbSet<tblCom_sp_proveedores> tblCom_sp_proveedores { get; set; }
+        public DbSet<tblCom_sp_ciudades> tblCom_sp_ciudades { get; set; }
+        public DbSet<tblCom_sp_tipo_prov> tblCom_sp_tipo_prov { get; set; }
+        public DbSet<tblCom_sp_tercero> tblCom_sp_tercero { get; set; }
+        public DbSet<tblCom_sp_pago_tercero> tblCom_sp_pago_tercero { get; set; }
+        public DbSet<tblCom_sp_operacion> tblCom_sp_operacion { get; set; }
+        public DbSet<tblCom_sp_tm> tblCom_sp_tm { get; set; }
+        public DbSet<tblCom_sb_bancos> tblCom_sb_bancos { get; set; }
+        public DbSet<tblCom_sr_regimen> tblCom_sr_regimen { get; set; }
         public DbSet<tblCom_ArchivosAdjuntosProveedores> tblCom_ArchivosAdjuntosProveedores { get; set; }
         public DbSet<tblCom_ProveedoresSocios> tblCom_ProveedoresSocios { get; set; }
         public DbSet<tblCom_sp_proveedores_cta_dep> tblCom_sp_proveedores_cta_dep { get; set; }
         public DbSet<tblCom_FamiliaStarsoftEnkontrol> tblCom_FamiliaStarsoftEnkontrol { get; set; }
-        
+        public DbSet<tblCom_CC_Autorizaciones> tblCom_CC_Autorizaciones { get; set; }
         
         #region Requisicion
         public DbSet<tblCom_Req> tblCom_Req { get; set; }
@@ -1258,8 +1267,10 @@ namespace Data.EntityFramework.Context
         public DbSet<tblCom_OrdenCompra_Interna> tblCom_OrdenCompra_Interna { get; set; }
         public DbSet<tblCom_OrdenCompraDet_Interna> tblCom_OrdenCompraDet_Interna { get; set; }
         public DbSet<tblCom_OrdenCompra_Retenciones_Interna> tblCom_OrdenCompra_Retenciones_Interna { get; set; }
-        
+
+        public DbSet<tblCom_Pagos> tblCom_Pagos { get; set; }
         public DbSet<tblCom_Retenciones> tblCom_Retenciones { get; set; }
+        public DbSet<tblCom_Retenciones_Cat> tblCom_Retenciones_Cat { get; set; }
         public DbSet<tblCom_OCRetenciones> tblCom_OCRetenciones { get; set; }
         public DbSet<tblCom_VoboEmpleadoTipoGrupo> tblCom_VoboEmpleadoTipoGrupo { get; set; }
         public DbSet<tblCom_Comprador> tblCom_Comprador { get; set; }

@@ -842,7 +842,7 @@ namespace Data.DAO.Encuestas
                                         proveedorNumero = m.proveedor.Value,
                                         proveedorNombre = null,
                                         proveedorNombreCorto = null,
-                                        moneda = int.Parse(m.moneda),
+                                        moneda = m.moneda,
                                         tipoCambio = m.tipo_cambio,
                                         total = m.total * m.tipo_cambio
                                     }).ToList();

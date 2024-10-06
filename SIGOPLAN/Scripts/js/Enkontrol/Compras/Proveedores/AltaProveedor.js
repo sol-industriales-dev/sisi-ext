@@ -283,54 +283,55 @@
                     { data: 'direccion', title: 'DIRECCIÓN' },
                     { data: 'ciudad', title: 'CIUDAD' },
                     { data: 'rfc', title: 'RFC' },
-                    { data: 'descEstatus', title: 'STATUS', },
-                    { data: 'puedeAutorizar', title: 'puedeAutorizar', visible: false },
-                    {
-                        title: 'VOBO',
-                        render: function (data, type, row, meta) {
-                            let btnVobo = `<button class='btn btn-xs btn-success darVobo' title='Vobo.'><i class='fas fa-check'></i>Vobo</button>&nbsp`;
+                    // { data: 'descEstatus', title: 'STATUS', },
+                    // { data: 'puedeAutorizar', title: 'puedeAutorizar', visible: false },
+                    // {
+                    //     title: 'VOBO',
+                    //     render: function (data, type, row, meta) {
+                    //         let btnVobo = `<button class='btn btn-xs btn-success darVobo' title='Vobo.'><i class='fas fa-check'></i>Vobo</button>&nbsp`;
 
-                            if (row.puedeDarPrimerVobo) {
-                                return btnVobo;
-                            } else {
-                                if (row.puedeDarVobo != false) {
-                                    return `${btnVobo} `
-                                } else { return `` }
-                            }
-                        },
-                    },
-                    {
-                        title: 'AUTORIZACIÓN',
-                        render: function (data, type, row, meta) {
-                            let btnAutorizar = `<button class='btn btn-xs btn-success autorizarRegistro' title='Autorizar registro.'><i class='fas fa-check'></i>Autorizar</button>`;
-                            if (row.puedeAutorizar != false) {
-                                return `${btnAutorizar}`
-                            } else { return `` }
-                        },
-                    },
+                    //         if (row.puedeDarPrimerVobo) {
+                    //             return btnVobo;
+                    //         } else {
+                    //             if (row.puedeDarVobo != false) {
+                    //                 return `${btnVobo} `
+                    //             } else { return `` }
+                    //         }
+                    //     },
+                    // },
+                    // {
+                    //     title: 'AUTORIZACIÓN',
+                    //     render: function (data, type, row, meta) {
+                    //         let btnAutorizar = `<button class='btn btn-xs btn-success autorizarRegistro' title='Autorizar registro.'><i class='fas fa-check'></i>Autorizar</button>`;
+                    //         if (row.puedeAutorizar != false) {
+                    //             return `${btnAutorizar}`
+                    //         } else { return `` }
+                    //     },
+                    // },
                     {
                         data: 'Autorizado', title: 'OPCIONES',
                         render: function (data, type, row, meta) {
                             let btnEditar = `<button class='btn btn-xs btn-warning editarRegistro' title='Editar registro.'><i class='fas fa-pencil-alt'></i></button>&nbsp`;
                             let btnEliminar = `<button class='btn btn-xs btn-danger eliminarRegistro' title='Eliminar registro.'><i class='fas fa-trash'></i></button>&nbsp`;
 
-                            if (row.vobo == true && row.Autorizado == true) {
-                                return ``
-                            } else if (row.vobo == true && row.Autorizado == false) { return `${btnEditar}` } else {
-                                return `${btnEditar} ${btnEliminar}`
-                            }
+                            // if (row.vobo == true && row.Autorizado == true) {
+                            //     return ``
+                            // } else if (row.vobo == true && row.Autorizado == false) { return `${btnEditar}` } else {
+                            //     return `${btnEditar} ${btnEliminar}`
+                            // }
+                            return `${btnEditar} ${btnEliminar}`
                         },
                     },
                 ],
                 initComplete: function (settings, json) {
-                    TblCom_sv_proveedores.on('click', '.darVobo', function () {
-                        let rowData = dtTblCom_sv_proveedores.row($(this).closest('tr')).data();
-                        Alert2AccionConfirmar('¡Cuidado!', '¿Desea dar el V.o.b.o para autorizar proveedor?', 'Confirmar', 'Cancelar', () => fncNotificarAlta(rowData.id));
-                    });
-                    TblCom_sv_proveedores.on('click', '.autorizarRegistro', function () {
-                        let rowData = dtTblCom_sv_proveedores.row($(this).closest('tr')).data();
-                        Alert2AccionConfirmar('¡Cuidado!', '¿Desea autorizar el proveedor seleccionado?', 'Confirmar', 'Cancelar', () => fncAutorizarProveedor(rowData.id));
-                    });
+                    // TblCom_sv_proveedores.on('click', '.darVobo', function () {
+                    //     let rowData = dtTblCom_sv_proveedores.row($(this).closest('tr')).data();
+                    //     Alert2AccionConfirmar('¡Cuidado!', '¿Desea dar el V.o.b.o para autorizar proveedor?', 'Confirmar', 'Cancelar', () => fncNotificarAlta(rowData.id));
+                    // });
+                    // TblCom_sv_proveedores.on('click', '.autorizarRegistro', function () {
+                    //     let rowData = dtTblCom_sv_proveedores.row($(this).closest('tr')).data();
+                    //     Alert2AccionConfirmar('¡Cuidado!', '¿Desea autorizar el proveedor seleccionado?', 'Confirmar', 'Cancelar', () => fncAutorizarProveedor(rowData.id));
+                    // });
                     TblCom_sv_proveedores.on('click', '.editarRegistro', function () {
                         editarRegistro = [];
                         let rowData = dtTblCom_sv_proveedores.row($(this).closest('tr')).data();

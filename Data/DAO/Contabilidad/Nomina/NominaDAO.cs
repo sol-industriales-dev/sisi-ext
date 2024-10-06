@@ -1603,7 +1603,7 @@ namespace Data.DAO.Contabilidad.Nomina
                                                     compradorSIGOPLAN = 13, //Admin
                                                     compradorEnkontrol = 1, //Admin
                                                     compradorStarsoft = 0,
-                                                    moneda = "1",
+                                                    moneda = 1,
                                                     tipo_cambio = 1,
                                                     porcent_iva = 16m,
                                                     sub_total = cantidad,
@@ -2025,7 +2025,7 @@ namespace Data.DAO.Contabilidad.Nomina
                                                     compradorSIGOPLAN = 13, //Admin
                                                     compradorEnkontrol = 1, //Admin
                                                     compradorStarsoft = 0,
-                                                    moneda = "1",
+                                                    moneda = 1,
                                                     tipo_cambio = 1,
                                                     porcent_iva = 16m,
                                                     sub_total = cantidad,
@@ -2477,7 +2477,7 @@ namespace Data.DAO.Contabilidad.Nomina
                                                                             compradorSIGOPLAN = 13, //Admin
                                                                             compradorEnkontrol = 1, //Admin
                                                                             compradorStarsoft = 0,
-                                                                            moneda = "1",
+                                                                            moneda = 1,
                                                                             tipo_cambio = 1,
                                                                             porcent_iva = 16m,
                                                                             sub_total = cantidad,
@@ -4618,7 +4618,7 @@ namespace Data.DAO.Contabilidad.Nomina
                                                             compradorSIGOPLAN = 13, //Admin
                                                             compradorEnkontrol = 1, //Admin
                                                             compradorStarsoft = 0,
-                                                            moneda = "1",
+                                                            moneda = 1,
                                                             tipo_cambio = 1,
                                                             porcent_iva = 16m,
                                                             sub_total = cantidad,
@@ -5056,7 +5056,7 @@ namespace Data.DAO.Contabilidad.Nomina
                                                                                     compradorSIGOPLAN = 13, //Admin
                                                                                     compradorEnkontrol = 1, //Admin
                                                                                     compradorStarsoft = 0,
-                                                                                    moneda = "1",
+                                                                                    moneda = 1,
                                                                                     tipo_cambio = 1,
                                                                                     porcent_iva = 16m,
                                                                                     sub_total = cantidad,

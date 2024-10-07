@@ -15126,7 +15126,6 @@ FROM (
                         SELECT 
                         req.cc, 
                         req.numero, 
-						req.PERU_tipoRequisicion,
                         CASE WHEN EXISTS(SELECT * FROM tblCom_CuadroComparativo cua WHERE req.cc = cua.cc AND req.numero = cua.numero AND cua.registroActivo = 1) 
                             THEN CAST(1 AS BIT) 
                             ELSE CAST(0 AS BIT) 
@@ -15521,658 +15520,292 @@ FROM (
 
         public CuadroComparativoDTO getCuadroDet(CuadroComparativoDTO cuadro)
         {
-            if ((MainContextEnum)vSesiones.sesionEmpresaActual != MainContextEnum.PERU)
+            #region PERU
+
+            var existeCuadro = _context.Select<dynamic>(new DapperDTO()
             {
-                #region RESTO EMPRESAS
-                var existeCuadro = consultaCheckProductivo(
-                string.Format(@"SELECT 
-                                    * 
-                                FROM so_cuadro_comparativo 
-                                WHERE cc = '{0}' AND numero = {1} AND folio = {2}", cuadro.cc, cuadro.numero, cuadro.folio));
-
-                var surtido = _context.tblCom_Surtido.Where(x => x.estatus && x.cc == cuadro.cc && x.numero == cuadro.numero).ToList();
-                var surtidoDet = new List<tblCom_SurtidoDet>();
-
-                if (surtido.Count > 0)
-                {
-                    foreach (var sur in surtido)
-                    {
-                        surtidoDet.AddRange(_context.tblCom_SurtidoDet.Where(x => x.estatus && x.surtidoID == sur.id).ToList());
-                    }
-                }
-
-                var requisicion = ((List<dynamic>)consultaCheckProductivo(
-                    string.Format(@"SELECT * FROM so_requisicion WHERE cc = '{0}' AND numero = {1}", cuadro.cc, cuadro.numero)
-                ).ToObject<List<dynamic>>())[0];
-                var requisicionDet = (List<dynamic>)consultaCheckProductivo(
-                    string.Format(@"SELECT * FROM so_requisicion_det WHERE cc = '{0}' AND numero = {1}", cuadro.cc, cuadro.numero)
-                ).ToObject<List<dynamic>>();
-
-                if (existeCuadro != null)
-                {
-                    var consultaRegistroGeneral = "";
-
-                    if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
-                    {
-                        consultaRegistroGeneral = @"
+                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                consulta = string.Format(@"
                             SELECT 
-                                cua.*, cua.observaciones1 AS comentarios1, cua.observaciones2 AS comentarios2, cua.observaciones3 AS comentarios3, 
-                                (SELECT mon1.moneda FROM moneda mon1 WHERE cua.moneda1 = mon1.clave) AS moneda1Desc, 
-                                (SELECT mon2.moneda FROM moneda mon2 WHERE cua.moneda2 = mon2.clave) AS moneda2Desc, 
-                                (SELECT mon3.moneda FROM moneda mon3 WHERE cua.moneda3 = mon3.clave) AS moneda3Desc, 
-                                (SELECT la1.descripcion FROM so_libre_abordo la1 WHERE cua.lab1 = la1.numero) AS lab1Desc, 
-                                (SELECT la2.descripcion FROM so_libre_abordo la2 WHERE cua.lab2 = la2.numero) AS lab2Desc, 
-                                (SELECT la3.descripcion FROM so_libre_abordo la3 WHERE cua.lab3 = la3.numero) AS lab3Desc 
-                            FROM so_cuadro_comparativo cua 
-                            WHERE cua.cc = '{0}' AND cua.numero = {1} AND cua.folio = {2}";
-                    }
-                    else
-                    {
-                        consultaRegistroGeneral = @"
-                            SELECT 
-                                cua.*, 
-                                (SELECT mon1.moneda FROM moneda mon1 WHERE cua.moneda1 = mon1.clave) AS moneda1Desc, 
-                                (SELECT mon2.moneda FROM moneda mon2 WHERE cua.moneda2 = mon2.clave) AS moneda2Desc, 
-                                (SELECT mon3.moneda FROM moneda mon3 WHERE cua.moneda3 = mon3.clave) AS moneda3Desc, 
-                                (SELECT la1.descripcion FROM so_libre_abordo la1 WHERE cua.lab1 = la1.numero) AS lab1Desc, 
-                                (SELECT la2.descripcion FROM so_libre_abordo la2 WHERE cua.lab2 = la2.numero) AS lab2Desc, 
-                                (SELECT la3.descripcion FROM so_libre_abordo la3 WHERE cua.lab3 = la3.numero) AS lab3Desc 
-                            FROM so_cuadro_comparativo cua 
-                            WHERE cua.cc = '{0}' AND cua.numero = {1} AND cua.folio = {2}";
-                    }
+                                * 
+                            FROM tblCom_CuadroComparativo 
+                            WHERE cc = '{0}' AND numero = {1} AND folio = {2} AND registroActivo = 1", cuadro.cc, cuadro.numero, cuadro.folio)
+            }).FirstOrDefault();
 
-                    var cuadroComparativo = consultaCheckProductivo(string.Format(consultaRegistroGeneral, cuadro.cc, cuadro.numero, cuadro.folio)).ToObject<List<CuadroComparativoDTO>>()[0];
+            var surtido = _context.tblCom_Surtido.Where(x => x.estatus && x.cc == cuadro.cc && x.numero == cuadro.numero).ToList();
+            var surtidoDet = new List<tblCom_SurtidoDet>();
 
-                    var cuadroDet = consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                    det.cc, 
-                                    det.numero, 
-                                    det.folio, 
-                                    det.partida, 
-                                    det.insumo, 
-                                    ins.descripcion, 
-                                    det.cantidad, 
-                                    ins.unidad, 
-                                    det.precio1, 
-                                    (SELECT mon1.moneda FROM moneda mon1 WHERE cua.moneda1 = mon1.clave) AS moneda1, 
-                                    det.precio2, 
-                                    (SELECT mon2.moneda FROM moneda mon2 WHERE cua.moneda2 = mon2.clave) AS moneda2, 
-                                    det.precio3, 
-                                    (SELECT mon3.moneda FROM moneda mon3 WHERE cua.moneda3 = mon3.clave) AS moneda3, 
-                                    det.proveedor_uc, 
-                                    det.oc_uc, 
-                                    det.fecha_uc, 
-                                    det.precio_uc, 
-                                    cua.prov1, 
-                                    cua.nombre_prov1, 
-                                    cua.prov2, 
-                                    cua.nombre_prov2, 
-                                    cua.prov3, 
-                                    cua.nombre_prov3, 
-                                    (
-                                        SELECT 
-                                            TOP 1 l.descripcion 
-                                        FROM so_req_det_linea l 
-                                        WHERE l.cc = det.cc AND l.numero = det.numero AND l.partida = det.partida 
-                                    ) AS partidaDesc 
-                                FROM so_cuadro_comparativo_det det 
-                                    INNER JOIN so_cuadro_comparativo cua ON det.cc = cua.cc AND det.numero = cua.numero AND det.folio = cua.folio 
-                                    INNER JOIN insumos ins ON det.insumo = ins.insumo 
-                                WHERE det.cc = '{0}' AND det.numero = {1} AND det.folio = {2}", cuadro.cc, cuadro.numero, cuadro.folio)).ToObject<List<CuadroComparativoDetDTO>>();
-
-                    foreach (var part in cuadroDet)
-                    {
-                        var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
-                        var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).ToList().Count > 0 ?
-                            surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).Sum(y => y.cantidad) : 0;
-
-                        var cantidadNoCancelada = (part.cantidad != null ?
-                            Convert.ToDecimal(part.cantidad, CultureInfo.InvariantCulture) : 0) - Convert.ToDecimal(partidaRequisicion.cant_cancelada, CultureInfo.InvariantCulture);
-                        //var cantidadNoOrdenada = cantidadNoCancelada - (partidaRequisicion.cant_ordenada != null ? Convert.ToDecimal(partidaRequisicion.cant_ordenada, CultureInfo.InvariantCulture) : 0);
-                        var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
-
-                        part.cantidad = cantidadResultado;
-                        part.cant_ordenada = Convert.ToDecimal(partidaRequisicion.cant_ordenada, CultureInfo.InvariantCulture);
-                    }
-
-                    cuadroComparativo.detalleCuadro = cuadroDet;
-                    cuadroComparativo.tieneCuadro = true;
-
-                    var cuadroSIGOPLAN = _context.tblCom_CuadroComparativo.FirstOrDefault(x => x.registroActivo && x.cc == cuadro.cc && x.numero == cuadro.numero && x.folio == cuadro.folio);
-
-                    if (cuadroSIGOPLAN != null)
-                    {
-                        cuadroComparativo.rutaArchivo1 = cuadroSIGOPLAN.rutaArchivo1;
-                        cuadroComparativo.rutaArchivo2 = cuadroSIGOPLAN.rutaArchivo2;
-                        cuadroComparativo.rutaArchivo3 = cuadroSIGOPLAN.rutaArchivo3;
-                    }
-
-                    //DEFAULT PERU
-                    cuadroComparativo.PERU_tipoCambio = 1;
-
-                    return cuadroComparativo;
-                }
-                else
+            if (surtido.Count > 0)
+            {
+                foreach (var sur in surtido)
                 {
-                    var requisicionNuevoCuadro = new CuadroComparativoDTO();
-
-                    var requisicionDetNuevoCuadro = consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                        det.cc, 
-                                        det.numero, 
-                                        det.partida, 
-                                        det.insumo, 
-                                        ins.descripcion, 
-                                        det.cantidad, 
-                                        ins.unidad, 
-                                        det.cant_ordenada, 
-                                        (
-                                            SELECT 
-                                                TOP 1 l.descripcion 
-                                            FROM so_req_det_linea l 
-                                            WHERE l.cc = det.cc AND l.numero = det.numero AND l.partida = det.partida 
-                                        ) AS partidaDesc 
-                                    FROM so_requisicion_det det 
-                                        INNER JOIN insumos ins ON det.insumo = ins.insumo 
-                                    WHERE det.cc = '{0}' AND det.numero = {1}", cuadro.cc, cuadro.numero)).ToObject<List<CuadroComparativoDetDTO>>();
-
-                    foreach (var part in requisicionDetNuevoCuadro)
-                    {
-                        var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
-                        var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).ToList().Count > 0 ?
-                            surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).Sum(y => y.cantidad) : 0;
-
-                        var cantidadNoCancelada = (part.cantidad != null ?
-                            Convert.ToDecimal(part.cantidad, CultureInfo.InvariantCulture) : 0) - Convert.ToDecimal(partidaRequisicion.cant_cancelada, CultureInfo.InvariantCulture);
-                        //var cantidadNoOrdenada = cantidadNoCancelada - (partidaRequisicion.cant_ordenada.Value != null ? Convert.ToDecimal(partidaRequisicion.cant_ordenada.Value, CultureInfo.InvariantCulture) : 0);
-                        var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
-
-                        part.cantidad = cantidadResultado;
-                        part.cant_ordenada = Convert.ToDecimal(part.cant_ordenada, CultureInfo.InvariantCulture);
-                    }
-
-                    requisicionNuevoCuadro.detalleCuadro = requisicionDetNuevoCuadro;
-                    requisicionNuevoCuadro.tieneCuadro = false;
-
-                    //var requisicionEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_requisicion WHERE cc = '{0}' AND numero = {1}", cuadro.cc, cuadro.numero));
-
-                    //if (requisicionEK != null)
-                    //{
-                    //var requisicion = ((List<dynamic>)requisicionEK.ToObject<List<dynamic>>())[0];
-
-                    var libreAbordoDescEK = consultaCheckProductivo(string.Format(@"SELECT * FROM so_libre_abordo WHERE numero = {0}", (int)requisicion.libre_abordo));
-
-                    if (libreAbordoDescEK != null)
-                    {
-                        var libreAbordoDesc = ((List<dynamic>)libreAbordoDescEK.ToObject<List<dynamic>>())[0];
-
-                        requisicionNuevoCuadro.lab1 = (int)requisicion.libre_abordo;
-                        requisicionNuevoCuadro.lab1Desc = (string)libreAbordoDesc.descripcion;
-                        requisicionNuevoCuadro.lab2 = (int)requisicion.libre_abordo;
-                        requisicionNuevoCuadro.lab2Desc = (string)libreAbordoDesc.descripcion;
-                        requisicionNuevoCuadro.lab3 = (int)requisicion.libre_abordo;
-                        requisicionNuevoCuadro.lab3Desc = (string)libreAbordoDesc.descripcion;
-                    }
-                    //}
-
-                    //DEFAULT PERU
-                    requisicionNuevoCuadro.PERU_tipoCambio = 1;
-
-                    return requisicionNuevoCuadro;
+                    surtidoDet.AddRange(_context.tblCom_SurtidoDet.Where(x => x.estatus && x.surtidoID == sur.id).ToList());
                 }
+            }
+
+            var requisicion = _context.Select<dynamic>(new DapperDTO()
+            {
+                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                consulta = string.Format(@"
+                            SELECT 
+                                * 
+                            FROM tblCom_Req 
+                            WHERE cc = '{0}' AND numero = {1} AND estatusRegistro = 1 ", cuadro.cc, cuadro.numero, cuadro.folio)
+            }).FirstOrDefault();
+
+            var requisicionDet = _context.Select<dynamic>(new DapperDTO()
+            {
+                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                consulta = string.Format(@"
+                            SELECT 
+                                det.* 
+                            FROM tblCom_Req req
+                            INNER JOIN tblCom_ReqDet det ON req.id = det.idReq
+                            WHERE det.idReq = '{0}' AND det.estatusRegistro = 1", requisicion.id)
+            });
+
+            if (existeCuadro != null)
+            {
+                #region CUADRO EXISTENTE
+                var cuadroComparativo = _context.Select<CuadroComparativoDTO>(new DapperDTO()
+                {
+                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    consulta = string.Format(@"SELECT 
+                                cua.* 
+                            FROM tblCom_CuadroComparativo cua 
+                            WHERE cua.cc = '{0}' AND cua.numero = {1} AND cua.folio = {2} AND registroActivo = 1", cuadro.cc, cuadro.numero, cuadro.folio)
+                }).FirstOrDefault();
+
+                //TIPO DE MONEDA POR PROVEEDOR
+                var moneda1 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadroComparativo.moneda1);
+                var moneda2 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadroComparativo.moneda2);
+                var moneda3 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadroComparativo.moneda3);
+                cuadroComparativo.moneda1Desc = moneda1.nombreCortoSat;
+                cuadroComparativo.moneda2Desc = moneda2.nombreCortoSat;
+                cuadroComparativo.moneda3Desc = moneda3.nombreCortoSat;
+
+                cuadroComparativo.tipo_cambio1 = 1;
+                cuadroComparativo.tipo_cambio2 = 1;
+                cuadroComparativo.tipo_cambio3 = 1;
+
+                var cuadroDet = _context.Select<CuadroComparativoDetDTO>(new DapperDTO()
+                {
+                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    consulta = string.Format(@"SELECT 
+                                det.cc, 
+                                det.numero, 
+                                det.folio, 
+                                det.partida, 
+                                det.insumo, 
+                                ins.descripcion, 
+                                det.cantidad, 
+                                ins.unidad, 
+                                det.precio1, 
+                                det.precio2,  
+                                det.precio3, 
+                                cua.moneda1, 
+                                cua.moneda2, 
+                                cua.moneda3, 
+                                det.proveedor_uc, 
+                                det.oc_uc, 
+                                det.fecha_uc, 
+                                det.precio_uc, 
+                                cua.prov1, 
+                                cua.nombre_prov1, 
+                                cua.prov2, 
+                                cua.nombre_prov2, 
+                                cua.prov3, 
+                                cua.nombre_prov3, 
+                                (
+                                    SELECT 
+                                        TOP 1 l.descripcion 
+                                    FROM tblCom_Req c
+                                    INNER JOIN tblCom_ReqDet l ON c.id = l.idReq
+                                    WHERE cua.cc = c.cc AND cua.numero = c.numero AND l.partida = det.partida AND c.estatusRegistro = 1 AND l.estatusRegistro = 1 
+                                ) AS partidaDesc 
+                            FROM tblCom_CuadroComparativoDet det 
+                                INNER JOIN tblCom_CuadroComparativo cua ON det.cc = cua.cc AND det.numero = cua.numero AND det.folio = cua.folio 
+                                INNER JOIN tblAlm_Insumo ins ON det.insumo = ins.insumo
+                            WHERE det.cc = '{0}' AND det.numero = {1} AND det.folio = {2} AND det.registroActivo = 1 AND cua.registroActivo = 1 ", cuadro.cc, cuadro.numero, cuadro.folio)
+                });
+
+                foreach (var part in cuadroDet)
+                {
+                    var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
+                    var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == part.insumo).ToList().Count > 0 ?
+                        surtidoDet.Where(x => x.insumo == part.insumo).Sum(y => y.cantidad) : 0;
+
+                    var cantidadNoCancelada = (part.cantidad > 0 ?
+                        part.cantidad : 0) - (partidaRequisicion != null ? partidaRequisicion.cantCancelada : 0);
+
+                    var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
+
+                    part.cantidad = cantidadResultado;
+                }
+
+                cuadroComparativo.detalleCuadro = cuadroDet;
+                cuadroComparativo.tieneCuadro = true;
+
+                var cuadroSIGOPLAN = _context.tblCom_CuadroComparativo.FirstOrDefault(x => x.registroActivo && x.cc == cuadro.cc && x.numero == cuadro.numero && x.folio == cuadro.folio );
+
+                if (cuadroSIGOPLAN != null)
+                {
+                    cuadroComparativo.rutaArchivo1 = cuadroSIGOPLAN.rutaArchivo1;
+                    cuadroComparativo.rutaArchivo2 = cuadroSIGOPLAN.rutaArchivo2;
+                    cuadroComparativo.rutaArchivo3 = cuadroSIGOPLAN.rutaArchivo3;
+                }
+
+                return cuadroComparativo;
+
                 #endregion
             }
             else
             {
-                #region PERU
+                #region CUADRO SIN GUARDAR
+                var requisicionNuevoCuadro = new CuadroComparativoDTO();
 
-                decimal tipoCambioPeru = 0M;
-
-                using (var dbStarsoft = new MainContextPeruStarSoft003BDCONTABILIDAD())
-                {
-                    var tipoCambioActual = dbStarsoft.TIPO_CAMBIO.ToList().FirstOrDefault(e => e.TIPOCAMB_FECHA.Date == DateTime.Now.Date);
-                    if (tipoCambioActual != null)
-                    {
-                        tipoCambioPeru = tipoCambioActual.TIPOCAMB_COMPRA;
-                    }
-                    else
-                    {
-                        tipoCambioPeru = dbStarsoft.TIPO_CAMBIO.ToList().FirstOrDefault(e => e.TIPOCAMB_FECHA.Date == DateTime.Now.AddDays(-1).Date).TIPOCAMB_COMPRA;
-                    }
-
-                }
-
-
-                var existeCuadro = _context.Select<dynamic>(new DapperDTO()
+                var requisicionDetNuevoCuadro = _context.Select<CuadroComparativoDetDTO>(new DapperDTO()
                 {
                     baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
                     consulta = string.Format(@"
-                                SELECT 
-                                    * 
-                                FROM tblCom_CuadroComparativo 
-                                WHERE cc = '{0}' AND numero = {1} AND folio = {2} AND PERU_tipoCuadro = '{3}' AND registroActivo = 1", cuadro.cc, cuadro.numero, cuadro.folio, cuadro.PERU_tipoRequisicion)
-                }).FirstOrDefault();
-
-                var surtido = _context.tblCom_Surtido.Where(x => x.estatus && x.cc == cuadro.cc && x.numero == cuadro.numero).ToList();
-                var surtidoDet = new List<tblCom_SurtidoDet>();
-
-                if (surtido.Count > 0)
-                {
-                    foreach (var sur in surtido)
-                    {
-                        surtidoDet.AddRange(_context.tblCom_SurtidoDet.Where(x => x.estatus && x.surtidoID == sur.id).ToList());
-                    }
-                }
-
-                var requisicion = _context.Select<dynamic>(new DapperDTO()
-                {
-                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                    consulta = string.Format(@"
-                                SELECT 
-                                    * 
-                                FROM tblCom_Req 
-                                WHERE cc = '{0}' AND numero = {1} AND estatusRegistro = 1 AND PERU_tipoRequisicion = '{3}'", cuadro.cc, cuadro.numero, cuadro.folio, cuadro.PERU_tipoRequisicion)
-                }).FirstOrDefault();
-
-                var requisicionDet = _context.Select<dynamic>(new DapperDTO()
-                {
-                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                    consulta = string.Format(@"
-                                SELECT 
-                                    det.* 
-                                FROM tblCom_Req req
-                                INNER JOIN tblCom_ReqDet det ON req.id = det.idReq
-                                WHERE det.idReq = '{0}' AND det.estatusRegistro = 1", requisicion.id)
+                            SELECT 
+                                req.cc, 
+                                req.numero, 
+                                det.partida, 
+                                det.insumo, 
+                                ins.descripcion, 
+                                det.cantidad - det.cantOrdenada AS cantidad, 
+                                ins.unidad, 
+                                det.descripcion AS partidaDesc 
+                            FROM tblCom_Req req
+                            INNER JOIN tblCom_ReqDet det ON req.id = det.idReq
+                            INNER JOIN tblAlm_Insumo ins ON det.insumo = ins.insumo
+                            WHERE req.estatusRegistro = 1 AND det.estatusRegistro = 1 AND req.cc = '{0}' AND req.numero = {1}", cuadro.cc, cuadro.numero)
                 });
 
-                if (existeCuadro != null)
+                foreach (var part in requisicionDetNuevoCuadro)
                 {
-                    #region CUADRO EXISTENTE
-                    var cuadroComparativo = _context.Select<CuadroComparativoDTO>(new DapperDTO()
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = string.Format(@"SELECT 
-                                    cua.* 
-                                FROM tblCom_CuadroComparativo cua 
-                                WHERE cua.cc = '{0}' AND cua.numero = {1} AND cua.folio = {2} AND PERU_tipoCuadro = '{3}' AND registroActivo = 1", cuadro.cc, cuadro.numero, cuadro.folio, cuadro.PERU_tipoRequisicion)
-                    }).FirstOrDefault();
+                    var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
+                    var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == part.insumo).ToList().Count > 0 ?
+                        surtidoDet.Where(x => x.insumo == part.insumo).Sum(y => y.cantidad) : 0;
 
-                    //TIPO DE MONEDA POR PROVEEDOR
-                    cuadroComparativo.moneda1Desc = cuadroComparativo.moneda1 == 4 ? "SOL" : "USD";
-                    cuadroComparativo.moneda2Desc = cuadroComparativo.moneda2 == 4 ? "SOL" : "USD";
-                    cuadroComparativo.moneda3Desc = cuadroComparativo.moneda3 == 4 ? "SOL" : "USD";
+                    var cantidadNoCancelada = part.cantidad > 0 ? part.cantidad - partidaRequisicion.cantCancelada : 0;
+                    var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
 
-                    cuadroComparativo.PERU_tipoCambio = tipoCambioPeru;
-
-                    var cuadroDet = _context.Select<CuadroComparativoDetDTO>(new DapperDTO()
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = string.Format(@"SELECT 
-                                    det.cc, 
-                                    det.numero, 
-                                    det.folio, 
-                                    det.partida, 
-                                    det.insumo, 
-                                    --ins.descripcion, 
-                                    det.cantidad, 
-                                    --ins.unidad, 
-                                    det.precio1, 
-                                    det.precio2,  
-                                    det.precio3, 
-                                    cua.moneda1, 
-                                    cua.moneda2, 
-                                    cua.moneda3, 
-                                    det.proveedor_uc, 
-                                    det.oc_uc, 
-                                    det.fecha_uc, 
-                                    det.precio_uc, 
-                                    cua.prov1, 
-                                    cua.nombre_prov1, 
-                                    cua.prov2, 
-                                    cua.nombre_prov2, 
-                                    cua.prov3, 
-                                    cua.nombre_prov3, 
-                                    (
-                                        SELECT 
-                                            TOP 1 l.descripcion 
-                                        FROM tblCom_Req c
-										INNER JOIN tblCom_ReqDet l ON c.id = l.idReq
-                                        WHERE cua.cc = c.cc AND cua.numero = c.numero AND l.partida = det.partida AND c.estatusRegistro = 1 AND c.PERU_tipoRequisicion = '{3}' AND l.estatusRegistro = 1 AND l.PERU_tipoRequisicion = '{3}'
-                                    ) AS partidaDesc 
-                                FROM tblCom_CuadroComparativoDet det 
-                                    INNER JOIN tblCom_CuadroComparativo cua ON det.cc = cua.cc AND det.numero = cua.numero AND det.folio = cua.folio 
-                                WHERE det.cc = '{0}' AND det.numero = {1} AND det.folio = {2} AND det.registroActivo = 1 AND cua.registroActivo = 1 AND det.PERU_tipoCuadro = '{3}' AND cua.PERU_tipoCuadro = '{3}'", cuadro.cc, cuadro.numero, cuadro.folio, cuadro.PERU_tipoRequisicion)
-                    });
-
-                    foreach (var part in cuadroDet)
-                    {
-
-                        using (var dbStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                        {
-
-                            var insumoStarsoft = "";
-
-                            string insumoStr = ((int)part.insumo).ToString();
-                            int lengthId = 11 - insumoStr.Count();
-
-                            for (int i = 0; i < lengthId; i++)
-                            {
-                                insumoStarsoft += "0";
-                            }
-
-                            insumoStarsoft += insumoStr;
-
-                            var objInusmoStarsoft = dbStarsoft.MAEART.FirstOrDefault(e => e.ACODIGO == insumoStarsoft);
-                            part.descripcion = objInusmoStarsoft.ADESCRI;
-                            part.unidad = objInusmoStarsoft.AUNIDAD;
-                        }
-
-                        var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
-                        var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).ToList().Count > 0 ?
-                            surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).Sum(y => y.cantidad) : 0;
-
-                        var cantidadNoCancelada = (part.cantidad != null ?
-                            Convert.ToDecimal(part.cantidad, CultureInfo.InvariantCulture) : 0) - (partidaRequisicion != null ? Convert.ToDecimal(partidaRequisicion.cantCancelada, CultureInfo.InvariantCulture) : 0);
-                        //var cantidadNoOrdenada = cantidadNoCancelada - (partidaRequisicion.cant_ordenada != null ? Convert.ToDecimal(partidaRequisicion.cant_ordenada, CultureInfo.InvariantCulture) : 0);
-                        var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
-
-                        part.cantidad = cantidadResultado;
-                    }
-
-                    cuadroComparativo.detalleCuadro = cuadroDet;
-                    cuadroComparativo.tieneCuadro = true;
-
-                    var cuadroSIGOPLAN = _context.tblCom_CuadroComparativo.FirstOrDefault(x => x.registroActivo && x.cc == cuadro.cc && x.numero == cuadro.numero && x.folio == cuadro.folio && x.PERU_tipoCuadro == cuadro.PERU_tipoRequisicion);
-
-                    if (cuadroSIGOPLAN != null)
-                    {
-                        cuadroComparativo.rutaArchivo1 = cuadroSIGOPLAN.rutaArchivo1;
-                        cuadroComparativo.rutaArchivo2 = cuadroSIGOPLAN.rutaArchivo2;
-                        cuadroComparativo.rutaArchivo3 = cuadroSIGOPLAN.rutaArchivo3;
-                    }
-
-
-
-                    return cuadroComparativo;
-
-                    #endregion
+                    part.cantidad = cantidadResultado;
                 }
-                else
-                {
-                    #region CUADRO SIN GUARDAR
-                    var requisicionNuevoCuadro = new CuadroComparativoDTO();
 
-                    var requisicionDetNuevoCuadro = _context.Select<CuadroComparativoDetDTO>(new DapperDTO()
-                    {
-                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                        consulta = string.Format(@"
-                                SELECT 
-                                    req.cc, 
-                                    req.numero, 
-                                    det.partida, 
-                                    det.insumo, 
-                                    --ins.descripcion, 
-                                    det.cantidad - det.cantOrdenada AS cantidad, 
-                                    --ins.unidad, 
-                                    det.descripcion AS partidaDesc 
-                                FROM tblCom_Req req
-                                INNER JOIN tblCom_ReqDet det ON req.id = det.idReq
-                                WHERE req.estatusRegistro = 1 AND det.estatusRegistro = 1 AND req.PERU_tipoRequisicion = '{2}' AND req.cc = '{0}' AND req.numero = {1}", cuadro.cc, cuadro.numero, cuadro.PERU_tipoRequisicion)
-                    });
+                requisicionNuevoCuadro.detalleCuadro = requisicionDetNuevoCuadro;
+                requisicionNuevoCuadro.tieneCuadro = false;
 
-                    requisicionNuevoCuadro.PERU_tipoCambio = tipoCambioPeru;
-
-                    foreach (var part in requisicionDetNuevoCuadro)
-                    {
-                        using (var dbStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                        {
-
-                            var insumoStarsoft = "";
-
-                            string insumoStr = ((int)part.insumo).ToString();
-                            int lengthId = 11 - insumoStr.Count();
-
-                            for (int i = 0; i < lengthId; i++)
-                            {
-                                insumoStarsoft += "0";
-                            }
-
-                            insumoStarsoft += insumoStr;
-
-                            var objInusmoStarsoft = dbStarsoft.MAEART.FirstOrDefault(e => e.ACODIGO == insumoStarsoft);
-                            part.descripcion = objInusmoStarsoft.ADESCRI;
-                            part.unidad = objInusmoStarsoft.AUNIDAD;
-                        }
-
-                        var partidaRequisicion = requisicionDet.FirstOrDefault(x => x.partida == part.partida);
-                        var surtidoPorInsumo = surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).ToList().Count > 0 ?
-                            surtidoDet.Where(x => x.insumo == Convert.ToInt32(part.insumo)).Sum(y => y.cantidad) : 0;
-
-                        var cantidadNoCancelada = (part.cantidad != null ?
-                            Convert.ToDecimal(part.cantidad, CultureInfo.InvariantCulture) : 0) - (partidaRequisicion != null ? Convert.ToDecimal(partidaRequisicion.cantCancelada, CultureInfo.InvariantCulture) : 0);
-                        //var cantidadNoOrdenada = cantidadNoCancelada - (partidaRequisicion.cant_ordenada.Value != null ? Convert.ToDecimal(partidaRequisicion.cant_ordenada.Value, CultureInfo.InvariantCulture) : 0);
-                        var cantidadResultado = cantidadNoCancelada - surtidoPorInsumo;
-
-                        part.cantidad = cantidadResultado;
-                    }
-
-                    requisicionNuevoCuadro.detalleCuadro = requisicionDetNuevoCuadro;
-                    requisicionNuevoCuadro.tieneCuadro = false;
-
-                    return requisicionNuevoCuadro;
-                    #endregion
-                }
+                return requisicionNuevoCuadro;
                 #endregion
             }
-
+            #endregion
         }
         public CuadroComparativoReporteDTO getCuadroReporte(string cc, int numero, int folio)
         {
+            #region PERU
+            string PERU_tipoCuadro = "";
 
-            if ((MainContextEnum)vSesiones.sesionEmpresaActual != MainContextEnum.PERU)
+            var cuadro = getCuadroDet(new CuadroComparativoDTO { cc = cc, numero = numero, folio = folio, PERU_tipoRequisicion = PERU_tipoCuadro }); //OMAR
+            var cuadroReporte = new CuadroComparativoReporteDTO();
+
+            var ccDesc = _context.tblC_Nom_CatalogoCC.FirstOrDefault(e => e.cc == cc).ccDescripcion;
+
+            var moneda1 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadro.moneda1);
+            var moneda2 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadro.moneda2);
+            var moneda3 = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == cuadro.moneda3);
+
+            string prefijoMoneda1 = moneda1.signo;
+            string prefijoMoneda2 = moneda2.signo;
+            string prefijoMoneda3 = moneda3.signo;
+
+            cuadroReporte.cc = cuadro.cc + "-" + ccDesc;
+            cuadroReporte.folioCuadroComparativo = cuadro.cc + "-" + fillNo(cuadro.numero.ToString(), 6) + "-" + ((cuadro.folio < 10) ? ("0" + cuadro.folio) : cuadro.folio.ToString());
+            cuadroReporte.fechaCuadro = cuadro.fecha.Date.ToShortDateString();
+            cuadroReporte.fechaActual = DateTime.Now.Date.ToShortDateString();
+            cuadroReporte.proveedor1 = (cuadro.prov1 != null ? (cuadro.prov1.ToString() + "-" + (cuadro.nombre_prov1 ?? "")) : "");
+            cuadroReporte.proveedor2 = (cuadro.prov2 != null ? (cuadro.prov2.ToString() + "-" + (cuadro.nombre_prov2 ?? "")) : "");
+            cuadroReporte.proveedor3 = (cuadro.prov3 != null ? (cuadro.prov3.ToString() + "-" + (cuadro.nombre_prov3 ?? "")) : "");
+            cuadroReporte.subTotalProv1 = prefijoMoneda1 + cuadro.sub_total1.ToString("N6");
+            cuadroReporte.subTotalProv2 = prefijoMoneda2 + cuadro.sub_total2.ToString("N6");
+            cuadroReporte.subTotalProv3 = prefijoMoneda3 + cuadro.sub_total3.ToString("N6");
+            cuadroReporte.descuentoProv1 = prefijoMoneda1 + cuadro.dcto1.ToString("N6");
+            cuadroReporte.descuentoProv2 = prefijoMoneda2 + cuadro.dcto2.ToString("N6");
+            cuadroReporte.descuentoProv3 = prefijoMoneda3 + cuadro.dcto3.ToString("N6");
+            cuadroReporte.total1Prov1 = prefijoMoneda1 + (cuadro.sub_total1 - cuadro.dcto1).ToString("N6");
+            cuadroReporte.total1Prov2 = prefijoMoneda2 + (cuadro.sub_total2 - cuadro.dcto2).ToString("N6");
+            cuadroReporte.total1Prov3 = prefijoMoneda3 + (cuadro.sub_total3 - cuadro.dcto3).ToString("N6");
+            cuadroReporte.ivaProv1 = prefijoMoneda1 + cuadro.iva1.ToString("N6");
+            cuadroReporte.ivaProv2 = prefijoMoneda2 + cuadro.iva2.ToString("N6");
+            cuadroReporte.ivaProv3 = prefijoMoneda3 + cuadro.iva3.ToString("N6");
+            cuadroReporte.total2Prov1 = prefijoMoneda1 + cuadro.total1.ToString("N6");
+            cuadroReporte.total2Prov2 = prefijoMoneda2 + cuadro.total2.ToString("N6");
+            cuadroReporte.total2Prov3 = prefijoMoneda3 + cuadro.total3.ToString("N6");
+            cuadroReporte.fletesProv1 = prefijoMoneda1 + cuadro.fletes1.ToString("N6");
+            cuadroReporte.fletesProv2 = prefijoMoneda2 + cuadro.fletes2.ToString("N6");
+            cuadroReporte.fletesProv3 = prefijoMoneda3 + cuadro.fletes3.ToString("N6");
+            cuadroReporte.gastosProv1 = prefijoMoneda1 + cuadro.gastos_imp1.ToString("N6");
+            cuadroReporte.gastosProv2 = prefijoMoneda2 + cuadro.gastos_imp2.ToString("N6");
+            cuadroReporte.gastosProv3 = prefijoMoneda3 + cuadro.gastos_imp3.ToString("N6");
+            cuadroReporte.granTotalProv1 = prefijoMoneda1 + (cuadro.total1 + cuadro.fletes1 + cuadro.gastos_imp1).ToString("N6");
+            cuadroReporte.granTotalProv2 = prefijoMoneda2 + (cuadro.total2 + cuadro.fletes2 + cuadro.gastos_imp2).ToString("N6");
+            cuadroReporte.granTotalProv3 = prefijoMoneda3 + (cuadro.total3 + cuadro.fletes3 + cuadro.gastos_imp3).ToString("N6");
+            //cuadroReporte.labProv1 = cuadro.lab1 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab1).descripcion : "";
+            //cuadroReporte.labProv2 = cuadro.lab2 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab2).descripcion : "";
+            //cuadroReporte.labProv3 = cuadro.lab3 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab3).descripcion : "";
+            cuadroReporte.labProv1 = "";
+            cuadroReporte.labProv2 = "";
+            cuadroReporte.labProv3 = "";
+            cuadroReporte.pagoProv1 = "";
+            cuadroReporte.pagoProv2 = "";
+            cuadroReporte.pagoProv3 = "";
+            cuadroReporte.fechaEntregaProv1 = cuadro.fecha_entrega1.Date.ToShortDateString();
+            cuadroReporte.fechaEntregaProv2 = cuadro.fecha_entrega2.Date.ToShortDateString();
+            cuadroReporte.fechaEntregaProv3 = cuadro.fecha_entrega3.Date.ToShortDateString();
+            cuadroReporte.comentarioProv1 = cuadro.comentarios1 ?? "";
+            cuadroReporte.comentarioProv2 = cuadro.comentarios2 ?? "";
+            cuadroReporte.comentarioProv3 = cuadro.comentarios3 ?? "";
+            cuadroReporte.moneda1 = cuadro.moneda1.ToString();
+            cuadroReporte.moneda2 = cuadro.moneda2.ToString();
+            cuadroReporte.moneda3 = cuadro.moneda3.ToString();
+
+            cuadroReporte.partidas = new List<CuadroComparativoPartidasReporteDTO>();
+
+            foreach (var det in cuadro.detalleCuadro)
             {
-                #region RESTO EMPRESAS
-                var cuadro = getCuadroDet(new CuadroComparativoDTO { cc = cc, numero = numero, folio = folio }); //OMAR
-                var cuadroReporte = new CuadroComparativoReporteDTO();
-
-                var ccDesc = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT descripcion FROM cc WHERE cc = '{0}' AND st_ppto != 'T'", cuadro.cc)).ToObject<List<dynamic>>();
-                var listLAB = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM so_libre_abordo")).ToObject<List<dynamic>>();
-
-                cuadroReporte.cc = cuadro.cc + "-" + (string)ccDesc[0].descripcion;
-                cuadroReporte.folioCuadroComparativo = cuadro.cc + "-" + fillNo(cuadro.numero.ToString(), 6) + "-" + ((cuadro.folio < 10) ? ("0" + cuadro.folio) : cuadro.folio.ToString());
-                cuadroReporte.fechaCuadro = cuadro.fecha.Date.ToShortDateString();
-                cuadroReporte.fechaActual = DateTime.Now.Date.ToShortDateString();
-                cuadroReporte.proveedor1 = (cuadro.prov1 != null ? (cuadro.prov1.ToString() + "-" + (cuadro.nombre_prov1 ?? "")) : "");
-                cuadroReporte.proveedor2 = (cuadro.prov2 != null ? (cuadro.prov2.ToString() + "-" + (cuadro.nombre_prov2 ?? "")) : "");
-                cuadroReporte.proveedor3 = (cuadro.prov3 != null ? (cuadro.prov3.ToString() + "-" + (cuadro.nombre_prov3 ?? "")) : "");
-                cuadroReporte.subTotalProv1 = "$" + cuadro.sub_total1.ToString("N6");
-                cuadroReporte.subTotalProv2 = "$" + cuadro.sub_total2.ToString("N6");
-                cuadroReporte.subTotalProv3 = "$" + cuadro.sub_total3.ToString("N6");
-                cuadroReporte.descuentoProv1 = "$" + cuadro.dcto1.ToString("N6");
-                cuadroReporte.descuentoProv2 = "$" + cuadro.dcto2.ToString("N6");
-                cuadroReporte.descuentoProv3 = "$" + cuadro.dcto3.ToString("N6");
-                cuadroReporte.total1Prov1 = "$" + (cuadro.sub_total1 - cuadro.dcto1).ToString("N6");
-                cuadroReporte.total1Prov2 = "$" + (cuadro.sub_total2 - cuadro.dcto2).ToString("N6");
-                cuadroReporte.total1Prov3 = "$" + (cuadro.sub_total3 - cuadro.dcto3).ToString("N6");
-                cuadroReporte.ivaProv1 = "$" + cuadro.iva1.ToString("N6");
-                cuadroReporte.ivaProv2 = "$" + cuadro.iva2.ToString("N6");
-                cuadroReporte.ivaProv3 = "$" + cuadro.iva3.ToString("N6");
-                cuadroReporte.total2Prov1 = "$" + cuadro.total1.ToString("N6");
-                cuadroReporte.total2Prov2 = "$" + cuadro.total2.ToString("N6");
-                cuadroReporte.total2Prov3 = "$" + cuadro.total3.ToString("N6");
-                cuadroReporte.fletesProv1 = "$" + cuadro.fletes1.ToString("N6");
-                cuadroReporte.fletesProv2 = "$" + cuadro.fletes2.ToString("N6");
-                cuadroReporte.fletesProv3 = "$" + cuadro.fletes3.ToString("N6");
-                cuadroReporte.gastosProv1 = "$" + cuadro.gastos_imp1.ToString("N6");
-                cuadroReporte.gastosProv2 = "$" + cuadro.gastos_imp2.ToString("N6");
-                cuadroReporte.gastosProv3 = "$" + cuadro.gastos_imp3.ToString("N6");
-                cuadroReporte.granTotalProv1 = "$" + (cuadro.total1 + cuadro.fletes1 + cuadro.gastos_imp1).ToString("N6");
-                cuadroReporte.granTotalProv2 = "$" + (cuadro.total2 + cuadro.fletes2 + cuadro.gastos_imp2).ToString("N6");
-                cuadroReporte.granTotalProv3 = "$" + (cuadro.total3 + cuadro.fletes3 + cuadro.gastos_imp3).ToString("N6");
-                cuadroReporte.labProv1 = cuadro.lab1 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab1).descripcion : "";
-                cuadroReporte.labProv2 = cuadro.lab2 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab2).descripcion : "";
-                cuadroReporte.labProv3 = cuadro.lab3 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab3).descripcion : "";
-                cuadroReporte.pagoProv1 = "";
-                cuadroReporte.pagoProv2 = "";
-                cuadroReporte.pagoProv3 = "";
-                cuadroReporte.fechaEntregaProv1 = cuadro.fecha_entrega1.Date.ToShortDateString();
-                cuadroReporte.fechaEntregaProv2 = cuadro.fecha_entrega2.Date.ToShortDateString();
-                cuadroReporte.fechaEntregaProv3 = cuadro.fecha_entrega3.Date.ToShortDateString();
-                cuadroReporte.comentarioProv1 = cuadro.comentarios1 ?? "";
-                cuadroReporte.comentarioProv2 = cuadro.comentarios2 ?? "";
-                cuadroReporte.comentarioProv3 = cuadro.comentarios3 ?? "";
-
-                cuadroReporte.partidas = new List<CuadroComparativoPartidasReporteDTO>();
-
-                foreach (var det in cuadro.detalleCuadro)
+                var ultimaCompra = getUltimaCompra(new CuadroComparativoDetDTO
                 {
-                    var ultimaCompra = getUltimaCompra(new CuadroComparativoDetDTO
-                    {
-                        cc = det.cc,
-                        numero = det.numero,
-                        folio = det.folio,
-                        partida = det.partida,
-                        insumo = det.insumo
-                    });
+                    cc = det.cc,
+                    numero = det.numero,
+                    folio = det.folio,
+                    partida = det.partida,
+                    insumo = det.insumo,
+                });
 
-                    cuadroReporte.partidas.Add(new CuadroComparativoPartidasReporteDTO
-                    {
-                        partida = det.partida.ToString(),
-                        insumo = det.insumo + " " + det.descripcion,
-                        cantidad = det.cantidad.ToString("N6") + " " + det.unidad,
-                        precioProv1 = "$" + det.precio1.ToString("N6") + " " + (det.moneda1 ?? ""),
-                        importeProv1 = "$" + (det.cantidad * det.precio1).ToString("N6"),
-                        precioProv2 = "$" + det.precio2.ToString("N6") + " " + (det.moneda2 ?? ""),
-                        importeProv2 = "$" + (det.cantidad * det.precio2).ToString("N6"),
-                        precioProv3 = "$" + det.precio3.ToString("N6") + " " + (det.moneda3 ?? ""),
-                        importeProv3 = "$" + (det.cantidad * det.precio3).ToString("N6"),
-                        ultCompraProveedor = ultimaCompra != null ? ultimaCompra.proveedorNum + '-' + ultimaCompra.proveedorNom : "",
-                        ultCompraFolio = ultimaCompra != null ? ultimaCompra.folioOC : "",
-                        ultCompraFecha = ultimaCompra != null ? ultimaCompra.fechaString : "",
-                        ultCompraPrecio = ultimaCompra != null ? "$" + ultimaCompra.precio.ToString("N6") + ' ' + ultimaCompra.monedaDesc : ""
-                    });
-                }
+                string prefijoUltimaComp = ultimaCompra.moneda == 2 ? "$" : "S/";
 
-                return cuadroReporte;
-                #endregion
-            }
-            else
-            {
-                #region PERU
-                string PERU_tipoCuadro = "";
-
-
-                if (HttpContext.Current.Session["servicioCompraCuadroComparativo"] != null)
+                cuadroReporte.partidas.Add(new CuadroComparativoPartidasReporteDTO
                 {
-                    if (!(bool)HttpContext.Current.Session["servicioCompraCuadroComparativo"]) //Vista Generar Compra
-                    {
-                        PERU_tipoCuadro = "RQ";
-                    }
-                    else //Vista Generar Compra Servicio
-                    {
-                        PERU_tipoCuadro = "RS";
-                    }
-                }
-
-                var cuadro = getCuadroDet(new CuadroComparativoDTO { cc = cc, numero = numero, folio = folio, PERU_tipoRequisicion = PERU_tipoCuadro }); //OMAR
-                var cuadroReporte = new CuadroComparativoReporteDTO();
-
-                //var ccDesc = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT descripcion FROM cc WHERE cc = '{0}' AND st_ppto != 'T'", cuadro.cc)).ToObject<List<dynamic>>();
-                //var listLAB = (List<dynamic>)consultaCheckProductivo(string.Format(@"SELECT * FROM so_libre_abordo")).ToObject<List<dynamic>>();
-
-                var ccDesc = _context.tblC_Nom_CatalogoCC.FirstOrDefault(e => e.cc == cc).ccDescripcion;
-
-                string prefijoMoneda1 = cuadro.moneda1.Value == 2 ? "$" : "S/";
-                string prefijoMoneda2 = cuadro.moneda2.Value == 2 ? "$" : "S/";
-                string prefijoMoneda3 = cuadro.moneda3.Value == 2 ? "$" : "S/";
-
-                cuadroReporte.cc = cuadro.cc + "-" + ccDesc;
-                cuadroReporte.folioCuadroComparativo = cuadro.cc + "-" + fillNo(cuadro.numero.ToString(), 6) + "-" + ((cuadro.folio < 10) ? ("0" + cuadro.folio) : cuadro.folio.ToString());
-                cuadroReporte.fechaCuadro = cuadro.fecha.Date.ToShortDateString();
-                cuadroReporte.fechaActual = DateTime.Now.Date.ToShortDateString();
-                cuadroReporte.proveedor1 = (cuadro.prov1 != null ? (cuadro.prov1.ToString() + "-" + (cuadro.nombre_prov1 ?? "")) : "");
-                cuadroReporte.proveedor2 = (cuadro.prov2 != null ? (cuadro.prov2.ToString() + "-" + (cuadro.nombre_prov2 ?? "")) : "");
-                cuadroReporte.proveedor3 = (cuadro.prov3 != null ? (cuadro.prov3.ToString() + "-" + (cuadro.nombre_prov3 ?? "")) : "");
-                cuadroReporte.subTotalProv1 = prefijoMoneda1 + cuadro.sub_total1.ToString("N6");
-                cuadroReporte.subTotalProv2 = prefijoMoneda2 + cuadro.sub_total2.ToString("N6");
-                cuadroReporte.subTotalProv3 = prefijoMoneda3 + cuadro.sub_total3.ToString("N6");
-                cuadroReporte.descuentoProv1 = prefijoMoneda1 + cuadro.dcto1.ToString("N6");
-                cuadroReporte.descuentoProv2 = prefijoMoneda2 + cuadro.dcto2.ToString("N6");
-                cuadroReporte.descuentoProv3 = prefijoMoneda3 + cuadro.dcto3.ToString("N6");
-                cuadroReporte.total1Prov1 = prefijoMoneda1 + (cuadro.sub_total1 - cuadro.dcto1).ToString("N6");
-                cuadroReporte.total1Prov2 = prefijoMoneda2 + (cuadro.sub_total2 - cuadro.dcto2).ToString("N6");
-                cuadroReporte.total1Prov3 = prefijoMoneda3 + (cuadro.sub_total3 - cuadro.dcto3).ToString("N6");
-                cuadroReporte.ivaProv1 = prefijoMoneda1 + cuadro.iva1.ToString("N6");
-                cuadroReporte.ivaProv2 = prefijoMoneda2 + cuadro.iva2.ToString("N6");
-                cuadroReporte.ivaProv3 = prefijoMoneda3 + cuadro.iva3.ToString("N6");
-                cuadroReporte.total2Prov1 = prefijoMoneda1 + cuadro.total1.ToString("N6");
-                cuadroReporte.total2Prov2 = prefijoMoneda2 + cuadro.total2.ToString("N6");
-                cuadroReporte.total2Prov3 = prefijoMoneda3 + cuadro.total3.ToString("N6");
-                cuadroReporte.fletesProv1 = prefijoMoneda1 + cuadro.fletes1.ToString("N6");
-                cuadroReporte.fletesProv2 = prefijoMoneda2 + cuadro.fletes2.ToString("N6");
-                cuadroReporte.fletesProv3 = prefijoMoneda3 + cuadro.fletes3.ToString("N6");
-                cuadroReporte.gastosProv1 = prefijoMoneda1 + cuadro.gastos_imp1.ToString("N6");
-                cuadroReporte.gastosProv2 = prefijoMoneda2 + cuadro.gastos_imp2.ToString("N6");
-                cuadroReporte.gastosProv3 = prefijoMoneda3 + cuadro.gastos_imp3.ToString("N6");
-                cuadroReporte.granTotalProv1 = prefijoMoneda1 + (cuadro.total1 + cuadro.fletes1 + cuadro.gastos_imp1).ToString("N6");
-                cuadroReporte.granTotalProv2 = prefijoMoneda2 + (cuadro.total2 + cuadro.fletes2 + cuadro.gastos_imp2).ToString("N6");
-                cuadroReporte.granTotalProv3 = prefijoMoneda3 + (cuadro.total3 + cuadro.fletes3 + cuadro.gastos_imp3).ToString("N6");
-                //cuadroReporte.labProv1 = cuadro.lab1 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab1).descripcion : "";
-                //cuadroReporte.labProv2 = cuadro.lab2 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab2).descripcion : "";
-                //cuadroReporte.labProv3 = cuadro.lab3 > 0 ? (string)listLAB.FirstOrDefault(x => (int)x.numero == cuadro.lab3).descripcion : "";
-                cuadroReporte.labProv1 = "";
-                cuadroReporte.labProv2 = "";
-                cuadroReporte.labProv3 = "";
-                cuadroReporte.pagoProv1 = "";
-                cuadroReporte.pagoProv2 = "";
-                cuadroReporte.pagoProv3 = "";
-                cuadroReporte.fechaEntregaProv1 = cuadro.fecha_entrega1.Date.ToShortDateString();
-                cuadroReporte.fechaEntregaProv2 = cuadro.fecha_entrega2.Date.ToShortDateString();
-                cuadroReporte.fechaEntregaProv3 = cuadro.fecha_entrega3.Date.ToShortDateString();
-                cuadroReporte.comentarioProv1 = cuadro.comentarios1 ?? "";
-                cuadroReporte.comentarioProv2 = cuadro.comentarios2 ?? "";
-                cuadroReporte.comentarioProv3 = cuadro.comentarios3 ?? "";
-                cuadroReporte.moneda1 = cuadro.moneda1.ToString();
-                cuadroReporte.moneda2 = cuadro.moneda2.ToString();
-                cuadroReporte.moneda3 = cuadro.moneda3.ToString();
-
-                cuadroReporte.partidas = new List<CuadroComparativoPartidasReporteDTO>();
-
-                foreach (var det in cuadro.detalleCuadro)
-                {
-                    var ultimaCompra = getUltimaCompra(new CuadroComparativoDetDTO
-                    {
-                        cc = det.cc,
-                        numero = det.numero,
-                        folio = det.folio,
-                        partida = det.partida,
-                        insumo = det.insumo,
-                    });
-
-                    string prefijoUltimaComp = ultimaCompra.moneda == 2 ? "$" : "S/";
-
-                    cuadroReporte.partidas.Add(new CuadroComparativoPartidasReporteDTO
-                    {
-                        partida = det.partida.ToString(),
-                        insumo = det.insumo + " " + det.descripcion,
-                        cantidad = det.cantidad.ToString("N6") + " " + det.unidad,
-                        precioProv1 = prefijoMoneda1 + det.precio1.ToString("N6") + " " + (det.moneda1 ?? ""),
-                        importeProv1 = prefijoMoneda1 + (det.cantidad * det.precio1).ToString("N6"),
-                        precioProv2 = prefijoMoneda2 + det.precio2.ToString("N6") + " " + (det.moneda2 ?? ""),
-                        importeProv2 = prefijoMoneda2 + (det.cantidad * det.precio2).ToString("N6"),
-                        precioProv3 = prefijoMoneda3 + det.precio3.ToString("N6") + " " + (det.moneda3 ?? ""),
-                        importeProv3 = prefijoMoneda3 + (det.cantidad * det.precio3).ToString("N6"),
-                        ultCompraProveedor = ultimaCompra != null ? ultimaCompra.proveedorNum + '-' + ultimaCompra.proveedorNom : "",
-                        ultCompraFolio = ultimaCompra != null ? ultimaCompra.folioOC : "",
-                        ultCompraFecha = ultimaCompra != null ? ultimaCompra.fechaString : "",
-                        ultCompraPrecio = ultimaCompra != null ? prefijoUltimaComp + ultimaCompra.precio.ToString("N6") + ' ' + ultimaCompra.monedaDesc : ""
-                    });
-                }
-
-                return cuadroReporte;
-                #endregion
+                    partida = det.partida.ToString(),
+                    insumo = det.insumo + " " + det.descripcion,
+                    cantidad = det.cantidad.ToString("N6") + " " + det.unidad,
+                    precioProv1 = prefijoMoneda1 + det.precio1.ToString("N6") + " " + (det.moneda1 ?? ""),
+                    importeProv1 = prefijoMoneda1 + (det.cantidad * det.precio1).ToString("N6"),
+                    precioProv2 = prefijoMoneda2 + det.precio2.ToString("N6") + " " + (det.moneda2 ?? ""),
+                    importeProv2 = prefijoMoneda2 + (det.cantidad * det.precio2).ToString("N6"),
+                    precioProv3 = prefijoMoneda3 + det.precio3.ToString("N6") + " " + (det.moneda3 ?? ""),
+                    importeProv3 = prefijoMoneda3 + (det.cantidad * det.precio3).ToString("N6"),
+                    ultCompraProveedor = ultimaCompra != null ? ultimaCompra.proveedorNum + '-' + ultimaCompra.proveedorNom : "",
+                    ultCompraFolio = ultimaCompra != null ? ultimaCompra.folioOC : "",
+                    ultCompraFecha = ultimaCompra != null ? ultimaCompra.fechaString : "",
+                    ultCompraPrecio = ultimaCompra != null ? prefijoUltimaComp + ultimaCompra.precio.ToString("N6") + ' ' + ultimaCompra.monedaDesc : ""
+                });
             }
 
+            return cuadroReporte;
+            #endregion
         }
         public InfoProveedorMonedaDTO getProveedorInfo(string num, string PERU_tipoCambio = "")
         {
@@ -16375,7 +16008,7 @@ FROM (
                     #endregion
                     #endregion
 
-                    cuadroComparativoFS.GuardarConfiabilidad(nuevoCuadro);
+                    //cuadroComparativoFS.GuardarConfiabilidad(nuevoCuadro);
 
                     dbSigoplanTransaction.Commit();
 
@@ -19872,137 +19505,53 @@ FROM (
         public UltimaCompraDTO getUltimaCompra(CuadroComparativoDetDTO partidaCuadro)
         {
 
-            if ((MainContextEnum)vSesiones.sesionEmpresaActual != MainContextEnum.PERU)
+            #region PERU
+            var ordenCompraDet = _context.Select<dynamic>(new DapperDTO
             {
-                #region RESTO EMPRESAS
-                var ordenCompraDetEK = consultaCheckProductivo(
-                string.Format(@"SELECT 
-                                    TOP 1 * 
-                                FROM so_orden_compra_det 
-                                WHERE cc = '{0}' AND insumo = {1} AND partida = 1 
-                                ORDER BY numero DESC", partidaCuadro.cc, partidaCuadro.insumo));
+                baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                consulta = string.Format(@"SELECT TOP 1 * 
+                            FROM tblCom_OrdenCompraDet 
+                            WHERE cc = '{0}' AND insumo = {1} AND partida = 1 
+                            ORDER BY numero DESC", partidaCuadro.cc, partidaCuadro.insumo)
+            }).FirstOrDefault();
 
-                if (ordenCompraDetEK != null)
+            if (ordenCompraDet != null)
+            {
+                string ccDet = (string)ordenCompraDet.cc;
+                int? numeroDet = (int?)ordenCompraDet.numero;
+
+                var ordenCompra = _context.tblCom_OrdenCompra.FirstOrDefault(e => e.estatusRegistro && e.cc == ccDet && e.numero == numeroDet.Value);
+
+                if (ordenCompra != null)
                 {
-                    var ordenCompraDet = (List<dynamic>)ordenCompraDetEK.ToObject<List<dynamic>>();
-
-                    var ordenCompraEK = consultaCheckProductivo(
-                        string.Format(@"SELECT 
-                                        oc.*, 
-                                        prov.nombre AS proveedorNom, 
-                                        prov.moneda AS moneda, 
-                                        mon.moneda AS monedaDesc 
-                                    FROM so_orden_compra oc
-                                        INNER JOIN sp_proveedores prov ON oc.proveedor = prov.numpro 
-                                        INNER JOIN moneda mon ON prov.moneda = mon.clave 
-                                    WHERE cc = '{0}' AND numero = {1}", ordenCompraDet[0].cc.Value, ordenCompraDet[0].numero.Value));
-
-                    if (ordenCompraEK != null)
+                    var prov = _context.tblCom_sp_proveedores.FirstOrDefault(e => e.numpro == ordenCompra.proveedor);
+                    var moneda = _context.tblC_TipoMoneda.FirstOrDefault(e => e.id == ordenCompra.moneda);
+                    var ultimaCompra = new UltimaCompraDTO
                     {
-                        var ordenCompra = (List<dynamic>)ordenCompraEK.ToObject<List<dynamic>>();
+                        proveedorNum = prov.numpro.ToString(),
+                        proveedorNom = prov.nomcorto,
+                        cc = ordenCompra.cc,
+                        numero = ordenCompra.numero,
+                        folioOC = ordenCompra.cc + "-" + fillNo(ordenCompra.numero.ToString(), 6),
+                        fecha = ordenCompra.fecha,
+                        fechaString = ordenCompra.fecha.Date.ToShortDateString(),
+                        precio = Convert.ToDecimal(ordenCompraDet.precio, CultureInfo.InvariantCulture),
+                        moneda = ordenCompra.moneda,
+                        monedaDesc = moneda.nombreCortoSat,
+                    };
 
-                        var ultimaCompra = new UltimaCompraDTO
-                        {
-                            proveedorNum = ordenCompra[0].proveedor.Value.ToString(),
-                            proveedorNom = (string)ordenCompra[0].proveedorNom.Value,
-                            cc = (string)ordenCompra[0].cc.Value,
-                            numero = (int)ordenCompra[0].numero.Value,
-                            folioOC = (string)ordenCompra[0].cc.Value + "-" + fillNo(ordenCompra[0].numero.Value.ToString(), 6),
-                            fecha = (DateTime)ordenCompra[0].fecha.Value,
-                            fechaString = ((DateTime)ordenCompra[0].fecha.Value).Date.ToShortDateString(),
-                            precio = Convert.ToDecimal(ordenCompraDet[0].precio.Value, CultureInfo.InvariantCulture),
-                            moneda = Int32.Parse(ordenCompra[0].moneda.Value),
-                            monedaDesc = (string)ordenCompra[0].monedaDesc.Value
-                        };
-
-                        return ultimaCompra;
-                    }
-                    else
-                    {
-                        return new UltimaCompraDTO();
-                    }
+                    return ultimaCompra;
                 }
                 else
                 {
                     return new UltimaCompraDTO();
                 }
-                #endregion
             }
             else
             {
-                #region PERU
-                //                var ordenCompraDetEK = consultaCheckProductivo(
-                //                string.Format(@"SELECT 
-                //                                    TOP 1 * 
-                //                                FROM so_orden_compra_det 
-                //                                WHERE cc = '{0}' AND insumo = {1} AND partida = 1 
-                //                                ORDER BY numero DESC", partidaCuadro.cc, partidaCuadro.insumo));
-
-                var ordenCompraDet = _context.Select<dynamic>(new DapperDTO
-                {
-                    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
-                    consulta = string.Format(@"SELECT TOP 1 * 
-                                FROM tblCom_OrdenCompraDet 
-                                WHERE cc = '{0}' AND insumo = {1} AND partida = 1 
-                                ORDER BY numero DESC", partidaCuadro.cc, partidaCuadro.insumo)
-                }).FirstOrDefault();
-
-                if (ordenCompraDet != null)
-                {
-
-                    //                    var ordenCompraEK = consultaCheckProductivo(
-                    //                        string.Format(@"SELECT 
-                    //                                        oc.*, 
-                    //                                        prov.nombre AS proveedorNom, 
-                    //                                        prov.moneda AS moneda, 
-                    //                                        mon.moneda AS monedaDesc 
-                    //                                    FROM so_orden_compra oc
-                    //                                        INNER JOIN sp_proveedores prov ON oc.proveedor = prov.numpro 
-                    //                                        INNER JOIN moneda mon ON prov.moneda = mon.clave 
-                    //                                    WHERE cc = '{0}' AND numero = {1}", ordenCompraDet[0].cc.Value, ordenCompraDet[0].numero.Value));
-                    string ccDet = (string)ordenCompraDet.cc;
-                    int? numeroDet = (int?)ordenCompraDet.numero;
-
-                    var ordenCompra = _context.tblCom_OrdenCompra.FirstOrDefault(e => e.estatusRegistro && e.cc == ccDet && e.numero == numeroDet.Value && e.PERU_tipoCompra == partidaCuadro.PERU_tipoCuadro);
-
-                    if (ordenCompra != null)
-                    {
-                        string nomProveeStarsoft = "";
-
-                        using (var dbStarsoft = new MainContextPeruStarSoft003BDCOMUN())
-                        {
-                            var objProveeStarsoft = dbStarsoft.MAEPROV.FirstOrDefault(e => e.PRVCCODIGO == ordenCompra.PERU_proveedor);
-
-                            nomProveeStarsoft = objProveeStarsoft.PRVCNOMBRE;
-                        }
-
-                        var ultimaCompra = new UltimaCompraDTO
-                        {
-                            proveedorNum = ordenCompra.PERU_proveedor,
-                            proveedorNom = nomProveeStarsoft,
-                            cc = ordenCompra.cc,
-                            numero = ordenCompra.numero,
-                            folioOC = ordenCompra.cc + "-" + fillNo(ordenCompra.numero.ToString(), 6),
-                            fecha = ordenCompra.fecha,
-                            fechaString = ordenCompra.fecha.Date.ToShortDateString(),
-                            precio = Convert.ToDecimal(ordenCompraDet.precio, CultureInfo.InvariantCulture),
-                            moneda = ordenCompra.moneda,
-                            monedaDesc = ordenCompra.moneda == 2 ? "DLS" : "SOL",
-                        };
-
-                        return ultimaCompra;
-                    }
-                    else
-                    {
-                        return new UltimaCompraDTO();
-                    }
-                }
-                else
-                {
-                    return new UltimaCompraDTO();
-                }
-                #endregion
+                return new UltimaCompraDTO();
             }
+            #endregion
 
         }
 

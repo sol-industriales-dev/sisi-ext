@@ -146,6 +146,11 @@ namespace Core.Service.Enkontrol.Compras
         {
             return this.ReqDAO.FillComboAreaCuenta(cc);
         }
+
+        public dynamic FillComboTipoPartida(string cc)
+        {
+            return this.ReqDAO.FillComboTipoPartida(cc);
+        }
         public dynamic getThisEmpleadoEnkontrol()
         {
             return this.ReqDAO.getThisEmpleadoEnkontrol();

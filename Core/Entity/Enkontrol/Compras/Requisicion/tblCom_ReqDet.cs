@@ -34,5 +34,6 @@ namespace Core.Entity.Enkontrol.Compras.Requisicion
         public virtual List<tblCom_ReqDet_Comentarios> comentarios { get; set; }
         public int numero { get; set; }
         public string cc { get; set; }
+        public int tipoPartida { get; set; }
     }
 }

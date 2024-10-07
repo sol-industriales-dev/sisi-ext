@@ -525,7 +525,7 @@
             } else {
                 row.find('.insumo').val(partida.insumo).change();
             }
-
+            row.find('.tipoPartida').val(partida.tipoPartida);
             row.find('.insumoDesc').val(partida.articulo);
             row.find('.areaCuenta').val("000-000");
             row.find('.cantidad').val(partida.cantidad).change();
@@ -556,7 +556,7 @@
         function initRenglonInsumo(row, partida) {
             row.find('.insumo').getAutocomplete(setInsumoDesc, { cc: selCC.val() }, '/Enkontrol/Requisicion/getInsumos');
             row.find('.insumoDesc').getAutocomplete(setInsumoBusqPorDesc, { cc: selCC.val() }, '/Enkontrol/Requisicion/getInsumosDesc');
-
+            row.find('.tipoPartida').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartida', { cc: selCC.val() }, true);
             row.find('.areaCuenta').fillCombo('/Enkontrol/Requisicion/FillComboAreaCuenta', { cc: selCC.val() }, false, "000-000");
             row.find(".cantidad").val(0).commasFormat().change();
 
@@ -569,7 +569,8 @@
                 partida: partida,
                 DescPartida: "",
                 exceso: 0,
-                isAreaCueta: false
+                isAreaCueta: false,
+                tipoPartida: 0
             });
 
             return row;
@@ -1069,7 +1070,7 @@
 
         function AddNewRenglon() {
             let cuerpo = tblInsumos.find('tbody');
-            if (cuerpo.find("tr td").prop("colspan") == 11)
+            if (cuerpo.find("tr td").prop("colspan") == 12)
                 cuerpo.empty();
             if (validaCamposRenglones()) {
                 let partida = ++cuerpo.find("tr").length;
@@ -1138,7 +1139,7 @@
         function initRenglonInsumo(row, partida) {
             row.find('.insumo').getAutocomplete(setInsumoDesc, { cc: selCC.val(), esServicio: esServicio }, '/Enkontrol/Requisicion/getInsumos');
             row.find('.insumoDesc').getAutocomplete(setInsumoBusqPorDesc, { cc: selCC.val(), esServicio: esServicio }, '/Enkontrol/Requisicion/getInsumosDesc');
-
+            row.find('.tipoPartida').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartida', { cc: selCC.val() }, true);
             row.find('.areaCuenta').fillCombo('/Enkontrol/Requisicion/FillComboAreaCuenta', { cc: selCC.val() }, false, "000-000");
             //row.find('.fechaReq').datepicker().datepicker("setDate", new Date().addDays(selTipoReq.find(":selected").data().prefijo).toLocaleDateString());
             row.find(".cantidad").val(0).commasFormat().change();
@@ -1153,7 +1154,8 @@
                 partida: partida,
                 DescPartida: "",
                 exceso: 0,
-                isAreaCueta: false
+                isAreaCueta: false,
+                tipoPartida: 0
             });
 
             return row;
@@ -1738,7 +1740,8 @@
                     noEconomico: celda.find(".areaCuenta").val(),
                     descripcion: data.DescPartida,
                     // observaciones: celda.find(".observaciones").val()
-                    observaciones: ''
+                    observaciones: '',
+                    tipoPartida: celda.find(".tipoPartida").val(),
                 });
             });
 
@@ -1755,7 +1758,7 @@
                     agregarTooltip($renglon.find('.btn-estatus-inactivo'), 'INACTIVO');
 
                     tblInsumos.find(`tbody`).append($renglon);
-
+                    $renglon.find('.tipoPartida').val(partidas[i].tipoPartida);  
                     if (_vistaActual.responseJSON != 7221) { //Vista diferente a la de autorización.
                         $renglon.find('.existencia').text(getExistencia(partidas[i].insumo, 400, $("#selLab").val() != '' ? $("#selLab").val() : 0));
                         $renglon.find('.existenciaBoton').removeClass('hidden');
@@ -1765,7 +1768,8 @@
 
                     $renglon.data({
                         insumo: partidas[i].insumo,
-                        precio: partidas[i].precio > 0 ? partidas[i].precio : 0
+                        precio: partidas[i].precio > 0 ? partidas[i].precio : 0,
+                        tipoPartida: partidas[i].tipoPartida
                     });
 
                     $renglon.find('.selectAlmacen').fillCombo('/Enkontrol/Requisicion/FillComboAlmacenSurtir', null, false, null);

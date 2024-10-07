@@ -372,6 +372,22 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
             }
             return Json(result, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult FillComboTipoPartida(string cc)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, rfs.getReqService().FillComboTipoPartida(cc));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult FillComboCcReq(bool isAuth)
         {
             var result = new Dictionary<string, object>();

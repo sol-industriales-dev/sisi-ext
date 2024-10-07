@@ -266,6 +266,7 @@ namespace Data.DAO.Enkontrol.Compras
                                 registroDetalle.noEconomico = d.noEconomico;
                                 registroDetalle.numero = save.numero;
                                 registroDetalle.cc = save.cc;
+                                registroDetalle.tipoPartida = d.tipoPartida;
 
                                 _context.tblCom_ReqDet.AddOrUpdate(registroDetalle);
                                 SaveChanges();
@@ -937,7 +938,7 @@ namespace Data.DAO.Enkontrol.Compras
                                 numero = (int?)p.c.numero,
                                 partida = (int?)p.d.partida,
                                 insumo = (int?)p.d.insumo,
-                                insumoDesc = (string)p.d.descripcion,
+                                insumoDesc = (string)p.insumoDesc,
                                 unidad = (string)p.unidad,
                                 cancelado = (string)p.cancelado,
                                 fecha_requerido = (DateTime?)p.c.fecha,
@@ -955,7 +956,8 @@ namespace Data.DAO.Enkontrol.Compras
                                 partidaDesc = (string)p.d.descripcion + (comentarioSurtidoQuitar.Count() > 0 ? " ***PARTIDA CANCELADA EN SURTIDO: " + comentarioSurtidoQuitar + "***" : ""),
                                 observaciones = observaciones,
                                 comentarioSurtidoQuitar = comentarioSurtidoQuitar,
-                                cantidadCapturada = cantidadCapturada
+                                cantidadCapturada = cantidadCapturada,
+                                tipoPartida = (int?)p.d.tipoPartida,
                             });
                         }
 
@@ -3185,6 +3187,40 @@ namespace Data.DAO.Enkontrol.Compras
                             }).ToList();
                         }
                 }
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        public dynamic FillComboTipoPartida(string cc)
+        {
+            try
+            {
+                var lista = new List<dynamic>();
+                lista.Add(new
+                {
+                    Value = 0,
+                    Text = "N/A",
+                    Prefijo = 0
+                });
+
+                lista.Add(new
+                {
+                    Value = 1,
+                    Text = "CH",
+                    Prefijo = 0
+                });
+
+                var maquinas = _context.tblM_CatMaquina.Where(x => x.estatus == 1).ToList().Select(x => new
+                            {
+                                Value = x.noEconomico,
+                                Text = x.noEconomico,
+                                Prefijo = 0
+                            }).OrderBy(x => x.Text).ToList();
+                lista.AddRange(maquinas);
+
+                return lista;
             }
             catch (Exception)
             {

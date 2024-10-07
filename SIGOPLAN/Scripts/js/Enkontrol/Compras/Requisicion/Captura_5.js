@@ -526,6 +526,7 @@
                 row.find('.insumo').val(partida.insumo).change();
             }
             row.find('.tipoPartida').val(partida.tipoPartida);
+            row.find('.tipoPartidaDet').val(partida.tipoPartidaDet);
             row.find('.insumoDesc').val(partida.articulo);
             row.find('.areaCuenta').val("000-000");
             row.find('.cantidad').val(partida.cantidad).change();
@@ -557,6 +558,11 @@
             row.find('.insumo').getAutocomplete(setInsumoDesc, { cc: selCC.val() }, '/Enkontrol/Requisicion/getInsumos');
             row.find('.insumoDesc').getAutocomplete(setInsumoBusqPorDesc, { cc: selCC.val() }, '/Enkontrol/Requisicion/getInsumosDesc');
             row.find('.tipoPartida').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartida', { cc: selCC.val() }, true);
+            row.find('.tipoPartidaDet').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartidaDet', { tipo: 0 }, true);
+            row.find('.tipoPartida').on('change', function () {
+                var tipoPartida = $(this).val();
+                row.find('.tipoPartidaDet').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartidaDet', { tipo: tipoPartida }, true);
+            });
             row.find('.areaCuenta').fillCombo('/Enkontrol/Requisicion/FillComboAreaCuenta', { cc: selCC.val() }, false, "000-000");
             row.find(".cantidad").val(0).commasFormat().change();
 
@@ -570,7 +576,8 @@
                 DescPartida: "",
                 exceso: 0,
                 isAreaCueta: false,
-                tipoPartida: 0
+                tipoPartida: 0,
+                tipoPartidaDet: 0
             });
 
             return row;
@@ -1140,6 +1147,11 @@
             row.find('.insumo').getAutocomplete(setInsumoDesc, { cc: selCC.val(), esServicio: esServicio }, '/Enkontrol/Requisicion/getInsumos');
             row.find('.insumoDesc').getAutocomplete(setInsumoBusqPorDesc, { cc: selCC.val(), esServicio: esServicio }, '/Enkontrol/Requisicion/getInsumosDesc');
             row.find('.tipoPartida').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartida', { cc: selCC.val() }, true);
+            row.find('.tipoPartidaDet').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartidaDet', { tipo: partida.tipoPartidaDet ?? 0 }, true);
+            row.find('.tipoPartida').on('change', function () {
+                var tipoPartida = $(this).val();
+                row.find('.tipoPartidaDet').fillCombo('/Enkontrol/Requisicion/FillComboTipoPartidaDet', { tipo: tipoPartida }, true);
+            });
             row.find('.areaCuenta').fillCombo('/Enkontrol/Requisicion/FillComboAreaCuenta', { cc: selCC.val() }, false, "000-000");
             //row.find('.fechaReq').datepicker().datepicker("setDate", new Date().addDays(selTipoReq.find(":selected").data().prefijo).toLocaleDateString());
             row.find(".cantidad").val(0).commasFormat().change();
@@ -1155,7 +1167,8 @@
                 DescPartida: "",
                 exceso: 0,
                 isAreaCueta: false,
-                tipoPartida: 0
+                tipoPartida: 0,
+                tipoPartidaDet: 0
             });
 
             return row;
@@ -1164,6 +1177,12 @@
         function setInsumo(row, partida) {
             row.find('.insumo').val(partida.insumo).change();
             row.find('.insumoDesc').val(partida.insumoDesc);
+            row.find('.tipoPartida').val(partida.tipoPartida).change();
+
+            //wait 1 seg and set tipoPartidaDet
+            setTimeout(function () {
+                row.find('.tipoPartidaDet').val(partida.tipoPartidaDet);
+            }, 1000);
 
             if (inputEmpresaActual.val() != 6 && inputEmpresaActual.val() != 3) {
                 if (partida.area == 0) {
@@ -1742,6 +1761,7 @@
                     // observaciones: celda.find(".observaciones").val()
                     observaciones: '',
                     tipoPartida: celda.find(".tipoPartida").val(),
+                    tipoPartidaDet: celda.find(".tipoPartidaDet").val()
                 });
             });
 
@@ -1752,13 +1772,14 @@
 
             for (let i = 0; i < partidas.length; i++) {
                 _renglonNuevo(partidas[i].partida, false, partidas[i].cancelado == 'A' ? false : true).done(function (_renglon) {
-                    let $renglon = setInsumo(initRenglonInsumo($(_renglon)), partidas[i]);
+                    let $renglon = setInsumo(initRenglonInsumo($(_renglon), partidas[i]), partidas[i]);
 
                     agregarTooltip($renglon.find('.btn-estatus-activo'), 'ACTIVO');
                     agregarTooltip($renglon.find('.btn-estatus-inactivo'), 'INACTIVO');
 
                     tblInsumos.find(`tbody`).append($renglon);
                     $renglon.find('.tipoPartida').val(partidas[i].tipoPartida);  
+                    $renglon.find('.tipoPartidaDet').val(partidas[i].tipoPartidaDet);
                     if (_vistaActual.responseJSON != 7221) { //Vista diferente a la de autorización.
                         $renglon.find('.existencia').text(getExistencia(partidas[i].insumo, 400, $("#selLab").val() != '' ? $("#selLab").val() : 0));
                         $renglon.find('.existenciaBoton').removeClass('hidden');
@@ -1769,7 +1790,8 @@
                     $renglon.data({
                         insumo: partidas[i].insumo,
                         precio: partidas[i].precio > 0 ? partidas[i].precio : 0,
-                        tipoPartida: partidas[i].tipoPartida
+                        tipoPartida: partidas[i].tipoPartida,
+                        tipoPartidaDet: partidas[i].tipoPartidaDet
                     });
 
                     $renglon.find('.selectAlmacen').fillCombo('/Enkontrol/Requisicion/FillComboAlmacenSurtir', null, false, null);

@@ -16139,7 +16139,7 @@ FROM (
                     }
                     #endregion
 
-                    cuadroComparativoFS.GuardarConfiabilidad(cuadro);
+                    //cuadroComparativoFS.GuardarConfiabilidad(cuadro);
 
                     dbSigoplanTransaction.Commit();
 
@@ -16196,23 +16196,23 @@ FROM (
                     }
                     #endregion
 
-                    #region Quitar registros de calificaciones
-                    var listaCalificacionesSIGOPLAN = _context.tblCom_CC_Calificacion.Where(x => x.esActivo && x.CC == cuadro.cc && x.Numero == cuadro.numero && x.Folio == cuadro.folio).ToList();
+                    //#region Quitar registros de calificaciones
+                    //var listaCalificacionesSIGOPLAN = _context.tblCom_CC_Calificacion.Where(x => x.esActivo && x.CC == cuadro.cc && x.Numero == cuadro.numero && x.Folio == cuadro.folio).ToList();
 
-                    foreach (var calificacion in listaCalificacionesSIGOPLAN)
-                    {
-                        calificacion.esActivo = false;
+                    //foreach (var calificacion in listaCalificacionesSIGOPLAN)
+                    //{
+                    //    calificacion.esActivo = false;
 
-                        var listaCalificacionesPartidasSIGOPLAN = _context.tblCom_CC_CalificacionPartida.Where(x => x.esActivo && x.idCalificacion == calificacion.Id).ToList();
+                    //    var listaCalificacionesPartidasSIGOPLAN = _context.tblCom_CC_CalificacionPartida.Where(x => x.esActivo && x.idCalificacion == calificacion.Id).ToList();
 
-                        foreach (var partida in listaCalificacionesPartidasSIGOPLAN)
-                        {
-                            partida.esActivo = false;
-                        }
+                    //    foreach (var partida in listaCalificacionesPartidasSIGOPLAN)
+                    //    {
+                    //        partida.esActivo = false;
+                    //    }
 
-                        _context.SaveChanges();
-                    }
-                    #endregion
+                    //    _context.SaveChanges();
+                    //}
+                    //#endregion
 
                     dbSigoplanTransaction.Commit();
 
@@ -17445,7 +17445,7 @@ FROM (
 
                 #region Panel Derecho
                 tipo_oc_req = registroRequisicion.idTipoReqOc.ToString(),
-                moneda = 4,
+                moneda = 1,
                 tipo_cambio = 0,
                 sub_total = 0,
                 porcent_iva = 0,

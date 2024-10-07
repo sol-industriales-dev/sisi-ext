@@ -267,6 +267,7 @@ namespace Data.DAO.Enkontrol.Compras
                                 registroDetalle.numero = save.numero;
                                 registroDetalle.cc = save.cc;
                                 registroDetalle.tipoPartida = d.tipoPartida;
+                                registroDetalle.tipoPartidaDet = d.tipoPartidaDet;
 
                                 _context.tblCom_ReqDet.AddOrUpdate(registroDetalle);
                                 SaveChanges();
@@ -957,7 +958,8 @@ namespace Data.DAO.Enkontrol.Compras
                                 observaciones = observaciones,
                                 comentarioSurtidoQuitar = comentarioSurtidoQuitar,
                                 cantidadCapturada = cantidadCapturada,
-                                tipoPartida = (int?)p.d.tipoPartida,
+                                tipoPartida = p.d.tipoPartida,
+                                tipoPartidaDet = p.d.tipoPartidaDet
                             });
                         }
 
@@ -3212,13 +3214,12 @@ namespace Data.DAO.Enkontrol.Compras
                     Prefijo = 0
                 });
 
-                var maquinas = _context.tblM_CatMaquina.Where(x => x.estatus == 1).ToList().Select(x => new
-                            {
-                                Value = x.noEconomico,
-                                Text = x.noEconomico,
-                                Prefijo = 0
-                            }).OrderBy(x => x.Text).ToList();
-                lista.AddRange(maquinas);
+                lista.Add(new
+                {
+                    Value = 2,
+                    Text = "MAQUINARIA",
+                    Prefijo = 0
+                });
 
                 return lista;
             }
@@ -3227,6 +3228,47 @@ namespace Data.DAO.Enkontrol.Compras
                 return 0;
             }
         }
+
+        public dynamic FillComboTipoPartidaDet(int tipo)
+        {
+            try
+            {
+                var lista = new List<dynamic>();
+                if(tipo == 0){
+                    lista.Add(new
+                    {
+                        Value = 0,
+                        Text = "N/A",
+                        Prefijo = 0
+                    });
+                }
+                else if(tipo == 1){
+                    var empleados = _context.tblRH_EK_Empleados.ToList().Select(x => new
+                    {
+                        Value = x.clave_empleado,
+                        Text = x.nombre + " " + x.ape_paterno + " " + x.ape_materno,
+                        Prefijo = 0
+                    }).OrderBy(x => x.Text).ToList();
+                    lista.AddRange(empleados);
+                }
+                else if(tipo == 2){
+                    var maquinas = _context.tblM_CatMaquina.ToList().Select(x => new
+                                {
+                                    Value = x.id,
+                                    Text = x.noEconomico,
+                                    Prefijo = 0
+                                }).OrderBy(x => x.Text).ToList();
+                    lista.AddRange(maquinas);
+                }
+
+                return lista;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
         public List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcReq(bool isAuth)
         {
             try

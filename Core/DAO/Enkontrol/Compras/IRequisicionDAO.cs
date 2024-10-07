@@ -46,6 +46,7 @@ namespace Core.DAO.Enkontrol.Compras
         List<Core.DTO.Principal.Generales.ComboDTO> FillComboProveedoresConsignaLicitacionConvenio(TipoConsignaLicitacionConvenioEnum tipo);
         dynamic FillComboAreaCuenta(string cc);
         dynamic FillComboTipoPartida(string cc);
+        dynamic FillComboTipoPartidaDet(int tipo);
         dynamic getThisEmpleadoEnkontrol();
         bool getFolio(string folio, int tipo);
         string getFolioOrigen(string cc, int num);

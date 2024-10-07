@@ -35,5 +35,6 @@ namespace Core.Entity.Enkontrol.Compras.Requisicion
         public int numero { get; set; }
         public string cc { get; set; }
         public int tipoPartida { get; set; }
+        public int tipoPartidaDet { get; set; }
     }
 }

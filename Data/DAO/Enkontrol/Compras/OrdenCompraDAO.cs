@@ -2182,7 +2182,7 @@ namespace Data.DAO.Enkontrol.Compras
 
                     ordenCompra.lstPartidas = partidasCompra;
                     ordenCompra.lstPagos = pagosCompra;
-                    ordenCompra.lstRetenciones = retencionesCompra;
+                    ordenCompra.lstRetenciones = retencionesCompra ?? new List<OrdenCompraRetencionesDTO>();
                     ordenCompra.ST_OC = compraSIGOPLAN.ST_OC;
                     ordenCompra.st_impresa = compraSIGOPLAN.st_impresa;
                     ordenCompra.estatus = compraSIGOPLAN.estatus;

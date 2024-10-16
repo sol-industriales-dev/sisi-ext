@@ -804,7 +804,7 @@ namespace Data.DAO.Enkontrol.Compras
                             on d.idReq equals c.id
                         join i in _context.tblAlm_Insumo
                             on d.insumo equals i.insumo
-                        where c.cc == cc && c.numero == num
+                        where c.cc == cc && c.numero == num && d.estatusRegistro
                         orderby d.partida
                         select new
                         {

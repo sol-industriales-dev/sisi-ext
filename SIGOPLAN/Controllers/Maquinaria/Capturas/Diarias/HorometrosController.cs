@@ -73,7 +73,13 @@ namespace SIGOPLAN.Controllers.Maquinaria.Capturas.Diarias
             //try
             //{
             var res = capturaHorometroFactoryServices.getCapturaHorometroServices().getDataTable(obj, turno, fecha, Tipo).OrderByDescending(x => x.habilidatado).ThenBy(x => x.Economico);
-            var cc = capturaHorometroFactoryServices.getCapturaHorometroServices().getCentroCostos(obj);
+          
+
+            // MODIFICO MARTIN
+            var cc = obj;
+            //var cc = capturaHorometroFactoryServices.getCapturaHorometroServices().getCentroCostos(obj);
+
+
             // --> Checar si existe registro de guardado para ac en corte semanal kubrix
             bool corteKubrix = capturaHorometroFactoryServices.getCapturaHorometroServices().getCorteKubrixAC(obj);
 

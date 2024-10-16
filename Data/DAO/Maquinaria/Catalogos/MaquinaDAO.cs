@@ -604,7 +604,8 @@ namespace Data.DAO.Maquinaria.Catalogos
         {
             //
             var _ccsSigoplan = _context.tblP_CC.ToList();
-            var _ccsEnkontrol = (IList<ccDTO>)_contextEnkontrol.Where("SELECT cc, descripcion, corto FROM cc", 1).ToObject<IList<ccDTO>>();
+            var _ccsEnkontrol = _context.tblP_CC.ToList();
+           // var _ccsEnkontrol = (IList<ccDTO>)_contextEnkontrol.Where("SELECT cc, descripcion, corto FROM cc", 1).ToObject<IList<ccDTO>>();
             //
 
             switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)

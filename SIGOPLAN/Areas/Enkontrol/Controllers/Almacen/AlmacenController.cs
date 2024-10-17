@@ -121,6 +121,26 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Almacen
         {
             return View();
         }
+
+        public ActionResult CatInsumo()
+        {
+            return View();
+        }
+
+        public ActionResult CatFamilia()
+        {
+            return View();
+        }
+
+        public ActionResult CatTipo()
+        {
+            return View();
+        }
+
+        public ActionResult CatGrupo()
+        {
+            return View();
+        }
         #endregion
 
         public ActionResult FillComboCC()

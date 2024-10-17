@@ -71,6 +71,10 @@ namespace Core.Service.Enkontrol.Compras
         {
             return OcDAO.getCompra(cc, num, esOC_INTERNA, PERU_tipoCompra);
         }
+        public dynamic getCompraRelacionar(string cc, int num)
+        {
+            return OcDAO.getCompraRelacionar(cc, num);
+        }
         public OrdenCompraDTO getCompra_Interna(string cc, int num)
         {
             return OcDAO.getCompra_Interna(cc, num);
@@ -282,7 +286,10 @@ namespace Core.Service.Enkontrol.Compras
         {
             return OcDAO.ObtenerComprasPendientes(cc, estatus, proveedor, fechaInicial, fechaFinal, idAreaCuenta, idCompradorEK);
         }
-
+        public Dictionary<string, object> ObtenerComprasSinFactura(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal, string idAreaCuenta, int idCompradorEK)
+        {
+            return OcDAO.ObtenerComprasSinFactura(cc, estatus, proveedor, fechaInicial, fechaFinal, idAreaCuenta, idCompradorEK);
+        }
         public UltimaCompraDTO getUltimaCompra(CuadroComparativoDetDTO partidaCuadro)
         {
             return OcDAO.getUltimaCompra(partidaCuadro);
@@ -569,6 +576,11 @@ namespace Core.Service.Enkontrol.Compras
         public string getUsuarioEnKontrolCOLOMBIA(int numEmpleado)
         {
             return OcDAO.getUsuarioEnKontrolCOLOMBIA(numEmpleado);
+        }
+
+        public void UpdateOCFactura(List<RelFacturaDTO> data)
+        {
+            OcDAO.UpdateOCFactura(data);
         }
     }
 }

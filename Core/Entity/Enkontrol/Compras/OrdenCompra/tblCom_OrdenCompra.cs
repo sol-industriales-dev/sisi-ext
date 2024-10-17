@@ -69,5 +69,11 @@ namespace Core.Entity.Enkontrol.Compras.OrdenCompra
         public decimal rentencion_antes_iva { get; set; }
         public decimal rentencion_despues_iva { get; set; }
         public int num_requisicion { get; set; }
+        public bool tieneFactura { get; set; }
+        public DateTime? fechaFactura { get; set; }
+        public string factura_ruta { get; set; }
+        public decimal factura_total { get; set; }
+        public string factura_folio { get; set; }
+        public string factura_serie { get; set; }
     }
 }

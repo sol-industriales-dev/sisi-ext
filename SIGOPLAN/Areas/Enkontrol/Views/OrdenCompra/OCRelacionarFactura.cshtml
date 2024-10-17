@@ -1,0 +1,947 @@
+﻿@{
+    ViewBag.Title = "Upload ZIP y Mostrar XML";
+    Layout = "~/Views/Shared/LayoutPage.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
+<link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        color: #007bff;
+    }
+
+    #fileInputContainer {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    #fileInputContainer input[type="file"] {
+        margin-right: 10px;
+    }
+
+    #fileInputContainer label {
+        cursor: pointer;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    #xmlTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        table-layout: auto;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        word-wrap: break-word;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    input[type="text"] {
+        padding: 8px;
+        width: 90%;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    select {
+        padding: 8px;
+        width: 100%;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    #submitBtn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    #submitBtn:hover {
+        background-color: #218838;
+    }
+
+    #xmlTable th:nth-child(3), #xmlTable td:nth-child(3) {
+        width: 300px; /* Proveedor - columna más ancha */
+    }
+
+    #xmlTable th:nth-child(5), #xmlTable td:nth-child(5) {
+        width: 300px; /* Código CC - columna más ancha */
+    }
+
+    #xmlTable th:nth-child(7), #xmlTable td:nth-child(7) {
+        width: 300px; /* Proveedor OC - columna más ancha */
+    }
+
+    .btn-clear {
+    float: right; /* Alinear a la derecha */
+    background-color: #f44336; /* Color del botón (rojo) */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.btn-clear:hover {
+    background-color: #d32f2f; /* Cambiar color en hover */
+}
+</style>
+
+<h2 class="text-center">Subir y Analizar ZIP de Facturas</h2>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Subir archivo</legend>
+    <div id="fileInputContainer">
+        <input type="file" id="fileInput" accept=".zip" />
+        <label for="fileInput"><i class="fas fa-upload"></i> Seleccionar archivo ZIP</label>
+    </div>
+    <button id="clearBtn" type="button" class="btn-clear">Limpiar</button>
+    <button id="submitBtn" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Relación</button>
+    <!-- Botón Limpiar alineado a la derecha -->
+</fieldset>
+
+<fieldset class="fieldset-custm">
+    <legend class="legend-custm">Detalles de Facturas</legend>
+    <div class="col-md-12 col-lg-12">
+        <table id="xmlTable" class="table compact table-bordered marginBottom5 display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Serie</th>
+                    <th>Proveedor</th>
+                    <th>Monto</th>
+                    <th>CC</th>
+                    <th>Num. OC</th>
+                    <th>Proveedor OC</th>
+                    <th>Monto OC</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</fieldset>
+
+
+
+<div class="modal fade" id="mdlDetalleOC" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 95%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Detalle O.C.</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <fieldset class='fieldset-custm noPadLeft noPadRight mrgBottom' style="border-radius: 0px !important;">
+                    <legend class='legend-custm'></legend>
+                    <input id='inputCompradorSesionNum' type='text' class='form-control' style="display: none;" />
+                    <input id='inputCompradorSesionNom' type='text' class='form-control' style="display: none;" />
+
+                    <div id="panelIzquierdo" class="col-md-7 col-lg-7 noPadLeft noPadRight">
+                        <div class='col-md-12 col-lg-12 mrgTop mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Folio Origen:</span>
+                                <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>CC</span>
+                                <select id='selectCC' class='form-control'></select>
+                            </div>
+                        </div>
+
+                        <div class='col-md-12 col-lg-12 mrgBottom' style="display: none;">
+                            <div class='input-group mrgBottom' style="width: 0px;">
+                                <span class='input-group-addon'>Inicio</span>
+                                <input type='text' id='dtpInicio' class='form-control'>
+                            </div>
+                            <div class='input-group' style="width: 0px;">
+                                <span class='input-group-addon'>Fin</span>
+                                <input type='text' id='dtpFin' class='form-control'>
+                            </div>
+                        </div>
+
+                        <div class='col-md-4 col-lg-4 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Número:</span>
+                                <input id='inputNumero' type='text' class='form-control' />
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Número Requisición:</span>
+                                <input id='inputNumeroReq' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>B ó S:</span>
+                                <select id='selectBoS' class='form-control' disabled>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="B">Bienes</option>
+                                    <option value="S">Servicios</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Fecha:</span>
+                                <input id='dtpFecha' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Proveedor:</span>
+                                    <input id='inputProvNum' type='text' class='form-control' disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                                <input id='inputProvNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Comprador:</span>
+                                    <input id='inputCompNum' type='text' class='form-control' disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                                <input id='inputCompNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Solicitó:</span>
+                                    <input id='inputSolNum' type='text' class='form-control' disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                                <input id='inputSolNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class="col-md-3 col-lg-3 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Autorizó:</span>
+                                    <input id='inputAutNum' type='text' class='form-control' disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-9 col-lg-9 noPadLeft noPadRight">
+                                <input id='inputAutNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Embarquese:</span>
+                                <input id='inputEmb' type='text' class='form-control' />
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>L.A.B.</span>
+                                <select id='selectLab' class='form-control'></select>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Concepto Factura:</span>
+                                <input id='inputConFact' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-3 col-lg-3 mrgBottom'>
+                            <div class='input-group'>
+                                <label style="font-weight: bold; cursor: pointer;">
+                                    <input style="margin-right: 5px; height: 15px; width: 15px; cursor: pointer;" id='checkAutoRecep' type='checkbox' />Auto Recepcionable
+                                </label>
+                            </div>
+                        </div>
+                        <div class='col-md-9 col-lg-9 mrgBottom'>
+                            <div class="col-md-4 col-lg-4 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Almacén:</span>
+                                    <input id='inputAlmNum' type='text' class='form-control' />
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 noPadLeft noPadRight">
+                                <input id='inputAlmNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                        <div class='col-md-3 col-lg-3 mrgBottom'>
+                            <div class='input-group'></div>
+                        </div>
+                        <div class='col-md-9 col-lg-9 mrgBottom'>
+                            <div class="col-md-4 col-lg-4 noPadLeft noPadRight">
+                                <div class='input-group'>
+                                    <span class='input-group-addon'>Empleado:</span>
+                                    <input id='inputEmpNum' type='text' class='form-control' />
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 noPadLeft noPadRight">
+                                <input id='inputEmpNom' type='text' class='form-control' disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="panelDerecho" class="col-md-5 col-lg-5 noPadLeft noPadRight">
+                        <div class='col-md-12 col-lg-12 mrgTop mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Tipo O.C.:</span>
+                                <select id='selectTipoOC' class='form-control'>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">Normal</option>
+                                    <option value="2">Urgente</option>
+                                    <option value="3">Crítico</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Moneda:</span>
+                                <select id='selectMoneda' class='form-control'>
+                                    <option value="">--Seleccione--</option>
+                                    <option value="1">MN</option>
+                                    <option value="2">USD</option>
+                                    <option value="3">Eur</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Tipo Cambio:</span>
+                                <input type='text' id='inputTipoCambio' class='form-control'>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Sub Total:</span>
+                                <input type='text' id='inputSubTotal' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-4 col-lg-4 mrgBottom noPadRight'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>I.V.A.</span>
+                                <input type='text' id='inputIVAPorcentaje' class='form-control' style="text-align: right;">
+                            </div>
+                        </div>
+                        <div class='col-md-8 col-lg-8 mrgBottom noPadLeft'>
+                            <div class='input-group'>
+                                <span class='input-group-addon' style="min-width: 20px;">=</span>
+                                <input type='text' id='inputIVANumero' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Retención:</span>
+                                <input type='text' id='inputRetencion' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Total:</span>
+                                <input type='text' id='inputTotal' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Total Final:</span>
+                                <input type='text' id='inputTotalFinal' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <div class='input-group'>
+                                <span class='input-group-addon'>Folio Origen:</span>
+                                <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+                            </div>
+                        </div>
+                        <div class='col-md-12 col-lg-12 mrgBottom'>
+                            <button id="btnRetenciones" class="btn btn-default">Mostrar Retenciones</button>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset id="fieldTablaPartidas" class='fieldset-custm noPadLeft noPadRight' style="border-radius: 0px !important;">
+                    <div class="container col-lg-12 mrgTop">
+                        <table id="tblPartidas" style="width: 100%;"></table>
+                    </div>
+                </fieldset>
+
+                <fieldset id="fieldDescripcionPartida" class="fieldset-custm noPadLeft noPadRight" style="border-radius: 0px !important; margin-bottom: 100px;">
+                    <legend class="legend-custm">Descripción de la Partida</legend>
+                    <div class="container col-lg-12">
+                        <textarea id="textAreaDescPartida" class="form-control" rows="4" disabled style="border-radius: 0px;"></textarea>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlRetenciones" role="dialog">
+    <div class="modal-dialog modal-md" role="document" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Retenciones</label></h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="container col-lg-12">
+                        <table id="tblRetenciones" class="mrgTop" style="width: 100%;"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script src="~/Scripts/Utilities/datatables/jquery.dataTables.js"></script>
+<script src="~/Scripts/Utilities/datatables/dataTables.jqueryui.js"></script>
+<script src="~/Scripts/Utilities/datatables/datatables.min.js"></script>
+<script>
+    let dataTable;
+    const getCompraDetalle = (cc, num) => { return $.post('/Enkontrol/OrdenCompra/getCompra', { cc: cc, num: num, PERU_tipoOC: "" }) };
+    const tblPartidas = $('#tblPartidas');
+    const tblRetenciones = $('#tblRetenciones');
+    const mdlRetenciones = $('#mdlRetenciones');
+    const textAreaDescPartida = $('#textAreaDescPartida');
+    const mdlDetalleEntradas = $('#mdlDetalleEntradas');
+    //#region Panel Izquierdo
+    selectCC = $('#selectCC');
+    inputNumero = $('#inputNumero');
+    inputNumeroReq = $('#inputNumeroReq');
+    selectBoS = $('#selectBoS');
+    const dtpFecha = $('#dtpFecha');
+    const inputProvNum = $('#inputProvNum');
+    const inputProvNom = $('#inputProvNom');
+    const inputCompNum = $('#inputCompNum');
+    const inputCompNom = $('#inputCompNom');
+    const inputSolNum = $('#inputSolNum');
+    const inputSolNom = $('#inputSolNom');
+    const inputAutNum = $('#inputAutNum');
+    const inputAutNom = $('#inputAutNom');
+    inputEmb = $('#inputEmb');
+    selectLab = $('#selectLab');
+    const inputConFact = $('#inputConFact');
+    checkAutoRecep = $('#checkAutoRecep');
+    inputAlmNum = $('#inputAlmNum');
+    const inputAlmNom = $('#inputAlmNom');
+    inputEmpNum = $('#inputEmpNum');
+    const inputEmpNom = $('#inputEmpNom');
+    const report = $("#report");
+    //#endregion
+
+    //#region Panel Derecho
+    selectTipoOC = $('#selectTipoOC');
+    selectMoneda = $('#selectMoneda');
+    inputTipoCambio = $('#inputTipoCambio');
+    const inputSubTotal = $('#inputSubTotal');
+    inputIVAPorcentaje = $('#inputIVAPorcentaje');
+    const inputIVANumero = $('#inputIVANumero');
+    const inputRetencion = $('#inputRetencion');
+    const inputTotal = $('#inputTotal');
+    const inputTotalFinal = $('#inputTotalFinal');
+
+    const btnRetenciones = $('#btnRetenciones');
+    var listaCC = [];
+    initTablePartidas();
+    initTableRetenciones();
+    initCCs();
+    var xmlFiles = [];
+    $('#fileInput').on('change', async function(event) {
+        $('#xmlTable tbody').html('');
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const zip = new JSZip();
+        const zipData = await zip.loadAsync(file);
+        
+        xmlFiles = [];
+        for (const fileName in zipData.files) {
+            if (fileName.endsWith('.xml')) {
+                const file = await zip.file(fileName);
+                const xmlContent = await zip.file(fileName).async('text');
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlContent, 'application/xml');
+                xmlFiles.push(file);
+                
+                // Namespace del CFDI
+                const cfdiNamespace = "http://www.sat.gob.mx/cfd/4";
+                
+                // Obtener el elemento Comprobante
+                const comprobante = xmlDoc.getElementsByTagNameNS(cfdiNamespace, 'Comprobante')[0];
+                if (comprobante) {
+                    const folio = comprobante.getAttribute('Folio');
+                    const serie = comprobante.getAttribute('Serie');
+                    
+                    // Obtener el nombre del emisor
+                    const emisorElement = xmlDoc.getElementsByTagNameNS(cfdiNamespace, 'Emisor')[0];
+                    const emisor = emisorElement ? emisorElement.getAttribute('Nombre') : "Emisor no encontrado";
+
+                    // Obtener los importes de los conceptos y sumarlos
+                    const conceptos = xmlDoc.getElementsByTagNameNS(cfdiNamespace, 'Concepto');
+                    let sumaImportes = 0;
+                    for (let i = 0; i < conceptos.length; i++) {
+                        const importe = parseFloat(conceptos[i].getAttribute('Importe'));
+                        sumaImportes += importe;
+                    }
+
+                    // Añadir a la tabla HTML
+                    addRowToTable(folio, serie, emisor, sumaImportes.toFixed(2));
+                } else {
+                    console.error(`No se encontró el elemento Comprobante en el archivo: ${fileName}`);
+                }
+            }
+        }
+
+        // Inicializar o redibujar DataTable sin cambiar el tamaño del contenedor
+        if (!dataTable) {
+            dataTable = $('#xmlTable').DataTable({
+                language: dtDicEsp,
+                destroy: false,
+                paging: false,
+                ordering: true,
+                searching: true,
+                bFilter: false,
+                info: true,
+                scrollX: false,
+                scrollY: '45vh',
+                initComplete: function (settings, json) {
+                    $("#xmlTable").on('click', '.btn-oc-detalle', function () {
+                        let ccDet = $(this).parent().parent().find(".cc-select").val();
+                        let nomOCDet = $(this).parent().parent().find(".oc-input").val();
+                        selectCC.val(ccDet);
+                        inputNumero.val(nomOCDet);
+
+                        $.blockUI({ message: 'Procesando...', baseZ: 9999999 });
+                        getCompraDetalle(ccDet, nomOCDet).done(response => {
+                            if (response.success) {
+                                if (response.info.cc != null) {
+                                    llenarInformacion(response.info);
+
+                                    if (response.partidas.length > 0) {
+                                        inputNumeroReq.val(response.partidas[0].num_requisicion);
+                                    }
+
+                                    AddRows(tblPartidas, response.partidas);
+                                    AddRows(tblRetenciones, response.retenciones);
+
+                                    tblPartidas.find('tbody tr:eq(0) td:eq(0)').click()
+                                } else {
+                                    AlertaGeneral('Alerta', 'No se encontró información.');
+
+                                    limpiarInformacion();
+
+                                    limpiarTabla(tblPartidas);
+                                    limpiarTabla(tblRetenciones);
+
+                                    textAreaDescPartida.val('');
+                                }
+                                $.unblockUI();
+                            } else {
+                                $.unblockUI();
+                                AlertaGeneral('Alerta', 'Error al consultar la información.');
+                            }
+                        });
+
+                        $('#mdlDetalleOC').modal('show');
+                    });
+
+                },
+            });
+        } else {
+            dataTable.columns.adjust().draw();
+        }
+    });
+    function AddRows(tbl, lst) {
+        dt = tbl.DataTable();
+        dt.clear().draw();
+        dt.rows.add(lst).draw();
+    }
+    function addRowToTable(folio, serie, emisor, sumaImportes) {
+        const tbody = $('#xmlTable tbody');
+        const row = $(
+            `<tr>
+                <td class='clFolio'>${folio}</td>
+                <td class='clSerie'>${serie}</td>
+                <td>${emisor}</td>
+                <td>${parseFloat(sumaImportes).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
+                <td><select class="cc-select">
+                   `+listaCC+`
+                </select></td>
+                <td><input type="text" class="oc-input" placeholder="OC" /></td>
+                <td class="prov-oc">-</td>
+                <td class="monto-oc">-</td>
+                <td>
+                    <button class="btn btn-xs btn-primary btn-oc-detalle" >
+                        <i class="fas fa-info-circle"></i> Detalle
+                    </button>
+                </td>
+            </tr>`
+        );
+
+        tbody.append(row);
+
+        // Evento para cargar datos de OC al ingresar el CC y el número de OC
+        row.find('.oc-input').on('change', async function() {
+            const cc = row.find('.cc-select').val();
+            const numOc = row.find('.oc-input').val();
+            $.blockUI({ message: 'Procesando...' });
+            
+            if (cc && numOc) {
+                try {
+                    const response = await fetch('/Enkontrol/OrdenCompra/getCompraRelacionar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ cc, num: numOc })
+                    });
+                    const data = await response.json();
+                    if (data && data.info) {
+                        if(data.info.tieneFactura){
+                            AlertaGeneral('Alerta', 'La oc ingresada ya tiene factura relacionada');
+                        }
+                        else{
+                            row.find('.prov-oc').text(data.info.proveedor);
+                            row.find('.monto-oc').text(`${parseFloat(data.info.total).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}`);
+                        }
+                    }
+                    $.unblockUI();
+                } catch (error) {
+                    $.unblockUI();
+                    console.error('Error al obtener la orden de compra:', error);
+                }
+            }
+        });
+    }
+
+    $('#submitBtn').on('click', function() {
+            const rows = $('#xmlTable tbody tr');
+            const formData = new FormData();
+        if(rows.length > 0){
+            $.blockUI({ message: 'Procesando...' });
+
+            rows.each(function(i) {
+                const row = $(this);
+                const folio = row.find('td').eq(0).text();
+                const serie = row.find('td').eq(1).text();
+                const cc = row.find('.cc-select').val();
+                const numOC = row.find('.oc-input').val();
+                
+                // Obtener el archivo XML sacado del ZIP
+                const file = xmlFiles[i];
+
+                // Obtener el valor de la columna Total (formato moneda) y convertirlo a decimal
+                let totalText = row.find('td').eq(3).text(); // La cuarta columna (índice 3)
+                let total = parseFloat(totalText.replace(/[^0-9.-]+/g,"")); // Eliminar símbolos de moneda y convertir a número
+
+                // Obtener la fecha actual y formatearla como YYYYMMDD
+                const currentDate = new Date();
+                const year = currentDate.getFullYear();
+                const month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // Asegura que el mes tenga 2 dígitos
+                const day = ('0' + currentDate.getDate()).slice(-2); // Asegura que el día tenga 2 dígitos
+                const formattedDate = `${year}${month}${day}`; // Formato YYYYMMDD
+
+                // Nombre del archivo: folio_serie_YYYYMMDD.xml
+                const fileName = `${formattedDate}_${folio}_${serie}.xml`;
+
+                // Agregar los datos de cada fila al FormData
+                formData.append(`facturas[${i}].Folio`, folio);
+                formData.append(`facturas[${i}].Serie`, serie);
+                formData.append(`facturas[${i}].CC`, cc);
+                formData.append(`facturas[${i}].NumOC`, numOC);
+                formData.append(`facturas[${i}].Total`, total); // Añadir el total como número decimal
+                formData.append(`facturas[${i}].XmlFile`, new Blob([file], { type: 'application/xml' }), fileName);
+            });
+
+            // Enviar los datos al servidor con AJAX
+            $.ajax({
+                url: '/Enkontrol/OrdenCompra/GuardarFacturas', // Cambia esta URL por la ruta correcta de tu controlador
+                type: 'POST',
+                data: formData,
+                processData: false, // Evita que jQuery procese los datos automáticamente
+                contentType: false, // No configures el Content-Type automáticamente
+                success: function(response) {
+                    if(response.success){
+                        AlertaGeneral("Confirmación","Facturas guardadas correctamente");
+                    }
+                    $.unblockUI();
+                },
+                error: function(err) {
+                    $.unblockUI();
+                    console.error('Error al enviar los datos:', err);
+                }
+            });  
+        }   
+        else{
+            AlertaGeneral("Alerta","Debe cargar facturas para guardar")
+        }
+    });
+
+    function llenarInformacion(data) {
+        //#region Panel Izquierdo
+        selectBoS.val(data.bienes_servicios);
+        dtpFecha.val($.datepicker.formatDate('dd/mm/yy', new Date(parseInt(data.fecha.substr(6)))));
+        inputProvNum.val(data.proveedor);
+        inputProvNom.val(data.proveedorNom);
+        inputCompNum.val(data.comprador);
+        inputCompNom.val(data.compradorNom);
+        inputSolNum.val(data.solicito);
+        inputSolNom.val(data.solicitoNom);
+        inputAutNum.val(data.autorizo);
+        inputAutNom.val(data.autorizoNom);
+        inputEmb.val(data.embarquese);
+        selectLab.val(data.libre_abordo);
+        inputConFact.val(data.concepto_factura);
+
+        if (data.bit_autorecepcion == 'S') {
+            checkAutoRecep.prop("checked", true);
+        } else {
+            checkAutoRecep.prop("checked", false);
+        }
+
+        inputAlmNum.val(data.almacen_autorecepcion);
+        inputAlmNom.val(data.almacenRecepNom);
+        inputEmpNum.val(data.empleado_autorecepcion);
+        inputEmpNom.val(data.empleadoRecepNom);
+        //#endregion
+
+        //#region Panel Derecho
+        selectTipoOC.val(data.tipo_oc_req);
+        selectMoneda.val(data.moneda);
+        inputTipoCambio.val(data.tipo_cambio);
+        inputSubTotal.val(maskNumero(data.sub_total));
+        inputIVAPorcentaje.val(data.porcent_iva);
+        inputIVANumero.val(maskNumero(data.iva));
+        inputRetencion.val(maskNumero(data.rentencion_despues_iva));
+        inputTotal.val(maskNumero(data.total));
+        inputTotalFinal.val('');
+        //#endregion
+    }
+
+    function limpiarInformacion() {
+        //#region Panel Izquierdo
+        selectBoS.val('');
+        dtpFecha.val('');
+        inputProvNum.val('');
+        inputProvNom.val('');
+        inputCompNum.val('');
+        inputCompNom.val('');
+        inputSolNum.val('');
+        inputSolNom.val('');
+        inputAutNum.val('');
+        inputAutNom.val('');
+        inputEmb.val('');
+        selectLab.val('');
+        inputConFact.val('');
+
+        checkAutoRecep.prop("checked", false);
+
+        inputAlmNum.val('');
+        inputAlmNom.val('');
+        inputEmpNum.val('');
+        inputEmpNom.val('');
+        //#endregion
+
+        //#region Panel Derecho
+        selectTipoOC.val('');
+        selectMoneda.val('');
+        inputTipoCambio.val('');
+        inputSubTotal.val('');
+        inputIVAPorcentaje.val('');
+        inputIVANumero.val('');
+        inputRetencion.val('');
+        inputTotal.val('');
+        inputTotalFinal.val('');
+        //#endregion
+    }
+
+    function initTablePartidas() {
+        tblPartidas.DataTable({
+            retrieve: true,
+            paging: false,
+            searching: false,
+            language: dtDicEsp,
+            aaSorting: [0, 'asc'],
+            rowId: 'id',
+            scrollY: "250px",
+            scrollCollapse: true,
+            initComplete: function (settings, json) {
+                tblPartidas.on('click', 'td', function () {
+                    let rowData = tblPartidas.DataTable().row($(this).closest('tr')).data();
+
+                    let $row = $(this).closest('tr');
+                    let selected = $row.hasClass("active");
+
+                    tblPartidas.find("tr").removeClass("active");
+
+                    if (!selected) {
+                        $row.not("th").addClass("active");
+                        textAreaDescPartida.val(rowData.partidaDescripcion);
+                    } else {
+                        textAreaDescPartida.val('');
+                    }
+                });
+            },
+            columns: [
+                { data: 'partida', title: 'Partida' },
+                { data: 'insumo', title: 'Insumo' },
+                { data: 'insumoDesc', title: 'Descripción' },
+                { data: 'areaCuenta', title: 'Área Cuenta' },
+                { data: 'fecha_entrega', title: 'Fecha Entregar' },
+                { data: 'cantidad', title: 'Cantidad' },
+                {
+                    data: 'precio', title: 'Precio', render: (data, type, row, meta) => {
+                        var mon = selectMoneda.find('option[value="' + row.moneda + '"]').text().trim();
+                        return maskNumero(data) + " " + mon;
+                    }
+                },
+                { data: 'importe', title: 'Importe' }
+            ],
+            columnDefs: [
+                {
+                    render: function (data, type, row) {
+                        if (data == null) {
+                            return '';
+                        } else {
+                            return $.datepicker.formatDate('dd/mm/yy', new Date(parseInt(data.substr(6))));
+                        }
+                    },
+                    targets: [4]
+                },
+                {
+                    render: function (data, type, row) {
+                        if (data == null) {
+                            return '';
+                        } else {
+                            return maskNumero(data);
+                        }
+                    },
+                    targets: [7]
+                },
+                { className: "dt-center", "targets": "_all" }
+            ]
+        });
+    }
+
+    function initTableRetenciones() {
+        tblRetenciones.DataTable({
+            retrieve: true,
+            paging: false,
+            searching: false,
+            "language": dtDicEsp,
+            "aaSorting": [0, 'asc'],
+            rowId: 'id',
+            "scrollCollapse": true,
+            'initComplete': function (settings, json) {
+
+            },
+            columns: [
+                { data: 'id_cpto', title: 'Id Cpto' },
+                { data: 'descRet', title: 'Desc Ret' },
+                {
+                    data: 'cantidad', render: function (data, type, row, meta) {
+                        let html = '<input id="inputRet_' + meta.row + '" class="form-control cantidad" style="text-align: right;" value="' + maskNumero(data).replace('$', '') + '" data-orden="' + row.orden + '" data-id_cpto="' + row.id_cpto + '" data-cantidad="' + row.cantidad + '" />'
+
+                        return html;
+                    }, title: 'Cantidad'
+                },
+                { data: 'porc_ret', title: 'Porc Ret' },
+                { data: 'importe', title: 'Importe' },
+                { data: 'facturado', title: 'Facturado' },
+                { data: 'retenido', title: 'Retenido' },
+                { data: 'tm_descto', title: 'Tm Descto' }
+            ],
+            columnDefs: [
+                {
+                    "render": function (data, type, row) {
+                        if (data == null) {
+                            return '';
+                        } else {
+                            return maskNumero(data);
+                        }
+                    },
+                    "targets": [4]
+                },
+                { "className": "dt-center", "targets": "_all" }
+            ]
+        });
+    }
+
+    async function initCCs(){
+        listaCC = '<option value="">--Seleccionar--</option>'
+        const response = await fetch('/Enkontrol/OrdenCompra/FillComboCc', {method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if(data && data.items)
+        {
+            for (cc of data.items) {
+                listaCC += `<option value="`+cc.Value+`">`+cc.Text+`</option>`;
+            }
+        }
+    }
+
+    $("#clearBtn").click(function(){
+
+        location.reload();
+    });
+</script>
+
+@Html.Partial("reportViewerView", false)

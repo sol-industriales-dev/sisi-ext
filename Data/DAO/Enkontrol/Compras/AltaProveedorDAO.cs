@@ -32,7 +32,7 @@ namespace Data.DAO.Enkontrol.Compras
     {
         private Dictionary<string, object> resultado = new Dictionary<string, object>();
         private readonly string RutaBase = @"\\REPOSITORIO\Proyecto\SIGOPLAN\COMPRAS\PROVEEDORES";
-        private const string RutaLocal = @"C:\Proyecto\SIGOPLAN\COMPRAS\PROVEEDORES";
+        private const string RutaLocal = @"C:\Proyecto\SISI\COMPRAS\PROVEEDORES";
         private string NombreControlador = "AltaProveedorController";
         private bool productivo = Convert.ToString(System.Web.Configuration.WebConfigurationManager.AppSettings["enkontrolProductivo"]) == "1";
         bool esEdicion = false;
@@ -612,11 +612,11 @@ namespace Data.DAO.Enkontrol.Compras
 
 
                                     var listaRutaArchivos = new List<Tuple<HttpPostedFileBase, string>>();
-#if DEBUG
+// #if DEBUG
                                     var CarpetaNueva = Path.Combine(RutaLocal, datosProveedores.numpro.ToString());
-#else
-                                    var CarpetaNueva = Path.Combine(RutaBase, datosProveedores.numpro.ToString());
-#endif
+// #else
+//                                     var CarpetaNueva = Path.Combine(RutaBase, datosProveedores.numpro.ToString());
+// #endif
                                     // Verifica si existe la carpeta y si no, la crea.
                                     if (GlobalUtils.VerificarExisteCarpeta(CarpetaNueva, true) == false)
                                     {
@@ -974,11 +974,11 @@ namespace Data.DAO.Enkontrol.Compras
                                 #region SE REGISTRA EL ARCHIVO ADJUNTO
 
                                 var listaRutaArchivos = new List<Tuple<HttpPostedFileBase, string>>();
-#if DEBUG
+// #if DEBUG
                                 var CarpetaNueva = Path.Combine(RutaLocal, infoProveedor.numpro.ToString());
-#else
-                                var CarpetaNueva = Path.Combine(RutaBase, infoProveedor.numpro.ToString());
-#endif
+// #else
+//                                 var CarpetaNueva = Path.Combine(RutaBase, infoProveedor.numpro.ToString());
+// #endif
                                 //// Verifica si existe la carpeta y si no, la crea.
                                 //if (GlobalUtils.VerificarExisteCarpeta(CarpetaNueva, true) == false)
                                 //{

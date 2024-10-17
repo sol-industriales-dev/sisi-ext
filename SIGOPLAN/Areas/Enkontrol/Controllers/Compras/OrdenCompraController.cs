@@ -259,6 +259,16 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
             return View();
         }
 
+        public ActionResult OCSinFactura()
+        {
+            return View();
+        }
+
+        public ActionResult OCRelacionarFactura()
+        {
+            return View();
+        }
+
         #region Generar
         public ActionResult generarOC(List<GenOrdenCompraDTO> lstOC)
         {
@@ -672,6 +682,25 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
                 result.Add("ultimoMovimiento", data.ultimoMovimiento);
 
                 result.Add(SUCCESS, true);
+            //}
+            //catch (Exception e)
+            //{
+            //    result.Add(MESSAGE, e.Message);
+            //    result.Add(SUCCESS, false);
+            //}
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetCompraRelacionar(string cc, int num)
+        {
+            var result = new Dictionary<string, object>();
+            //try
+            //{
+            var data = ocfs.getOcService().getCompraRelacionar(cc, num);
+
+            result.Add("info", data);
+
+            result.Add(SUCCESS, true);
             //}
             //catch (Exception e)
             //{
@@ -1414,6 +1443,17 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
             };
         }
 
+        public ActionResult ObtenerComprasSinFactura(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal, string idAreaCuenta, int idCompradorEK)
+        {
+            return new JsonResult
+            {
+                Data = ocfs.getOcService().ObtenerComprasSinFactura(cc, estatus, proveedor, fechaInicial, fechaFinal, idAreaCuenta, idCompradorEK),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                MaxJsonLength = int.MaxValue
+            };
+        }
+
+
         public ActionResult GetUltimaCompra(CuadroComparativoDetDTO partidaCuadro)
         {
             var result = new Dictionary<string, object>();
@@ -2032,5 +2072,45 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Compras
         {
             return Json(ocfs.getOcService().GetTipoCambioPeru(), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult GuardarFacturas(List<RelFacturaDTO> facturas)
+        {
+            foreach (var factura in facturas)
+            {
+                if (factura.XmlFile != null && factura.XmlFile.ContentLength > 0)
+                {
+                    // Obtener el nombre del archivo sin la ruta "facturas/"
+                    string fileName = Path.GetFileName(factura.XmlFile.FileName);
+
+                    // Obtener la fecha actual para crear las carpetas de año y mes
+                    // Si la fecha viene en el XML, puedes usar esa fecha en lugar de DateTime.Now
+                    DateTime currentDate = DateTime.Now;
+                    string yearFolder = currentDate.Year.ToString();
+                    string monthFolder = currentDate.ToString("MM");
+
+                    // Crear la ruta completa: C:\Proyecto\SISI\Compras\Facturas\Año\Mes
+                    string basePath = @"C:\Proyecto\SISI\Compras\Facturas";
+                    string fullPath = Path.Combine(basePath, yearFolder, monthFolder);
+
+                    // Crear las carpetas si no existen
+                    if (!Directory.Exists(fullPath))
+                    {
+                        Directory.CreateDirectory(fullPath);
+                    }
+
+                    // Crear la ruta final del archivo (incluyendo el nombre)
+                    string filePath = Path.Combine(fullPath, fileName);
+                    factura.Ruta = filePath;
+                    // Guardar el archivo en la ruta especificada
+                    factura.XmlFile.SaveAs(filePath);
+                    ocfs.getOcService().UpdateOCFactura(facturas);
+                    // Aquí puedes continuar con la lógica para procesar la factura
+                }
+            }
+
+            return Json(new { success = true, message = "Facturas guardadas con éxito." });
+        }
+
     }
 }

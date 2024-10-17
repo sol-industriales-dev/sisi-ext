@@ -57,6 +57,7 @@ using Core.Entity.Maquinaria.Catalogo;
 using Core.Entity.Maquinaria.StandBy;
 using System.Net.Mail;
 using Core.Enum.RecursosHumanos.CatNotificantes;
+using Core.DTO.Highcharts.Line;
 
 namespace Data.DAO.Enkontrol.Compras
 {
@@ -2300,6 +2301,26 @@ namespace Data.DAO.Enkontrol.Compras
             //    return objOrdenCompraDTO;
             //}
             #endregion
+        }
+
+        public dynamic getCompraRelacionar(string cc, int num)
+        {
+            var compra = _context.tblCom_OrdenCompra.FirstOrDefault(x => x.estatusRegistro && x.cc == cc && x.numero == num);
+            if (compra != null)
+            {
+                var prov = _context.tblCom_sp_proveedores.FirstOrDefault(x=> x.numpro == compra.proveedor);
+
+                return new { 
+                    total = compra.total, 
+                    proveedor = prov.nomcorto,
+                    existe = true,
+                    tieneFactura = compra.tieneFactura
+                };
+            }
+            else
+            {
+                return new {existe = false};
+            }
         }
 
         private string GetDescripcionCC(string cc)
@@ -16697,7 +16718,12 @@ FROM (
                             empleado_autorecepcion = compra.empleado_autorecepcion,
                             rentencion_antes_iva = compra.rentencion_antes_iva,
                             rentencion_despues_iva = compra.rentencion_despues_iva,
-                            num_requisicion = num_req2
+                            num_requisicion = num_req2,
+                            tieneFactura = false,
+                            factura_folio = "",
+                            factura_serie = "",
+                            factura_ruta = "",
+                            factura_total = 0
                         };
 
                         _context.tblCom_OrdenCompra.Add(nuevaCompraSIGOPLAN);
@@ -19489,6 +19515,1100 @@ FROM (
 
                 resultado.Add(SUCCESS, true);
                 resultado.Add("data", listaCompras);
+            // }
+            // catch (Exception e)
+            // {
+            //     var NOMBRE_FUNCION = System.Reflection.MethodBase.GetCurrentMethod().Name;
+            //     LogError(_SISTEMA, 0, _NOMBRE_CONTROLADOR, NOMBRE_FUNCION, e, AccionEnum.CONSULTA, 0,
+            //         new { cc = cc, estatus = estatus, proveedor = proveedor, fechaInicial = fechaInicial, fechaFinal = fechaFinal, idAreaCuenta = idAreaCuenta, idCompradorEK = idCompradorEK });
+            //     resultado.Add(MESSAGE, e.Message);
+            //     resultado.Add(SUCCESS, false);
+            // }
+
+            return resultado;
+        }
+
+        public Dictionary<string, object> ObtenerComprasSinFactura(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal, string idAreaCuenta, int idCompradorEK)
+        {
+            Dictionary<string, object> resultado = new Dictionary<string, object>();
+            // try
+            // {
+            List<RequisicionDTO> listaCompras = new List<RequisicionDTO>();
+            if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Construplan)
+            {
+                #region PERU
+                var lstUsrsStarsoft = _context.tblCom_Comprador.ToList();
+                var usuario = vSesiones.sesionUsuarioDTO;
+                //var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+                var listCompradorAdmin = _context.tblCom_Comprador_Admin.Select(x => x.empleado).ToList();
+                var puedeCancelar = usuario.id == 13 || listCompradorAdmin.Contains(usuario.id);
+
+                var proveedorres = new List<ProveedoresDTO>();
+
+                using (var db = new MainContext())
+                {
+                    var lstProveedores = db.tblCom_sp_proveedores.Where(e => e.registroActivo).ToList();
+                    foreach (var item in lstProveedores)
+                    {
+
+                        proveedorres.Add(new ProveedoresDTO()
+                        {
+                            noProveedor = item.numpro,
+                            nomProveedor = item.nomcorto,
+                            tipoCambio = 0,
+                        });
+                    }
+                }
+
+                List<tblCom_OrdenCompra> comprasEK = null;
+                string fi = fechaInicial.ToString("yyyyMMdd");
+                string ff = fechaFinal.ToString("yyyyMMdd");
+                string queryProv = proveedor > 0 ? "and proveedor = " + proveedor : "";
+
+                comprasEK = _context.tblCom_OrdenCompra.Where(e => e.estatusRegistro && e.ST_OC == "A" && e.estatus != "C" && !e.tieneFactura).ToList();
+
+                if (comprasEK.Count > 0)
+                {
+                    var compras = comprasEK;
+
+                    if (cc != "" && cc != null)
+                    {
+                        compras = compras.Where(x => (string)x.cc == cc).ToList();
+                    }
+
+                    List<tblCom_OrdenCompra> lstOrdenCompras = _context.tblCom_OrdenCompra.Where(w => (cc != "" && cc != null ? w.cc == cc : true) && w.estatusRegistro).OrderBy(x => x.fecha).ToList();
+                    List<tblCom_Comprador> lstCompradores = new List<tblCom_Comprador>();
+
+                    foreach (var item in lstUsrsStarsoft)
+                    {
+                        var objUsuario = _context.tblP_Usuario.FirstOrDefault(e => e.id == item.usuarioSIGOPLAN);
+                        if (objUsuario != null)
+                        {
+                            lstCompradores.Add(new tblCom_Comprador
+                            {
+                                id = item.id,
+                                empleado = objUsuario.id,
+                                descripcion = objUsuario.apellidoPaterno + " " + objUsuario.nombre,
+                                usuarioSIGOPLAN = objUsuario.id,
+                                estatus = true,
+                            });
+                        }
+                    }
+
+                    var lstComprasReq = _context.Select<tblCom_Req>(new DapperDTO
+                    {
+                        baseDatos = MainContextEnum.Construplan,
+                        consulta = string.Format("SELECT * FROM tblCom_Req WHERE estatusRegistro = 1 {0}", cc != "" && cc != null ? "AND cc = @cc " : ""),
+                        parametros = new { cc = cc }
+                    });
+
+                    var lstComprasReq_id = lstComprasReq.Select(x => x.id).ToList();
+
+                    int ciclos = lstComprasReq_id.Count / 2000;
+                    var lstComprasReqDet = new List<tblCom_ReqDet>();
+                    for (int i = 0; i < ciclos; i++)
+                    {
+                        lstComprasReqDet.AddRange(_context.Select<tblCom_ReqDet>(new DapperDTO
+                        {
+                            baseDatos = MainContextEnum.Construplan,
+                            consulta = "SELECT * FROM tblCom_ReqDet WHERE estatusRegistro = 1 AND idReq IN @req",
+                            parametros = new { req = lstComprasReq_id.Skip(i * 2000).Take(2000) }
+                        }));
+                    }
+                    //
+
+                    #region SE OBTIENE LISTADO DE AREAS CUENTAS
+                    var listaAreaCuentaEK = _context.tblM_CatMaquina.Where(x => x.estatus == 1).ToList();
+                    #endregion
+
+                    var lstCC = _context.tblP_CC.ToList();
+
+                    foreach (var com in compras)
+                    {
+                        var tcc = (string)com.cc;
+                        int tnumero = (int)com.numero;
+                        var compraSIGOPLAN = lstOrdenCompras.FirstOrDefault(x => x.cc == tcc && x.numero == tnumero);
+
+                        var almacenLAB = "";
+
+                        almacenLAB = string.Empty; // SKIP ALMACEN
+
+                        bool flagCancelar = (puedeCancelar && com.st_impresa == "I") ? true : false;
+
+                        var provDesc = proveedorres.FirstOrDefault(x => x.noProveedor == com.proveedor).nomProveedor;
+
+                        listaCompras.Add(new RequisicionDTO
+                        {
+                            ccDescripcion = lstCC.Where((y => y.cc == (string)com.cc)).Select(x => x.descripcion).FirstOrDefault(),
+                            numero = (int)com.numero,
+                            fecha = (DateTime)com.fecha,
+                            almacenLAB = almacenLAB,
+                            cc = (string)com.cc,
+                            libre_abordo = (int)com.idLibreAbordo,
+                            estatusSurtido = (string)com.estatus,
+                            flagCancelar = flagCancelar,
+                            proveedor = (int)com.proveedor,
+                            //PERU_tipoCompra = com.PERU_tipoCompra,
+                            proveedorDesc = provDesc,
+                            flagTieneEntrada = ((string)com.estatus == "T" || (string)com.estatus == "P"),
+                            comprador = com.compradorSIGOPLAN,
+                            area = 0,
+                            cuenta = 0,
+                            areaCuentaDesc = string.Empty,
+                            st_impresa = (string)com.st_impresa,
+                            fechaAutorizacionString = com.fecha_autoriza != null ? ((DateTime)com.fecha_autoriza).ToShortDateString() : "",
+                            fechaEntregaString = (compraSIGOPLAN != null && com.fecha_autoriza != null) ? ((DateTime)com.fecha_autoriza).AddDays(30 + compraSIGOPLAN.tiempoEntregaDias).ToShortDateString() : ""
+                        });
+                    }
+
+                    if (idCompradorEK > 0)
+                        listaCompras = listaCompras.Where(w => w.comprador == idCompradorEK).ToList();
+
+                    foreach (var item in listaCompras)
+                    {
+                        #region SE OBTIENE NOMBRE DEL COMPRADOR
+                        tblCom_Comprador objComprador = lstCompradores.Where(w => w.empleado == item.comprador).FirstOrDefault();
+                        if (objComprador != null)
+                            item.nombreComprador = objComprador.descripcion;
+                        else
+                            item.nombreComprador = string.Empty;
+                        #endregion
+
+                        #region SE OBTIENE AREA-CUENTA DESCRIPCIÓN
+                        tblCom_Req objRequisicionSIGOPLAN = lstComprasReq.Where(w => w.cc == item.cc && w.numero == item.numero).FirstOrDefault();
+                        if (objRequisicionSIGOPLAN != null)
+                        {
+                            int idReq = objRequisicionSIGOPLAN.id;
+                            var detalle = lstComprasReqDet.Where(x => x.idReq == idReq).ToList();
+
+                            //Se escoge el área-cuenta de la primer partida.
+                            if (detalle.Count() > 0)
+                            {
+                                item.area = detalle[0].area;
+                                item.cuenta = detalle[0].cuenta;
+
+                                //var areaCuentaEK = listaAreaCuentaEK.Where(x => (int)x.are == item.area && (int)x.cuenta == item.cuenta).FirstOrDefault();
+                                //if (areaCuentaEK != null)
+                                //{
+                                //    item.areaCuentaDesc = (int)item.area + "-" + (int)item.cuenta + " " + (string)areaCuentaEK.descripcion;
+                                //}
+                            }
+                        }
+                        #endregion
+                    }
+
+                }
+                else
+                {
+                    listaCompras = new List<RequisicionDTO>();
+                }
+                #endregion
+            }
+            else if (vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Colombia)
+            {
+                #region COLOMBIA
+                var usuario = vSesiones.sesionUsuarioDTO;
+                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+                var listCompradorAdmin = _context.tblCom_Comprador_Admin.Select(x => x.empleado).ToList();
+                var puedeCancelar = relUser.empleado == 1 || listCompradorAdmin.Contains(relUser.empleado);
+                var almacenes = (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
+                    string.Format(@"SELECT 
+                                        alm.almacen AS Value, 
+                                        alm.descripcion AS Text 
+                                    FROM DBA.si_almacen alm                
+                                    ORDER BY Text ASC")).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
+                var almacenDefault = almacenes.FirstOrDefault(y => y.Value == "1").Text;
+                //var proveedorres = ((List<dynamic>)consultaCheckProductivo(
+                //            string.Format(@"SELECT numpro, nombre FROM sp_proveedores")
+                //        ).ToObject<List<dynamic>>());
+                //dynamic comprasEK = null;
+                List<CompraEkDTO> compras = null;
+                string fi = fechaInicial.ToString("yyyyMMdd");
+                string ff = fechaFinal.ToString("yyyyMMdd");
+                string queryProv = proveedor > 0 ? "AND proveedor = " + proveedor : "";
+                string queryCC = !string.IsNullOrEmpty(cc) ? " AND cc = ?" : "";
+
+                var query_compraEK = new OdbcConsultaDTO();
+                switch (estatus)
+                {
+                    case 1: //Sin Surtir
+                        {
+                            query_compraEK.consulta = string.Format
+                            (
+                                @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus != 'C' AND
+                                        estatus != 'T' AND
+                                        estatus != 'P' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                "(vobo_aut = 'S' OR aut_aut = 'S')", queryProv, queryCC, (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                            );
+                            query_compraEK.parametros.Add(new OdbcParameterDTO
+                            {
+                                nombre = "fecha",
+                                tipo = OdbcType.Numeric,
+                                valor = fi
+                            });
+                            query_compraEK.parametros.Add(new OdbcParameterDTO
+                            {
+                                nombre = "fecha",
+                                tipo = OdbcType.Numeric,
+                                valor = ff
+                            });
+                        }
+                        break;
+                    case 2: //Parciales
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus = 'P' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    "(vobo_aut = 'S' OR aut_aut = 'S')", queryProv, queryCC, (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        break;
+                    case 3: //Surtidas
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus = 'T' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    "(vobo_aut = 'S' OR aut_aut = 'S')", queryProv, queryCC, (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        break;
+                    default: //Todas
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus != 'C' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    "(vobo_aut = 'S' OR aut_aut = 'S')", queryProv, queryCC, (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(queryCC))
+                {
+                    query_compraEK.parametros.Add(new OdbcParameterDTO
+                    {
+                        nombre = "cc",
+                        tipo = OdbcType.NVarChar,
+                        valor = cc
+                    });
+                }
+
+                if (idCompradorEK > 0)
+                {
+                    query_compraEK.parametros.Add(new OdbcParameterDTO
+                    {
+                        nombre = "comprador",
+                        tipo = OdbcType.Numeric,
+                        valor = idCompradorEK
+                    });
+                }
+
+                compras = _contextEnkontrol.Select<CompraEkDTO>(productivo ? EnkontrolAmbienteEnum.Prod : EnkontrolAmbienteEnum.Prueba, query_compraEK);
+
+                if (compras != null)
+                {
+                    var proveedoresEnCompras = compras.Select(x => (int)x.proveedor).ToList();
+                    var query_proveedores = new OdbcConsultaDTO();
+                    query_proveedores.consulta = string.Format
+                    (
+                        @"SELECT
+                                numpro,
+                                nombre
+                            FROM
+                                DBA.sp_proveedores
+                            WHERE
+                                numpro IN {0}",
+                        proveedoresEnCompras.ToParamInValue()
+                    );
+                    query_proveedores.parametros.AddRange(proveedoresEnCompras.Select(x => new OdbcParameterDTO
+                    {
+                        nombre = "numpro",
+                        tipo = OdbcType.Int,
+                        valor = x
+                    }).ToList());
+
+                    var proveedores = _contextEnkontrol.Select<ProveedorDTO>(productivo ? EnkontrolAmbienteEnum.Prod : EnkontrolAmbienteEnum.Prueba, query_proveedores);
+
+                    var ccNumeros = compras.Select(x => x.ccNumero).ToList();
+                    //COMPRAS DE SIGOPLAN CON AREA-CUENTA DEL DETALLE DE LA ORDEN DE COMPRA
+                    string fechaInicialStr = string.Format("{0}-{1}-{2}", fechaInicial.Year, fechaInicial.Month, fechaInicial.Day);
+                    string fechaFinalStr = string.Format("{0}-{1}-{2}", fechaFinal.Year, fechaFinal.Month, fechaFinal.Day);
+                    string strQuery =
+                        string.Format(@"SELECT  COMPRA.cc,
+                                                    COMPRA.numero,
+                                                    COMPRA.idLibreAbordo,
+                                                    COMPRA.tiempoEntregaDias,
+                                                    INFO_COMPRA_DET.area AS areaCompra,
+                                                    INFO_COMPRA_DET.cuenta AS cuentaCompra
+                                                        FROM tblCom_OrdenCompra AS COMPRA
+                                                        CROSS APPLY
+                                                        (
+                                                            SELECT TOP 1
+                                                                    COMPRADET.area,
+                                                                    COMPRADET.cuenta
+                                                                        FROM tblCom_OrdenCompraDet AS COMPRADET
+                                                                            WHERE COMPRADET.idOrdenCompra = COMPRA.id AND COMPRADET.estatusRegistro = 1 ORDER BY COMPRADET.partida
+                                                        ) INFO_COMPRA_DET
+                                                        WHERE COMPRA.estatusRegistro = 1 AND COMPRA.fecha >= '{0}' AND COMPRA.fecha <= '{1}' {2}{3}{4}",
+                                        fechaInicialStr,
+                                        fechaFinalStr,
+                                        !string.IsNullOrEmpty(cc) ? " AND COMPRA.cc = @paramCC" : "",
+                                        proveedor > 0 ? " AND COMPRA.proveedor = @paramProveedor" : "",
+                                        idCompradorEK > 0 ? " AND COMPRA.compradorEnkontrol = @paramComprador" : "");
+                    var lstOrdenCompras = _context.Select<CompraSPDTO>(new DapperDTO
+                    {
+                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                        consulta = strQuery
+                    });
+
+                    List<tblCom_Comprador> lstCompradores = _context.tblCom_Comprador.Where(x => x.estatus).ToList();
+
+                    #region SE OBTIENE LISTADO DE AREAS CUENTAS
+                    List<dynamic> listaAreaCuentaEK = _contextEnkontrol.Select<dynamic>(
+                        vSesiones.sesionEmpresaActual == 1 ? EnkontrolEnum.CplanProd :
+                        vSesiones.sesionEmpresaActual == 4 ? EnkontrolEnum.CplanEici :
+                        vSesiones.sesionEmpresaActual == (int)EmpresaEnum.Arrendadora ? EnkontrolEnum.ArrenProd : EnkontrolEnum.ColombiaProductivo,
+                    new OdbcConsultaDTO()
+                    {
+                        consulta = @"
+                            SELECT
+                                area, cuenta, TRIM(descripcion) AS descripcion
+                            FROM DBA.si_area_cuenta
+                            --WHERE cc_activo = 1
+                            GROUP BY area, cuenta, descripcion
+                            ORDER BY area, cuenta, descripcion"
+                    });
+                    #endregion
+
+                    var centrosCosto = (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
+                        string.Format(@"SELECT cc AS Value, descripcion AS Text FROM DBA.cc WHERE st_ppto != 'T' ORDER BY Text ASC")
+                    ).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
+
+                    foreach (var com in compras)
+                    {
+                        var tcc = (string)com.cc;
+                        int tnumero = (int)com.numero;
+                        var compraSIGOPLAN = lstOrdenCompras.FirstOrDefault(x => x.cc == tcc && x.numero == tnumero);
+
+                        var almacenLAB = "";
+
+                        string acDescripcion = "";
+
+                        if (compraSIGOPLAN != null)
+                        {
+                            string idLibreAbordo = compraSIGOPLAN.idLibreAbordo.ToString();
+                            string almacenText = almacenes.Where(w => w.Value == idLibreAbordo).Select(s => s.Text).FirstOrDefault();
+                            if (!string.IsNullOrEmpty(almacenText))
+                                almacenLAB = almacenText;
+                            else
+                                almacenLAB = string.Empty;
+
+                            var areaCuentaEK = listaAreaCuentaEK.FirstOrDefault(x => (int)x.area == compraSIGOPLAN.areaCompra && (int)x.cuenta == compraSIGOPLAN.cuentaCompra);
+                            if (areaCuentaEK != null)
+                            {
+                                acDescripcion = compraSIGOPLAN.areaCompra + "-" + compraSIGOPLAN.cuentaCompra + " " + (string)areaCuentaEK.descripcion;
+                            }
+                        }
+                        else
+                        {
+                            almacenLAB = almacenDefault;
+                        }
+
+                        bool flagCancelar = (puedeCancelar && com.st_impresa != null && com.st_impresa == "I") ? true : false;
+
+                        int p = (int)com.proveedor;
+                        var provDesc = proveedores.FirstOrDefault(x => x.numpro == p).nombre;
+
+                        #region SE OBTIENE NOMBRE DEL COMPRADOR
+                        tblCom_Comprador objComprador = lstCompradores.FirstOrDefault(w => w.empleado == com.comprador);
+                        #endregion
+
+                        listaCompras.Add(new RequisicionDTO
+                        {
+                            ccDescripcion = centrosCosto.Where((y => y.Value == (string)com.cc)).Select(x => x.Text).FirstOrDefault(),
+                            numero = (int)com.numero,
+                            fecha = (DateTime)com.fecha,
+                            almacenLAB = almacenLAB,
+                            cc = (string)com.cc,
+                            libre_abordo = (int)com.libre_abordo,
+                            estatusSurtido = (string)com.estatus,
+                            flagCancelar = flagCancelar,
+                            proveedor = (int)com.proveedor,
+                            proveedorDesc = provDesc,
+                            flagTieneEntrada = ((string)com.estatus == "T" || (string)com.estatus == "P"),
+                            comprador = com.comprador,
+                            nombreComprador = objComprador != null ? objComprador.descripcion : "",
+                            area = compraSIGOPLAN != null ? compraSIGOPLAN.areaCompra : 0,
+                            cuenta = compraSIGOPLAN != null ? compraSIGOPLAN.cuentaCompra : 0,
+                            areaCuentaDesc = acDescripcion,
+                            st_impresa = (string)com.st_impresa,
+                            fechaAutorizacionString = com.fecha_autoriza != null ? ((DateTime)com.fecha_autoriza).ToShortDateString() : "",
+                            fechaEntregaString = (compraSIGOPLAN != null && com.fecha_autoriza != null) ? ((DateTime)com.fecha_autoriza).AddDays(30 + compraSIGOPLAN.tiempoEntregaDias).ToShortDateString() : ""
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(idAreaCuenta))
+                    {
+                        if (idAreaCuenta != "--Todos--")
+                        {
+                            int area = Int32.Parse(idAreaCuenta.Split('-')[0]);
+                            int cuenta = Int32.Parse(idAreaCuenta.Split('-')[1]);
+
+                            listaCompras = listaCompras.Where(w => w.area == area && w.cuenta == cuenta).ToList();
+                        }
+                    }
+                }
+                else
+                    listaCompras = new List<RequisicionDTO>();
+                #endregion
+            }
+            else
+            {
+                #region RESTO EMPRESAS
+                var usuario = vSesiones.sesionUsuarioDTO;
+                var relUser = ufs.getUsuarioService().getUserEk(usuario.id);
+                var listCompradorAdmin = _context.tblCom_Comprador_Admin.Select(x => x.empleado).ToList();
+                var puedeCancelar = relUser.empleado == 1 || listCompradorAdmin.Contains(relUser.empleado);
+                var almacenes = (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
+                    string.Format(@"SELECT 
+                                        alm.almacen AS Value, 
+                                        alm.descripcion AS Text 
+                                    FROM si_almacen alm                
+                                    ORDER BY Text ASC")).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
+                var almacenDefault = almacenes.FirstOrDefault(y => y.Value == "1").Text;
+                //var proveedorres = ((List<dynamic>)consultaCheckProductivo(
+                //            string.Format(@"SELECT numpro, nombre FROM sp_proveedores")
+                //        ).ToObject<List<dynamic>>());
+                //dynamic comprasEK = null;
+                List<CompraEkDTO> compras = null;
+                string fi = fechaInicial.ToString("yyyyMMdd");
+                string ff = fechaFinal.ToString("yyyyMMdd");
+                string queryProv = proveedor > 0 ? "AND proveedor = " + proveedor : "";
+                string queryCC = !string.IsNullOrEmpty(cc) ? " AND cc = ?" : "";
+
+                var query_compraEK = new OdbcConsultaDTO();
+                switch (estatus)
+                {
+                    case 1: //Sin Surtir
+                        {
+                            query_compraEK.consulta = string.Format
+                            (
+                                @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus != 'C' AND
+                                        estatus != 'T' AND
+                                        estatus != 'P' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')"), queryProv, queryCC,
+                                (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                            );
+                            query_compraEK.parametros.Add(new OdbcParameterDTO
+                            {
+                                nombre = "fecha",
+                                tipo = OdbcType.Numeric,
+                                valor = fi
+                            });
+                            query_compraEK.parametros.Add(new OdbcParameterDTO
+                            {
+                                nombre = "fecha",
+                                tipo = OdbcType.Numeric,
+                                valor = ff
+                            });
+                        }
+                        //comprasEK = consultaCheckProductivo(
+                        //    string.Format(@"SELECT * FROM so_orden_compra WHERE " + ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')") + @" AND estatus != 'C' AND estatus != 'T' AND estatus != 'P' and ( fecha >= {0} and fecha <= {1} ) " + queryProv, fi, ff)
+                        //);
+                        break;
+                    case 2: //Parciales
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus = 'P' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')"), queryProv, queryCC,
+                                    (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        //comprasEK = consultaCheckProductivo(
+                        //    string.Format(@"SELECT * FROM so_orden_compra WHERE " + ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')") + @" AND estatus = 'P' and ( fecha >= {0} and fecha <= {1} ) " + queryProv, fi, ff)
+                        //);
+                        break;
+                    case 3: //Surtidas
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus = 'T' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')"), queryProv, queryCC,
+                                    (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        //comprasEK = consultaCheckProductivo(
+                        //    string.Format(@"SELECT * FROM so_orden_compra WHERE " + ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')") + @" AND estatus = 'T' and ( fecha >= {0} and fecha <= {1} ) " + queryProv, fi, ff)
+                        //);
+                        break;
+                    default: //Todas
+                        {
+                            {
+                                query_compraEK.consulta = string.Format
+                                (
+                                    @"SELECT
+                                        cc,
+                                        numero,
+                                        fecha,
+                                        libre_abordo,
+                                        comprador,
+                                        proveedor,
+                                        st_impresa,
+                                        estatus,
+                                        fecha_autoriza,
+                                        (cc + '-' + CAST(numero AS varchar)) AS ccNumero
+                                    FROM
+                                        DBA.so_orden_compra
+                                    WHERE
+                                        estatus != 'C' AND
+                                        fecha >= ? AND
+                                        fecha <= ? AND
+                                        {0} {1}{2}{3}
+                                    ORDER BY
+                                        fecha",
+                                    ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')"), queryProv, queryCC,
+                                    (idCompradorEK > 0 ? " AND comprador = ?" : "")
+                                );
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = fi
+                                });
+                                query_compraEK.parametros.Add(new OdbcParameterDTO
+                                {
+                                    nombre = "fecha",
+                                    tipo = OdbcType.Numeric,
+                                    valor = ff
+                                });
+                            }
+                        }
+                        //comprasEK = consultaCheckProductivo(
+                        //    string.Format(@"SELECT * FROM so_orden_compra WHERE " + ((EmpresaEnum)vSesiones.sesionEmpresaActual != EmpresaEnum.Colombia ? "ST_OC = 'A'" : "(vobo_aut = 'S' OR aut_aut = 'S')") + @" AND estatus != 'C' and ( fecha >= {0} and fecha <= {1} ) " + queryProv, fi, ff)
+                        //);
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(queryCC))
+                {
+                    query_compraEK.parametros.Add(new OdbcParameterDTO
+                    {
+                        nombre = "cc",
+                        tipo = OdbcType.NVarChar,
+                        valor = cc
+                    });
+                }
+
+                if (idCompradorEK > 0)
+                {
+                    query_compraEK.parametros.Add(new OdbcParameterDTO
+                    {
+                        nombre = "comprador",
+                        tipo = OdbcType.Numeric,
+                        valor = idCompradorEK
+                    });
+                }
+
+                compras = _contextEnkontrol.Select<CompraEkDTO>(productivo ? EnkontrolAmbienteEnum.Prod : EnkontrolAmbienteEnum.Prueba, query_compraEK);
+
+                if (/*comprasEK != null*/compras != null)
+                {
+                    //var compras = (List<dynamic>)comprasEK.ToObject<List<dynamic>>();
+
+                    //if (cc != "" && cc != null)
+                    //{
+                    //    compras = compras.Where(x => (string)x.cc == cc).ToList();
+                    //}
+
+                    var proveedoresEnCompras = compras.Select(x => (int)x.proveedor).ToList();
+                    var query_proveedores = new OdbcConsultaDTO();
+                    query_proveedores.consulta = string.Format
+                    (
+                        @"SELECT
+                                numpro,
+                                nombre
+                            FROM
+                                sp_proveedores
+                            WHERE
+                                numpro IN {0}",
+                        proveedoresEnCompras.ToParamInValue()
+                    );
+                    query_proveedores.parametros.AddRange(proveedoresEnCompras.Select(x => new OdbcParameterDTO
+                    {
+                        nombre = "numpro",
+                        tipo = OdbcType.Int,
+                        valor = x
+                    }).ToList());
+
+                    var proveedores = _contextEnkontrol.Select<ProveedorDTO>(productivo ? EnkontrolAmbienteEnum.Prod : EnkontrolAmbienteEnum.Prueba, query_proveedores);
+
+                    var ccNumeros = compras.Select(x => x.ccNumero).ToList();
+                    //List<CompraSPDTO> lstOrdenCompras = _context.tblCom_OrdenCompra.Where(w => ccNumeros.Contains(w.cc + "-" + w.numero) /*(cc != "" && cc != null ? w.cc == cc : true)*/ && w.estatusRegistro).Select(x => new CompraSPDTO
+                    //{
+                    //    cc = x.cc,
+                    //    numero = x.numero,
+                    //    idLibreAbordo = x.idLibreAbordo.Value,
+                    //    tiempoEntregaDias = x.tiempoEntregaDias
+                    //}).ToList();
+                    //COMPRAS DE SIGOPLAN CON AREA-CUENTA DEL DETALLE DE LA ORDEN DE COMPRA
+                    var lstOrdenCompras = _context.Select<CompraSPDTO>(new DapperDTO
+                    {
+                        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                        consulta = string.Format(@"SELECT
+                                            COMPRA.cc,
+                                            COMPRA.numero,
+                                            COMPRA.idLibreAbordo,
+                                            COMPRA.tiempoEntregaDias,
+                                            INFO_COMPRA_DET.area AS areaCompra,
+                                            INFO_COMPRA_DET.cuenta AS cuentaCompra
+                                        FROM
+                                            tblCom_OrdenCompra AS COMPRA
+                                        CROSS APPLY
+                                            (
+                                                SELECT TOP 1
+                                                    COMPRADET.area,
+                                                    COMPRADET.cuenta
+                                                FROM
+                                                    tblCom_OrdenCompraDet AS COMPRADET
+                                                WHERE
+                                                    COMPRADET.idOrdenCompra = COMPRA.id AND
+                                                    COMPRADET.estatusRegistro = 1
+                                                ORDER BY
+                                                    COMPRADET.partida
+                                            ) INFO_COMPRA_DET
+                                        WHERE
+                                            COMPRA.estatusRegistro = 1 AND
+                                            COMPRA.fecha >= @paramFechaInicio AND
+                                            COMPRA.fecha <= @paramFechaFin
+                                            {0}{1}{2}",
+                                   !string.IsNullOrEmpty(cc) ? " AND COMPRA.cc = @paramCC" : "", proveedor > 0 ? " AND COMPRA.proveedor = @paramProveedor" : "", idCompradorEK > 0 ? " AND COMPRA.compradorEnkontrol = @paramComprador" : ""),
+                        parametros = new { paramFechaInicio = fechaInicial, paramFechaFin = fechaFinal, paramCC = cc, paramProveedor = proveedor, paramComprador = idCompradorEK }
+                    });
+
+                    //                        COMPRAS DE SIGOPLAN CON AREA-CUENTA DE LAS REQUISICIONES
+                    //                        var lstOrdenCompras = _context.Select<CompraSPDTO>(new DapperDTO
+                    //                        {
+                    //                            baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    //                            consulta = @"SELECT
+                    //	                                        COMPRA.cc,
+                    //	                                        COMPRA.numero,
+                    //	                                        COMPRA.idLibreAbordo,
+                    //	                                        COMPRA.tiempoEntregaDias,
+                    //	                                        REQDET.area,
+                    //	                                        REQDET.cuenta
+                    //                                        FROM
+                    //	                                        tblCom_OrdenCompra AS COMPRA
+                    //                                        CROSS APPLY
+                    //	                                        (
+                    //		                                        SELECT TOP 1
+                    //			                                        COMPRADET.num_requisicion,
+                    //			                                        COMPRADET.part_requisicion
+                    //		                                        FROM
+                    //			                                        tblCom_OrdenCompraDet AS COMPRADET
+                    //		                                        WHERE
+                    //			                                        COMPRADET.idOrdenCompra = COMPRA.id AND
+                    //			                                        COMPRADET.estatusRegistro = 1
+                    //		                                        ORDER BY
+                    //			                                        COMPRADET.part_requisicion
+                    //	                                        ) INFOREQ
+                    //                                        INNER JOIN
+                    //	                                        tblCom_Req AS REQ
+                    //	                                        ON
+                    //		                                        REQ.cc = COMPRA.cc AND
+                    //		                                        REQ.numero = INFOREQ.num_requisicion AND
+                    //		                                        REQ.estatusRegistro = 1
+                    //                                        INNER JOIN
+                    //	                                        tblCom_ReqDet AS REQDET
+                    //	                                        ON
+                    //		                                        REQDET.idReq = REQ.id AND
+                    //		                                        REQDET.partida = INFOREQ.part_requisicion AND
+                    //		                                        REQDET.estatusRegistro = 1
+                    //                                        WHERE
+                    //	                                        COMPRA.estatusRegistro = 1
+                    //                                        ORDER BY
+                    //	                                        COMPRA.cc,
+                    //	                                        COMPRA.numero AND
+                    //                                          (COMPRA.cc + '-' + CAST(COMPRA.numero AS VARCHAR) IN @paramCcNumero",
+                    //                            parametros = new { paramCcNumero = ccNumeros }
+                    //                        });
+
+                    List<tblCom_Comprador> lstCompradores = _context.tblCom_Comprador.Where(x => x.estatus).ToList();
+
+                    //List<tblCom_Req> lstComprasReq = _context.tblCom_Req.Where(w => w.estatusRegistro && (cc != "" && cc != null ? w.cc == cc : true)).ToList();
+                    //
+                    //var lstComprasReq = _context.Select<tblCom_Req>(new DapperDTO
+                    //{
+                    //    baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    //    consulta = string.Format("SELECT * FROM tblCom_Req WHERE estatusRegistro = 1 {0}", cc != "" && cc != null ? "AND cc = @cc " : ""),
+                    //    parametros = new { cc = cc }
+                    //});
+                    //
+                    //var lstComprasReq_id = lstComprasReq.Select(x => x.id).ToList();
+                    //List<tblCom_ReqDet> lstComprasReqDet = _context.tblCom_ReqDet.Where(x => x.estatusRegistro && lstComprasReq_id.Contains(x.idReq)).ToList();
+                    //
+                    //int ciclos = lstComprasReq_id.Count / 2000;
+                    //var lstComprasReqDet = new List<tblCom_ReqDet>();
+                    //for (int i = 0; i < ciclos; i++)
+                    //{
+                    //    lstComprasReqDet.AddRange(_context.Select<tblCom_ReqDet>(new DapperDTO
+                    //    {
+                    //        baseDatos = (MainContextEnum)vSesiones.sesionEmpresaActual,
+                    //        consulta = "SELECT * FROM tblCom_ReqDet WHERE estatusRegistro = 1 AND idReq IN @req",
+                    //        parametros = new { req = lstComprasReq_id.Skip(i * 2000).Take(2000) }
+                    //    }));
+                    //}
+                    //
+
+                    #region SE OBTIENE LISTADO DE AREAS CUENTAS
+                    List<dynamic> listaAreaCuentaEK = _contextEnkontrol.Select<dynamic>(
+                    vSesiones.sesionEmpresaActual == 1 ? EnkontrolEnum.CplanProd : vSesiones.sesionEmpresaActual == 4 ? EnkontrolEnum.CplanEici : EnkontrolEnum.ArrenProd,
+                    new OdbcConsultaDTO()
+                    {
+                        consulta = @"
+                            SELECT
+                                area, cuenta, TRIM(descripcion) AS descripcion
+                            FROM si_area_cuenta
+                            WHERE cc_activo = 1
+                            GROUP BY area, cuenta, descripcion
+                            ORDER BY area, cuenta, descripcion"
+                    });
+                    #endregion
+
+                    var centrosCosto = (List<Core.DTO.Principal.Generales.ComboDTO>)consultaCheckProductivo(
+                        string.Format(@"SELECT cc AS Value, descripcion AS Text FROM cc WHERE st_ppto != 'T' ORDER BY Text ASC")
+                    ).ToObject<List<Core.DTO.Principal.Generales.ComboDTO>>();
+
+                    foreach (var com in compras)
+                    {
+                        var tcc = (string)com.cc;
+                        int tnumero = (int)com.numero;
+                        var compraSIGOPLAN = lstOrdenCompras.FirstOrDefault(x => x.cc == tcc && x.numero == tnumero);
+
+                        var almacenLAB = "";
+
+                        string acDescripcion = "";
+
+                        if (compraSIGOPLAN != null)
+                        {
+                            string idLibreAbordo = compraSIGOPLAN.idLibreAbordo.ToString();
+                            string almacenText = almacenes.Where(w => w.Value == idLibreAbordo).Select(s => s.Text).FirstOrDefault();
+                            if (!string.IsNullOrEmpty(almacenText))
+                                almacenLAB = almacenText;
+                            else
+                                almacenLAB = string.Empty;
+
+                            var areaCuentaEK = listaAreaCuentaEK.FirstOrDefault(x => (int)x.area == compraSIGOPLAN.areaCompra && (int)x.cuenta == compraSIGOPLAN.cuentaCompra);
+                            if (areaCuentaEK != null)
+                            {
+                                acDescripcion = compraSIGOPLAN.areaCompra + "-" + compraSIGOPLAN.cuentaCompra + " " + (string)areaCuentaEK.descripcion;
+                            }
+                        }
+                        else
+                        {
+                            almacenLAB = almacenDefault;
+                        }
+
+                        bool flagCancelar = (puedeCancelar && com.st_impresa != null && com.st_impresa == "I" /*com.st_impresa.Value == "I"*/) ? true : false;
+
+                        int p = (int)com.proveedor;
+                        //var provDesc = proveedorres.FirstOrDefault(x => x.numpro == p).nombre;
+                        var provDesc = proveedores.FirstOrDefault(x => x.numpro == p).nombre;
+
+                        #region SE OBTIENE NOMBRE DEL COMPRADOR
+                        tblCom_Comprador objComprador = lstCompradores.FirstOrDefault(w => w.empleado == com.comprador);
+                        //if (objComprador != null)
+                        //    item.nombreComprador = objComprador.descripcion;
+                        //else
+                        //    item.nombreComprador = string.Empty;
+                        #endregion
+
+                        listaCompras.Add(new RequisicionDTO
+                        {
+                            ccDescripcion = centrosCosto.Where((y => y.Value == (string)com.cc)).Select(x => x.Text).FirstOrDefault(),
+                            numero = (int)com.numero,
+                            fecha = (DateTime)com.fecha,
+                            almacenLAB = almacenLAB,
+                            cc = (string)com.cc,
+                            libre_abordo = (int)com.libre_abordo,
+                            estatusSurtido = (string)com.estatus,
+                            flagCancelar = flagCancelar,
+                            proveedor = (int)com.proveedor,
+                            proveedorDesc = provDesc,
+                            flagTieneEntrada = ((string)com.estatus == "T" || (string)com.estatus == "P"),
+                            comprador = /*com.comprador != null ? */com.comprador /*: 0*/,
+                            nombreComprador = objComprador != null ? objComprador.descripcion : "",
+                            area = compraSIGOPLAN != null ? compraSIGOPLAN.areaCompra : 0,
+                            cuenta = compraSIGOPLAN != null ? compraSIGOPLAN.cuentaCompra : 0,
+                            //area = 0,
+                            //cuenta = 0,
+                            //areaCuentaDesc = string.Empty,
+                            areaCuentaDesc = acDescripcion,
+                            st_impresa = (string)com.st_impresa,
+                            fechaAutorizacionString = com.fecha_autoriza != null ? ((DateTime)com.fecha_autoriza).ToShortDateString() : "",
+                            fechaEntregaString = (compraSIGOPLAN != null && com.fecha_autoriza != null) ? ((DateTime)com.fecha_autoriza).AddDays(30 + compraSIGOPLAN.tiempoEntregaDias).ToShortDateString() : ""
+                        });
+                    }
+
+                    //if (idCompradorEK > 0)
+                    //    listaCompras = listaCompras.Where(w => w.comprador == idCompradorEK).ToList();
+
+                    //foreach (var item in listaCompras)
+                    //{
+                    //    //#region SE OBTIENE NOMBRE DEL COMPRADOR
+                    //    //tblCom_Comprador objComprador = lstCompradores.Where(w => w.empleado == item.comprador).FirstOrDefault();
+                    //    //if (objComprador != null)
+                    //    //    item.nombreComprador = objComprador.descripcion;
+                    //    //else
+                    //    //    item.nombreComprador = string.Empty;
+                    //    //#endregion
+
+                    //    #region SE OBTIENE AREA-CUENTA DESCRIPCIÓN
+                    //    //tblCom_Req objRequisicionSIGOPLAN = lstComprasReq.Where(w => w.cc == item.cc && w.numero == item.numero).FirstOrDefault();
+                    //    //if (objRequisicionSIGOPLAN != null)
+                    //    //{
+                    //    //    int idReq = objRequisicionSIGOPLAN.id;
+                    //    //    var detalle = lstComprasReqDet.Where(x => x.idReq == idReq).ToList();
+
+                    //    //    //Se escoge el área-cuenta de la primer partida.
+                    //    //    if (detalle.Count() > 0)
+                    //    //    {
+                    //    //        item.area = detalle[0].area;
+                    //    //        item.cuenta = detalle[0].cuenta;
+
+                    //    //        var areaCuentaEK = listaAreaCuentaEK.Where(x => (int)x.area == item.area && (int)x.cuenta == item.cuenta).FirstOrDefault();
+                    //    //        if (areaCuentaEK != null)
+                    //    //        {
+                    //    //            item.areaCuentaDesc = (int)item.area + "-" + (int)item.cuenta + " " + (string)areaCuentaEK.descripcion;
+                    //    //        }
+                    //    //    }
+                    //    //}
+                    //    #endregion
+                    //}
+
+                    if (!string.IsNullOrEmpty(idAreaCuenta))
+                    {
+                        if (idAreaCuenta != "--Todos--")
+                        {
+                            int area = Int32.Parse(idAreaCuenta.Split('-')[0]);
+                            int cuenta = Int32.Parse(idAreaCuenta.Split('-')[1]);
+
+                            listaCompras = listaCompras.Where(w => w.area == area && w.cuenta == cuenta).ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    listaCompras = new List<RequisicionDTO>();
+                }
+                #endregion
+            }
+
+            resultado.Add(SUCCESS, true);
+            resultado.Add("data", listaCompras);
             // }
             // catch (Exception e)
             // {
@@ -29407,6 +30527,22 @@ new OrdenCompraDTO {cc = "MM8", numero =	139}
             }
 
             return result;
+        }
+
+        public void UpdateOCFactura(List<RelFacturaDTO> data)
+        {
+            foreach (var item in data)
+            {
+                var compra = _context.tblCom_OrdenCompra.FirstOrDefault(x=> x.cc == item.CC && x.numero == item.NumOC);
+                compra.fechaFactura = DateTime.Now;
+                compra.tieneFactura = true;
+                compra.factura_total = item.Total;
+                compra.factura_serie = item.Serie;
+                compra.factura_folio = item.Folio;
+                compra.factura_ruta = item.Ruta;
+                _context.Entry(compra).State = System.Data.Entity.EntityState.Modified;
+                _context.SaveChanges();
+            }
         }
     }
 }

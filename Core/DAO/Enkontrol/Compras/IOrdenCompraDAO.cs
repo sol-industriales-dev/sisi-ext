@@ -60,6 +60,7 @@ namespace Core.DAO.Enkontrol.Compras
         dynamic getProvFromNom(string term);
 
         OrdenCompraDTO getCompra(string cc, int num, bool esOC_INTERNA, string PERU_tipoCompra = "");
+        dynamic getCompraRelacionar(string cc, int num);
         OrdenCompraDTO getCompra_Interna(string cc, int num);
         List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcComComprador();
         List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcComCompradorModalEditar();
@@ -106,6 +107,7 @@ namespace Core.DAO.Enkontrol.Compras
         dynamic getCompradorNumero(string comprador);
         List<Core.DTO.Principal.Generales.ComboDTO> FillComboCcAsigComp();
         Dictionary<string, object> ObtenerComprasPendientes(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal, string idAreaCuenta, int idCompradorEK);
+        Dictionary<string, object> ObtenerComprasSinFactura(string cc, int estatus, int proveedor, DateTime fechaInicial, DateTime fechaFinal, string idAreaCuenta, int idCompradorEK);
         UltimaCompraDTO getUltimaCompra(CuadroComparativoDetDTO partidaCuadro);
         rptOrdenCompraInfoDTO getOrdenCompraRpt(string cc, int numero, string PERU_tipoCompra);
         rptOrdenCompraInfoDTO getOrdenCompraInternaRpt(string cc, int numero);
@@ -186,5 +188,6 @@ namespace Core.DAO.Enkontrol.Compras
         Dictionary<string, object> GetTipoCambioPeru();
         List<dynamic> GetVoBos_SIGOPLANCOLOMBIA(OrdenCompraDTO objParamsDTO);
         string getUsuarioEnKontrolCOLOMBIA(int numEmpleado);
+        void UpdateOCFactura(List<RelFacturaDTO> data);
     }
 }

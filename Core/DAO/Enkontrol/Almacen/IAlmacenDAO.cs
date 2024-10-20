@@ -149,5 +149,19 @@ namespace Core.DAO.Enkontrol.Almacen
         Dictionary<string, object> EditarUbicacion(tblAlm_Ubicacion ubicacion);
         Dictionary<string, object> EliminarUbicacion(tblAlm_Ubicacion ubicacion);
         #endregion
+    
+        List<tblAlm_Insumo_Tipo> FillGrid_InsumoTipo(tblAlm_Insumo_Tipo obj);
+        void SaveOrUpdate_InsumoTipo(tblAlm_Insumo_Tipo obj);
+        List<tblAlm_Insumo_Grupo> FillGrid_InsumoGrupo(tblAlm_Insumo_Grupo obj);
+        void SaveOrUpdate_InsumoGrupo(tblAlm_Insumo_Grupo obj);
+        List<tblAlm_Grupos_Insumo> FillGrid_InsumoFamilia(tblAlm_Grupos_Insumo obj);
+        void SaveOrUpdate_InsumoFamilia(tblAlm_Grupos_Insumo obj);
+
+        List<tblAlm_Insumo_Tipo> FillCboInsumoTipo(bool estatus);
+
+        List<tblAlm_Insumo_Grupo> FillCboInsumoGrupo(bool estatus);
+
+        List<tblAlm_Insumo> FillGrid_Insumo(tblAlm_Insumo obj);
+        void SaveOrUpdate_Insumo(tblAlm_Insumo obj);
     }
 }

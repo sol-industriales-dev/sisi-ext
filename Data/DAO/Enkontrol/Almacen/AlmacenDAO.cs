@@ -27873,5 +27873,219 @@ namespace Data.DAO.Enkontrol.Almacen
             return resultado;
         }
         #endregion
+
+        public List<tblAlm_Insumo_Tipo> FillGrid_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            var result = (from t in _context.tblAlm_Insumo_Tipo
+                          where (string.IsNullOrEmpty(obj.descripcion) == true ? true : t.descripcion.Contains(obj.descripcion)) && t.estatus == obj.estatus && obj.tipo == 0 ? true : t.tipo == obj.tipo 
+                          select t).ToList();
+            return result;
+        }
+        public void SaveOrUpdate_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            if (!Exists_InsumoTipo(obj))
+            {
+                if (obj.id == 0){
+                    var data = new tblAlm_Insumo_Tipo();
+                    data.tipo = obj.tipo;
+                    data.descripcion = obj.descripcion;
+                    data.estatus = obj.estatus;
+
+                    _context.tblAlm_Insumo_Tipo.Add(data);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var data = _context.tblAlm_Insumo_Tipo.FirstOrDefault(x => x.id == obj.id);
+                    data.tipo = obj.tipo;
+                    data.descripcion = obj.descripcion;
+                    data.estatus = obj.estatus;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                throw new Exception("Ya existe un tipo de insumo con esa descripción seleccionado");
+            }
+        }
+
+        public bool Exists_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            return _context.tblAlm_Insumo_Tipo.Where(x => x.descripcion == obj.descripcion &&
+                                        x.tipo == obj.tipo).ToList().Count > 0 ? true : false;
+        }
+
+        public List<tblAlm_Insumo_Grupo> FillGrid_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            var result = (from t in _context.tblAlm_Insumo_Grupo
+                          where (string.IsNullOrEmpty(obj.descripcion) == true ? true : t.descripcion.Contains(obj.descripcion)) && t.estatus == obj.estatus && obj.grupo == 0 ? true : t.grupo == obj.grupo
+                          select t).ToList();
+            return result;
+        }
+        public void SaveOrUpdate_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            if (!Exists_InsumoGrupo(obj))
+            {
+                if (obj.id == 0)
+                {
+                    var data = new tblAlm_Insumo_Grupo();
+                    data.grupo = obj.grupo;
+                    data.descripcion = obj.descripcion;
+                    data.estatus = obj.estatus;
+
+                    _context.tblAlm_Insumo_Grupo.Add(data);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var data = _context.tblAlm_Insumo_Grupo.FirstOrDefault(x => x.id == obj.id);
+                    data.grupo = obj.grupo;
+                    data.descripcion = obj.descripcion;
+                    data.estatus = obj.estatus;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                throw new Exception("Ya existe un grupo de insumo con esa descripción seleccionado");
+            }
+        }
+
+        public bool Exists_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            return _context.tblAlm_Insumo_Grupo.Where(x => x.descripcion == obj.descripcion &&
+                                        x.grupo == obj.grupo).ToList().Count > 0 ? true : false;
+        }
+
+        public List<tblAlm_Grupos_Insumo> FillGrid_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            var result = (from t in _context.tblAlm_Grupos_Insumo
+                          where t.estatus == obj.estatus && obj.tipo_insumo == 0 ? true : t.tipo_insumo == obj.tipo_insumo && obj.grupo_insumo == 0 ? true : t.grupo_insumo == obj.grupo_insumo
+                          select t).ToList();
+            return result;
+        }
+        public void SaveOrUpdate_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            if (!Exists_InsumoFamilia(obj))
+            {
+                var tipo = _context.tblAlm_Insumo_Tipo.FirstOrDefault(x => x.tipo == obj.tipo_insumo);
+                var grupo = _context.tblAlm_Insumo_Grupo.FirstOrDefault(x => x.grupo == obj.grupo_insumo);
+                if (obj.id == 0)
+                {
+                    string familia = string.Concat(obj.tipo_insumo.ToString(), obj.grupo_insumo.ToString());
+                    var data = new tblAlm_Grupos_Insumo();
+                    data.familia = int.Parse(familia);
+                    data.tipo_insumo = obj.tipo_insumo;
+                    data.grupo_insumo = obj.grupo_insumo;
+                    data.descripcion = tipo.descripcion + " " + grupo.descripcion;
+                    data.estatus = obj.estatus;
+                    data.inventariado = "I";
+                    data.valida_area_cta = "S";
+
+                    _context.tblAlm_Grupos_Insumo.Add(data);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var data = _context.tblAlm_Grupos_Insumo.FirstOrDefault(x => x.id == obj.id);
+                    data.tipo_insumo = obj.tipo_insumo;
+                    data.grupo_insumo = obj.grupo_insumo;
+                    data.descripcion = tipo.descripcion + " " + grupo.descripcion;
+                    data.estatus = obj.estatus;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                throw new Exception("Ya existe un grupo de insumo con esa descripción seleccionado");
+            }
+        }
+
+        public bool Exists_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            return _context.tblAlm_Grupos_Insumo.Where(x => x.tipo_insumo == obj.tipo_insumo &&
+                                        x.grupo_insumo == obj.grupo_insumo).ToList().Count > 0 ? true : false;
+        }
+
+        public List<tblAlm_Insumo_Tipo> FillCboInsumoTipo(bool estatus)
+        {
+            return _context.tblAlm_Insumo_Tipo.Where(x => x.estatus == estatus).OrderBy(x => x.descripcion).ToList(); ///item;
+        }
+
+        public List<tblAlm_Insumo_Grupo> FillCboInsumoGrupo(bool estatus)
+        {
+            return _context.tblAlm_Insumo_Grupo.Where(x => x.estatus == estatus).OrderBy(x => x.descripcion).ToList(); ///item;
+        }
+
+        public List<tblAlm_Insumo> FillGrid_Insumo(tblAlm_Insumo obj)
+        {
+            var result = (from t in _context.tblAlm_Insumo
+                          where t.estatus == obj.estatus && obj.tipo == 0 ? true : t.tipo == obj.tipo && obj.grupo == 0 || t.grupo == obj.grupo
+                          select t).ToList();
+            return result;
+        }
+        public void SaveOrUpdate_Insumo(tblAlm_Insumo obj)
+        {
+            if (!Exists_Insumo(obj))
+            {
+                var tipo = _context.tblAlm_Insumo_Tipo.FirstOrDefault(x => x.tipo == obj.tipo);
+                var grupo = _context.tblAlm_Insumo_Grupo.FirstOrDefault(x => x.grupo == obj.grupo);
+                int count = _context.tblAlm_Insumo.Count(x => x.tipo == obj.tipo && x.grupo == obj.grupo);
+                int nuevoInsumo = count + 1;
+                if (obj.id == 0)
+                {
+                    var data = new tblAlm_Insumo();
+                    //insumo is the family number plus the number of existing families with the same tipo and grupo with 4 digits
+                    string tipoFormatted = obj.tipo.ToString(); // Asegúrate de que es un solo dígito
+                    string grupoFormatted = obj.grupo.ToString("D2"); // Formatear el grupo como 2 dígitos
+                    string countFormatted = nuevoInsumo.ToString("D4"); // Formatear el número de insumo como 4 dígitos
+                    string insumoFormatted = string.Concat(tipoFormatted, grupoFormatted, countFormatted);
+                    data.insumo = int.Parse(insumoFormatted);
+                    data.tipo = obj.tipo;
+                    data.grupo = obj.grupo;
+                    data.descripcion = obj.descripcion;
+                    data.fechaAlta = DateTime.Now;
+                    data.estatus = obj.estatus;
+                    //Valores por defecto
+                    data.bloqueado = 0;
+                    data.cancelado = "A";
+                    data.fijar_precio = "";
+                    data.precio_a_fijar = 0;
+                    data.validar_lista_precios = "N";
+                    data.bit_pt = "S";
+                    data.bit_mp = "S";
+                    data.bit_factura = "N";
+                    data.tolerancia = 0;
+                    data.color_resguardo = 1;
+                    data.bit_rotacion = "A";
+                    data.bit_area_cta = 0;
+                    data.bit_af = "N";
+                    data.codigo_barras = "";
+                    data.id_modelo_maquinaria = 0;
+                    data.modeloMaquinariaDesc = "";
+                    data.compras_req = 1;
+
+                    _context.tblAlm_Insumo.Add(data);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    var data = _context.tblAlm_Insumo.FirstOrDefault(x => x.id == obj.id);
+                    data.descripcion = tipo.descripcion + " " + grupo.descripcion;
+                    data.estatus = obj.estatus;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                throw new Exception("Ya existe un grupo de insumo con esa descripción seleccionado");
+            }
+        }
+
+        public bool Exists_Insumo(tblAlm_Insumo obj)
+        {
+            return _context.tblAlm_Insumo.Where(x => x.tipo == obj.tipo &&
+                                        x.grupo == obj.grupo).ToList().Count > 0 ? true : false;
+        }
     }
 }

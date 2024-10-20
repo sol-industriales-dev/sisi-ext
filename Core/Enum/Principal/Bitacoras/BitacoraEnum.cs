@@ -283,5 +283,9 @@ namespace Core.Enum.Principal.Bitacoras
         ActivoFijo = 1035,
         [DescriptionAttribute("CARATULAS")]
         CARATULAS = 1036,
+        [DescriptionAttribute("Insumo Tipo")]
+        INSUMO_TIPO = 1037,
+        [DescriptionAttribute("Insumo Grupo")]
+        INSUMO_GRUPO = 1038,
     }
 }

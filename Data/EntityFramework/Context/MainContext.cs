@@ -485,6 +485,8 @@ namespace Data.EntityFramework.Context
         public DbSet<tblAlm_RelAreaCuentaXAlmacenDet> tblAlm_RelAreaCuentaXAlmacenDet { get; set; }
         public DbSet<tblAlm_Ubicacion> tblAlm_Ubicacion { get; set; }
         public DbSet<tblAlm_Grupos_Insumo> tblAlm_Grupos_Insumo { get; set; }
+        public DbSet<tblAlm_Insumo_Grupo> tblAlm_Insumo_Grupo { get; set; }
+        public DbSet<tblAlm_Insumo_Tipo> tblAlm_Insumo_Tipo { get; set; }
 
         public DbSet<tblM_CatMarcaEquipotblM_CatGrupoMaquinaria> tblM_CatMarcaEquipotblM_CatGrupoMaquinaria { get; set; }
         public DbSet<tblP_RolesGrupoTrabajo> tblP_RolesGrupoTrabajo { get; set; }

@@ -571,5 +571,55 @@ namespace Core.Service.Enkontrol.Almacen
             return AlmDAO.EliminarUbicacion(ubicacion);
         }
         #endregion
+
+        public List<tblAlm_Insumo_Tipo> FillGrid_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            return AlmDAO.FillGrid_InsumoTipo(obj);
+        }
+
+        public void SaveOrUpdate_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            AlmDAO.SaveOrUpdate_InsumoTipo(obj);
+        }
+
+        public List<tblAlm_Insumo_Grupo> FillGrid_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            return AlmDAO.FillGrid_InsumoGrupo(obj);
+        }
+
+        public void SaveOrUpdate_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            AlmDAO.SaveOrUpdate_InsumoGrupo(obj);
+        }
+
+        public List<tblAlm_Grupos_Insumo> FillGrid_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            return AlmDAO.FillGrid_InsumoFamilia(obj);
+        }
+
+        public void SaveOrUpdate_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            AlmDAO.SaveOrUpdate_InsumoFamilia(obj);
+        }
+
+        public List<tblAlm_Insumo_Tipo> FillCboInsumoTipo(bool estatus)
+        {
+            return AlmDAO.FillCboInsumoTipo(estatus);
+        }
+
+        public List<tblAlm_Insumo_Grupo> FillCboInsumoGrupo(bool estatus)
+        {
+            return AlmDAO.FillCboInsumoGrupo(estatus);
+        }
+
+        public List<tblAlm_Insumo> FillGrid_Insumo(tblAlm_Insumo obj)
+        {
+            return AlmDAO.FillGrid_Insumo(obj);
+        }
+
+        public void SaveOrUpdate_Insumo(tblAlm_Insumo obj)
+        {
+            AlmDAO.SaveOrUpdate_Insumo(obj);
+        }
     }
 }

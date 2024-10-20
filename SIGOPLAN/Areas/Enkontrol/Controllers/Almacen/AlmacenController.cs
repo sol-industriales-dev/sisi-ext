@@ -19,6 +19,7 @@ using Core.Enum.Enkontrol.Compras;
 using Infrastructure.Utils;
 using Core.Entity.Enkontrol.Compras;
 using Core.DTO.Utils.DataTable;
+using Data.Factory.Maquinaria.Catalogos;
 
 namespace SIGOPLAN.Areas.Enkontrol.Controllers.Almacen
 {
@@ -1717,6 +1718,161 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Almacen
         {
             return Json(almService.EliminarUbicacion(ubicacion), JsonRequestBehavior.AllowGet);
         }
+        #endregion
+    
+        #region Catalogos Insumos
+        public ActionResult FillGrid_InsumoTipo(tblAlm_Insumo_Tipo obj)
+        {
+            var result = new Dictionary<string, object>();
+            var listResult = almService.FillGrid_InsumoTipo(obj).Select(x => new { id = x.id, tipo = x.tipo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO" });
+            result.Add("current", 1);
+            result.Add("rowCount", 1);
+            result.Add("total", listResult.Count());
+            result.Add("rows", listResult);
+            result.Add(SUCCESS, true);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveOrUpdate_InsumoTipo(tblAlm_Insumo_Tipo obj, int Actualizacion)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                almService.SaveOrUpdate_InsumoTipo(obj);
+                result.Add(MESSAGE, GlobalUtils.getMensaje(Actualizacion));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillGrid_InsumoGrupo(tblAlm_Insumo_Grupo obj)
+        {
+            var result = new Dictionary<string, object>();
+            var listResult = almService.FillGrid_InsumoGrupo(obj).Select(x => new { id = x.id, grupo = x.grupo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO" });
+            result.Add("current", 1);
+            result.Add("rowCount", 1);
+            result.Add("total", listResult.Count());
+            result.Add("rows", listResult);
+            result.Add(SUCCESS, true);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveOrUpdate_InsumoGrupo(tblAlm_Insumo_Grupo obj, int Actualizacion)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                almService.SaveOrUpdate_InsumoGrupo(obj);
+                result.Add(MESSAGE, GlobalUtils.getMensaje(Actualizacion));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillGrid_InsumoFamilia(tblAlm_Grupos_Insumo obj)
+        {
+            var result = new Dictionary<string, object>();
+            var listResult = almService.FillGrid_InsumoFamilia(obj).Select(x => new { id = x.id, familia = x.familia, tipo = x.tipo_insumo, grupo = x.grupo_insumo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO" });
+            result.Add("current", 1);
+            result.Add("rowCount", 1);
+            result.Add("total", listResult.Count());
+            result.Add("rows", listResult);
+            result.Add(SUCCESS, true);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveOrUpdate_InsumoFamilia(tblAlm_Grupos_Insumo obj, int Actualizacion)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                almService.SaveOrUpdate_InsumoFamilia(obj);
+                result.Add(MESSAGE, GlobalUtils.getMensaje(Actualizacion));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillCboInsumoTipo(bool estatus)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, almService.FillCboInsumoTipo(estatus).Select(x => new { Value = x.tipo, Text = "[" + x.tipo + "] - " + x.descripcion }));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillCboInsumoGrupo(bool estatus)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                result.Add(ITEMS, almService.FillCboInsumoGrupo(estatus).Select(x => new { Value = x.grupo, Text = "["+x.grupo + "] - " + x.descripcion }));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FillGrid_Insumo(tblAlm_Insumo obj)
+        {
+            var result = new Dictionary<string, object>();
+            var listResult = almService.FillGrid_Insumo(obj).Select(x => new { id = x.id, insumo = x.insumo, tipo = x.tipo, grupo = x.grupo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO" });
+            result.Add("current", 1);
+            result.Add("rowCount", 1);
+            result.Add("total", listResult.Count());
+            result.Add("rows", listResult);
+            result.Add(SUCCESS, true);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveOrUpdate_Insumo(tblAlm_Insumo obj, int Actualizacion)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                almService.SaveOrUpdate_Insumo(obj);
+                result.Add(MESSAGE, GlobalUtils.getMensaje(Actualizacion));
+                result.Add(SUCCESS, true);
+            }
+            catch (Exception e)
+            {
+                result.Add(MESSAGE, e.Message);
+                result.Add(SUCCESS, false);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
     }
 }

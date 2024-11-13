@@ -158,7 +158,7 @@
                     return;
                 }
             
-                var url = 'http://localhost:3000/api/ot-by-id?id=' + selOT.val();
+                var url = 'http://66.175.239.161/api/ot-by-id?id=' + selOT.val();
                 const data = await fetch(url);
                 const ot = await data.json();
             

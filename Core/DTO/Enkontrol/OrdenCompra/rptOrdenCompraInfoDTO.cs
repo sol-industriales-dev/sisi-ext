@@ -54,5 +54,6 @@ namespace Core.DTO.Enkontrol.OrdenCompra
         public List<RetencionInfoDTO> lstRetencionesDTO { get; set; }
         public string totalRetencion { get; set; }
         public string totalFinal { get; set; }
+        public string otFolio { get; set; }
     }
 }

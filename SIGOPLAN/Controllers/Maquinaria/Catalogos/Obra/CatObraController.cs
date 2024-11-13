@@ -181,52 +181,52 @@ namespace SIGOPLAN.Controllers.Catalogos.Obra
             var result = new Dictionary<string, object>();
             try
             {
-                var usuarioID = getUsuario().id;
+                // var usuarioID = getUsuario().id;
 
 
-                var listaCCusuario = usuarioFactoryServices.getUsuarioService().getCCsByUsuario(usuarioID).OrderBy(x => x.area).ThenBy(x => x.cuenta).ToList();
+                // var listaCCusuario = usuarioFactoryServices.getUsuarioService().getCCsByUsuario(usuarioID).OrderBy(x => x.area).ThenBy(x => x.cuenta).ToList();
 
 
                 var listaCentroCostosActuales = centroCostosFactoryServices.getCentroCostosService().getListaCC();
-                if (base.getAction("AllCC"))
-                {
+                result.Add(ITEMS, listaCentroCostosActuales);
+                // if (base.getAction("AllCC"))
+                // {
 
-                    result.Add(ITEMS, listaCentroCostosActuales);
-                }
-                else
-                {
-                    List<ComboDTO> Resultado = new List<ComboDTO>();
-                    if (vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual==3 )
-                    {
-                        Resultado = listaCCusuario.Select(y => new ComboDTO
-                        {
-                            Value = y.cc,
-                            Text = y.cc + " - " + y.descripcion,
-                            Prefijo = y.abreviacion
+                // }
+                // else
+                // {
+                //     List<ComboDTO> Resultado = new List<ComboDTO>();
+                //     if (vSesiones.sesionEmpresaActual == 1 || vSesiones.sesionEmpresaActual==3 )
+                //     {
+                //         Resultado = listaCCusuario.Select(y => new ComboDTO
+                //         {
+                //             Value = y.cc,
+                //             Text = y.cc + " - " + y.descripcion,
+                //             Prefijo = y.abreviacion
 
-                        }).ToList();
-                    }else if(vSesiones.sesionEmpresaActual==6)
-                    {
-                        Resultado = listaCCusuario.Select(y => new ComboDTO
-                        {
-                            Value = y.areaCuenta,
-                            Text = y.cc + " - " + y.descripcion,
-                            Prefijo = y.abreviacion
+                //         }).ToList();
+                //     }else if(vSesiones.sesionEmpresaActual==6)
+                //     {
+                //         Resultado = listaCCusuario.Select(y => new ComboDTO
+                //         {
+                //             Value = y.areaCuenta,
+                //             Text = y.cc + " - " + y.descripcion,
+                //             Prefijo = y.abreviacion
 
-                        }).ToList();
-                    }
-                    else
-                    {
-                        Resultado = listaCCusuario.Select(y => new ComboDTO
-                        {
-                            Value = y.areaCuenta,
-                            Text = y.areaCuenta + " - " + y.descripcion,
-                            Prefijo = y.abreviacion
+                //         }).ToList();
+                //     }
+                //     else
+                //     {
+                //         Resultado = listaCCusuario.Select(y => new ComboDTO
+                //         {
+                //             Value = y.areaCuenta,
+                //             Text = y.areaCuenta + " - " + y.descripcion,
+                //             Prefijo = y.abreviacion
 
-                        }).ToList();
-                    }
-                    result.Add(ITEMS, Resultado);
-                }
+                //         }).ToList();
+                //     }
+                //     result.Add(ITEMS, Resultado);
+                // }
 
                 //result.Add(ITEMS, maquinaFactoryServices.getMaquinaServices().getCboMaquinaria(obj).Select(x => new { Value = x.noEconomico, Text = x.noEconomico }).OrderBy(x => x.Text));
                 result.Add(SUCCESS, true);

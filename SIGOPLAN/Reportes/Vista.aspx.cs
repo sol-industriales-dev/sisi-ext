@@ -8166,7 +8166,7 @@ TotalGtoOperacion.Fecha12;
                             rd.SetParameterValue("fechaVencimiento", ordenCompra.fechaVencimientoString ?? "");
                             rd.SetParameterValue("totalRetencion", ordenCompra.totalRetencion);
                             rd.SetParameterValue("totalFinal", ordenCompra.totalFinal);
-
+                            rd.SetParameterValue("otFolio", ordenCompra.otFolio);
                             Session.Add("reporte", rd);
                         }
                         catch (Exception)

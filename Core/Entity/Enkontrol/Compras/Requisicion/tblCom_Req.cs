@@ -60,5 +60,8 @@ namespace Core.Entity.Enkontrol.Compras.Requisicion
         [NotMapped]
         public int? idBL { get; set; }
         #endregion
+
+        public int? otID { get; set; }
+        public string otFolio { get; set; }
     }
 }

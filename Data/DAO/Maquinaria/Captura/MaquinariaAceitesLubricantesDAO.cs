@@ -283,6 +283,149 @@ namespace Data.DAO.Maquinaria.Captura
 
         public List<MaquinariaAceitesLubricantesDTO> GetLstMaqAceiteLubricante(string cc, string consumo, int turno, DateTime fecha, int tipo)
         {
+            // Ajuste del centro de costos según la empresa
+            if ((EmpresaEnum)vSesiones.sesionEmpresaActual == EmpresaEnum.Peru)
+            {
+                var areaCuenta = _context.tblP_CC.FirstOrDefault(x => x.cc == cc);
+                if (areaCuenta != null)
+                {
+                    cc = areaCuenta.areaCuenta;
+                }
+            }
+
+            string TrimCC = cc.TrimStart('0');
+            List<MaquinariaAceitesLubricantesDTO> resultado = new List<MaquinariaAceitesLubricantesDTO>();
+
+            // Obtener la lista de máquinas filtradas directamente desde la base de datos
+            var lstMaq = _context.tblM_CatMaquina
+                .Where(x => !string.IsNullOrEmpty(x.centro_costos) &&
+                            (tipo == 0 || x.grupoMaquinaria.tipoEquipoID == tipo) &&
+                            x.centro_costos == TrimCC &&
+                            x.TipoCaptura != 0 &&
+                            x.estatus != 0)
+                .ToList();
+
+            // Obtener la lista de aceites filtrados directamente desde la base de datos
+            var lstAceite = _context.tblM_MaquinariaAceitesLubricantes
+                .Where(x => x.CC == cc && x.Turno == turno && x.Fecha == fecha)
+                .ToList();
+
+            // Crear un diccionario para acceso rápido a los aceites por económico
+            var aceiteLookup = lstAceite.GroupBy(x => x.Economico).ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var item in lstMaq)
+            {
+                string economico = item.noEconomico;
+                MaquinariaAceitesLubricantesDTO dto = new MaquinariaAceitesLubricantesDTO();
+                List<tblM_MaquinariaAceitesLubricantes> aceites;
+                aceiteLookup.TryGetValue(economico, out aceites);
+
+                tblM_MaquinariaAceitesLubricantes aceite = null;
+                if (aceites != null)
+                {
+                    aceite = aceites.FirstOrDefault(x => x.Fecha == fecha && x.Turno == turno);
+                }
+
+                if (aceite == null)
+                {
+                    // Asignar valores por defecto cuando no existe registro de aceite
+                    dto.id = 0;
+                    dto.Economico = economico;
+                    dto.CC = item.centro_costos != null ? item.centro_costos : string.Empty;
+                    dto.Turno = turno;
+                    dto.Horometro = 0;
+                    dto.Rotacion = false;
+                    dto.Sopleteo = false;
+                    dto.AK = false;
+                    dto.Lubricacion = false;
+                    dto.Antifreeze = 0;
+                    dto.MotorId = 1;
+                    dto.MotorVal = 0;
+                    dto.TransmisionID = 1;
+                    dto.TransmisionVal = 0;
+                    dto.HidraulicoID = 1;
+                    dto.HidraulicoVal = 0;
+                    dto.DiferencialId = 1;
+                    dto.DiferencialVal = 0;
+                    dto.MFTIzqId = 1;
+                    dto.MFTDerId = 1;
+                    dto.MFTDerVal = 0;
+                    dto.MFTIzqVal = 0;
+                    dto.MDDerID = 1;
+                    dto.MDIzqID = 1;
+                    dto.MDDerVal = 0;
+                    dto.MDIzqVal = 0;
+                    dto.DirId = 1;
+                    dto.DirVal = 0;
+                    dto.Grasa = 0;
+                    dto.Firma = consumo;
+                    dto.Fecha = fecha;
+                }
+                else
+                {
+                    // Asignar valores desde el registro existente
+                    dto.id = aceite.id;
+                    dto.Economico = economico;
+                    dto.CC = item.centro_costos;
+                    dto.Turno = aceite.Turno;
+                    dto.Horometro = aceite.Horometro;
+                    dto.Rotacion = aceite.Rotacion;
+                    dto.Sopleteo = aceite.Sopleteo;
+                    dto.AK = aceite.AK;
+                    dto.Lubricacion = aceite.Lubricacion;
+                    dto.Antifreeze = aceite.Antifreeze;
+                    dto.MotorId = aceite.MotorId;
+                    dto.MotorVal = aceite.MotorVal;
+                    dto.TransmisionID = aceite.TransmisionID;
+                    dto.TransmisionVal = aceite.TransmisionVal;
+                    dto.HidraulicoID = aceite.HidraulicoID;
+                    dto.HidraulicoVal = aceite.HidraulicoVal;
+                    dto.DiferencialId = aceite.DiferencialId;
+                    dto.DiferencialVal = aceite.DiferencialVal;
+                    dto.MFTIzqId = aceite.MFTIzqId;
+                    dto.MFTDerId = aceite.MFTDerId;
+                    dto.MFTDerVal = aceite.MFTDerVal;
+                    dto.MFTIzqVal = aceite.MFTIzqVal;
+                    dto.MDDerID = aceite.MDDerID;
+                    dto.MDIzqID = aceite.MDIzqID;
+                    dto.MDDerVal = aceite.MDDerVal;
+                    dto.MDIzqVal = aceite.MDIzqVal;
+                    dto.DirId = aceite.DirId;
+                    dto.DirVal = aceite.DirVal;
+                    dto.Grasa = aceite.Grasa;
+                    dto.Firma = aceite.Firma;
+                    dto.Fecha = aceite.Fecha;
+                    dto.otroId1 = aceite.otroId1;
+                    dto.otros1 = aceite.otros1;
+                    dto.otroId2 = aceite.otroId2;
+                    dto.otros2 = aceite.otros2;
+                    dto.otroId3 = aceite.otroId3;
+                    dto.otros3 = aceite.otros3;
+                    dto.otroId4 = aceite.otroId4;
+                    dto.otros4 = aceite.otros4;
+                }
+
+                // Asignar valores comunes
+                dto.CboDiferencial = DataCbos(item.modeloEquipoID, 4, "cboAddDiferencial");
+                dto.CboMotor = DataCbos(item.modeloEquipoID, 1, "cboAddMotor");
+                dto.CboHidraulico = DataCbos(item.modeloEquipoID, 3, "cboAddHidraulico");
+                dto.CboTransmision = DataCbos(item.modeloEquipoID, 2, "cboAddTransmision");
+                dto.CboMandoFinal = DataCbos(item.modeloEquipoID, 5, "cboAddMFTIzq");
+                dto.CboDireccion = DataCbos(item.modeloEquipoID, 9, "cboAddDir");
+                dto.CboGrasa = DataCbos(item.modeloEquipoID, 14, "cboAddGrasa");
+                dto.CboOtros1 = DataCbos(item.modeloEquipoID, 10, "CboOtros1");
+                dto.CboOtros2 = DataCbos(item.modeloEquipoID, 11, "CboOtros2");
+                dto.CboOtros3 = DataCbos(item.modeloEquipoID, 12, "CboOtros3");
+                dto.CboOtros4 = DataCbos(item.modeloEquipoID, 13, "CboOtros4");
+
+                resultado.Add(dto);
+            }
+
+            return resultado.OrderBy(x => x.Economico).ToList();
+        }
+
+        public List<MaquinariaAceitesLubricantesDTO> GetLstMaqAceiteLubricante_old(string cc, string consumo, int turno, DateTime fecha, int tipo)
+        {
             switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
             {
                 case EmpresaEnum.Peru:

@@ -20930,7 +20930,7 @@ FROM (
                     var monedaObj = _context.tblC_TipoMoneda.FirstOrDefault(x => x.id == registroCompra.moneda);
                     string monedaDesc = monedaObj.nombreCortoSat;
                     string signoMoneda = monedaObj.signo;
-
+                    var req = _context.tblCom_Req.FirstOrDefault(x => x.cc == cc && x.numero == registroCompra.num_requisicion);
                     var autorizoNombre = "";
                     var facturar = "";
                     var direccion = "";
@@ -21009,7 +21009,8 @@ FROM (
                         CFDI = "",
                         fechaVencimientoString = registroCompra != null ? registroCompra.fecha_autoriza != null ? ((DateTime)registroCompra.fecha_autoriza).AddDays(registroCompra.tiempoEntregaDias).ToShortDateString() : "" : "",
                         totalRetencion = totalRetencion.ToString("C2").Replace("$", "S/"),
-                        totalFinal = totalFinal.ToString("C2").Replace("$", "S/")
+                        totalFinal = totalFinal.ToString("C2").Replace("$", "S/"),
+                        otFolio = req.otFolio ?? ""
                     };
 
                     return rptOrdenCompraInfo;

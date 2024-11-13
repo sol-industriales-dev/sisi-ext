@@ -208,6 +208,8 @@ namespace Data.DAO.Enkontrol.Compras
                         save.estatusRegistro = true;
                         save.PERU_codigoAuditoria = req.PERU_codigoAuditoria;
                         save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
+                        save.otID = req.otID;
+                        save.otFolio = req.otFolio;
 
                         _context.tblCom_Req.AddOrUpdate(save);
                         SaveChanges();
@@ -896,7 +898,9 @@ namespace Data.DAO.Enkontrol.Compras
                             usuarioSolicitaDesc = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaDesc : "",
                             usuarioSolicitaUso = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaUso : "",
                             usuarioSolicitaEmpresa = requisicionSIGOPLAN != null ? requisicionSIGOPLAN.usuarioSolicitaEmpresa : 0,
-                            otroCC = requisicionSIGOPLAN != null && requisicionSIGOPLAN.cc != cc
+                            otroCC = requisicionSIGOPLAN != null && requisicionSIGOPLAN.cc != cc,
+                            otID = requisicion.r.otID,
+                            otFolio = requisicion.r.otFolio,
                         };
 
                         var requisicionPartidas = new List<object>();
@@ -959,7 +963,7 @@ namespace Data.DAO.Enkontrol.Compras
                                 comentarioSurtidoQuitar = comentarioSurtidoQuitar,
                                 cantidadCapturada = cantidadCapturada,
                                 tipoPartida = p.d.tipoPartida,
-                                tipoPartidaDet = p.d.tipoPartidaDet
+                                tipoPartidaDet = p.d.tipoPartidaDet,
                             });
                         }
 

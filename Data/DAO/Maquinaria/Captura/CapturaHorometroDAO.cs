@@ -44,6 +44,203 @@ namespace Data.DAO.Maquinaria.Captura
 
         public List<CapHorometroDTO> getDataTable(string cc, int turno, DateTime fe, int tipo)
         {
+            // Ajuste del centro de costos según la empresa
+            if ((EmpresaEnum)vSesiones.sesionEmpresaActual == EmpresaEnum.Peru)
+            {
+                var areaCuenta = _context.tblP_CC.FirstOrDefault(x => x.cc == cc);
+                cc = areaCuenta != null ? areaCuenta.areaCuenta : cc;
+            }
+
+            DateTime FechaActual = fe.Date;
+            List<CapHorometroDTO> lista = new List<CapHorometroDTO>();
+
+            // Obtener la lista de económicos bloqueados
+            var listaMaquinasBloqueoStandby = _context.tblM_STB_EconomicoBloqueado
+                .Where(x => x.registroActivo)
+                .Select(x => x.noEconomico)
+                .ToList();
+
+            // Obtener la lista de económicos de máquinas filtradas
+            var listaEconomicosMaquina = _context.tblM_CatMaquina
+                .Where(x => x.centro_costos == cc &&
+                            x.estatus != 0 &&
+                            (tipo != 0 ? x.grupoMaquinaria.tipoEquipoID == tipo : true) &&
+                            x.TipoCaptura != 0 &&
+                            !listaMaquinasBloqueoStandby.Contains(x.noEconomico))
+                .Select(x => x.noEconomico)
+                .ToList();
+
+            // Cargar todos los datos necesarios en una sola consulta
+            var horometrosMaquinas = _context.tblM_CapHorometro
+                .Where(x => listaEconomicosMaquina.Contains(x.Economico))
+                .OrderByDescending(x => new { x.Economico, x.Fecha, x.turno })
+                .ToList();
+
+            var listaRitmos = _context.tblM_CapRitmoHorometro
+                .Where(r => listaEconomicosMaquina.Contains(r.economico))
+                .ToList();
+
+            var listaDesfases = _context.tblM_CapDesfase
+                .Where(d => listaEconomicosMaquina.Contains(d.Economico))
+                .ToList();
+
+            var horometrosDelDia = horometrosMaquinas
+                .Where(x => x.Fecha.Date == FechaActual)
+                .ToList();
+
+            // Obtener información de las máquinas una sola vez
+            var economicos = _context.tblM_CatMaquina
+                .Where(x => listaEconomicosMaquina.Contains(x.noEconomico))
+                .ToList();
+
+            foreach (var noEconomico in listaEconomicosMaquina)
+            {
+                var horometrosMaquina = horometrosMaquinas
+                    .Where(x => x.Economico == noEconomico)
+                    .Take(20)
+                    .ToList();
+
+                var horometrosDelDiaMaquina = horometrosDelDia
+                    .Where(x => x.Economico == noEconomico)
+                    .ToList();
+
+                if (horometrosMaquina.Any())
+                {
+                    bool flag = false;
+                    var ultimoHorometro = horometrosMaquina.FirstOrDefault();
+                    if (fe < ultimoHorometro.Fecha)
+                    {
+                        var temp = horometrosMaquina
+                            .Where(x => x.Fecha == fe)
+                            .OrderByDescending(x => x.turno)
+                            .FirstOrDefault();
+                        if (temp != null)
+                        {
+                            ultimoHorometro = temp;
+                        }
+                        else
+                        {
+                            flag = true;
+                        }
+                    }
+
+                    var ultimoDesfase = listaDesfases
+                        .Where(x => x.Economico == noEconomico)
+                        .OrderByDescending(x => x.id)
+                        .FirstOrDefault();
+
+                    var ritmoEconomico = listaRitmos
+                        .FirstOrDefault(x => x.economico == noEconomico);
+
+                    decimal promedioHoras = 0;
+                    decimal horasTrabajo = 0;
+                    decimal desfase = ultimoDesfase.horasDesfaseAcumulado;
+
+                    if (ritmoEconomico != null)
+                    {
+                        promedioHoras = ritmoEconomico.horasDiarias;
+                    }
+                    else
+                    {
+                        promedioHoras = horometrosMaquina.Sum(x => x.HorasTrabajo) / 20;
+                    }
+
+                    decimal horometroActual = ultimoHorometro.Horometro;
+                    if (ultimoHorometro.Fecha.Date == FechaActual)
+                    {
+                        var valorCapturado = horometrosMaquina
+                            .Where(x => x.Fecha.Date == FechaActual);
+
+                        var valido = valorCapturado.Any(x => x.turno == turno);
+
+                        if (valido || turno <= ultimoHorometro.turno)
+                        {
+                            var unico = valorCapturado.FirstOrDefault(x => x.turno == turno);
+                            horasTrabajo = unico.HorasTrabajo;
+                            decimal tempH = unico.Horometro;
+                            if (unico == null)
+                            {
+                                var i = valorCapturado.FirstOrDefault(x => x.turno == ultimoHorometro.turno);
+                                tempH = i.Horometro;
+                            }
+                            horometroActual = unico == null ? tempH : (unico.Horometro == 0 ? unico.HorasTrabajo : unico.Horometro) - unico.HorasTrabajo;
+                            flag = true;
+                        }
+                        else if (turno == 3 && ultimoHorometro.Fecha.Date != FechaActual)
+                        {
+                            flag = true;
+                        }
+                    }
+
+                    var capturaHoy = horometrosMaquina
+                        .Where(x => x.Economico == noEconomico && x.Fecha.Date == FechaActual)
+                        .ToList();
+
+                    var economico = economicos.FirstOrDefault(x => x.noEconomico == noEconomico);
+
+                    bool aplicaRestriccion = economico.TipoCaptura != 2;
+                    var MaximoCaptura = capturaHoy.Sum(x => x.HorasTrabajo);
+
+                    var horasTrabajoTurno = horometrosDelDiaMaquina.FirstOrDefault(x => x.turno == turno);
+                    if (horasTrabajoTurno != null)
+                    {
+                        horasTrabajo = horasTrabajoTurno.HorasTrabajo;
+                    }
+
+                    lista.Add(new CapHorometroDTO
+                    {
+                        CC = cc,
+                        Desfase = desfase,
+                        Economico = noEconomico,
+                        Fecha = ultimoHorometro.Fecha,
+                        HorasTrabajo = horasTrabajo,
+                        HorometroActual = horometroActual + horasTrabajo,
+                        Horometro = horometroActual,
+                        HorometroAcumulado = ultimoHorometro.Horometro + desfase,
+                        Ritmo = ultimoHorometro.Ritmo,
+                        turno = ultimoHorometro.turno,
+                        habilidatado = flag,
+                        promedioHoras = promedioHoras,
+                        tipoRitmo = ultimoHorometro.Ritmo ? "Manual" : "Automatico",
+                        maximoHoras = aplicaRestriccion ? 24 - MaximoCaptura : 9999999
+                    });
+                }
+                else
+                {
+                    var capturaHoy = horometrosMaquina
+                        .Where(x => x.Economico == noEconomico && x.Fecha.Date == FechaActual)
+                        .ToList();
+
+                    var economico = economicos.FirstOrDefault(x => x.noEconomico == noEconomico);
+
+                    bool aplicaRestriccion = economico.TipoCaptura != 2;
+                    var MaximoCaptura = capturaHoy.Sum(x => x.HorasTrabajo);
+
+                    lista.Add(new CapHorometroDTO
+                    {
+                        CC = cc,
+                        Desfase = 0,
+                        Economico = noEconomico,
+                        Fecha = FechaActual,
+                        HorasTrabajo = 0,
+                        HorometroActual = 0,
+                        Horometro = 0,
+                        HorometroAcumulado = 0,
+                        Ritmo = false,
+                        turno = turno,
+                        habilidatado = false,
+                        promedioHoras = 0,
+                        tipoRitmo = "Automatico",
+                        maximoHoras = aplicaRestriccion ? 24 - MaximoCaptura : 9999999
+                    });
+                }
+            }
+
+            return lista;
+        }
+
+        public List<CapHorometroDTO> getDataTable_old(string cc, int turno, DateTime fe, int tipo)
+        {
             switch ((EmpresaEnum)vSesiones.sesionEmpresaActual)
             {
                 case EmpresaEnum.Peru:

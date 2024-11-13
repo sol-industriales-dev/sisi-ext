@@ -6,6 +6,7 @@
         selAutorizo = $("#selAutorizo");
         selLab = $("#selLab");
         selCC = $("#selCC");
+        selOT = $("#selOT");
         dtFecha = $("#dtFecha");
         txtNum = $("#txtNum");
         inputTipoRequisicionPERU = $("#inputTipoRequisicionPERU");
@@ -62,7 +63,8 @@
         tablaTabulador = $('#tablaTabulador');
         botonTabuladorAgregarPartidas = $('#botonTabuladorAgregarPartidas');
         tituloModalTabulador = $('#tituloModalTabulador');
-
+        btnVerOT = $('#btnVerOT');
+        modalOT = $('#modalOT');
         //#region CONST GENERAR LINK
         const btnListadoLinks = $('#btnListadoLinks');
         const mdlListadoLinks = $('#mdlListadoLinks');
@@ -149,6 +151,39 @@
             }
 
             checkPeriodoContable();
+
+            $("#btnVerOT").click(async function () {
+                if (selOT.val() == '') {
+                    AlertaGeneral('Alerta', 'Seleccione un OT');
+                    return;
+                }
+            
+                var url = 'http://localhost:3000/api/ot-by-id?id=' + selOT.val();
+                const data = await fetch(url);
+                const ot = await data.json();
+            
+                // Asignar los valores a los elementos del modal
+                $("#otFolio").text(ot.folio || 'N/A');
+                $("#otFolioDetalle").val(ot.folio || 'N/A');
+                $("#otTipo").val(ot.tipo || 'N/A');
+                $("#otDescripcion").val(ot.descripcion || 'N/A');
+                $("#otEquipo").val(ot.equipo ? ot.equipo.nombre : 'N/A');
+                $("#otModelo").val(ot.modelo ? ot.modelo.nombre : 'N/A');
+                $("#otCentroCosto").val(ot.centroCosto ? ot.centroCosto.nombre : 'N/A');
+                $("#otRazonSocial").val(ot.razonSocial ? ot.razonSocial.nombre : 'N/A');
+            
+                let supervisorNombre = ot.supervisor ? `${ot.supervisor.nombre} ${ot.supervisor.apaterno} ${ot.supervisor.amaterno}` : 'N/A';
+                $("#otSupervisor").val(supervisorNombre);
+                $("#otCliente").val(ot.cliente ? ot.cliente.nombre : 'N/A');
+                $("#otUbicacion").val(ot.ubicacion ? ot.ubicacion.nombre : 'N/A');
+                $("#otUrgente").val(ot.urgente ? 'Sí' : 'No');
+                $("#otFechaInicio").val(ot.it_fechaInicio ? new Date(ot.it_fechaInicio).toLocaleDateString() : 'N/A');
+                $("#otNoEconomico").val(ot.noEconomico || 'N/A');
+                $("#otEstadoFlujo").val(ot.estadoFlujo || 'N/A');
+            
+                // Mostrar el modal
+                $("#modalOT").modal('show');
+            });
         }
 
 
@@ -836,7 +871,7 @@
 
                 selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null);
                 selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null);
-
+                selOT.fillCombo('http://66.175.239.161/api/ot-list-by-cc', { cc: cc }, false, null);
                 labelEstatusCompra.css('display', 'none');
                 btnGuardar.attr('disabled', false);
                 tblInsumos.find('tbody').empty();
@@ -851,6 +886,7 @@
                 $.when(
                     selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null),
                     selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null),
+                    selOT.fillCombo('http://66.175.239.161/api/ot-list-by-cc', { cc: cc }, false, null),
                     getNewReq(cc).done(function (response) {
                         txtNum.val(response.numero);
                         labelEstatusCompra.css('display', 'none');
@@ -880,6 +916,7 @@
                         if (response.req.otroCC) {
                             setDefault(true);
                             selCC.val(response.req.cc);
+                            selOT.val(response.req.otID);
                             if (selCC.val()) {
                                 selCC.trigger('change', txtNum.val());
                             } else {
@@ -887,7 +924,7 @@
                             }
                         } else {
                             _flagEditarRequisicion = true;
-
+                            selOT.val(response.req.otID);
                             tblInsumos.find('tbody').empty();
                             setPartidas(response.partidas);
                             setRequisicion(response.req);
@@ -1565,6 +1602,9 @@
         function setRequisicion(req) {
             selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: req.cc }, false, null);
             selCC.val(req.cc);
+            if (req.otID) {
+                selOT.val(req.otID);
+            }
             txtNum.val(req.numero != '-1' ? req.numero : '');
             dtFecha.val(req.fechaString); // dtFecha.val(req.fecha.parseDate().toLocaleDateString());
             selLab.val(req.libre_abordo);
@@ -1720,7 +1760,9 @@
                 usuarioSolicita: inputUsuario.data().id,
                 usuarioSolicitaUso: inputUso.val().trim(),
                 usuarioSolicitaEmpresa: inputUsuario.data().empresa,
-                idBL: _idBL
+                idBL: _idBL,
+                otID: selOT.val() != "" ? selOT.val() : null,
+                otFolio: selOT.val() != "" ? $("#selOT option:selected").text(): "",
             }
         }
         function getEstatusAuth() {
@@ -1827,6 +1869,7 @@
         function initForm(idBL) {
             // selCC.fillCombo('/Enkontrol/Requisicion/FillComboCcTodos', null, false, null);
             selCC.fillCombo('/Enkontrol/Requisicion/FillComboCcAsigReq', null, false, null, initTerminado);
+            selOT.fillCombo('http://66.175.239.161/api/ot-list-by-cc', { cc: '999' }, false, null);
             $('#selCCDetReq').fillCombo('/Enkontrol/Requisicion/FillComboCcAsigReq', null, false, null, initTerminado);
             selLab.fillCombo('/Enkontrol/Requisicion/FillComboAlmacenSurtir', null, false, null, initTerminado);
             selTipoReq.fillCombo('/Enkontrol/Requisicion/FillComboTipoReq', null, false, null, initTerminado);

@@ -140,18 +140,20 @@
                 language: dtDicEsp,
                 bInfo: false,
                 columns: [
-                    { data: 'ccNom' },
-                    { data: 'numero' },
-                    { data: 'solNom' },
+                    { data: 'ccNom', title: 'CC' },
+                    { data: 'numero', title: 'Número' },
+                    { data: 'otFolio', title: 'OT' },
+                    { data: 'economico', title: 'No. Economico' },
+                    { data: 'solNom', title: 'Solicitante' },
                     {
-                        data: 'fecha',
+                        data: 'fecha', title: 'Fecha',
                         createdCell: function (td, data, rowData, row, col) {
                             $(td).html(data.parseDate().toLocaleDateString());
                         }
                     },
-                    { data: 'cantidadTotal' },
+                    { data: 'cantidadTotal', title: 'Cantidad' },
                     {
-                        data: 'numero',
+                        data: 'numero', title: 'Seleccionar',
                         createdCell: function (td, data, rowData, row, col) {
                             let checkbox = document.createElement('input');
                             checkbox.id = 'checkboxAut_' + row;
@@ -175,33 +177,7 @@
                         }
                     },
                     {
-                        title: 'Tipo', render: function (data, type, row, meta) {
-                            if (row.consigna) {
-                                return 'C';
-                            } else if (row.licitacion) {
-                                return 'L';
-                            } else if (row.PERU_tipoRequisicion) {
-                                if (row.PERU_tipoRequisicion == 'RQ') {
-                                    return 'Compra'
-                                } else {
-                                    return 'Servicio'
-                                }
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        title: 'Monto', render: function (data, type, row, meta) {
-                            if (row.montoTotal > 0) {
-                                return `${maskNumero6DCompras(row.montoTotal)} ${row.monedaDesc}`;
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        sortable: false,
+                        sortable: false, title: 'Detalle',
                         render: function (data, type, row, meta) {
                             let divBotones = document.createElement('div');
                             divBotones.style.display = 'inline-flex';
@@ -229,8 +205,9 @@
                     },
                 ],
                 columnDefs: [
-                    { "className": "dt-center centradoVertical", "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8] },
-                    { 'width': '25%', 'targets': [0, 1, 3, 4] }
+                    // { "className": "dt-center centradoVertical", "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+                    { 'width': '100px', 'targets': [2, 3, 4, 5,8] },
+                    { 'width': '50px', 'targets': [1,6,7] }
                 ],
                 initComplete: function (settings, json) {
                     tblAuth.on('click', 'input[type="checkbox"]', function () {

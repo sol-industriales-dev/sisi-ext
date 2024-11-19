@@ -183,7 +183,7 @@
                 retrieve: true,
                 paging: false,
                 deferRender: true,
-                searching: false,
+                searching: true,
                 language: dtDicEsp,
                 aaSorting: [5, 'desc'],
                 rowId: 'id',

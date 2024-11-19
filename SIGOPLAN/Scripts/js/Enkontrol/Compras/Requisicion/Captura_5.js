@@ -142,7 +142,7 @@
             agregarTooltip(selLab, 'Dirección de Envío');
             initTblFoliosDisponibles();
             initTablaTabulador();
-            // OcultarColumnaAreaCuenta();
+            OcultarColumnaAreaCuenta();
             // Se comprueba si hay variables en url.
             if (variables && variables.cc && variables.req) {
                 selCC.val(variables.cc);
@@ -158,9 +158,7 @@
                     return;
                 }
             
-                var url = 'http://66.175.239.161/api/ot-by-id?id=' + selOT.val();
-                const data = await fetch(url);
-                const ot = await data.json();
+                const ot = await getOT();
             
                 // Asignar los valores a los elementos del modal
                 $("#otFolio").text(ot.folio || 'N/A');
@@ -184,16 +182,21 @@
                 // Mostrar el modal
                 $("#modalOT").modal('show');
             });
+
+
         }
 
+        async function getOT(){
+            var url = 'http://66.175.239.161/api/ot-by-id?id=' + selOT.val();
+            const data = await fetch(url);
+            const ot = await data.json();
 
-        // function OcultarColumnaAreaCuenta() {
-        //     if (inputEmpresaActual.val() == 6) {
-        //         tblInsumos.DataTable().column(4).visible(false);
-        //     } else {
-        //         tblInsumos.DataTable().column(4).visible(true);
-        //     }
-        // }
+            return ot;
+        }
+
+        function OcultarColumnaAreaCuenta() {
+                tblInsumos.DataTable().column(5).visible(false);
+        }
         const getUrlParams = function (url) {
             let params = {};
             let parser = document.createElement('a');
@@ -1014,7 +1017,7 @@
             }).always($.unblockUI);
         }
 
-        function guardarRequisicion() {
+        async function guardarRequisicion() {
             //#region Validaciones
             if (!_flagPeriodoContable) {
                 AlertaGeneral(`Alerta`, `El Periodo Contable no está activo.`);
@@ -1044,7 +1047,7 @@
             }
             //#endregion
 
-            let req = getRequisicion();
+            let req = await getRequisicion();
             let det = getPartidas();
             let comentarios = arryComentarios;
 
@@ -1728,8 +1731,15 @@
                     break;
             }
         }
-        function getRequisicion() {
-            return {
+        async function getRequisicion() {
+            let noEconomico = "";
+            if (selOT.val() != "") {
+                const ot = await getOT();
+                if (ot != null) {
+                    noEconomico = ot.noEconomico;
+                }
+            }
+            const obj = {
                 id: txtNum.data().id,
                 cc: selCC.val(),
                 numero: txtNum.val(),
@@ -1763,7 +1773,9 @@
                 idBL: _idBL,
                 otID: selOT.val() != "" ? selOT.val() : null,
                 otFolio: selOT.val() != "" ? $("#selOT option:selected").text(): "",
-            }
+                noEconomico: noEconomico
+            };
+            return obj;
         }
         function getEstatusAuth() {
             return txtNum.data().st_autoriza == "S";
@@ -1822,12 +1834,12 @@
                     tblInsumos.find(`tbody`).append($renglon);
                     $renglon.find('.tipoPartida').val(partidas[i].tipoPartida);  
                     $renglon.find('.tipoPartidaDet').val(partidas[i].tipoPartidaDet);
-                    if (_vistaActual.responseJSON != 7221) { //Vista diferente a la de autorización.
-                        $renglon.find('.existencia').text(getExistencia(partidas[i].insumo, 400, $("#selLab").val() != '' ? $("#selLab").val() : 0));
-                        $renglon.find('.existenciaBoton').removeClass('hidden');
+                    // if (_vistaActual.responseJSON != 7221) { //Vista diferente a la de autorización.
+                    //     $renglon.find('.existencia').text(getExistencia(partidas[i].insumo, 400, $("#selLab").val() != '' ? $("#selLab").val() : 0));
+                    //     $renglon.find('.existenciaBoton').removeClass('hidden');
 
-                        agregarTooltip($renglon.find('.existenciaBoton'), 'Desglose por Almacén');
-                    }
+                    //     agregarTooltip($renglon.find('.existenciaBoton'), 'Desglose por Almacén');
+                    // }
 
                     $renglon.data({
                         insumo: partidas[i].insumo,

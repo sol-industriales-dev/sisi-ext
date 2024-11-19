@@ -33,5 +33,6 @@ namespace Core.Entity.Enkontrol.Compras.OrdenCompra
         public string modeloMaquinariaDesc { get; set; }
         public int compras_req { get; set; }
         public bool estatus { get; set; }
+        public decimal costo_promedio { get; set; }
     }
 }

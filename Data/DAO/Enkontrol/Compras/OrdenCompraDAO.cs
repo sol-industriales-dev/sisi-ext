@@ -16910,6 +16910,13 @@ FROM (
 
                         compra.stringVobosAutorizaciones += "] ";
                         #endregion
+
+                        foreach (var item in lstPartidas)
+                        {
+                            var obj = _context.tblAlm_Insumo.FirstOrDefault(x=>x.insumo == item.insumo);
+                            obj.costo_promedio = item.precio;
+                            _context.SaveChanges();
+                        }
                     }
 
 //                    #region Calificación encuestas
@@ -16968,7 +16975,7 @@ FROM (
                     #endregion
 
                     //dbSigoplanTransaction.Commit();
-
+                    
                     List<string> listStringNumerosCompras = numerosCompras.ConvertAll<string>(x => compra.cc + "-" + x.ToString());
 
                     result.Add("info", compra);
@@ -17338,7 +17345,7 @@ FROM (
             var listaRegistrosDetalle = from r in _context.tblCom_ReqDet
                                         join i in _context.tblAlm_Insumo on r.insumo equals i.insumo 
                                         where r.estatusRegistro && r.idReq == registroRequisicion.id
-                                        select new { r.partida, r.insumo, r.cantidad, r.cantOrdenada, r.ordenada, r.estatus, r.cantCancelada, r.referencia, r.cantExcedida, r.descripcion, insumoDesc =i.descripcion };
+                                        select new { r.partida, r.insumo, r.cantidad, r.cantOrdenada, r.ordenada, r.estatus, r.cantCancelada, r.referencia, r.cantExcedida, r.descripcion, insumoDesc = i.descripcion, costo_promedio = i.costo_promedio };
             var listaCuadrosRequisicion = _context.tblCom_CuadroComparativo.Where(x => x.registroActivo && x.cc == cc && x.numero == num).ToList();
             var listaPartidas = new List<OrdenCompraDetDTO>();
 
@@ -17395,7 +17402,7 @@ FROM (
                     //cant_canc = 0,
                     //cant_ordenada = 0,
                     //moneda = 0,
-                    //precio = 0,
+                    precio = p.costo_promedio,
                     //importe = 0,
                     //tipo = 0,
                     //grupo = 0,

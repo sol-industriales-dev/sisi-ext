@@ -1846,7 +1846,7 @@ namespace SIGOPLAN.Areas.Enkontrol.Controllers.Almacen
         public ActionResult FillGrid_Insumo(tblAlm_Insumo obj)
         {
             var result = new Dictionary<string, object>();
-            var listResult = almService.FillGrid_Insumo(obj).Select(x => new { id = x.id, insumo = x.insumo, tipo = x.tipo, grupo = x.grupo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO" });
+            var listResult = almService.FillGrid_Insumo(obj).Select(x => new { id = x.id, insumo = x.insumo, tipo = x.tipo, grupo = x.grupo, descripcion = x.descripcion, estatus = (x.estatus == true) ? "ACTIVO" : "INACTIVO", costo_promedio = x.costo_promedio });
             result.Add("current", 1);
             result.Add("rowCount", 1);
             result.Add("total", listResult.Count());

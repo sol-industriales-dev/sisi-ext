@@ -28064,6 +28064,7 @@ namespace Data.DAO.Enkontrol.Almacen
                     data.id_modelo_maquinaria = 0;
                     data.modeloMaquinariaDesc = "";
                     data.compras_req = 1;
+                    data.costo_promedio = 0;
 
                     _context.tblAlm_Insumo.Add(data);
                     _context.SaveChanges();

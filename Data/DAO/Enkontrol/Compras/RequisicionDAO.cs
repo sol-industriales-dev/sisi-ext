@@ -69,6 +69,10 @@ namespace Data.DAO.Enkontrol.Compras
         public string solNom { get; set; }
         public decimal cantidadTotal { get; set; }
         public int contieneCancelado { get; set; }
+        public string otFolio { get; set; }
+        public string economico { get; set; }
+        public int tipoPartida { get; set; }
+        public int tipoPartidaDet { get; set; }
     }
 
     public class RequisicionDAO : GenericDAO<tblCom_Req>, IRequisicionDAO
@@ -210,7 +214,7 @@ namespace Data.DAO.Enkontrol.Compras
                         save.PERU_tipoRequisicion = req.PERU_tipoRequisicion;
                         save.otID = req.otID;
                         save.otFolio = req.otFolio;
-
+                        save.noEconomico = req.noEconomico;
                         _context.tblCom_Req.AddOrUpdate(save);
                         SaveChanges();
                         #endregion
@@ -2947,6 +2951,8 @@ namespace Data.DAO.Enkontrol.Compras
                         crc = false,
                         convenio = false,
                         ccNom = r.cc + "-" + ccc.descripcion,
+                        otFolio = r.otFolio,
+                        economico = r.noEconomico,
                         solNom = _context.tblRH_EK_Empleados
                                           .Where(e => e.clave_empleado == r.solicito)
                                           .Select(e => e.nombre)
@@ -3238,15 +3244,14 @@ namespace Data.DAO.Enkontrol.Compras
             try
             {
                 var lista = new List<dynamic>();
-                if(tipo == 0){
-                    lista.Add(new
-                    {
-                        Value = 0,
-                        Text = "N/A",
-                        Prefijo = 0
-                    });
-                }
-                else if(tipo == 1){
+                lista.Add(new
+                {
+                    Value = 0,
+                    Text = "N/A",
+                    Prefijo = 0
+                });
+
+                if(tipo == 1){
                     var empleados = _context.tblRH_EK_Empleados.ToList().Select(x => new
                     {
                         Value = x.clave_empleado,

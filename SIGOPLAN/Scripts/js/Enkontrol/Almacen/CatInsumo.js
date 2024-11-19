@@ -62,13 +62,13 @@
 
         function openModal() {
             reset();
-            tituloModal.text("Alta Familia de Insumos");
+            tituloModal.text("Alta de Insumos");
             cboModalEstatus.prop('disabled', true);
             modalAlta.modal('show');
         }
         function update() {
             
-            tituloModal.text("Actualizar familia de Insumos");
+            tituloModal.text("Actualizar Insumos");
             cboModalEstatus.prop('disabled', false);
             modalAlta.modal('show');
         }
@@ -89,7 +89,7 @@
                 Id: id,
                 tipo: txtModaltipo.val(),
                 grupo: txtModalgrupo.val(),
-                descripcion: txtModaldescripcion.val().trim(),
+                descripcion: txtModaldescripcion.val().trim().toUpperCase(),
                 Estatus: cboModalEstatus.val() == estatus.ACTIVO ? true : false
             }
         }

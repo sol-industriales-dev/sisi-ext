@@ -1019,10 +1019,10 @@
 
         async function guardarRequisicion() {
             //#region Validaciones
-            if (!_flagPeriodoContable) {
+        /*    if (!_flagPeriodoContable) {
                 AlertaGeneral(`Alerta`, `El Periodo Contable no está activo.`);
                 return;
-            }
+            }*/
 
             if (!validaCamposRenglones()) {
                 AlertaGeneral('Alerta', 'Información no válida en las partidas.');

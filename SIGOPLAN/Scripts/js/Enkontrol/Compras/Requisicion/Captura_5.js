@@ -1160,7 +1160,7 @@
                 let $row = $(row);
 
                 if (inputEmpresaActual.val() != 6) {
-                    if ($row.find(".insumo").val().length != 7) {
+                    if ($row.find(".insumo").val().length != 7 && $row.find(".insumo").val().length != 8) {
                         ban = false;
                     }
                 } else {

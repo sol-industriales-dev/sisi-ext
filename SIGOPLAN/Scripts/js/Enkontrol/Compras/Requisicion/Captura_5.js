@@ -466,21 +466,21 @@
             presionar la tecla "Enter" después de capturar el insumo y la cantidad. Todas las partidas deben tener un insumo válido y una cantidad mayor a cero.`);
         });
 
-        checkboxConsigna.on('change', function () {
-            selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 1 : 0 }, false, null);
-        });
+        // checkboxConsigna.on('change', function () {
+        //     selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 1 : 0 }, false, null);
+        // });
 
-        checkboxLicitacion.on('change', function () {
-            selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 2 : 0 }, false, null);
-        });
+        // checkboxLicitacion.on('change', function () {
+        //     selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 2 : 0 }, false, null);
+        // });
 
-        checkboxCRC.on('change', function () {
-            selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 3 : 0 }, false, null);
-        });
+        // checkboxCRC.on('change', function () {
+        //     selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 3 : 0 }, false, null);
+        // });
 
-        checkboxConvenio.on('change', function () {
-            selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 4 : 0 }, false, null);
-        });
+        // checkboxConvenio.on('change', function () {
+        //     selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: $(this).prop('checked') ? 4 : 0 }, false, null);
+        // });
 
         //#region CARGA DE INSUMOS QUE VIENEN DE BACKLOGS
         function setNewReqBL(partes) {
@@ -490,8 +490,8 @@
 
             $.blockUI({ message: 'Cargando...' });
             $.when(
-                selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null),
-                selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null),
+                // selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null),
+                // selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null),
                 getNewReq(cc).done(function (response) {
                     txtNum.val(response.numero);
                     txtSolicito.val(response.solicitoNom).data().solicito = response.solicito;
@@ -872,8 +872,8 @@
             if (numRequi) {
                 $.blockUI({ message: 'Cargando...' });
 
-                selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null);
-                selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null);
+                // selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null);
+                // selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null);
                 selOT.fillCombo('http://66.175.239.161/api/ot-list-by-cc', { cc: cc }, false, null);
                 labelEstatusCompra.css('display', 'none');
                 btnGuardar.attr('disabled', false);
@@ -887,8 +887,8 @@
                 $.blockUI({ message: 'Cargando...' });
 
                 $.when(
-                    selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null),
-                    selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null),
+                    // selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: cc }, false, null),
+                    // selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradoresCC', { cc: cc }, false, null),
                     selOT.fillCombo('http://66.175.239.161/api/ot-list-by-cc', { cc: cc }, false, null),
                     getNewReq(cc).done(function (response) {
                         txtNum.val(response.numero);
@@ -1603,7 +1603,7 @@
             _renglonVacio();
         }
         function setRequisicion(req) {
-            selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: req.cc }, false, null);
+            // selAutorizo.fillCombo('/Enkontrol/Requisicion/FillComboResponsablePorCc', { cc: req.cc }, false, null);
             selCC.val(req.cc);
             if (req.otID) {
                 selOT.val(req.otID);
@@ -1681,29 +1681,29 @@
                     tipo = 4;
                 }
 
-                axios.post('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo }).then(response => {
-                    let { success, items, message } = response.data;
+                // axios.post('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo }).then(response => {
+                //     let { success, items, message } = response.data;
 
-                    if (success) {
-                        selectProveedor.append('<option value="">--Seleccione--</option>');
+                //     if (success) {
+                //         selectProveedor.append('<option value="">--Seleccione--</option>');
 
-                        items.forEach(x => {
-                            selectProveedor.append(`<option value="${x.Value}">${x.Text}</option>`);
-                        });
+                //         items.forEach(x => {
+                //             selectProveedor.append(`<option value="${x.Value}">${x.Text}</option>`);
+                //         });
 
-                        selectProveedor.val(req.proveedor > 0 ? req.proveedor : '');
-                        selectProveedor.select2().change();
-                    } else {
-                        AlertaGeneral(`Alerta`, message);
-                    }
-                }).catch(error => AlertaGeneral(`Alerta`, error.message));
+                //         selectProveedor.val(req.proveedor > 0 ? req.proveedor : '');
+                //         selectProveedor.select2().change();
+                //     } else {
+                //         AlertaGeneral(`Alerta`, message);
+                //     }
+                // }).catch(error => AlertaGeneral(`Alerta`, error.message));
             }
 
             checkboxLicitacion.prop('checked', req.licitacion);
 
-            if (!req.consigna && !req.licitacion && !req.crc && !req.convenio) {
-                selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: 0 }, false, null); //Limpiar el combo de proveedores.
-            }
+            // if (!req.consigna && !req.licitacion && !req.crc && !req.convenio) {
+            //     selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: 0 }, false, null); //Limpiar el combo de proveedores.
+            // }
 
             $('#checkboxTMC').prop('checked', req.tmc);
 
@@ -1886,8 +1886,8 @@
             selLab.fillCombo('/Enkontrol/Requisicion/FillComboAlmacenSurtir', null, false, null, initTerminado);
             selTipoReq.fillCombo('/Enkontrol/Requisicion/FillComboTipoReq', null, false, null, initTerminado);
             selectTipoFolio.fillCombo('/Enkontrol/Requisicion/FillComboTipoFolio', null, false, null, initTerminado);
-            selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradores', null, false, null, initTerminado);
-            selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: 0 }, false, null);
+            // selectComprador.fillCombo('/Enkontrol/OrdenCompra/FillComboCompradores', null, false, null, initTerminado);
+            // selectProveedor.fillCombo('/Enkontrol/Requisicion/FillComboProveedoresConsignaLicitacionConvenio', { tipo: 0 }, false, null);
 
             if (idBL == 0) {
                 setDefault(false);

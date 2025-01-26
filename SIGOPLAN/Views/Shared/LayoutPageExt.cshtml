@@ -1,0 +1,167 @@
+﻿@{
+    Layout = null;
+
+    var Menu = new SIGOPLAN.Controllers.BaseController();
+    var AlertasBySistema = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var AlertasALL = new List<Core.Entity.Principal.Alertas.tblP_Alerta>();
+    var GEmpresaID = Menu.getEmpresaID();
+    var GEmpresaNombre = Menu.getEmpresaActualNombre();
+    var esCliente = Core.DTO.vSesiones.sesionUsuarioDTO.esCliente;
+    var vistCalendario = Core.DTO.vSesiones.sesionUsuarioDTO.VistaCalendario;
+    var externoGestor = Core.DTO.vSesiones.sesionUsuarioDTO.externoGestor;
+}
+
+<!DOCTYPE html>
+
+<html lang="es-mx">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta http-equiv="pragma" content="no-cache" />
+
+    <title>SISI v1.1</title>
+
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/jquery-ui.theme.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/bootstrap.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/MobileResponsive.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/bootstrap-multiselect.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/style.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/style-Layout.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/principal/CustomNavBar.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/bootgrid/jquery.bootgrid.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/MonthPicker.min.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/css/Utilities.css")">
+    <link rel="stylesheet" type="text/css" href="@Url.Content("~/Content/style/font-awesome/css/all.min.css")">
+    <link rel="stylesheet" type="text/css" href="~/Content/style/css/LayoutPageExt.css" />
+
+
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-3.1.0.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.mask.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/linq/linq.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap-multiselect.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/localization/messages_es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.blockUI.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.bundle.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/chart/Chart.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/jquery.ui.datepicker-es.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MonthPicker.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/bootgrid/jquery.bootgrid.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Axios.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/sweetalert2@10.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/Utilities/Utilities.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MasteredFuntions/Utilities.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/js/Layout.js")"></script>
+
+    <script>
+        var _GEmpresaID = @GEmpresaID;
+        var _GEmpresaNombre = _GEmpresaID == 1 ? "SISI" : "NOMBRE EMPRESA";
+        var _SessionMainURL = '@Menu.getSessionMainUrl()';
+        var _permitirAlertaPublicacion = '@System.Configuration.ConfigurationManager.AppSettings["alertaPublicacion"]';
+    </script>
+</head>
+
+<body style="height:95%;margin-top:-20px;">
+    <div class="text-center">
+        <div class="col-lg-12" style="top:42px;position:fixed;">
+            <div id="alertaGeneralMantenimiento" class="col-md-2 col-md-offset-10"></div>
+        </div>
+    </div>
+
+    <div id="_bodysigoplan" style="height:100%;" class="row RenderBody">
+        <div id="divAlertaMantenimiento" style="top:30px;left:5%;position:fixed;z-index:1029;">
+            <h2 id="botonAlertaMantenimiento" title="Favor de anticiparse y guardar cambios necesarios.">
+                <span id="spanMensajeMantenimiento" class="label label-danger"></span>
+            </h2>
+        </div>
+
+        <div class="heartbeat">&hearts;</div>
+
+        <center>
+            <div class="opcionesUsuario">
+                <div class="row ouHeader">
+                    <p>
+                        <span class="hidden-xs spNombreUsuario">@Menu.getUsuario().nombre</span>
+                        <br />
+                        <span>@Menu.getEmpresaDescripcion()</span>
+                    </p>
+                </div>
+
+                <div class="row ouFooter">
+                    @if (Menu.isUserSistemas())
+                    {
+                        <button id="btnModelConfig" type="button" class="btn btn-default btn-block">
+                            <i class="glyphicon glyphicon-cog"></i>
+                        </button>
+                    }
+                    
+                    <a href="/Home/Ayuda"
+                    title="Manuales de Ayuda"
+                    class="btn btn-default btn-block @(vistCalendario || externoGestor ? " hidden" : "") " id=" lkayuda">
+                        <i class="glyphicon glyphicon-question-sign"></i>
+                    </a>
+
+                    <button id="btnModelSistemas"
+                    type="button"
+                    class="btn btn-default btn-block @(vistCalendario || externoGestor ? " hidden" : "") ">
+                        Modulos
+                    </button>
+
+                    <button id="btnModelSistemas"
+                    onclick="AbandonarSession(this)"
+                    type="button"
+                    class="btn btn-default btn-block">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </center>
+
+        <div id="bodyContainer">
+            @RenderBody()
+        </div>
+
+    </div>
+</body>
+</html>
+
+<div
+class="modal fade"
+id="divModalMenuSistemas"
+tabindex="-1"
+role="dialog"
+aria-labelledby="myModalLabel"
+data-backdrop="static">
+    <div class="modal-dialog" style="width:95%;" role="document">
+        <div class="modal-content modal-content-ppal">
+            <div class="modal-header modal-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <div class="text-center">
+                    <h3>MENÚ PRINCIPAL - <span>@Menu.getEmpresaDescripcion()</span></h3>
+                </div>
+            </div>
+
+            <div class="modal-body modal-body-ppal text-center modal-content-tamaño">
+                <div class="PanelMenuppal">
+                    <div id="divMenuAcceso" class="row text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogalertaGeneral" style="z-index:99999;" class="content_dialog hide">
+    <center><p id="txtComentarioAlerta"> </p></center>
+</div>
+
+@Html.Partial("SessionView", false)
+@Html.Partial("_mdlAceptaRechaza")
+
+<iframe id="iframeDownload" style="display:none;"></iframe>

@@ -10,7 +10,7 @@
             setUsuario();
             btnUsuarioGuardar.click(guardarUsuario);
         },
-            getThisUsuarioEnkontrol = () => { return $.post('/Enkontrol/Requisicion/getThisUsuarioEnkontrol'); },
+            // getThisUsuarioEnkontrol = () => { return $.post('/Enkontrol/Requisicion/getThisUsuarioEnkontrol'); },
             saveUsuarioEnkontrol = () => {
                 return $.post('/Administrador/Usuarios/saveUsuarioEnkontrol', {
                     empleado: txtCve.val(),
@@ -18,11 +18,11 @@
                 });
             };
         let setUsuario = () => {
-            getThisUsuarioEnkontrol().done((response) => {
-                txtCve.val(response.empleado);
-                txtNombre.val(response.nombre);
-                txtNoEnkontrol.val(response.ekUsuario);
-            });
+            // getThisUsuarioEnkontrol().done((response) => {
+            //     txtCve.val(response.empleado);
+            //     txtNombre.val(response.nombre);
+            //     txtNoEnkontrol.val(response.ekUsuario);
+            // });
         }
         let guardarUsuario = () => {
             saveUsuarioEnkontrol().done((response) => {

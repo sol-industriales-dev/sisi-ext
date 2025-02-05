@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Generar";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
     var baseController = new SIGOPLAN.Controllers.BaseController();
     var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
@@ -17,7 +17,7 @@
 
 @*<label id="labelRequisicionesPendientes"></label>*@
 <style>
-    table thead {
+    /*table thead {
         background-color: #007bff !important;
         color: white;
     }
@@ -25,7 +25,7 @@
     .modal-bg {
         background-color: #007bff !important;
         color: white;
-    }
+    }*/
 </style>
 @if (baseController.getEmpresaID() == 3)
 {
@@ -39,9 +39,422 @@
     </style>
 }
 
-<h2 class="text-center">@(baseController.getEmpresaID() == 6 ? tipoOrden ? "Orden de Servicio" : "Orden de Compra" : "Orden de Compra")</h2>
+@*<h2 class="text-center">@(baseController.getEmpresaID() == 6 ? tipoOrden ? "Orden de Servicio" : "Orden de Compra" : "Orden de Compra")</h2>*@
 <input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
-<fieldset class='fieldset-custm noPadLeft noPadRight mrgBottom' style="border-radius: 0px !important;">
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Orden de Compra</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <h3 class="mb5 mt5">Editar</h3>
+        <div class="contenedor">
+            <div class="row">
+                <div class='col-md-7 col-lg-7 mb5'>
+                    <div class='form-group'>
+                        <label>CC</label>
+                        <select id='selectCCEditar' class='form-control'></select>
+                    </div>
+                </div>
+                <div class='col-md-4 col-lg-4 mb5'>
+                    <div class='form-group'>
+                        <label>Número:</label>
+                        <input id='inputNumeroEditar' type='text' class='form-control' />
+                    </div>
+                </div>
+                <div class='col-md-1 col-lg-1 mb5 mt20'>
+                    <button id="btnBorrarCompra" class="btn btn-default" disabled><i class="fa fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb5 mt5">Datos</h3>
+        <div class="contenedor">
+            <div class="row">
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Folio Origen:</label>
+                        <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>CC</label>
+                        <select id='selectCC' class='form-control'></select>
+                    </div>
+                </div>
+
+                <div class='col-md-12 col-lg-12 mb5' style="display: none;">
+                    <div class='form-group mb5' style="width: 0px;">
+                        <label>Inicio</label>
+                        <input type='text' id='dtpInicio' class='form-control'>
+                    </div>
+                    <div class='form-group' style="width: 0px;">
+                        <label>Fin</label>
+                        <input type='text' id='dtpFin' class='form-control'>
+                    </div>
+                </div>
+
+                <div class='col-md-4 col-lg-4 mb5'>
+                    <div class='form-group'>
+                        <label>Núm. Req.:</label>
+                        <input id='inputNumero' type='text' class='form-control' />
+                    </div>
+                </div>
+                <div class='col-md-4 col-lg-4 mb5'>
+                    <div class='form-group'>
+                        <label>B ó S:</label>
+                        <select id='selectBoS' class='form-control'>
+                            <option value="">--Seleccione--</option>
+                            <option value="B">Bienes</option>
+                            <option value="S">Servicios</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='col-md-4 col-lg-4 mb5'>
+                    <div class='form-group'>
+                        <label>Fecha:</label>
+                        <input id='dtpFecha' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class='form-group'>
+                        <label>Proveedor:</label>
+                        <input id='inputProvNum' type='text' class='form-control'>
+                    </div>
+                </div>
+                <div class="col-md-9 col-lg-9">
+                    <div class="form-group">
+                        <label>Nombre Proveedor:</label>
+                        <input id='inputProvNom' type='text' class='form-control' />
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5 elementoPeru'>
+                    <div class="col-md-12 col-lg-12">
+                        <div class='form-group'>
+                            <label>Cta. Corriente:</label>
+                            <select id="selectCuentaCorriente" class="form-control">
+                                <option value="">--Seleccione--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5 elementoPeru'>
+                    <div class="col-md-12 col-lg-12">
+                        <div class='form-group'>
+                            <label>Forma Pago:</label>
+                            <select id="selectFormaPago" class="form-control">
+                                <option value="">--Seleccione--</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class='form-group'>
+                        <label>Comprador:</label>
+                        <input id='inputCompNum' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-9 col-lg-9">
+                    <div class="form-group">
+                        <label>Nombre Comprador:</label>
+                        <input id='inputCompNom' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class='form-group'>
+                        <label>Solicitó:</label>
+                        <input id='inputSolNum' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-9 col-lg-9">
+                    <div class="form-group">
+                        <label>Nombre Solicitó</label>
+                        <input id='inputSolNom' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class='form-group'>
+                        <label>Autorizó:</label>
+                        <input id='inputAutNum' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class="col-md-9 col-lg-9">
+                    <div class="form-gourp">
+                        <label>Nombre Autorizó</label>
+                        <input id='inputAutNom' type='text' class='form-control' disabled />
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Embarquese:</label>
+                        <input id='inputEmb' type='text' class='form-control' />
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Entregar:</label>
+                        <select id='selectLab' class='form-control'></select>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Concepto Factura:</label>
+                        <input id='inputConFact' type='text' class='form-control' />
+                    </div>
+                </div>
+                <div class='col-md-3 col-lg-3 mb5'>
+                    <div id="divAutorecepcionable" style="display: inline-block;">
+                        <input type="checkbox" id="checkAutoRecep" class="regular-checkbox" />
+                        <label for="checkAutoRecep"></label>
+                        <label style="font-size: 12px;">Auto Recepcionable</label>
+                    </div>
+                    <!-- <div class='input-group'>
+            <label style="font-weight: bold; cursor: pointer;">
+                <input style="margin-right: 5px; height: 15px; width: 15px; cursor: pointer;" id='checkAutoRecep' type='checkbox' />Auto Recepcionable
+            </label>
+        </div> -->
+                </div>
+                <div class='col-md-9 col-lg-9 mb5'>
+                    <div class="col-md-4 col-lg-4">
+                        <div class='form-group'>
+                            <label>Almacén:</label>
+                            <input id='inputAlmNum' type='text' class='form-control' />
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-lg-8">
+                        <div class="form-group">
+                            <label>Nombre Almacén</label>
+                            <input id='inputAlmNom' type='text' class='form-control' disabled />
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class='col-md-3 col-lg-3 mb5'>
+                    <div class='form-group'></div>
+                </div>
+                <div class='col-md-9 col-lg-9 mb5'>
+                    <div class="col-md-4 col-lg-4">
+                        <div class='form-group'>
+                            <label>Empleado:</label>
+                            <input id='inputEmpNum' type='text' class='form-control' />
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-lg-8">
+                        <div class="form-group">
+                            <label>Nombre Empleado:</label>
+                            <input id='inputEmpNom' type='text' class='form-control' disabled />
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-6">
+        <h3 class="mb5 mt5">&nbsp;</h3>
+        <div class="contenedor">
+            <div class="row">
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Tipo O.C.:</label>
+                        <select id='selectTipoOC' class='form-control'></select>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Moneda:</label>
+                        <select id='selectMoneda' class='form-control' disabled>
+                            @switch (baseController.getEmpresaID())
+                            {
+                                case 3:
+                                    {
+                                        <option value=""></option>
+                                        <option value="1">COP</option>
+                                        <option value="2">USD</option>
+                                        <option value="3">MEX</option>
+                                    }
+                                    break;
+                                default:
+                                    {
+                                        if (baseController.getEmpresaID() != 6)
+                                        {
+                                            <option value=""></option>
+                                            <option value="1">MN</option>
+                                        }
+
+                                        <option value="2">USD</option>
+
+                                        if (baseController.getEmpresaID() != 6)
+                                        {
+                                            <option value="3">Eur</option>
+                                        }
+
+                                        <option value="4">SOL</option>
+                                        <option value="5">COP</option>
+                                    }
+                                    break;
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5 elementoPeru'>
+                    <div class='form-group'>
+                        <label>T. Cambio:</label>
+                        <select id='selectTipoCompraVenta' class='form-control'>
+                            <option value="1">COM</option>
+                            <option value="4">VTA</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Tipo Cambio:</label>
+                        <input type='text' id='inputTipoCambio' class='form-control'>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Sub Total:</label>
+                        <input type='text' id='inputSubTotal' class='form-control' disabled>
+                    </div>
+                </div>
+                <div class='col-md-5 col-lg-5 mb5'>
+                    <div class='form-group'>
+                        <label>I.V.A.</label>
+                        <input type='text' id='inputIVAPorcentaje' class='form-control' style="text-align: right;">
+                    </div>
+                </div>
+                <div class='col-md-7 col-lg-7 mb5'>
+                    <div class='form-group'>
+                        <label style="min-width: 20px;">% =</label>
+                        <input type='text' id='inputIVANumero' class='form-control'>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Retención:</label>
+                        <input type='text' id='inputRetencion' class='form-control' disabled>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Total:</label>
+                        <input type='text' id='inputTotal' class='form-control' disabled>
+                    </div>
+                </div>
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>Total Final:</label>
+                        <input type='text' id='inputTotalFinal' class='form-control' disabled>
+                    </div>
+                </div>
+                <!-- <div class='col-md-12 col-lg-12 mrgBottom'>
+        <div class='input-group'>
+            <span class='input-group-addon'>Folio Origen:</span>
+            <input type='text' id='inputFolioOrigen' class='form-control' disabled>
+        </div>
+    </div> -->
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <div class='form-group'>
+                        <label>CFDI:</label>
+                        <input type='text' id='inputCFDI' class='form-control' value="G03 (Gastos en general)">
+                    </div>
+                </div>
+
+                <div class='col-md-5 col-lg-5 mb5'>
+                    <div class='form-group'>
+                        <label>Días</label>
+                        <input id='inputTiempoEntregaDias' type='number' class='form-control'>
+                    </div>
+                </div>
+                <div class='col-md-7 col-lg-7 mb5'>
+                    <div class='form-group'>
+                        <label>Comentarios</label>
+                        <input id='inputTiempoEntregaComentarios' type='text' class='form-control'>
+                    </div>
+                </div>
+
+                <div class='col-md-12 col-lg-12 mb5'>
+                    <button id="btnRetenciones" class="btn btn-sm btn-default" style="font-size: 11px;">Retenciones</button>
+                    <button id="btnVerCuadro" class="btn btn-sm btn-success" style="display: none; font-size: 11px;">
+                        <i class="fa fa-eye"></i> Cuadro Comparativo
+                    </button>
+                    <button id="btnNoTieneCuadro" class="btn btn-sm btn-danger" style="display: none; cursor: default; opacity: 1; font-size: 11px;" disabled>
+                        <i class="fa fa-times"></i> Cuadro Comparativo
+                    </button>
+                    <button id="btnImprimir" class="btn btn-sm btn-warning" style="font-size: 11px;" disabled>
+                        <i class="fa fa-file"></i> Imprimir
+                    </button>
+                    <button id="btnOpenEnviar" class="btn btn-sm btn-warning" style="font-size: 11px;" disabled>
+                        <i class="fa fa-send"></i> Enviar
+                    </button>
+                    <button id="btnCancelarCompra" class="btn btn-sm btn-danger" style="font-size: 11px;" disabled>
+                        <span class="fa fa-times"></span> Cancelar Compra
+                    </button>
+                    <button id="btnGuardarNuevaCompra" class="btn btn-sm btn-primary pull-right" style="font-size: 11px;">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                    </button>
+                </div>
+                <div class="col-md-12 col-lg-12 mb5">
+                    <div style="display: inline-block; margin-right: 10px;">
+                        <input type="checkbox" id="checkboxConsigna" class="regular-checkbox" />
+                        <label for="checkboxConsigna"></label>
+                        <label style="font-size: 14px;">Consigna</label>
+                    </div>
+                    <div style="display: inline-block; margin-right: 10px;">
+                        <input type="checkbox" id="checkboxLicitacion" class="regular-checkbox" />
+                        <label for="checkboxLicitacion"></label>
+                        <label style="font-size: 14px;">Licitación</label>
+                    </div>
+                    <div style="display: none; margin-right: 10px;">
+                        <input type="checkbox" id="checkboxTMC" class="regular-checkbox" />
+                        <label for="checkboxTMC"></label>
+                        <label style="font-size: 14px;">TMC</label>
+                    </div>
+                    <div style="display: inline-block; margin-right: 10px;">
+                        <input type="checkbox" id="checkboxCRC" class="regular-checkbox" />
+                        <label for="checkboxCRC"></label>
+                        <label style="font-size: 14px;">CRC</label>
+                    </div>
+                    <div style="display: inline-block; margin-right: 10px;">
+                        <input type="checkbox" id="checkboxConvenio" class="regular-checkbox" />
+                        <label for="checkboxConvenio"></label>
+                        <label style="font-size: 14px;">Convenio</label>
+                    </div>
+                    <div style="display: inline-block;">
+                        <input type="checkbox" id="checkboxAnticipo" class="regular-checkbox" />
+                        <label for="checkboxAnticipo"></label>
+                        <label id="labelAnticipo" style="font-size: 14px;">Anticipo</label>
+                        <input id="inputTotalAnticipo" class="form-control" style="display: none; width: 60%; height: 22px; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-12">
+                    <fieldset id="fieldsetEstatusCompra" class="fieldset-custm" style="border-radius: 0px !important; display: none; text-align: center;">
+                        <label id="labelEstatusCompra" style="font-size: 24px;"></label>
+                    </fieldset>
+                </div>
+
+                <div class="col-md-12 col-lg-12">
+                    <fieldset id="fieldsetPresupuesto" class="fieldset-custm" style="border: none !important; display: none; text-align: left; padding-left: 0px;">
+                        <label id="labelPresupuestoGlobal" style="display: block; font-size: 14px;"></label>
+                        <label id="labelPresupuestoActual" style="display: block; font-size: 14px;"></label>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input id='inputCompradorSesionNum' type='text' class='form-control' style="display: none;" />
+<input id='inputCompradorSesionNom' type='text' class='form-control' style="display: none;" />
+
+@*<fieldset class='fieldset-custm noPadLeft noPadRight mrgBottom' style="border-radius: 0px !important;">
     <legend class='legend-custm'></legend>
     <input id='inputCompradorSesionNum' type='text' class='form-control' style="display: none;" />
     <input id='inputCompradorSesionNom' type='text' class='form-control' style="display: none;" />
@@ -426,9 +839,31 @@
             </fieldset>
         </div>
     </div>
-</fieldset>
+</fieldset>*@
 
-<fieldset id="fieldTablaPartidas" class='fieldset-custm noPadLeft noPadRight' style="border-radius: 0px !important;">
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">Partidas</h3>
+    </div>
+</div>
+
+<div class="contenedor" id="fieldTablaPartidas">
+    <div class="row">
+        <div id="divTablaPartidas" class="container col-lg-12 mb5">
+            <button id="btnAgregarInsumo" type="button" class="btn btn-primary marginBottom5" style="display: none;"><i class="fa fa-plus"></i></button>
+            <button id="btnQuitarInsumo" type="button" class="btn btn-danger marginBottom5" style="display: none;"><i class="fa fa-minus"></i></button>
+            <table id="tblPartidas" style="width: 100%;"></table>
+        </div>
+
+        <div id="divTablaPartidasEditar" class="container col-lg-12 mb5" style="display: none;">
+            <button id="btnAgregarInsumoEditar" type="button" class="btn btn-primary marginBottom5" style="display: none;"><i class="fa fa-plus"></i></button>
+            <button id="btnQuitarInsumoEditar" type="button" class="btn btn-danger marginBottom5" style="display: none;"><i class="fa fa-minus"></i></button>
+            <table id="tblPartidasEditar" style="width: 100%;"></table>
+        </div>
+    </div>
+</div>
+
+@*<fieldset id="fieldTablaPartidas" class='fieldset-custm noPadLeft noPadRight' style="border-radius: 0px !important;">
     <div id="divTablaPartidas" class="container col-lg-12 mrgTop">
         <button id="btnAgregarInsumo" type="button" class="btn btn-primary marginBottom5" style="display: none;"><i class="fa fa-plus"></i></button>
         <button id="btnQuitarInsumo" type="button" class="btn btn-danger marginBottom5" style="display: none;"><i class="fa fa-minus"></i></button>
@@ -440,14 +875,28 @@
         <button id="btnQuitarInsumoEditar" type="button" class="btn btn-danger marginBottom5" style="display: none;"><i class="fa fa-minus"></i></button>
         <table id="tblPartidasEditar" style="width: 100%;"></table>
     </div>
-</fieldset>
+</fieldset>*@
 
-<fieldset id="fieldDescripcionPartida" class="fieldset-custm noPadLeft noPadRight" style="border-radius: 0px !important; margin-bottom: 100px;">
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">Descripciónde la Partida</h3>
+    </div>
+</div>
+
+<div class="contenedor" id="fieldDescripcionPartida">
+    <div class="row">
+        <div class="col-sm-12">
+            <textarea id="textAreaDescPartida" class="form-control" rows="4" style="border-radius: 0px;"></textarea>
+        </div>
+    </div>
+</div>
+
+@*<fieldset id="fieldDescripcionPartida" class="fieldset-custm noPadLeft noPadRight" style="border-radius: 0px !important; margin-bottom: 100px;">
     <legend class="legend-custm">Descripción de la Partida</legend>
     <div class="container col-lg-12">
         <textarea id="textAreaDescPartida" class="form-control" rows="4" style="border-radius: 0px;"></textarea>
     </div>
-</fieldset>
+</fieldset>*@
 
 <div class="modal fade" id="mdlCuadroComparativo" role="dialog">
     <div class="modal-dialog modal-md" role="document" style="width: 90%;">

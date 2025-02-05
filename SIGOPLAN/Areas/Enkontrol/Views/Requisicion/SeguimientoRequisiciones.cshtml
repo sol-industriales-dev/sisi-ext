@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Seguimiento";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
     var controller = new SIGOPLAN.Areas.Enkontrol.Controllers.Compras.RequisicionController();
     var esAdministrador = controller.esAdministrador();
     var permisoAuditoriaEliminarReqOC = controller.permisoAuditoriaEliminarReqOC();
@@ -19,7 +19,7 @@
 
 
 <style>
-    .noPadLeft {
+    /*.noPadLeft {
         padding-left: 0px;
     }
 
@@ -41,7 +41,7 @@
     #tablaSurtido {
         font-size: 10px;
         padding: 4px 5px;
-    }
+    }*/
 
     .requisicionNoAutorizada,
     .compraNoAutorizada {
@@ -53,7 +53,7 @@
         color: white;
     }
 
-    .mrgTop {
+    /*.mrgTop {
         margin-top: 5px;
     }
 
@@ -86,12 +86,44 @@
     .modal-bg {
         background-color: #007bff !important;
         color: white;
-    }
+    }*/
 </style>
 
-<h2 class="text-center">Seguimiento Requisiciones</h2>
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Seguimiento Requisiciones</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <center>
+            <ul>
+                <li style='display: table-cell;padding-left:10px !important;'>
+                    <div class="input-group" title="Estatus" style="height:27px;">
+                        <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Autorizacion</span>
+                        <span class="input-group-addon" style="background-color:red;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">No Autorizada</span>
+                    </div>
+                </li>
+                <li style='display: table-cell;padding-left:10px !important;'>
+                    <div class="input-group" title="Estatus" style="height:27px;">
+                        <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Compra</span>
+                        <span class="input-group-addon" style="background-color:red;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">No Autorizada</span>
+                    </div>
+                </li>
+                <li style='display: table-cell;padding-left:10px !important;'>
+                    <div class="input-group" title="Estatus" style="height:27px;">
+                        <span class="form-control" style="padding-right:3px;border:1px solid black;height:27px;font-weight:bold;font-size:10px;">Fecha Entrada</span>
+                        <span class="input-group-addon" style="background-color:blue;color:white ;border: 1px solid black;width:43px;min-width:43px; height:27px;">Fuera de tiempo estimado</span>
+                    </div>
+                </li>
+            </ul>
+        </center>
+    </div>
+</div>
+@*<h2 class="text-center">Seguimiento Requisiciones</h2>*@
 <input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
-<center>
+@*<center>
     <ul>
         <li style='display: table-cell;padding-left:10px !important;'>
             <div class="input-group" title="Estatus" style="height:27px;">
@@ -112,8 +144,86 @@
             </div>
         </li>
     </ul>
-</center>
-<fieldset class="fieldset-custm">
+</center>*@
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Filtros</h3>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div class="row">
+        <div class="col-md-12 col-lg-12 mb5">
+            <label for="multiSelectCC">Centro Costos&nbsp;<input type="checkbox" id="checkboxTodosCC"></label>
+            <select id="multiSelectCC" class="form-control select2" multiple="multiple"></select>
+        </div>
+
+        <div class="col-md-3 col-lg-3 mb5" id="divInsumo">
+            <div class="form-group">
+                <label for="multiSelectTipoInsumo">Tipo Insumo</label>
+                <select id="multiSelectTipoInsumo" class="form-control" multiple="multiple"></select>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-3 mb5">
+            <div class="form-group">
+                <label>Filtro Compras:</label>
+                <select id="comboFiltroCompra" class="form-control">
+                    <option value="0">Todas</option>
+                    <option value="1">Compradas</option>
+                    <option value="2">No Compradas</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-3 mb5" style="display: none;">
+            <div class="form-group">
+                <label>Comprador Sugerido:</label>
+                <select id="selectComprador" class="form-control"></select>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-3 mb5" style="display: none;">
+            <div class="form-group">
+                <label>Requisitores</label>
+                <select id="selRequisitores" class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="col-md-2 col-lg-3 mb5">
+            <div class="form-group">
+                <label>Fecha Inicial</label>
+                <input id='inputFechaInicial' class='form-control'>
+            </div>
+        </div>
+
+        <div class="col-md-2 col-lg-3 mb5">
+            <div class="form-group">
+                <label>Fecha Final</label>
+                <input id='inputFechaFinal' class='form-control'>
+            </div>
+        </div>
+
+        <div class="col-md-2 col-lg-3 mb5" id="divConsigna">
+            <div class="form-group">
+                <label>Consigna</label>
+                <select id="selectConsigna" class="form-control">
+                    <option value="0">--Todas--</option>
+                    <option value="1">CONSIGNA</option>
+                    <option value="2">NO CONSIGNA</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-lg-3 mb5 mt20">
+            <button id="btnBuscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+            <button id="btnImprimir" class="btn btn-primary"><i class="fa fa-print"></i> Imprimir</button>
+            @if (esAdministrador || permisoAuditoriaEliminarReqOC)
+            {
+                <button id="botonAuditoria" style="display: none;" class="btn btn-default"><i class="fa fa-tasks"></i> Auditoria</button>
+            }
+        </div>
+    </div>
+</div>
+@*<fieldset class="fieldset-custm">
     <legend class="legend-custm">Filtros</legend>
     <div class="col-md-12 col-lg-12 noPadLeft">
         <label for="multiSelectCC">Centro Costos&nbsp;<input type="checkbox" id="checkboxTodosCC"></label>
@@ -182,15 +292,29 @@
             <button id="botonAuditoria" style="display: none;" class="btn btn-default"><i class="fa fa-tasks"></i> Auditoria</button>
         }
     </div>
-</fieldset>
+</fieldset>*@
 
-<fieldset class="fieldset-custm">
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">Requisiciones</h3>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tblRequisiciones" class="table compact marginBottom5" width="100%"></table>
+        </div>
+    </div>
+</div>
+
+@*<fieldset class="fieldset-custm">
     <legend class="legend-custm">Requisiciones</legend>
 
     <div class="col-md-12 col-lg-12 noPadLeft noPadRight">
         <table id="tblRequisiciones" class="table compact marginBottom5" width="100%"></table>
     </div>
-</fieldset>
+</fieldset>*@
 
 <div class="modal fade" id="modalAuditoria" ro le="dialog">
     <div class="modal-dialog modal-lg" role="document" style="width: 95%;">

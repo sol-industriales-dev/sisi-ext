@@ -1,8 +1,8 @@
 ﻿@{
-ViewBag.Title = "Autorizacion";
-Layout = "~/Views/Shared/LayoutPage.cshtml";
+    ViewBag.Title = "Autorización";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
-var baseController = new SIGOPLAN.Controllers.BaseController();
+    var baseController = new SIGOPLAN.Controllers.BaseController();
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
@@ -10,36 +10,42 @@ var baseController = new SIGOPLAN.Controllers.BaseController();
 <link href="~/Content/style/css/Enkontrol/Compras/Requisicion/Autorizante.css" rel="stylesheet" />
 <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
 
-<style>
-    .select2-selection__rendered {
-        max-height: 82px;
-        overflow-y: auto !important;
-    }
-
-    #tblAuth {
-        font-size: 12px;
-    }
-
-    #tblAuth th,
-    #tblAuth td {
-        border: 1px solid #ddd;
-    }
-    table thead {
-        background-color: #007bff !important;
-        color: white;
-    }
-
-    .modal-bg {
-        background-color: #007bff !important;
-        color: white;
-    }
-</style>
-
 <input id="inputEmpresaActual" class="hide" value=@baseController.getEmpresaID()>
 <input id="inputUsuario" class="form-control" style="display: none;"> <!-- Se agrega este elemento para el script de la vista "Solicitar" -->
 <input id="inputUso" class="form-control" style="display: none;"> <!-- Se agrega este elemento para el script de la vista "Solicitar" -->
 
-<h2 class="text-center">Control de Autorizaciones</h2>
+<div class="row">
+    <div clas="col-xs-12 col-sm-6">
+        <h3 class="mb5">Constrol de Aturizaciones</h3>
+    </div>
+</div>
+
+<div class="contenedor mb5">
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 mb5 mt20">
+            <div class="btn-group radioBtn" role="group" aria-label="...">
+                <a class="btn btn-success active" data-toggle="radAuth" data-title="false">Autorizar</a>
+                <a class="btn btn-danger notActive" data-toggle="radAuth" data-title="true">Desautorizar</a>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12 mb5">
+            <div class="form-group">
+                <label for="selCC">Centro Costo</label>
+                <select id="selCC" class="form-control" style="display: none;"></select>
+                <select id='selCCMulti' class='form-control select2' multiple="multiple"></select>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 mb5 mt20">
+            <button id="btnAutorizar" type="button" class="btn btn-primary disabled">
+                <i class="fas fa-save"></i> Autorizar
+            </button>
+        </div>
+    </div>
+</div>
+
+@*<h2 class="text-center">Control de Autorizaciones</h2>
 <fieldset class='fieldset-custm'>
     <legend class='legend-custm'>Filtros</legend>
     <div class='col-md-10 col-lg-10 noPadLeft' style="display: inline-flex;">
@@ -58,17 +64,35 @@ var baseController = new SIGOPLAN.Controllers.BaseController();
             <i class="fas fa-save"></i> Autorizar
         </button>
     </div>
-</fieldset>
-<fieldset class='fieldset-custm'>
+</fieldset>*@
+@*<fieldset class='fieldset-custm'>
     <legend class='legend-custm'>Requisiciones</legend>
     <div class='table-responsive'>
         <table id='tblAuth' class='table compact' width='100%'>
-            <thead class='advice bg-table-header'>
+            <thead class='advice bg-table-header'></thead>
             <tbody></tbody>
-            </thead>
         </table>
     </div>
-</fieldset>
+</fieldset>*@
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Requisiciones pendientes</h3>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class='table-responsive'>
+                <table id='tblAuth' class='table compact' width='100%'>
+                    <thead class='advice bg-table-header'></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="mdlDetalleReq" role="dialog">
     <div class="modal-dialog modal-md" role="document" style="width: 95%;">

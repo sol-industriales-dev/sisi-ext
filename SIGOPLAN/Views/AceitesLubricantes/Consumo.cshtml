@@ -1,6 +1,6 @@
 ﻿@{
 ViewBag.Title = "Consumo";
-Layout = "~/Views/Shared/LayoutPage.cshtml";
+Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 }
 <link href="~/Content/style/css/Captura/AceitesLubricantes.css" rel="stylesheet" />
 <link href="~/Content/style/css/Style-Reportes.css" rel="stylesheet" />
@@ -8,168 +8,93 @@ Layout = "~/Views/Shared/LayoutPage.cshtml";
 <link href="~/Content/style/css/Captura/TEST.css" rel="stylesheet" />
 <link href="~/Content/style/datatables/jquery.dataTables.css" rel="stylesheet" />
 <link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
-<style>
-    /*TABLAS*/
-    table.dataTable {
-        width: 100% !important;
-    }
 
-    table.dataTable tbody tr td,
-    table thead tr th,
-    table.dataTable,
-    .dataTables_scrollBody {
-        border: 0px solid #ffffff !important;
-    }
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Consumo de Aceites y Lubricantes</h3>
+    </div>
+</div>
 
-    table.dataTable thead {
-        font-size: 15px;
-        background-color: #3556ae;
-        color: white;
-    }
-
-    /*MODALES*/
-    .modal-xl {
-        width: 80%;
-    }
-
-    .modal-header {
-        color: white;
-        background: linear-gradient(40deg, #45cafc, #303f9f);
-        border: none;
-
-    }
-
-    .modal-header .titleHeader {
-        font-size: x-large;
-        font-weight: bold;
-
-    }
-
-    .modal-header .modal-title {
-        font-weight: bold;
-
-    }
-
-    .modal-header .modal-subtitle {
-        margin-top: 0px;
-        margin-bottom: 0px;
-
-    }
-
-    .responsiveDT {
-        padding-right: 10px;
-        border: 1px solid #3F4;
-        display: inline-block;
-    }
-
-    .thead tr th {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        font-size: 15px;
-        background-color: #3556ae;
-        color: white;
-
-    }
-
-    .table-responsive {
-        height: 200px;
-        overflow: scroll;
-    }
-</style>
-
-<div class="container-fluid">
+<div class="contenedor">
     <div class="row">
-        <h2 class="text-center" style="margin-top: 0px;">
-            Consumo de Aceites y Lubricantes
-        </h2>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
+            <label>AC:</label>
+            <select class="form-control" id="cboBusqCC"></select>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
+            <label>Fecha:</label>
+            <input type="text" id="dpBusqFecha" class="form-control" />
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
+            <label>Turno:</label>
+            <select class="form-control" id="cboBusqTurno">
+                <option value="1">Turno 1</option>
+                <option value="2">Turno 2 </option>
+                <option value="3">Turno 3 </option>
+                <option value="4">Turno 4 </option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
+            <label>Tipo Equipo:</label><br />
+            <select id="cboBusqTipo" class="form-control"></select>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
+            <label>Orquesta:</label><br />
+            <select id="cboBusqOrquesta" class="form-control"></select>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-4 col-lg-3">
+            <button type="button" class="btn btn-primary margin-top" id="btnGaurdar">
+                <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+            </button>
+            <button type="button" class="btn btn-primary margin-top" title="Existencia" id="btnExistencia">
+                <span class="glyphicon glyphicon-list">&nbsp;Existencias</span>
+            </button>
+        </div>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-12">
-        <fieldset class="fieldset-custm">
-            <legend class="legend-custm">Datos generales:</legend>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
-                <label>AC:</label>
-                <select class="form-control" id="cboBusqCC"></select>
-            </div>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
-                <label>Fecha:</label>
-                <input type="text" id="dpBusqFecha" class="form-control" />
-            </div>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
-                <label>Turno:</label>
-                <select class="form-control" id="cboBusqTurno">
-                    <option value="1">Turno 1</option>
-                    <option value="2">Turno 2 </option>
-                    <option value="3">Turno 3 </option>
-                    <option value="4">Turno 4 </option>
-                </select>
-            </div>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
-                <label>Tipo Equipo:</label><br />
-                <select id="cboBusqTipo" class="form-control"></select>
-            </div>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-2">
-                <label>Orquesta:</label><br />
-                <select id="cboBusqOrquesta" class="form-control">
-                </select>
-            </div>
-            <div class="col-xs-12 col-sm-2 col-md-4 col-lg-3">
-                <button type="button" class="btn btn-primary margin-top" id="btnGaurdar">
-                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
-                </button>
-                <button type="button" class="btn btn-primary margin-top" title="Existencia" id="btnExistencia">
-                    <span class="glyphicon glyphicon-list">&nbsp;Existencias</span>
-                </button>
-                @*<button type="button" class="btn btn-primary margin-top hidden" id="btnImprimir">
-                    <span class="glyphicon glyphicon-print"></span> Imprimir
-                </button>*@
-            </div>
-        </fieldset>
-    </div>
+</div>
 
-    <div class="modal fade" id="mdlExistenciaDetalle" role="dialog">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header modal-md">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <div class="text-center">
-                        <h3><label> Existencias </label></h3>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <table id="tblExistencias" class="hover stripe order-column"></table>
-                </div>
-                <div class="modal-footer">
-                </div>
+<div class="contenedor mt10">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divTblConsumo">
+            <div class="table-responsive" style="overflow: auto;height: 363px;">
+                <table id="tblConsumo" class="table table-condensed table-hover table-striped margin-top table-fixed;">
+                    <thead class="thead">
+                        <tr>
+                            <th class="header" scope="col" data-column-id="ECONOMICO" data-formatter="ECONOMICO" rowspan="2" style="width: 120px;">ECONOMICO</th>
+                            <th class="header" scope="col" data-column-id="CONSUMO" data-formatter="CONSUMO" rowspan="2">ORQUESTA</th>
+                            <th class="header" scope="col" data-column-id="ANTIFREEZE" data-formatter="ANTIFREEZE" rowspan="2">ANTIFREEZE</th>
+                            <th class="header" scope="col" data-column-id="MOTOR" data-formatter="MOTOR" rowspan="2">MOTOR</th>
+                            <th class="header" scope="col" data-column-id="TRANSMISION" data-formatter="TRANSMISION" rowspan="2">Trans/caja de engranaje</th>
+                            <th class="header" scope="col" data-column-id="HIDRAULICO" data-formatter="HIDRAULICO" rowspan="2">HCO</th>
+                            <th class="header" scope="col" data-column-id="DIFERENCIAL" data-formatter="DIFERENCIAL" rowspan="2">DIF</th>
+                            <th class="header" scope="col" data-column-id="MFT" data-formatter="MFT">MF / tandems</th>
+                            <th class="header" scope="col" data-column-id="DIR" data-formatter="DIR" rowspan="2">DIR</th>
+                            <th class="header" scope="col" data-column-id="GRASA" data-formatter="GRASA" rowspan="2">GRASA</th>
+                            <th class="header" scope="col" data-column-id="OTROS1" data-formatter="OTROS1" rowspan="2">OTROS</th>
+                            <th class="header" scope="col" data-column-id="OTROS2" data-formatter="OTROS2" rowspan="2">OTROS</th>
+                            <th class="header" scope="col" data-column-id="OTROS3" data-formatter="OTROS3" rowspan="2">OTROS</th>
+                            <th class="header" scope="col" data-column-id="OTROS4" data-formatter="OTROS4" rowspan="2">OTROS</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row margin-top">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divTblConsumo">
-                <div class="table-responsive" style="overflow: auto;height: 363px;">
-                    <table id="tblConsumo" class="table table-condensed table-hover table-striped margin-top table-fixed;">
-                        <thead class="thead">
-                            <tr>
-                                <th class="header" scope="col" data-column-id="ECONOMICO" data-formatter="ECONOMICO" rowspan="2" style="width: 120px;">ECONOMICO</th>
-                                <th class="header" scope="col" data-column-id="CONSUMO" data-formatter="CONSUMO" rowspan="2">ORQUESTA</th>
-                                <th class="header" scope="col" data-column-id="ANTIFREEZE" data-formatter="ANTIFREEZE" rowspan="2">ANTIFREEZE</th>
-                                <th class="header" scope="col" data-column-id="MOTOR" data-formatter="MOTOR" rowspan="2">MOTOR</th>
-                                <th class="header" scope="col" data-column-id="TRANSMISION" data-formatter="TRANSMISION" rowspan="2">Trans/caja de engranaje</th>
-                                <th class="header" scope="col" data-column-id="HIDRAULICO" data-formatter="HIDRAULICO" rowspan="2">HCO</th>
-                                <th class="header" scope="col" data-column-id="DIFERENCIAL" data-formatter="DIFERENCIAL" rowspan="2">DIF</th>
-                                <th class="header" scope="col" data-column-id="MFT" data-formatter="MFT">MF / tandems</th>
-                                <th class="header" scope="col" data-column-id="DIR" data-formatter="DIR" rowspan="2">DIR</th>
-                                <th class="header" scope="col" data-column-id="GRASA" data-formatter="GRASA" rowspan="2">GRASA</th>
-                                <th class="header" scope="col" data-column-id="OTROS1" data-formatter="OTROS1" rowspan="2">OTROS</th>
-                                <th class="header" scope="col" data-column-id="OTROS2" data-formatter="OTROS2" rowspan="2">OTROS</th>
-                                <th class="header" scope="col" data-column-id="OTROS3" data-formatter="OTROS3" rowspan="2">OTROS</th>
-                                <th class="header" scope="col" data-column-id="OTROS4" data-formatter="OTROS4" rowspan="2">OTROS</th>
-                            </tr>
-                        </thead>
-                    </table>
+<div class="modal fade" id="mdlExistenciaDetalle" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-md">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="text-center">
+                    <h3><label> Existencias </label></h3>
                 </div>
+            </div>
+            <div class="modal-body">
+                <table id="tblExistencias" class="hover stripe order-column"></table>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>

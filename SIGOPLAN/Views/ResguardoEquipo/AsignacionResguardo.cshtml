@@ -1,6 +1,6 @@
 ﻿@{
 ViewBag.Title = "AsignacionResguardo";
-Layout = "~/Views/Shared/LayoutPage.cshtml";
+Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
 <link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
 <link href="~/Content/style/datatables/dataTables.jqueryui.css" rel="stylesheet" />
@@ -48,322 +48,317 @@ Layout = "~/Views/Shared/LayoutPage.cshtml";
         cursor: pointer;
     }
 </style>
-<div class="container-fluid">
-    <div class="row">
-        <h2 class="text-center">Asignación de resguardo de vehículo de servicio</h2>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">Asignación de resguardo de vehículo de servicio</h3>
     </div>
-    <ul class="nav nav-tabs">
-        <li class="active"><a id="tabTitle1" data-toggle="tab" href="#ListaResguardos">Lista Resguardos</a></li>
-        <li><a id="tabTitle2" data-toggle="tab" href="#nuevoResguardo">Formulario Asignación</a></li>
-        <li style="display: none;"><a id="tabTitle3" data-toggle="tab" href="#sinResguardo">Equipos sin Resguardo</a></li>
-    </ul>
-    <div class="tab-content">
+</div>
 
-        <div id="ListaResguardos" class="tab-pane fade in active">
-            <div class="row">
+<div class="contenedor">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="container-fluid">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a id="tabTitle1" data-toggle="tab" href="#ListaResguardos">Lista Resguardos</a></li>
+                    <li><a id="tabTitle2" data-toggle="tab" href="#nuevoResguardo">Formulario Asignación</a></li>
+                    <li style="display: none;"><a id="tabTitle3" data-toggle="tab" href="#sinResguardo">Equipos sin Resguardo</a></li>
+                </ul>
+                <div class="tab-content">
 
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <fieldset class="fieldset-custm">
-                        <legend class="legend-custm">Filtros:</legend>
-                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
-                            <label>CC</label>
-                            <select class="form-control" id="txtCentroCostos"></select>
-                        </div>
-                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
-                            <label>Tipo Resguardo</label>
-                            <select class="form-control" id="cboTipoResguardo">
-                                <option value="1">Pendientes Autorización</option>
-                                <option value="2">Asignados Autorizados</option>
-                                <option value="3">Liberados</option>
-                                <option value="4">Sin Resguardo</option>
-                            </select>
-                        </div>
-                    </fieldset>
-                </div>
+                    <div id="ListaResguardos" class="tab-pane fade in active">
+                        <div class="row">
 
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
-                    <fieldset class="fieldset-custm">
-                        <div id="divTabla1">
-                            <table id="tblListaAsignados" class="table table-condensed table-hover table-striped text-center">
-                                <thead class="bg-table-header">
-                                    <tr>
-                                        <th data-column-id="Economico" data-width="25%">No Economico</th>
-                                        <th data-column-id="CCName" data-width="25%">Obra</th>
-                                        <th data-column-id="fechaCaptura" data-width="25%">Fecha&lt;br&gt;Captura</th>
-                                        <th data-column-id="UsuarioSolicitud" data-formatter="UsuarioSolicitud" data-width="25%">Usuario Resguardo</th>
-                                        <th data-column-id="Grupo" data-width="25%">Descripción&lt;br&gt;Equipo</th>
-                                        <th data-column-id="Vencimiento" data-width="25%" data-searchable="false" 0>Días&lt;br&gt;Licencia</th>
-                                        <th data-column-id="ImprimirResguardo" data-formatter="imprimirResguardo" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Resguardo</th>
-                                        <th data-column-id="ImprimirChecklist" data-formatter="imprimirChecklist" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;CheckList</th>
-                                        <th data-column-id="ImprimirEvidencia" data-formatter="ImprimirEvidencia" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Evidencia</th>
-                                        <th data-column-id="Editresguardo" data-formatter="Editresguardo" data-sortable="false" data-width="25px" data-searchable="false">Liberar&lt;br&gt;Resguardo</th>
-                                        <th data-column-id="ModificarLicencia" data-formatter="ModificarLicencia" data-sortable="false" data-width="25px" data-searchable="false">Actualizar&lt;br&gt;Licencia / Póliza</th>
-                                        <th data-column-id="SubirArchivo" data-formatter="SubirArchivo" data-sortable="false" data-width="25px" data-searchable="false">Subir&lt;br&gt;Resguardo</th>
-                                        <th data-column-id="ResguardoCargado" data-formatter="ResguardoCargado" data-sortable="false" data-width="25px" data-searchable="false">Resguardo&lt;br&gt;cargado</th>
-                                        @*<th data-column-id="documentos" data-formatter="documentos" data-sortable="false" data-width="25px" data-searchable="false">Documentos</th>*@
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-
-                        <div id="divTabla2" style="display: none;">
-                            <table id="tblSinReguardo" class='table table-fixed' width="100%">
-                                <thead class='bg-table-header'>
-                                </thead>
-                            </table>
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
-        </div>
-        <div class="tab-pane fade" id="nuevoResguardo">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Formulario :</legend>
-
-                <div class="panel-group" id="Acordeon1">
-                    <div class="panel panel-default pnl">
-                        <div class="panel-heading colorTitle">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" class="apnl apnl1" data-parent="#Acordeon1" href="#collapse1">Datos del Empleado</a>
-                            </h4>
-                        </div>
-                        <div id="collapse1" class="panel-collapse collapse in">
-                            <div class="panel-body">
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Tipo de Resguardo:</label>
-                                    <select class="form-control" id="cboTipoAsignacion">
-                                        <option value="1">Asignación</option>
-                                        <option value="2">Liberación</option>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>CC</label>
+                                    <select class="form-control" id="txtCentroCostos"></select>
+                                </div>
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <label>Tipo Resguardo</label>
+                                    <select class="form-control" id="cboTipoResguardo">
+                                        <option value="1">Pendientes Autorización</option>
+                                        <option value="2">Asignados Autorizados</option>
+                                        <option value="3">Liberados</option>
+                                        <option value="4">Sin Resguardo</option>
                                     </select>
                                 </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>*Nombre:</label>
-                                    <input type="text" class="form-control" id="tbNombreEmpleado" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Puesto:</label>
-                                    <input type="text" class="form-control" id="tbPuestoEmpleado" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Obra:</label>
-                                    <input type="text" class="form-control" id="tbCentroCostosEmpleado" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>*Economico:</label>
-                                    <select class="form-control" id="cboEconomico"></select>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Descripción:</label>
-                                    <input class="form-control" id="tbDescripcionEconomico" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Marca:</label>
-                                    <input class="form-control" id="tbMarcaEconomico" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>Modelo:</label>
-                                    <input class="form-control" id="tbModeloEconomico" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>*Kilometraje:</label>
-                                    <input class="form-control" id="tbKilometraje" type="number" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>No Serie:</label>
-                                    <input class="form-control" id="tbNoSerie" disabled />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-                                    <label>No Placas:</label>
-                                    <input class="form-control" id="tbPlacas" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <div class="col-lg-10">
-                                        <label>Tipo de Encierro</label>
-                                        <div style="margin-left: 20px;">
-
-                                            <label class="radio-inline" style="display: table-row;">
-                                                <input type="radio" id="radioPrioridad3" value="1" name="radioInline1">A (Libre)
-                                            </label>
-                                            <label class="radio-inline" style="display: table-row;">
-                                                <input type="radio" id="radioPrioridad2" value="2" name="radioInline1" checked="checked">B (Fin de semana)
-                                            </label>
-                                            <label class="radio-inline" style="display: table-row;">
-                                                <input type="radio" id="radioPrioridad1" value="3" name="radioInline1">C (Diario)
-                                            </label>
-                                        </div>
-                                        <div>
-                                            <input class="form-control-feedback margin-top" id="tbEncierro" style="margin-top: 40px;font-weight: bold;font-size: x-large;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-default pnl">
-                        <div class="panel-heading colorTitle ">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse2">Datos del Empleado y Vehículo</a>
-                            </h4>
-                        </div>
-                        <div id="collapse2" class="panel-collapse collapse">
-                            <div class="panel-body" id="divNuevo">
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>*Vencimiento Licencia:</label>
-                                    <input type="text" class="form-control" id="VencimientoLicencia" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>* Vencimiento Póliza:</label>
-                                    <input type="text" class="form-control" id="VencimientoPoliza" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>* Licencia Conducir:</label>
-                                    <input type="file" class="form-control" id="fLicenciaConducir" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>* Tarjeta Circulación:<span id="spCirculacion"></span></label>
-                                    <input type="file" class="form-control" id="fTarjetaCirculacion" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>* Póliza de Seguro:<span id="spPoliza"></span></label>
-                                    <input type="file" class="form-control" id="fPolizaSeguro" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>Checklist Asignación :</label>
-                                    <input type="file" class="form-control" id="fcheckAsignacion" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>Formato Mantenimientos Preventivos:</label>
-                                    <input type="file" class="form-control" id="fFormatoMMtoPreventivo" />
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>Permiso de Carga:<span id="spCarga"></span></label>
-                                    <input type="file" class="form-control" id="fPermisoCarga" />
-                                </div>
-                            </div>
-                            <div class="panel-body hide" id="divLiberacion">
-                                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
-                                    <label>Checklist Liberación :</label>
-                                    <input type="file" class="form-control" id="fcheckLiberacion" />
-                                </div>
                             </div>
 
                         </div>
-                    </div>
-
-                    <div class="panel panel-default pnl">
-                        <div class="panel-heading colorTitle ">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse3">Check List Interior</a>
-                            </h4>
-                        </div>
-                        <div id="collapse3" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
-                                    <table class="display nowrap" id="tblCondicionesInterior" cellspacing="0" width="100%">
+                        <div class="row mt10">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                <div id="divTabla1">
+                                    <table id="tblListaAsignados" class="table table-condensed table-hover table-striped text-center">
                                         <thead class="bg-table-header">
                                             <tr>
-                                                <th rowspan="1">I. Interio:</th>
-                                                <th colspan="4" style="text-align: center;">Estado</th>
-                                                <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
+                                                <th data-column-id="Economico" data-width="25%">No Economico</th>
+                                                <th data-column-id="CCName" data-width="25%">Obra</th>
+                                                <th data-column-id="fechaCaptura" data-width="25%">Fecha&lt;br&gt;Captura</th>
+                                                <th data-column-id="UsuarioSolicitud" data-formatter="UsuarioSolicitud" data-width="25%">Usuario Resguardo</th>
+                                                <th data-column-id="Grupo" data-width="25%">Descripción&lt;br&gt;Equipo</th>
+                                                <th data-column-id="Vencimiento" data-width="25%" data-searchable="false" 0>Días&lt;br&gt;Licencia</th>
+                                                <th data-column-id="ImprimirResguardo" data-formatter="imprimirResguardo" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Resguardo</th>
+                                                <th data-column-id="ImprimirChecklist" data-formatter="imprimirChecklist" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;CheckList</th>
+                                                <th data-column-id="ImprimirEvidencia" data-formatter="ImprimirEvidencia" data-sortable="false" data-width="25px" data-searchable="false">Ver&lt;br&gt;Evidencia</th>
+                                                <th data-column-id="Editresguardo" data-formatter="Editresguardo" data-sortable="false" data-width="25px" data-searchable="false">Liberar&lt;br&gt;Resguardo</th>
+                                                <th data-column-id="ModificarLicencia" data-formatter="ModificarLicencia" data-sortable="false" data-width="25px" data-searchable="false">Actualizar&lt;br&gt;Licencia / Póliza</th>
+                                                <th data-column-id="SubirArchivo" data-formatter="SubirArchivo" data-sortable="false" data-width="25px" data-searchable="false">Subir&lt;br&gt;Resguardo</th>
+                                                <th data-column-id="ResguardoCargado" data-formatter="ResguardoCargado" data-sortable="false" data-width="25px" data-searchable="false">Resguardo&lt;br&gt;cargado</th>
+                                                @*<th data-column-id="documentos" data-formatter="documentos" data-sortable="false" data-width="25px" data-searchable="false">Documentos</th>*@
                                             </tr>
-                                            <tr>
-                                                <th style="text-align: center;">Concepto</th>
-                                                <th>Bueno</th>
-                                                <th>Regular</th>
-                                                <th>Malo</th>
-                                                <th>No Aplica</th>
-                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                                <div id="divTabla2" style="display: none;">
+                                    <table id="tblSinReguardo" class='table table-fixed' width="100%">
+                                        <thead class='bg-table-header'>
                                         </thead>
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="panel panel-default pnl">
-                        <div class="panel-heading colorTitle ">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse4">Check List Exterior</a>
-                            </h4>
-                        </div>
-                        <div id="collapse4" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
-                                    <table class="table table-bordered table-responsive table-striped tablaFix" id="tblCondicionesExterior">
-                                        <thead class="bg-table-header">
-                                            <tr>
-                                                <th rowspan="1">II. Exterio:</th>
-                                                <th colspan="4" style="text-align: center;">Estado</th>
-                                                <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
-                                            </tr>
-                                            <tr>
-                                                <th rowspan="1" style="text-align: center;">Concepto</th>
-                                                <th rowspan="1">Bueno</th>
-                                                <th rowspan="1">Regular</th>
-                                                <th rowspan="1">Malo</th>
-                                                <th rowspan="1">No Aplica</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
+                    <div class="tab-pane fade" id="nuevoResguardo">
+                        <div class="panel-group" id="Acordeon1">
+                            <div class="panel panel-default pnl">
+                                <div class="panel-heading colorTitle">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" class="apnl apnl1" data-parent="#Acordeon1" href="#collapse1">Datos del Empleado</a>
+                                    </h4>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel panel-default pnl">
-                        <div class="panel-heading colorTitle ">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse">Observaciones.</a>
-                            </h4>
-                        </div>
-                        <div id="collapse" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
-                                    <div class="col-lg-3" style="padding: 0;margin-bottom: 4px;">
-                                        <input class="disabled form-control" value="IV. Observaciones:" style="background: #81bd72 !important;color: white;cursor: auto;" disabled="">
+                                <div id="collapse1" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Tipo de Resguardo:</label>
+                                            <select class="form-control" id="cboTipoAsignacion">
+                                                <option value="1">Asignación</option>
+                                                <option value="2">Liberación</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>*Nombre:</label>
+                                            <input type="text" class="form-control" id="tbNombreEmpleado" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Puesto:</label>
+                                            <input type="text" class="form-control" id="tbPuestoEmpleado" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Obra:</label>
+                                            <input type="text" class="form-control" id="tbCentroCostosEmpleado" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>*Economico:</label>
+                                            <select class="form-control" id="cboEconomico"></select>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Descripción:</label>
+                                            <input class="form-control" id="tbDescripcionEconomico" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Marca:</label>
+                                            <input class="form-control" id="tbMarcaEconomico" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>Modelo:</label>
+                                            <input class="form-control" id="tbModeloEconomico" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>*Kilometraje:</label>
+                                            <input class="form-control" id="tbKilometraje" type="number" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>No Serie:</label>
+                                            <input class="form-control" id="tbNoSerie" disabled />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                                            <label>No Placas:</label>
+                                            <input class="form-control" id="tbPlacas" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <div class="col-lg-10">
+                                                <label>Tipo de Encierro</label>
+                                                <div style="margin-left: 20px;">
+
+                                                    <label class="radio-inline" style="display: table-row;">
+                                                        <input type="radio" id="radioPrioridad3" value="1" name="radioInline1">A (Libre)
+                                                    </label>
+                                                    <label class="radio-inline" style="display: table-row;">
+                                                        <input type="radio" id="radioPrioridad2" value="2" name="radioInline1" checked="checked">B (Fin de semana)
+                                                    </label>
+                                                    <label class="radio-inline" style="display: table-row;">
+                                                        <input type="radio" id="radioPrioridad1" value="3" name="radioInline1">C (Diario)
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <input class="form-control-feedback margin-top" id="tbEncierro" style="margin-top: 40px;font-weight: bold;font-size: x-large;">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <textarea class="form-control" id="tbObservaciones" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
                                 </div>
                             </div>
+                            <div class="panel panel-default pnl">
+                                <div class="panel-heading colorTitle ">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse2">Datos del Empleado y Vehículo</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse2" class="panel-collapse collapse">
+                                    <div class="panel-body" id="divNuevo">
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>*Vencimiento Licencia:</label>
+                                            <input type="text" class="form-control" id="VencimientoLicencia" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>* Vencimiento Póliza:</label>
+                                            <input type="text" class="form-control" id="VencimientoPoliza" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>* Licencia Conducir:</label>
+                                            <input type="file" class="form-control" id="fLicenciaConducir" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>* Tarjeta Circulación:<span id="spCirculacion"></span></label>
+                                            <input type="file" class="form-control" id="fTarjetaCirculacion" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>* Póliza de Seguro:<span id="spPoliza"></span></label>
+                                            <input type="file" class="form-control" id="fPolizaSeguro" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>Checklist Asignación :</label>
+                                            <input type="file" class="form-control" id="fcheckAsignacion" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>Formato Mantenimientos Preventivos:</label>
+                                            <input type="file" class="form-control" id="fFormatoMMtoPreventivo" />
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>Permiso de Carga:<span id="spCarga"></span></label>
+                                            <input type="file" class="form-control" id="fPermisoCarga" />
+                                        </div>
+                                    </div>
+                                    <div class="panel-body hide" id="divLiberacion">
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+                                            <label>Checklist Liberación :</label>
+                                            <input type="file" class="form-control" id="fcheckLiberacion" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default pnl">
+                                <div class="panel-heading colorTitle ">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse3">Check List Interior</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse3" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                            <table class="display nowrap" id="tblCondicionesInterior" cellspacing="0" width="100%">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th rowspan="1">I. Interio:</th>
+                                                        <th colspan="4" style="text-align: center;">Estado</th>
+                                                        <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th style="text-align: center;">Concepto</th>
+                                                        <th>Bueno</th>
+                                                        <th>Regular</th>
+                                                        <th>Malo</th>
+                                                        <th>No Aplica</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default pnl">
+                                <div class="panel-heading colorTitle ">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse4">Check List Exterior</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse4" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                            <table class="table table-bordered table-responsive table-striped tablaFix" id="tblCondicionesExterior">
+                                                <thead class="bg-table-header">
+                                                    <tr>
+                                                        <th rowspan="1">II. Exterio:</th>
+                                                        <th colspan="4" style="text-align: center;">Estado</th>
+                                                        <th rowspan="2" style="text-align: center;vertical-align: inherit;">Observaciones</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th rowspan="1" style="text-align: center;">Concepto</th>
+                                                        <th rowspan="1">Bueno</th>
+                                                        <th rowspan="1">Regular</th>
+                                                        <th rowspan="1">Malo</th>
+                                                        <th rowspan="1">No Aplica</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default pnl">
+                                <div class="panel-heading colorTitle ">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" class="apnl" data-parent="#Acordeon1" href="#collapse">Observaciones.</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div class="col-xs-12 col-md-12 col-md-12 col-lg-12">
+                                            <div class="col-lg-3" style="padding: 0;margin-bottom: 4px;">
+                                                <input class="disabled form-control" value="IV. Observaciones:" style="background: #81bd72 !important;color: white;cursor: auto;" disabled="">
+                                            </div>
+                                            <textarea class="form-control" id="tbObservaciones" title="Introducir comentario" style="height:100px; width:100%;" placeholder="Escribe un comentario"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
 
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
-                        <button class="btn btn-success form-control" id="btnGuardarAsignacion">
-                            <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
-                        </button>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <div id="sinResguardo" class="tab-pane fade" style="display: none;">
-            <div class="row">
-
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <fieldset class="fieldset-custm">
-                        <legend class="legend-custm">Filtros:</legend>
-                        <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
-                            <div class='input-group'>
-                                <span class='input-group-addon'>AC</span>
-                                <select class="form-control" id="txtCentroCostos2"></select>
+                        <div class="row">
+                            <div class="col-lg-2 col-xs-2 col-sm-2 col-md-2 pull-right">
+                                <button class="btn btn-success form-control" id="btnGuardarAsignacion">
+                                    <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-1">
-                            <button id="btnBuscar" class="btn btn-primary">Buscar</button>
+                    </div>
+                    <div id="sinResguardo" class="tab-pane fade" style="display: none;">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-3 col-xs-3 col-md-3 col-lg-3">
+                                    <div class='input-group'>
+                                        <span class='input-group-addon'>AC</span>
+                                        <select class="form-control" id="txtCentroCostos2"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button id="btnBuscar" class="btn btn-primary">Buscar</button>
+                                </div>
+                            </div>
+
                         </div>
-                    </fieldset>
-                </div>
-
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
-                    <fieldset class="fieldset-custm">
-
-                    </fieldset>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                <fieldset class="fieldset-custm"></fieldset>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

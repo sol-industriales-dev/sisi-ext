@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Formato de Cambio";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
     bool esEditar = ViewBag.esEditarPuestos;
     int empresaActual = ViewBag.Empresa;
 
@@ -28,469 +28,455 @@ else if(empresaActual == 6)
     <input type="text" id="empresaActual" value="6" style="display: none;">
 }
 
-<div class="container-fluid">
-
-    <div class="row">
-        <h1 class="text-center">Formato de Cambio</h1>
-        <h2 class="text-center" id="hFolio"></h2>
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Formato de Cambio</h3>
+        <h4 class="mb5 mt5" id="hFolio"></h4>
+        <h4 class="mb5 mt5">Datos Generales</h4>
     </div>
-
-    <div id="divInfoUsuario" class="row">
-        <div class="col-lg-12">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Datos generales</legend>
-
-
-                <div class="col-md-6">
-
-                    <input type="number" class="hidden" id="FormatoId" value="@ViewBag.IdFormato">
-
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <tbody>
-                            <tr>
-                                <td class="col-lg-3">Número de Empleado:</td>
-                                <td>
-                                    <div class="col-lg-3">
-                                        <input type="number" class="form-control col-lg-3" id="txtIgNumeroEmpleado">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Nombre Empleado:</td>
-                                <td>
-                                    <div class="col-lg-12">
-                                        <input type="text" class="form-control col-lg-3" id="lblIgNombre">
-                                    </div>
-                                </td>
-
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Fecha de Ingreso:</td>
-                                <td><label class="col-lg-12" id="lblIgIngreso"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Puesto Actual:</td>
-                                <td><label class="col-lg-12" id="lblIgPuesto"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Linea de Negocio:</td>
-                                <td><label class="col-lg-12" id="lblIgLineaNegocio"></label></td>
-                            </tr>
-                                <tr>
-                                <td class="col-lg-3">Categoria:</td>
-                                <td><label class="col-lg-12" id="lblIgCategoria"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Tipo de nómina:</td>
-                                <td><label class="col-lg-12" id="lblIgNomina"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Centro de Costo:</td>
-                                <td><label class="col-lg-12" id="lblIgCentro"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Jefe Inmediato:</td>
-                                <td><label class="col-lg-12" id="lblIgJefe"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Registro Patronal:</td>
-                                <td><label class="col-lg-12" id="lblIgRegistro"></label></td>
-                            </tr>
-                            <tr>
-                                <td class="col-lg-3">Departamento:</td>
-                                <td><label class="col-lg-12" id="lblIgDepartamento"></label></td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-
-                <div class="col-sm-6">
-                    <div id="divTablaSalariosGenerales" @(!permisoVerSueldos ? "style=display:none;" : "")>
-                        <table class=" table table-condensed table-hover table-striped text-center">
-                            <thead class="bg-table-header">
-                                <tr>
-                                    <th></th>
-                                    <th class="text-center"><label id="lblTblIgNomina">Nómina</label></th>
-                                    <th class="text-center"><label>Mensual</label></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                <tr>
-                                    <td>Sueldo base:</td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgSueldoNomina"></label></td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgSueldoMensual"></label></td>
-                                </tr>
-                                <tr>
-                                    <td>Complemento:</td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgComplementoNomina"></label></td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgComplementoMensual"></label></td>
-                                </tr>
-                                <tr>
-                                    <td>Bono:</td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgBonoNomina"></label></td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgBonoMensual"></label></td>
-                                </tr>
-                                <tr>
-                                    <td>Total nómina:</td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgTotalNomina"></label></td>
-                                    <td class="text-center"><label class="col-lg-12" id="lblIgTotalMensual"></label></td>
-                                </tr>
-                            </tbody>
-
-                        </table>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
-    <div id="divSelectCambios" class="hide">
-        <div class="col-lg-12">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Información a Cambiar</legend>
-
-                <div class="col-lg-12 row">
-                    <h4>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="inlinePuesto" value="selPuestoChang"> Puesto
-                        </label> |
-
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="inlineSueldo" value="selTipoNominaChang"> Sueldo
-                        </label> |
-
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="inlineCentroCo" value="selCentroCostoChang"> Centro de costos
-                        </label> |
-
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="inlineJefeIn" value="selJefeInmediatoChang"> Jefe inmediato
-                        </label> |
-
-                        <label class="checkbox-inline">
-                            <!-- <input type="checkbox" id="inlineRegistroPa" value="selRegistroPatronalChang"> Registro patronal -->
-                            <!-- <select name="" id="selRegistroPatronalChang"></select> Registro patronal -->
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" id="inlineTipoNomina" value="selTipoNominaChang"> TipoNomina
-                        </label>
-
-                    </h4>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
-    <div id="divInfoCambio" class="row">
-        <div class="col-lg-12">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Datos de Cambio</legend>
-                <div class="row">
-                    <div class="col-md-3 form-group">
-                        <label for="selCentroCostoChang">Centro de Costo:</label>
-                        <!-- <input class="form-control" id="selCentroCostoChang"> -->
-                        <select id="selCentroCostoChang" class="form-control"></select>
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selPuestoChang">Linea Negocio:</label>
-                        <select class="form-control" id="selLineaNegocio" disabled>
-                        </select>
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selRegistroPatronalChang">Registro Patronal:</label>
-                        <!-- <input class="form-control" id="selRegistroPatronalChang"> -->
-                        <select name="" id="selRegistroPatronalChang" class="form-control"></select>
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selJefeInmediatoChang">Responsable CC:</label>
-                        <input class="form-control" id="selJefeInmediatoChang">
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selPuestoChang">Puesto Solicitado:</label>
-                        <input class="form-control" id="selPuestoChang">
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selPuestoChang">Categoria:</label>
-                        <select class="form-control" id="selCategoria">
-                        </select>
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selTipoNominaChang">Tipo de nómina:</label>
-                        <select class="form-control" id="selTipoNominaChang"></select>
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <label for="selDepartamento">Departamento:</label>
-                        <select id="selDepartamento" class="form-control"></select>
-                    </div>
-
-                </div>
-                <div class="row">
-                    <div id="divTablaSalariosDatos" @(!permisoVerSueldos ? "style=display:none;" : "")>
-                        <div class="col-sm-6 col-sm-offset-3">
-                            <table class="table table-condensed table-hover table-striped text-center">
-
-                                <thead class="bg-table-header">
-                                    <tr>
-                                        <th></th>
-                                        <th class="text-center"><label id="lblTblNominaChang">Nómina</label></th>
-                                        <th class="text-center"><label>Mensual</label></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- <tr>
-                                        <td>Sueldo base:</td>
-                                        <td class="text-center"><input type="number" class="form-control text-center" id="txtSueldoNominaChange" @(esEditar ? "" : "readonly")></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblSueldoMensualChange"></label></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Complemento:</td>
-                                        <td><input type="number" class="form-control text-center" id="txtComplementoNominaChange" @(esEditar ? "" : "readonly")></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblComplementoMensualChange"></label></td>
-                                    </tr> -->
-                                    <tr>
-                                        <td>Sueldo base:</td>
-                                        <td class="text-center"><input type="number" class="form-control text-center" id="txtSueldoNominaChange" ></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblSueldoMensualChange"></label></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Complemento:</td>
-                                        <td><input type="number" class="form-control text-center" id="txtComplementoNominaChange" ></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblComplementoMensualChange"></label></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bono:</td>
-                                        <td><input type="number" class="form-control text-center" id="txtBonoNominaChange"></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblBonoMensualChange"></label></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Total nómina:</td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblTotalNominaChange"></label></td>
-                                        <td class="text-center"><label class="col-lg-12" id="lblTotalMesChange"></label></td>
-                                    </tr>
-                                </tbody>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-3 form-group">
-
-                        <label >Año</label>
-                        <select id="slAnio" class="form-control">
-
-                            @if (DateTime.Now.Month == 12)
-                            {
-                                <option value="@DateTime.Now.Year">@DateTime.Now.Year</option>
-                                <option value="@(DateTime.Now.Year+1)">@(DateTime.Now.Year + 1)</option>
-                            }
-                            else
-                            {
-                                <option value="@DateTime.Now.Year">@DateTime.Now.Year</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-3 form-group">
-
-                        <label id="lblInicioNomina">Nómina</label>
-                        <input class="form-control" id="txtNumeroInicio" type="number">
-
-                    </div>
-
-                    <div class="col-md-6 form-group">
-
-                        <label id="lblAPartirDe">A partir de:</label>
-                        <input class="form-control" id="txtFechaInicio">
-
-                    </div>
-
-                    <div class="col-md-12 form-group">
-
-                        <label for="txtJustificacion">Justificación:</label>
-                        <textarea class="form-control" id="txtJustificacion"></textarea>
-
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
-    <div id="divAceptacion" class="row">
-        <div class="col-lg-12">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Aceptación</legend>
-
-                <div class="col-sm-12">
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <thead class="bg-table-header">
-                            <tr>
-                                <th class="col-sm-6">Solicita:</th>
-                                <th class="col-sm-4">Puesto:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input class="form-control" id="selAutSolicitaEnvia" placeholder="*"> </td>
-                                <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos Actual</label></td>
-                            </tr>
-                            <tr>
-                                <td><input class="form-control" id="selAutSolicita" placeholder="*"> </td>
-                                <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos Recibe</label></td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <thead class="bg-table-header">
-                            <tr>
-                                <th class="col-sm-6">VoBo:</th>
-                                <th class="col-sm-4">Puesto:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input class="form-control" id="selAutVoBo" placeholder="*"> </td>
-                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Capital Humano</label></td>
-
-                            </tr>
-                            <tr>
-                                <td><input class="form-control" id="selAutVoBo2" placeholder="N/R"> </td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <thead class="bg-table-header">
-                            <tr>
-                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-                                            <label> Autoriza 1:</label>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
-                                            <input type="checkbox"  class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck1">
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
-                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
-                                        </div>
-                                    </div>
-                                </th>
-                                <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza1" placeholder="N/R"> </td>
-                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Gerente/SubDirector/Director de Área</label></td>
-
-                            </tr>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza12" placeholder="N/R"> </td>
-
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <thead class="bg-table-header">
-                            <tr>
-                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-                                            <label> Autoriza 2:</label>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
-                                            <input type="checkbox"  class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck2">
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
-                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
-                                        </div>
-                                    </div>
-                                </th>
-                                <th class="col-sm-4">Puesto:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza2" placeholder="N/R"> </td>
-                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Director de Línea de Negocios</label></td>
-
-                            </tr>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza22" placeholder="N/R"> </td>
-
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                    <table class=" table table-condensed table-hover table-striped text-center">
-
-                        <thead class="bg-table-header">
-                            <tr>
-                                <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-                                            <label> Autoriza 3:</label>
-                                        </div>
-
-                                        <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
-                                            <input type="checkbox"  class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck3">
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
-                                            <label style="margin-top: 5px;">: Ambos Autorizan</label>
-                                        </div>
-                                    </div>
-                                </th>
-                                <th class="col-sm-4">Puesto:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza3" placeholder="N/R"> </td>
-                                <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Alta Dirección</label></td>
-
-                            </tr>
-                            <tr>
-                                <td><input class="form-control" id="selAutoriza32" placeholder="N/R"> </td>
-
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-
-            </fieldset>
-        </div>
-    </div>
-
-    <div id="divInfoUsuario" class="row">
-        <div class="col-lg-12">
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Acciones</legend>
-
-                <div class="col-md-12 text-right">
-                    <button class="btn btn-default" id="btnSolicitarAp">Guardar</button>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-
 </div>
 
+<div class="contenedor">
+    <div class="row" id="divInfoUsuario">
+        <div class="col-md-6">
 
+            <input type="number" class="hidden" id="FormatoId" value="@ViewBag.IdFormato">
+
+            <table class=" table table-condensed table-hover table-striped text-center">
+
+                <tbody>
+                    <tr>
+                        <td class="col-lg-3">Número de Empleado:</td>
+                        <td>
+                            <div class="col-lg-3">
+                                <input type="number" class="form-control col-lg-3" id="txtIgNumeroEmpleado">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Nombre Empleado:</td>
+                        <td>
+                            <div class="col-lg-12">
+                                <input type="text" class="form-control col-lg-3" id="lblIgNombre">
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Fecha de Ingreso:</td>
+                        <td><label class="col-lg-12" id="lblIgIngreso"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Puesto Actual:</td>
+                        <td><label class="col-lg-12" id="lblIgPuesto"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Linea de Negocio:</td>
+                        <td><label class="col-lg-12" id="lblIgLineaNegocio"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Categoria:</td>
+                        <td><label class="col-lg-12" id="lblIgCategoria"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Tipo de nómina:</td>
+                        <td><label class="col-lg-12" id="lblIgNomina"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Centro de Costo:</td>
+                        <td><label class="col-lg-12" id="lblIgCentro"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Jefe Inmediato:</td>
+                        <td><label class="col-lg-12" id="lblIgJefe"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Registro Patronal:</td>
+                        <td><label class="col-lg-12" id="lblIgRegistro"></label></td>
+                    </tr>
+                    <tr>
+                        <td class="col-lg-3">Departamento:</td>
+                        <td><label class="col-lg-12" id="lblIgDepartamento"></label></td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="col-sm-6">
+            <div id="divTablaSalariosGenerales" @(!permisoVerSueldos ? "style=display:none;" : "")>
+                <table class=" table table-condensed table-hover table-striped text-center">
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th></th>
+                            <th class="text-center"><label id="lblTblIgNomina">Nómina</label></th>
+                            <th class="text-center"><label>Mensual</label></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>Sueldo base:</td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgSueldoNomina"></label></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgSueldoMensual"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Complemento:</td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgComplementoNomina"></label></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgComplementoMensual"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Bono:</td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgBonoNomina"></label></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgBonoMensual"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Total nómina:</td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgTotalNomina"></label></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblIgTotalMensual"></label></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="divSelectCambios" class="hide row">
+        <div class="col-lg-12">
+            <div class="col-lg-12 row">
+                <h4>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="inlinePuesto" value="selPuestoChang"> Puesto
+                    </label> |
+
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="inlineSueldo" value="selTipoNominaChang"> Sueldo
+                    </label> |
+
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="inlineCentroCo" value="selCentroCostoChang"> Centro de costos
+                    </label> |
+
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="inlineJefeIn" value="selJefeInmediatoChang"> Jefe inmediato
+                    </label> |
+
+                    <label class="checkbox-inline">
+                        <!-- <input type="checkbox" id="inlineRegistroPa" value="selRegistroPatronalChang"> Registro patronal -->
+                        <!-- <select name="" id="selRegistroPatronalChang"></select> Registro patronal -->
+                    </label>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" id="inlineTipoNomina" value="selTipoNominaChang"> TipoNomina
+                    </label>
+
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Datos de Cambio</h4>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <label for="selCentroCostoChang">Centro de Costo:</label>
+            <!-- <input class="form-control" id="selCentroCostoChang"> -->
+            <select id="selCentroCostoChang" class="form-control"></select>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selPuestoChang">Linea Negocio:</label>
+            <select class="form-control" id="selLineaNegocio" disabled></select>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selRegistroPatronalChang">Registro Patronal:</label>
+            <!-- <input class="form-control" id="selRegistroPatronalChang"> -->
+            <select name="" id="selRegistroPatronalChang" class="form-control"></select>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selJefeInmediatoChang">Responsable CC:</label>
+            <input class="form-control" id="selJefeInmediatoChang">
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selPuestoChang">Puesto Solicitado:</label>
+            <input class="form-control" id="selPuestoChang">
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selPuestoChang">Categoria:</label>
+            <select class="form-control" id="selCategoria"></select>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selTipoNominaChang">Tipo de nómina:</label>
+            <select class="form-control" id="selTipoNominaChang"></select>
+        </div>
+        <div class="col-md-3 form-group">
+            <label for="selDepartamento">Departamento:</label>
+            <select id="selDepartamento" class="form-control"></select>
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="divTablaSalariosDatos" @(!permisoVerSueldos ? "style=display:none;" : "")>
+            <div class="col-sm-6 col-sm-offset-3">
+                <table class="table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th></th>
+                            <th class="text-center"><label id="lblTblNominaChang">Nómina</label></th>
+                            <th class="text-center"><label>Mensual</label></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr>
+                            <td>Sueldo base:</td>
+                            <td class="text-center"><input type="number" class="form-control text-center" id="txtSueldoNominaChange" @(esEditar ? "" : "readonly")></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblSueldoMensualChange"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Complemento:</td>
+                            <td><input type="number" class="form-control text-center" id="txtComplementoNominaChange" @(esEditar ? "" : "readonly")></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblComplementoMensualChange"></label></td>
+                        </tr> -->
+                        <tr>
+                            <td>Sueldo base:</td>
+                            <td class="text-center"><input type="number" class="form-control text-center" id="txtSueldoNominaChange"></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblSueldoMensualChange"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Complemento:</td>
+                            <td><input type="number" class="form-control text-center" id="txtComplementoNominaChange"></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblComplementoMensualChange"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Bono:</td>
+                            <td><input type="number" class="form-control text-center" id="txtBonoNominaChange"></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblBonoMensualChange"></label></td>
+                        </tr>
+                        <tr>
+                            <td>Total nómina:</td>
+                            <td class="text-center"><label class="col-lg-12" id="lblTotalNominaChange"></label></td>
+                            <td class="text-center"><label class="col-lg-12" id="lblTotalMesChange"></label></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 form-group">
+
+            <label>Año</label>
+            <select id="slAnio" class="form-control">
+
+                @if (DateTime.Now.Month == 12)
+                {
+                    <option value="@DateTime.Now.Year">@DateTime.Now.Year</option>
+                    <option value="@(DateTime.Now.Year+1)">@(DateTime.Now.Year + 1)</option>
+                }
+                else
+                {
+                    <option value="@DateTime.Now.Year">@DateTime.Now.Year</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 form-group">
+
+            <label id="lblInicioNomina">Nómina</label>
+            <input class="form-control" id="txtNumeroInicio" type="number">
+
+        </div>
+
+        <div class="col-md-6 form-group">
+
+            <label id="lblAPartirDe">A partir de:</label>
+            <input class="form-control" id="txtFechaInicio">
+
+        </div>
+
+        <div class="col-md-12 form-group">
+
+            <label for="txtJustificacion">Justificación:</label>
+            <textarea class="form-control" id="txtJustificacion"></textarea>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Aceptación</h3>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div id="divAceptacion" class="row">
+        <div class="col-lg-12">
+            <div class="col-sm-12">
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-sm-6">Solicita:</th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" id="selAutSolicitaEnvia" placeholder="*"> </td>
+                            <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos Actual</label></td>
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" id="selAutSolicita" placeholder="*"> </td>
+                            <td class="text-center" style="vertical-align: middle;"><label>Responsable del Centro de Costos Recibe</label></td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-sm-6">VoBo:</th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" id="selAutVoBo" placeholder="*"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Capital Humano</label></td>
+
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" id="selAutVoBo2" placeholder="N/R"> </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                        <label> Autoriza 1:</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
+                                        <input type="checkbox" class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck1">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+                                        <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="col-xs-12 col-sm-12 col-md-4 col-lg-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza1" placeholder="N/R"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Gerente/SubDirector/Director de Área</label></td>
+
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza12" placeholder="N/R"> </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                        <label> Autoriza 2:</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
+                                        <input type="checkbox" class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck2">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+                                        <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza2" placeholder="N/R"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Director de Línea de Negocios</label></td>
+
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza22" placeholder="N/R"> </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <table class=" table table-condensed table-hover table-striped text-center">
+
+                    <thead class="bg-table-header">
+                        <tr>
+                            <th class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                                        <label> Autoriza 3:</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 text-left" style="padding: 0px!important;width: 20px;display:none;">
+                                        <input type="checkbox" class="form-control groupAmbosAut" style="height:20px;right: 30px;" id="btnAutorizaCck3">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3  text-left" style="padding-left: 0px;display:none;">
+                                        <label style="margin-top: 5px;">: Ambos Autorizan</label>
+                                    </div>
+                                </div>
+                            </th>
+                            <th class="col-sm-4">Puesto:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza3" placeholder="N/R"> </td>
+                            <td class="text-center" rowspan="2" style="vertical-align: middle;"><label>Alta Dirección</label></td>
+
+                        </tr>
+                        <tr>
+                            <td><input class="form-control" id="selAutoriza32" placeholder="N/R"> </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="divInfoUsuario" class="row">
+        <div class="col-lg-12">
+            <div class="col-md-12 text-right">
+                <button class="btn btn-default" id="btnSolicitarAp">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @Html.Partial("reportViewerView", false)

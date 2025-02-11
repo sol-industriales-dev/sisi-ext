@@ -1,70 +1,91 @@
 ﻿@model SIGOPLAN.Areas.Administrativo.Models.ViewModels.RecursosHumanos.FormatoCambiosViewModel
 @{
     ViewBag.Title = "CapturaFormato";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";    
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";    
     var Base = new SIGOPLAN.Controllers.BaseController();
 }
 <link href='~/Content/style/datatables/datatables.min.css' rel='stylesheet' />
-    <h2 class="text-center">Seguimiento de Cambios</h2>
-    <fieldset class="fieldset-custm">
-        <legend class="legend-custm">Filtros búsqueda:</legend>
-                <div class='col-md-3 col-lg-3'>
-                    <label>CC:</label>
-                    <select id='txtCCFiltro' class='form-control'></select>
-                </div>
-                <div class="col-lg-2">
-                    <label>Numero de Empleado:</label>
-                    <input type="number" id="NumEmpleado" class="form-control no-padding" />
-                </div>
-                <div class="col-lg-2">
-                    <label>Estado:</label>
-                    <select id="chgEstado" class="form-control no-padding">
-                        <option value="Pendiente">Pendientes</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Rechazado">Rechazado</option>
-                        <option value="Cancelado">Cancelado</option>
-                        <option value="Todos">Todos</option>
-                    </select>
-                </div>
-                <div class="col-lg-2">
-                    <label>Tipo:</label>
-                    <select id="cboTipo" class="form-control no-padding">
-                        <option value="">--Seleccionar--</option>
-                        <option value="SEMANAL">Semana</option>
-                        <option value="QUINCENAL">Quincena</option>
-                    </select>
-                </div>
-                <div class="col-lg-1">
-                    <label> #</label>
-                    <input type="text" id="txtNumero" class="form-control no-padding" disabled/>
-                </div>
-                <div class="col-lg-1">
-                    <button class="btn btn-info margin-top" id="btnAplicarFiltros">
-                        <span class="glyphicon glyphicon-search"></span> Buscar
-                    </button>
-                </div>
-    </fieldset>
-            <fieldset class="fieldset-custm">
-                <legend class="legend-custm">Resultados Búsqueda:</legend>
-                    <table id="tblCambio" class="table table-condensed table-hover table-striped text-center">
-                        <thead class="bg-table-header">
-                            <th>Operación</th>
-                            <th>Empleado</th>
-                            <th>Nombre</th>
-                            <th>Centro Costos</th>
-                            <th>Puesto</th>
-                            <th>Categoría</th>
-                            <th>Estado</th>
-                            <th>Autorizantes</th>
-                            <th>Editar</th>
-                            <th>Eliminar</th>
-                        </thead>
-                    </table>
-            </fieldset>
-    <label id="usrLog" hidden>@ViewBag.Permiso</label>
-    <label id="verModal" hidden>@ViewBag.VerModal</label>
-    <label id="verFormato" hidden>@ViewBag.VerFormato</label>
-    @Html.Partial("_authPanel")
+
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">Seguimiento de Cambios</h3>
+    </div>
+</div>
+
+<div class="contenedor">
+    <div class="row">
+        <div class='col-md-3 col-lg-3'>
+            <label>CC:</label>
+            <select id='txtCCFiltro' class='form-control'></select>
+        </div>
+
+        <div class="col-lg-2">
+            <label>Numero de Empleado:</label>
+            <input type="number" id="NumEmpleado" class="form-control no-padding" />
+        </div>
+
+        <div class="col-lg-2">
+            <label>Estado:</label>
+            <select id="chgEstado" class="form-control no-padding">
+                <option value="Pendiente">Pendientes</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="Rechazado">Rechazado</option>
+                <option value="Cancelado">Cancelado</option>
+                <option value="Todos">Todos</option>
+            </select>
+        </div>
+
+        <div class="col-lg-2">
+            <label>Tipo:</label>
+            <select id="cboTipo" class="form-control no-padding">
+                <option value="">--Seleccionar--</option>
+                <option value="SEMANAL">Semana</option>
+                <option value="QUINCENAL">Quincena</option>
+            </select>
+        </div>
+
+        <div class="col-lg-1">
+            <label> #</label>
+            <input type="text" id="txtNumero" class="form-control no-padding" disabled />
+        </div>
+
+        <div class="col-lg-1">
+            <button class="btn btn-info margin-top" id="btnAplicarFiltros">
+                <span class="glyphicon glyphicon-search"></span> Buscar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor mt10">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tblCambio" class="table table-condensed table-hover table-striped text-center">
+                <thead class="bg-table-header">
+                    <tr>
+                        <th>Operación</th>
+                        <th>Empleado</th>
+                        <th>Nombre</th>
+                        <th>Centro Costos</th>
+                        <th>Puesto</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Autorizantes</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<label id="usrLog" hidden>@ViewBag.Permiso</label>
+<label id="verModal" hidden>@ViewBag.VerModal</label>
+<label id="verFormato" hidden>@ViewBag.VerFormato</label>
+
+@Html.Partial("_authPanel")
+
 <div class="modal fade" id="modalAprobadores" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">

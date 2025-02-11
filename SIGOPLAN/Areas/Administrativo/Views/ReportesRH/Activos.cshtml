@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Activos";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
     var idEmpresa = new SIGOPLAN.Controllers.Principal.HomeController();
 }
 
@@ -45,93 +45,100 @@
 <script src="~/Scripts/Utilities/datatables/btnExtension/vfs_fonts.js"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
+<input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
+
 <div class="row">
-    <h2 class="text-center">Reporte Activos</h2>
-    <input class="hidden" id="idEmpresa" value="@idEmpresa.getEmpresaID()" />
-</div>
-<div class="row form-group">
-    <div class="col-lg-12">
-        <fieldset class="fieldset-custm fielset-Filtros">
-            <legend class="legend-custm">Filtros:</legend>
-            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                <label>Centro Costos:</label>
-                <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                <label>Columnas Visibles: </label>
-                <select class="form-control no-padding" multiple="multiple" id="cboColumnas">
-                    <option value="Todos">Todos</option>
-                    <option value="9">REQUISICION</option>
-                    <option value="10">@(idEmpresa.getEmpresaID() == 6 ? "DNI" : "NSS") </option>
-                    <option value="11">RESPONSABLE DE CC</option>
-                    <option value="12">SALARIO BASE</option>
-                    <option value="13">COMPLEMENTO</option>
-                    <option value="14">BONO ZONA</option>
-                    <option value="15">TOTAL MENSUAL</option>
-                    <option value="16">TOTAL NOMINAL</option>
-                    <option value="17">REG. PATRONAL</option>
-                    <option value="18">DOMICILIO</option>
-                    <option value="19">ESTADO NAC</option>
-                    <option value="20">CUIDAD NAC</option>
-                    <option value="21">FECHA NAC</option>
-                    <option value="22">EMAIL</option>
-                    <option value="23">TEL. CELULAR</option>
-                    <option value="24">TEL. CASA</option>
-                    <option value="25">CONTACTO EMERGENCIA</option>
-                    <option value="26">TELEFONO EMERGENCIA</option>
-                    <option value="27">SEXO</option>
-                    <option value="28">RFC</option>
-                    <option value="29">@(idEmpresa.getEmpresaID() == 6 ? "C.U.S.P.P" : "CURP")</option>
-                    <option value="30">ESTADO CIVIL</option>
-                    <option value="31">TIPO SANGRE</option>
-                    <option value="32">ALERGIAS</option>
-                    <option value="33">TIPO CASA</option>
-                    <option value="34">OCUPACION</option>
-                    <option value="35">NUM HIJOS</option>
-                    <option value="36">CONYUGE</option>
-                    <option value="37">TIPO CONTRATO</option>
-                    <option value="38">TALLA CAMISA</option>
-                    <option value="39">TALLA PANTALON</option>
-                    <option value="40">TALLA CALZADO</option>
-                    <option value="41">CIUDAD CONTACTO</option>
-                </select>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
-                <button type="button" class="btn btn-info margin-top" id="btnBuscar">
-                    <span class="glyphicon glyphicon-search"></span> Buscar
-                </button>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1" style="display:none;">
-                <button type="button" class="btn btn-info margin-top" id="btnImprimir">
-                    <span class="glyphicon glyphicon-print"></span> Exportar
-                </button>
-            </div>
-        </fieldset>
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">Reporte Activos</h3>
     </div>
 </div>
 
-<div class="row form-group">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divFilstroBusqueda">
-        <fieldset class="fieldset-custm">
-            <legend class="legend-custm">Resultados Búsqueda:</legend>
+<div class="contenedor">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <label>Centro Costos:</label>
+            <select class="form-control no-padding" multiple="multiple" id="cboCC"></select>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <label>Columnas Visibles: </label>
+            <select class="form-control no-padding" multiple="multiple" id="cboColumnas">
+                <option value="Todos">Todos</option>
+                <option value="9">REQUISICION</option>
+                <option value="10">@(idEmpresa.getEmpresaID() == 6 ? "DNI" : "NSS") </option>
+                <option value="11">RESPONSABLE DE CC</option>
+                <option value="12">SALARIO BASE</option>
+                <option value="13">COMPLEMENTO</option>
+                <option value="14">BONO ZONA</option>
+                <option value="15">TOTAL MENSUAL</option>
+                <option value="16">TOTAL NOMINAL</option>
+                <option value="17">REG. PATRONAL</option>
+                <option value="18">DOMICILIO</option>
+                <option value="19">ESTADO NAC</option>
+                <option value="20">CUIDAD NAC</option>
+                <option value="21">FECHA NAC</option>
+                <option value="22">EMAIL</option>
+                <option value="23">TEL. CELULAR</option>
+                <option value="24">TEL. CASA</option>
+                <option value="25">CONTACTO EMERGENCIA</option>
+                <option value="26">TELEFONO EMERGENCIA</option>
+                <option value="27">SEXO</option>
+                <option value="28">RFC</option>
+                <option value="29">@(idEmpresa.getEmpresaID() == 6 ? "C.U.S.P.P" : "CURP")</option>
+                <option value="30">ESTADO CIVIL</option>
+                <option value="31">TIPO SANGRE</option>
+                <option value="32">ALERGIAS</option>
+                <option value="33">TIPO CASA</option>
+                <option value="34">OCUPACION</option>
+                <option value="35">NUM HIJOS</option>
+                <option value="36">CONYUGE</option>
+                <option value="37">TIPO CONTRATO</option>
+                <option value="38">TALLA CAMISA</option>
+                <option value="39">TALLA PANTALON</option>
+                <option value="40">TALLA CALZADO</option>
+                <option value="41">CIUDAD CONTACTO</option>
+            </select>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1">
+            <button type="button" class="btn btn-info margin-top" id="btnBuscar">
+                <span class="glyphicon glyphicon-search"></span> Buscar
+            </button>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-1" style="display:none;">
+            <button type="button" class="btn btn-info margin-top" id="btnImprimir">
+                <span class="glyphicon glyphicon-print"></span> Exportar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor mt20">
+    <div class="row form-group">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="divFilstroBusqueda">
             <div id="divGridContainer" class="scroll divPadding">
                 <table id="tblActivos" class="table table-condensed table-hover table-striped text-center">
                     <!-- <thead class="bg-table-header">
-                        <tr>
-                            <th data-column-id="cC" data-align="center" data-header-align="center" data-sortable="false">CC</th>
-                            <th data-column-id="empleadoID" data-align="center" data-header-align="center" data-sortable="false">Cve. Emp.</th>
-                            <th data-column-id="empleado" data-align="center" data-header-align="center" data-sortable="false">Empleado</th>
-                            <th data-column-id="puesto" data-align="center" data-header-align="center" data-sortable="false">Puesto</th>
-                            <th data-column-id="tipo_nomina" data-align="center" data-header-align="center" data-sortable="false">Tipo Nomina</th>
-                            <th data-column-id="nss" data-align="center" data-header-align="center" data-sortable="false">NSS</th>
-                            <th data-column-id="fechaAltaRe" data-align="center" data-header-align="center" data-sortable="false">Fecha de Alta</th>
-                        </tr>
-                    </thead> -->
+                <tr>
+                    <th data-column-id="cC" data-align="center" data-header-align="center" data-sortable="false">CC</th>
+                    <th data-column-id="empleadoID" data-align="center" data-header-align="center" data-sortable="false">Cve. Emp.</th>
+                    <th data-column-id="empleado" data-align="center" data-header-align="center" data-sortable="false">Empleado</th>
+                    <th data-column-id="puesto" data-align="center" data-header-align="center" data-sortable="false">Puesto</th>
+                    <th data-column-id="tipo_nomina" data-align="center" data-header-align="center" data-sortable="false">Tipo Nomina</th>
+                    <th data-column-id="nss" data-align="center" data-header-align="center" data-sortable="false">NSS</th>
+                    <th data-column-id="fechaAltaRe" data-align="center" data-header-align="center" data-sortable="false">Fecha de Alta</th>
+                </tr>
+            </thead> -->
 
                 </table>
             </div>
+        </div>
+    </div>
+</div>
 
-        </fieldset>
+<div class="contenedor mt20">
+    <div class="row">
+        <div class="col-sm-12">
+            <canvas id="myChart" height="200" width="590"></canvas>
+        </div>
     </div>
 </div>
 
@@ -157,16 +164,6 @@
     </div>
 </div>
 <!-- END: MODAL ADD PUESTO -->
-
-<div class="row form-group">
-    <div class="col-lg-12">
-        <fieldset class="fieldset-custm">
-            <legend class="legend-custm">Grafica por CC</legend>
-            <canvas id="myChart" height="200" width="590"></canvas>
-        </fieldset>
-    </div>
-</div>
-
 
 @Html.Partial("reportViewerView", false)
 

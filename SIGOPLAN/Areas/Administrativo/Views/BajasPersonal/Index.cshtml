@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Bajas de personal";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
     var usuarioConsultaTeorico = (bool)ViewBag.UsuarioDeConsultaTeorico;
     var usuarioConsulta = (bool)ViewBag.UsuarioDeConsulta;
@@ -78,141 +78,123 @@ else if(empresaActual == 6)
 }
 <!-- END: PERMISOS -->
 
-<!-- CONTAINER FLUID -->
-<div class="container-fluid">
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">BAJAS DE PERSONAL</h3>
+    </div>
+</div>
 
-    <!-- BAJAS -->
+<div class="contenedor">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <h3>BAJAS DE PERSONAL</h3>
-                </div>
-                <div class="panel-body">
-                    <!-- FILTROS -->
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="input-group">
-                                <span class="input-group-addon">CC</span>
-                                <select class="form-control" id="selectCC" multiple></select>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Estatus</span>
-                                <select class="form-control select2" id="cboFiltroEstatus">
-                                    <option value="">--Seleccione--</option>
-                                    <option value="1">Contratables</option>
-                                    <option value="2">No Contratables</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Prioridad</span>
-                                <select class="form-control select2" id="cboFiltroPrioridad">
-                                    <option value="">--Seleccione--</option>
-                                    <option value="1">Alta</option>
-                                    <option value="2">Media</option>
-                                    <option value="3">Baja</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Fecha Inicio</span>
-                                <input type="date" id="fechaFiltroInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Fecha Final</span>
-                                <input type="date" id="fechaFiltroFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Fecha Inicio Liberacion</span>
-                                <input type="date" id="fechaFiltroContaInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
-                            </div>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Fecha Final Liberacion</span>
-                                <input type="date" id="fechaFiltroContaFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <div class="input-group">
-                                <span class="input-group-addon"># Emp.</span>
-                                <input id="inputClaveEmpleado" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="input-group">
-                                <span class="input-group-addon">Nombre</span>
-                                <input id="inputNombreEmpleado" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-sm-2" style="text-align: center;">
-                            <div class="input-group">
-                                <span class="input-group-addon">Autorizado</span>
-                                <button class="btn btn-xs btn-success botonRedondo" disabled><i class="fa fa-check"></i></button>
-                            </div>
-                        </div>
-                        <div class="col-sm-2" style="text-align: center;">
-                            <div class="input-group">
-                                <span class="input-group-addon">Pendientes</span>
-                                <button class="btn btn-xs btn-warning botonRedondo" disabled><i class="fa fa-clock"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="col-sm-6" style="padding-left: 0px;">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Tipo</span>
-                                    <select class="form-control select2" id="cboFiltroAnticipada">
-                                        <option value="">Todas</option>
-                                        <option value="0">Normal</option>
-                                        <!-- <option value="1">Anticipada</option> -->
-                                        <option value="2">Pendientes de Notificar</option>
-                                        <option value="3">Sin confirmación de baja IMSS</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-1">
-                            <button type="button" class="btn btn-warning" id="btnDiasBajas" @(permisoAccionEditarDiasBajas ? "" : "style=display:none;")>Periodos</button>
-                        </div>
-                        <div class="col-sm-5">
-                            <button type="button" class="btn btn-primary pull-right" id="btnFiltroNuevo" @(usuarioConsulta ? "style=display:none;" : "style=display:block;")>Nuevo</button>
-                            <button type="button" class="btn btn-default pull-right" id="btnFiltroBuscar" style="margin-right: 5px;">Buscar</button>
-                            <button type="button" class="btn btn-warning pull-right" id="btnFiltroNotificar" style="margin-right: 5px;">Notificar</button>
-                        </div>
-                    </div>
-                    <!-- END: FILTROS -->
-                </div>
-                <!-- LISTADO DE GESTIÓN SOLICITUDES -->
-                <div class="row">
-                    <div class="col-sm-12">
-                        <table id="tblRH_Baja_Registro" class='display compact' style="width:100%"></table>
-                    </div>
-                </div>
-                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>CC</label>
+                <select class="form-control" id="selectCC" multiple></select>
             </div>
         </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Estatus</label>
+                <select class="form-control select2" id="cboFiltroEstatus">
+                    <option value="">--Seleccione--</option>
+                    <option value="1">Contratables</option>
+                    <option value="2">No Contratables</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Prioridad</label>
+                <select class="form-control select2" id="cboFiltroPrioridad">
+                    <option value="">--Seleccione--</option>
+                    <option value="1">Alta</option>
+                    <option value="2">Media</option>
+                    <option value="3">Baja</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Fecha Inicio</label>
+                <input type="date" id="fechaFiltroInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Fecha Final</label>
+                <input type="date" id="fechaFiltroFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Fecha Inicio Liberacion</label>
+                <input type="date" id="fechaFiltroContaInicio" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Fecha Final Liberacion</label>
+                <input type="date" id="fechaFiltroContaFin" name="min" class="form-control text-center" autocomplete="off" placeholder="##/##/####" min="2000-01-01"></td>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label># Emp.</label>
+                <input id="inputClaveEmpleado" class="form-control">
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input id="inputNombreEmpleado" class="form-control">
+            </div>
+        </div>
+        <div class="col-sm-1" style="text-align: center;">
+            <div class="form-group">
+                <label>Autorizado</label>
+                <button class="btn btn-xs btn-success botonRedondo" style="display:block;margin-left:auto;margin-right:auto;" disabled><i class="fa fa-check"></i></button>
+            </div>
+        </div>
+        <div class="col-sm-1" style="text-align: center;">
+            <div class="form-group">
+                <label>Pendientes</label>
+                <button class="btn btn-xs btn-warning botonRedondo" style="display:block;margin-left:auto;margin-right:auto;" disabled><i class=" fa fa-clock"></i></button>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="form-control select2" id="cboFiltroAnticipada">
+                    <option value="">Todas</option>
+                    <option value="0">Normal</option>
+                    <!-- <option value="1">Anticipada</option> -->
+                    <option value="2">Pendientes de Notificar</option>
+                    <option value="3">Sin confirmación de baja IMSS</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-warning" id="btnDiasBajas" @(permisoAccionEditarDiasBajas ? "" : "style=display:none;")>Periodos</button>
+        </div>
+        <div class="col-sm-5">
+            <button type="button" class="btn btn-primary pull-right" id="btnFiltroNuevo" @(usuarioConsulta ? "style=display:none;" : "style=display:block;")>Nuevo</button>
+            <button type="button" class="btn btn-default pull-right" id="btnFiltroBuscar" style="margin-right: 5px;">Buscar</button>
+            <button type="button" class="btn btn-warning pull-right" id="btnFiltroNotificar" style="margin-right: 5px;">Notificar</button>
+        </div>
     </div>
-    <!-- END: BAJAS -->
 </div>
-<!-- END: CONTAINER FLUID -->
+
+<div class="contenedor mt20">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tblRH_Baja_Registro" class='display compact' style="width:100%"></table>
+        </div>
+    </div>
+</div>
 
 <!-- CREAR/EDITAR BAJA -->
 <div id='mdlBaja' class='modal fade' role='dialog'>

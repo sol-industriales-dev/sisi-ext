@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Incidencias";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
     var empresa = (int)ViewBag.Empresa;
 }
 <link href='~/Content/style/css/Style-Reportes.css' rel='stylesheet' />
@@ -10,12 +10,12 @@
 <link href="~/Content/style/css/RecursosHumanos/Bono/Incidencias.css" rel="stylesheet" />
 <link href="~/Content/style/select2/select2.min.css" rel="stylesheet" />
 <style type="text/css"> 
-    .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+    /*.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
     position: relative;
     min-height: 1px;
     padding-right: 3px !important;
     padding-left: 3px !important;
-}
+}*/
     select.form-control.totalAsist {
         padding:0;
     }
@@ -66,78 +66,103 @@ min-height: 35px; /* or whatever height you need to make them all consistent */
     <input id="txtEmpresa" style="display: none;" value="1">;
 }
 
-<fieldset class='fieldset-custm'>
-    <legend class='legend-custm'><i class='fa fa-info'></i> Información de incidencias</legend>
-    <div class='col-md-3'>
-        <div class='input-group'>
-            <span class='input-group-addon'>incidencia</span>
-            <input type='text' id='inpBonIncId' class='form-control' disabled value="0">
-            <span class='input-group-addon'>Estado</span>
-            <input type='text' id='inpBonIncEstatus' class='form-control' disabled>
-        </div>
-    </div>  
-    <div class='col-md-3'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Empleado Modifica</span>
-            <input type='text' id='inpBonIncEmpMod' class='form-control' disabled>
-        </div>
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mt5 mb5">INCIDENCIAS</h3>
     </div>
-    <div class='col-md-3'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Fecha Modifica</span>
-            <input type='text' id='inpBonIncFechaMod' class='form-control'disabled>
-        </div>
-    </div>
-    <div class='col-md-3'>
-        <button id='btnBonIncAuth' style="display:none;" type='button' class='btn btn-primary'><i class='fa fa-user'></i> Autorizar</button>
-    </div>
-    
-    <div class='col-md-4'>
-        <div class='input-group'>
-            <span class='input-group-addon'>CC</span>
-            <select id='selBonIncCc' class='form-control'></select>
-        </div>
-    </div>
-    <div class='col-md-3'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Depto</span>
-            <select id='selBonIncDepto' class='form-control'></select>
-        </div>
-    </div>
-    <div class='col-md-3'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Tipo Nomina</span>
-            <select id='selBonIncTipoNomina' class='form-control'></select>
-        </div>
-    </div>
-    <div class='col-md-2'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Año</span>
-            <input type='text' id='inpBonIncAnio' class='form-control'>
-        </div>
-    </div>
-    <div class='col-md-4'>
-        <div class='input-group'>
-            <span class='input-group-addon'>Periodo</span>
-            <select id='inpBonIncPeriodo' class='form-control'></select>
-            <span id="spnBonIncPeriodoFechas" class='input-group-addon hidden'>Del - Al -</span>
-        </div>
-    </div>
-    <div class='col-md-1'>
-        <button id='btnBonIncBuscar' type='button' class='btn btn-default'><i class='fa fa-search'></i> Búscar</button>
-    </div>
-    <div class='col-md-2 pull-right'>
-        <button id='btnGuardar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Guardar Incidencia</button>
-    </div>
-    <div class='col-md-2 pull-right'>
-        <button id='btnModalDesautorizar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Desautorizar Incidencia</button>
-    </div>
+</div>
 
-</fieldset>
-<fieldset class='fieldset-custm'>
-    <legend class='legend-custm'><i class='fa fa-table'></i> Incidencias</legend>
-    <table id='tblBonIncidencias' class='display compact' style="width:100%"></table>
-</fieldset>
+<div class="contenedor">
+    <div class="row">
+        <div class='col-md-3'>
+            <div class='form-group'>
+                <label>incidencia</label>
+                <input type='text' id='inpBonIncId' class='form-control' disabled value="0">
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Estado</label>
+                <input type='text' id='inpBonIncEstatus' class='form-control' disabled>
+            </div>
+        </div>
+
+        <div class='col-md-3'>
+            <div class='form-group'>
+                <label>Empleado Modifica</label>
+                <input type='text' id='inpBonIncEmpMod' class='form-control' disabled>
+            </div>
+        </div>
+
+        <div class='col-md-3'>
+            <div class='form-group'>
+                <label>Fecha Modifica</label>
+                <input type='text' id='inpBonIncFechaMod' class='form-control' disabled>
+            </div>
+        </div>
+
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>CC</label>
+                <select id='selBonIncCc' class='form-control'></select>
+            </div>
+        </div>
+
+        <div class='col-md-3'>
+            <div class='form-group'>
+                <label>Depto</label>
+                <select id='selBonIncDepto' class='form-control'></select>
+            </div>
+        </div>
+
+        <div class='col-md-3'>
+            <div class='form-group'>
+                <label>Tipo Nomina</label>
+                <select id='selBonIncTipoNomina' class='form-control'></select>
+            </div>
+        </div>
+
+        <div class='col-md-2'>
+            <div class='form-group'>
+                <label>Año</label>
+                <input type='text' id='inpBonIncAnio' class='form-control'>
+            </div>
+        </div>
+
+        <div class='col-md-4'>
+            <div class='form-group'>
+                <label>Periodo</label>
+                <select id='inpBonIncPeriodo' class='form-control'></select>
+                <span id="spnBonIncPeriodoFechas" class='input-group-addon hidden'>Del - Al -</span>
+            </div>
+        </div>
+
+        <div class='col-md-3'>
+            <button id='btnBonIncAuth' style="display:none;" type='button' class='btn btn-primary'><i class='fa fa-user'></i> Autorizar</button>
+        </div>
+
+        <div class='col-md-1'>
+            <button id='btnBonIncBuscar' type='button' class='btn btn-default mt25'><i class='fa fa-search'></i> Búscar</button>
+        </div>
+
+        <div class='col-md-2 pull-right'>
+            <button id='btnGuardar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Guardar Incidencia</button>
+        </div>
+
+        <div class='col-md-2 pull-right'>
+            <button id='btnModalDesautorizar' style="display:none;" type='button' class='btn btn-primary btn-block'><i class='fa fa-save'></i> Desautorizar Incidencia</button>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor mt20">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id='tblBonIncidencias' class='display compact' style="width:100%"></table>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="modalObservaciones" role="dialog">
     <div class="modal-dialog">

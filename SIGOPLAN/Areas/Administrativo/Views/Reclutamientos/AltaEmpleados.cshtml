@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Alta de empleados";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
     var usuarioConsulta = (bool)ViewBag.UsuarioDeConsulta;
     var usuarioConsultaTeorico = (bool)ViewBag.UsuarioDeConsultaTeorico;
@@ -134,69 +134,63 @@ else
 
 <select id="motivoSueldo" style="display:none;"></select>
 
-<!-- CONTAINER FLUID -->
-<div class="container-fluid">
-    <br><br>
-    <!-- PANEL EMPLEADOS -->
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">EMPLEADOS</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12 text-center">
+        <h4>
+            <span id="txtHeadEstatusA">Altas: </span><span style="color: green;" id="txtHeadCantA">0</span>
+            <span id="txtHeadEstatusB">Bajas: </span><span style="color: red;" id="txtHeadCantB">0</span>
+            <span id="txtHeadEstatusP">Pendientes: </span><span style="color: #fd7e14;" id="txtHeadCantP">0</span>
+            <span id="txtHeadEstatusC">Canceladas: </span><span class="text-muted" id="txtHeadCantC">0</span>
+        </h4>
+    </div>
+</div>
+
+<div class="contenedor">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <h2>EMPLEADOS</h2>
-                    <h4>
-                        <span id="txtHeadEstatusA">Altas: </span><span style="color: green;" id="txtHeadCantA">0</span>
-                        <span id="txtHeadEstatusB">Bajas: </span><span style="color: red;" id="txtHeadCantB">0</span>
-                        <span id="txtHeadEstatusP">Pendientes: </span><span style="color: #fd7e14;" id="txtHeadCantP">0</span>
-                        <span id="txtHeadEstatusC">Canceladas: </span><span class="text-muted" id="txtHeadCantC">0</span>
-                    <h4>
-                </div>
-
-                <!-- FILTROS -->
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <div class="input-group">
-                                <span class="input-group-addon">CC</span>
-                                <select class="form-control" id="cboFiltroCC" multiple></select>
-                            </div>
-                        </div>
-                        <div class="col-sm-3" >
-                            <div class="input-group">
-                                <span class="input-group-addon">Estatus</span>
-                                <select style="width: 100%;" name="" id="chkFiltroEsPendiente" class="form-control">
-                                    <option value="">-Seleccione--</option>
-                                    <option value="A">Activo</option>
-                                    <option value="B">Baja</option>
-                                    <option value="P">Pendiente</option>
-                                    <option value="C">Cancelado</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="pull-right">
-                            <button type="button" class="btn btn-info" id="btnEnviarCorreos">Notificar</button>
-                            <button type="button" class="btn btn-info" id="btnAutorizacionMultiple" @(usuarioConsulta || !puedeAutorizarMasivo ? "style=display:none;" : "") disabled>Autorizar</button>
-                            <button type="button" class="btn btn-warning" id="btnDiasIngresos" @(permisoAccionEditarDiasIngreso ? "" : "style=display:none;")>Periodos</button>
-                            <button type="button" class="btn btn-primary" id="btnFiltroExportar">Exportar</button>
-                            <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
-                            <button type="button" class="btn btn-success" id="btnCrearEmpleado">Nuevo</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- END: FILTROS -->
-
-                <!-- LISTADO DE EMPLEADOS -->
-                <div class="row">
-                    <div class="col-sm-12" id="divTblEmpleados">
-                        <table id="tblRH_REC_Empleados" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
-                    </div>
-                </div>
-                <!-- END: LISTADO DE EMPLEADOS -->
+        <div class="col-sm-5">
+            <div class="input-group">
+                <span class="input-group-addon">CC</span>
+                <select class="form-control" id="cboFiltroCC" multiple></select>
             </div>
         </div>
+
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">Estatus</span>
+                <select style="width: 100%;" name="" id="chkFiltroEsPendiente" class="form-control">
+                    <option value="">-Seleccione--</option>
+                    <option value="A">Activo</option>
+                    <option value="B">Baja</option>
+                    <option value="P">Pendiente</option>
+                    <option value="C">Cancelado</option>
+                </select>
+            </div>
+        </div>
+
+        <div class=" col-sm-4 pull-right">
+            <button type="button" class="btn btn-info" id="btnEnviarCorreos">Notificar</button>
+            <button type="button" class="btn btn-info" id="btnAutorizacionMultiple" @(usuarioConsulta || !puedeAutorizarMasivo ? "style=display:none;" : "") disabled>Autorizar</button>
+            <button type="button" class="btn btn-warning" id="btnDiasIngresos" @(permisoAccionEditarDiasIngreso ? "" : "style=display:none;")>Periodos</button>
+            <button type="button" class="btn btn-primary" id="btnFiltroExportar">Exportar</button>
+            <button type="button" class="btn btn-primary" id="btnFiltroBuscar">Buscar</button>
+            <button type="button" class="btn btn-success" id="btnCrearEmpleado">Nuevo</button>
+        </div>
     </div>
-    <!-- END: PANEL EMPLEADOS -->
 </div>
-<!-- END: CONTAINER FLUID -->
+
+<div class="contenedor mt10">
+    <div class="row">
+        <div class="col-sm-12" id="divTblEmpleados">
+            <table id="tblRH_REC_Empleados" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL CREAR/EDITAR EMPLEADO EK -->
 <div id='mdlCrearEditarEmpleadoEK' class='modal fade' data-backdrop="static" role='dialog' tabindex="0">

@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Requisiciones";
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
 
     var baseController = new SIGOPLAN.Controllers.BaseController();
 
@@ -12,64 +12,59 @@
 <link href="~/Content/style/css/RecursosHumanos/Reclutamientos/RequisicionEmpleado.css" rel="stylesheet" />
 <link href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" type="text/css" />
 
-<div class="container-fluid">
+<div class="row">
+    <div class="col-sm-12">
+        <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
+        <h3 class="mb5 mt5">REQUISICIÓN DE EMPLEADOS</h3>
+    </div>
+</div>
+
+<div class="contenedor">
     <div class="row">
-        <div class="col-sm-12">
-            <h1 class="text-center">@baseController.getEmpresaNombre()</h1>
-            <h2 class="text-center">REQUISICIÓN DE EMPLEADOS</h2>
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>CC</label>
+                <select id="cboFiltroCC" class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>ESTATUS</label>
+                <select id="cboFiltroEstatus" class="form-control">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="A">AUTORIZADA</option>
+                    <option value="P" selected>PENDIENTE</option>
+                    <option value="C">CANCELADA</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <button id="btnFiltrar" class="btn btn-info mt25">
+                <i class="fas fa-search"></i> FILTRAR
+            </button>
+        </div>
+
+        <div class="col-sm-3">
+            <button id="btnNuevo" class="btn btn-success pull-right mt25"><i class="fas fa-plus-circle"></i>&nbsp;AGREGAR</button>
+            @if (puedeAutorizarMasivo)
+            {
+                <button id="btnAutorizarMasivo" class="btn btn-success pull-right mt25" style="margin-right: 5px;"><i class="fas fa-user-check"></i>&nbsp;AUTORIZAR</button>
+            }
+            else
+            {
+
+            }
         </div>
     </div>
+</div>
 
+<div class="contenedor mt20">
     <div class="row">
         <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <div class="input-group-addon">CC</div>
-                                <select id="cboFiltroCC" class="form-control"></select>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <div class="input-group-addon">ESTATUS</div>
-                                <select id="cboFiltroEstatus" class="form-control">
-                                    <option value="">-- Seleccionar --</option>
-                                    <option value="A">AUTORIZADA</option>
-                                    <option value="P" selected>PENDIENTE</option>
-                                    <option value="C">CANCELADA</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <button id="btnFiltrar" class="btn btn-info">
-                                <i class="fas fa-search"></i> FILTRAR
-                            </button>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <button id="btnNuevo" class="btn btn-success pull-right"><i class="fas fa-plus-circle"></i>&nbsp;AGREGAR</button>
-                            @if(puedeAutorizarMasivo) {
-                                <button id="btnAutorizarMasivo" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fas fa-user-check"></i>&nbsp;AUTORIZAR</button>
-                            } else {
-
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="table-responsible">
-                                <table id="tblRequisiciones" class="hover stripe order-column compact" style="width: 100%;"></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="table-responsible">
+                <table id="tblRequisiciones" class="hover stripe order-column compact" style="width: 100%;"></table>
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@
     ViewBag.Title = "Permisos";
 
     bool esConsulta = ViewBag.esConsulta;
-    Layout = "~/Views/Shared/LayoutPage.cshtml";
+    Layout = "~/Views/Shared/LayoutPageExt.cshtml";
     var baseController = new SIGOPLAN.Controllers.BaseController();
 }
 
@@ -31,106 +31,83 @@
     <input type="text" id="inputEsConsulta" value="0" style="display: none;">
 }
 
-<!-- CONTAINER FLUID -->
-<div class="container-fluid">
+<div class="row">
+    <div class="col-sm-12">
+        <h3 class="mb5 mt5">PERMISOS</h3>
+    </div>
+</div>
 
-    <!-- BAJAS -->
+<div class="contenedor">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <h2>PERMISOS</h2>
-                </div>
-                <div class="panel-body">
-                    <!-- FILTROS -->
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <span class="input-group-addon">Estado</span>
-                                <select class="form-control select2" id="cboFiltroEstado">
-                                    <option value="0">--Seleccione--</option>
-                                    <option value="1">Aprobada</option>
-                                    <option value="2">No Aprobadas</option>
-                                    <option value="3">Pendiente</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- <div class="col-sm-4">
-                            <div class="input-group">
-                                <span class="input-group-addon">Tipo de Permiso</span>
-                                <select class="form-control" id="cboTipoVacaciones">
-                                    <option value="0">Permiso CON goce de sueldo</option>
-                                    <option value="8">Permiso SIN goce de sueldo</option>
-                                    <option value="9">Permiso de comision de trabajo</option>
-                                </select>
-                            </div>
-                        </div> -->
-                        <div class="col-sm-3">
-                            <div class="input-group" id="divCboPermisosingoce">
-                                <span class="input-group-addon">Motivo de ausencia</span>
-                                <select class="form-control" id="cboTipoPermiso">
-                                    <!-- <option value="7">Vacaciones</option> -->
-                                    <option value="">--Seleccione--</option>
-                                    <option value="0">Permiso por paternidad</option>
-                                    <option value="1">Permiso por matrimonio</option>
-                                    <!-- <option value="2">Permiso sindical</option> -->
-                                    <option value="3">Permiso por deceso familiar</option>
-                                    @* <option value="4">Permiso por lactancia</option> *@
-                                    <option value="5">Permiso médico</option>
-                                    <option value="8">Permiso SIN goce de sueldo</option>
-                                    <option value="9">Permiso de comision de trabajo</option>
-                                    @if (@baseController.getUsuario().id == 1019 || @baseController.getUsuario().id == 79552)
-                                    {
-                                        <option value="10">Home office</option>
-                                        <option value="11">Tiempo x tiempo</option>
-                                    }
-                                    <option value="13">Suspención</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="input-group" id="divCECboPermisosingoce">
-                                <span class="input-group-addon">Fecha Inicial</span>
-                                <input type="date" id="dateFiltroIni" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="input-group" id="divCECboPermisosingoce">
-                                <span class="input-group-addon">Fecha Final</span>
-                                <input type="date" id="dateFiltroFin" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-sm-9">
-                            <div class="input-group">
-                                <span class="input-group-addon">CC</span>
-                                <select class="form-control" id="cboVacacionCC"></select>
-                            </div>
-                        </div>
-                        <div class="pull-right">
-                            <div class="col-sm-12 margin-right">
-                                <button type="button" class="btn btn-default" id="btnFiltroBuscar">Buscar</button>
-                                <button type="button" class="btn btn-primary marginRight" id="btnFiltroNuevo">Nuevo</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- END: FILTROS -->
-                </div>
-                <!-- VACAIONES -->
-                <div class="row">
-                    <div class="col-sm-12">
-                        <table id="tblRH_Vacaciones_Vacaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
-                    </div>
-                </div>
-                <!-- END: LISTADO DE GESTIÓN SOLICITUDES -->
+        <div class="col-sm-3">
+            <div class="form-group">
+                <label>Estado</label>
+                <select class="form-control select2" id="cboFiltroEstado">
+                    <option value="0">--Seleccione--</option>
+                    <option value="1">Aprobada</option>
+                    <option value="2">No Aprobadas</option>
+                    <option value="3">Pendiente</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group" id="divCboPermisosingoce">
+                <label>Motivo de ausencia</label>
+                <select class="form-control" id="cboTipoPermiso">
+                    <!-- <option value="7">Vacaciones</option> -->
+                    <option value="">--Seleccione--</option>
+                    <option value="0">Permiso por paternidad</option>
+                    <option value="1">Permiso por matrimonio</option>
+                    <!-- <option value="2">Permiso sindical</option> -->
+                    <option value="3">Permiso por deceso familiar</option>
+                    @* <option value="4">Permiso por lactancia</option> *@
+                    <option value="5">Permiso médico</option>
+                    <option value="8">Permiso SIN goce de sueldo</option>
+                    <option value="9">Permiso de comision de trabajo</option>
+                    @if (@baseController.getUsuario().id == 1019 || @baseController.getUsuario().id == 79552)
+                    {
+                        <option value="10">Home office</option>
+                        <option value="11">Tiempo x tiempo</option>
+                    }
+                    <option value="13">Suspención</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group" id="divCECboPermisosingoce">
+                <label>Fecha Inicial</label>
+                <input type="date" id="dateFiltroIni" class="form-control" />
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group" id="divCECboPermisosingoce">
+                <label>Fecha Final</label>
+                <input type="date" id="dateFiltroFin" class="form-control" />
             </div>
         </div>
     </div>
-    <!-- END: BAJAS -->
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label>CC</label>
+                <select class="form-control" id="cboVacacionCC"></select>
+            </div>
+        </div>
+        <div class="col-sm-3 pull-right">
+            <button type="button" class="btn btn-default mt25" id="btnFiltroBuscar">Buscar</button>
+            <button type="button" class="btn btn-primary mt25" id="btnFiltroNuevo">Nuevo</button>
+        </div>
+    </div>
 </div>
-<!-- END: CONTAINER FLUID -->
+
+<div class="contenedor mt10">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tblRH_Vacaciones_Vacaciones" class="table table-hover table-sm table-bordered compact" style="width:100%;"></table>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL CREAR EDITAR VACACION -->
 <div id='mdlVacacion' class='modal fade' role='dialog'>
